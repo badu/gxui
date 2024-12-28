@@ -4,7 +4,7 @@
 
 package gxui
 
-import "github.com/google/gxui/math"
+import "github.com/badu/gxui/math"
 
 type List interface {
 	Focusable

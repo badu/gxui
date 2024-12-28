@@ -5,8 +5,8 @@
 package gl
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
 )
 
 func appendVec2(arr []float32, vecs ...math.Vec2) []float32 {

@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"unicode"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl/platform"
-	"github.com/google/gxui/math"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl/platform"
+	"github.com/badu/gxui/math"
 	"github.com/goxjs/gl"
 	"github.com/goxjs/glfw"
 )

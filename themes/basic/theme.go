@@ -5,7 +5,7 @@
 package basic
 
 import (
-	"github.com/google/gxui"
+	"github.com/badu/gxui"
 )
 
 type Theme struct {
@@ -38,6 +38,10 @@ type Theme struct {
 	TabPressedStyle           Style
 	TextBoxDefaultStyle       Style
 	TextBoxOverStyle          Style
+
+	ScreenWidth  int
+	ScreenHeight int
+	FontSize     int
 }
 
 // gxui.Theme compliance
@@ -127,4 +131,16 @@ func (t *Theme) CreateTree() gxui.Tree {
 
 func (t *Theme) CreateWindow(width, height int, title string) gxui.Window {
 	return CreateWindow(t, width, height, title)
+}
+
+func (t *Theme) DisplayWidth() int {
+	return t.ScreenWidth
+}
+
+func (t *Theme) DisplayHeight() int {
+	return t.ScreenHeight
+}
+
+func (t *Theme) DefaultFontSize() int {
+	return t.FontSize
 }

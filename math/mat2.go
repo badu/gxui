@@ -89,10 +89,12 @@ func (m Mat2) Transpose() Mat2 {
 	)
 }
 
-//            ╭       ╮
-//            │ M₀ M₁ │
+//	╭       ╮
+//	│ M₀ M₁ │
+//
 // [V₀, V₁] ⨯ │ M₂ M₃ │ = [V₀ • M₀ + V₁ • M₂, V₀ • M₁ + V₁ • M₃]
-//            ╰       ╯
+//
+//	╰       ╯
 func MulVM2(v Vec2, m Mat2) Vec2 {
 	a := m.Row(0).MulS(v.X)
 	b := m.Row(1).MulS(v.Y)

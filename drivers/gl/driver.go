@@ -12,8 +12,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
 	"github.com/goxjs/gl"
 	"github.com/goxjs/glfw"
 )
@@ -46,17 +46,17 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 	}
 	defer glfw.Terminate()
 
-	driver := &driver{
+	result := &driver{
 		pendingDriver: make(chan func(), 256),
 		pendingApp:    make(chan func(), 256),
 		viewports:     list.New(),
 		pcs:           make([]uintptr, 256),
 	}
 
-	driver.pendingApp <- driver.discoverUIGoRoutine
-	driver.pendingApp <- func() { appRoutine(driver) }
-	go driver.applicationLoop()
-	driver.driverLoop()
+	result.pendingApp <- result.discoverUIGoRoutine
+	result.pendingApp <- func() { appRoutine(result) }
+	go result.applicationLoop()
+	result.driverLoop()
 }
 
 func (d *driver) asyncDriver(f func()) {
@@ -188,7 +188,7 @@ func (d *driver) SetClipboard(str string) {
 func (d *driver) GetClipboard() (str string, err error) {
 	d.syncDriver(func() {
 		c := d.viewports.Front().Value.(*viewport)
-		str, err = c.window.GetClipboardString()
+		str = c.window.GetClipboardString()
 	})
 	return
 }

@@ -7,9 +7,9 @@ package mixins
 import (
 	"strings"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/mixins/parts"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/mixins/parts"
 )
 
 type TextBoxLine interface {

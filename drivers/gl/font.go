@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"unicode"
 
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
 	"github.com/golang/freetype/truetype"
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
 	fnt "golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )

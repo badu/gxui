@@ -5,9 +5,9 @@
 package basic
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/mixins"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/mixins"
 )
 
 type Button struct {

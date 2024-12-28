@@ -5,8 +5,8 @@
 package gl
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
 
 	"github.com/goxjs/gl"
 )

@@ -5,9 +5,9 @@
 package mixins
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/mixins/base"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/mixins/base"
 )
 
 type ScrollBarOuter interface {

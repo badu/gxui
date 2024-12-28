@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/google/gxui/math"
+	"github.com/badu/gxui/math"
 )
 
 type MouseEvent struct {

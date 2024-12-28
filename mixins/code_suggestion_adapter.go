@@ -5,7 +5,7 @@
 package mixins
 
 import (
-	"github.com/google/gxui"
+	"github.com/badu/gxui"
 )
 
 type SuggestionAdapter struct {

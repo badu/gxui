@@ -5,7 +5,7 @@
 package basic
 
 import (
-	"github.com/google/gxui"
+	"github.com/badu/gxui"
 )
 
 type Style struct {

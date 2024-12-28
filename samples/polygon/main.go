@@ -5,10 +5,10 @@
 package main
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/flags"
 )
 
 func drawStar(canvas gxui.Canvas, center math.Point, radius, rotation float32, points int) {
@@ -59,7 +59,7 @@ func drawMoon(canvas gxui.Canvas, center math.Point, radius float32) {
 
 func appMain(driver gxui.Driver) {
 	theme := flags.CreateTheme(driver)
-	window := theme.CreateWindow(800, 600, "Polygon")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Polygon")
 	window.SetScale(flags.DefaultScaleFactor)
 
 	canvas := driver.CreateCanvas(math.Size{W: 1000, H: 1000})

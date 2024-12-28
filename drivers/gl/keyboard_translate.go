@@ -5,7 +5,7 @@
 package gl
 
 import (
-	"github.com/google/gxui"
+	"github.com/badu/gxui"
 
 	"github.com/goxjs/glfw"
 )

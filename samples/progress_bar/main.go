@@ -7,10 +7,10 @@ package main
 import (
 	"time"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/flags"
 )
 
 func appMain(driver gxui.Driver) {
@@ -20,7 +20,7 @@ func appMain(driver gxui.Driver) {
 	label.SetText("This is a progress bar:")
 
 	progressBar := theme.CreateProgressBar()
-	progressBar.SetDesiredSize(math.Size{W: 400, H: 20})
+	progressBar.SetDesiredSize(math.Size{W: 400, H: theme.DefaultFontSize() + 4})
 	progressBar.SetTarget(100)
 
 	layout := theme.CreateLinearLayout()
@@ -28,7 +28,7 @@ func appMain(driver gxui.Driver) {
 	layout.AddChild(progressBar)
 	layout.SetHorizontalAlignment(gxui.AlignCenter)
 
-	window := theme.CreateWindow(800, 600, "Progress bar")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Progress bar")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)

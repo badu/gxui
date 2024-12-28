@@ -5,9 +5,9 @@
 package main
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/samples/flags"
 )
 
 // Create a PanelHolder with a 3 panels
@@ -55,7 +55,7 @@ func appMain(driver gxui.Driver) {
 	vSplitter.AddChild(splitterAB)
 	vSplitter.AddChild(splitterCD)
 
-	window := theme.CreateWindow(800, 600, "Panels")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Panels")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(vSplitter)
 	window.OnClose(driver.Terminate)

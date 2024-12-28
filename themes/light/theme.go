@@ -6,21 +6,22 @@ package light
 
 import (
 	"fmt"
+	"github.com/goxjs/glfw"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/gxfont"
-	"github.com/google/gxui/themes/basic"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/gxfont"
+	"github.com/badu/gxui/themes/basic"
 )
 
-func CreateTheme(driver gxui.Driver) gxui.Theme {
-	defaultFont, err := driver.CreateFont(gxfont.Default, 12)
+func CreateTheme(driver gxui.Driver, fontSize int) gxui.Theme {
+	defaultFont, err := driver.CreateFont(gxfont.Default, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
 	} else {
 		fmt.Printf("Warning: Failed to load default font - %v\n", err)
 	}
 
-	defaultMonospaceFont, err := driver.CreateFont(gxfont.Monospace, 12)
+	defaultMonospaceFont, err := driver.CreateFont(gxfont.Monospace, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
 	} else {
@@ -35,6 +36,13 @@ func CreateTheme(driver gxui.Driver) gxui.Theme {
 
 	neonBlue := gxui.ColorFromHex(0xFF5C8CFF)
 	focus := gxui.ColorFromHex(0xFFC4D6FF)
+
+	monitor := glfw.GetPrimaryMonitor()
+	_, _, w, h := monitor.GetWorkarea()
+	if w == 0 || h == 0 {
+		vm := monitor.GetVideoMode()
+		w, h = vm.Width, vm.Height
+	}
 
 	return &basic.Theme{
 		DriverInfo:               driver,
@@ -66,5 +74,9 @@ func CreateTheme(driver gxui.Driver) gxui.Theme {
 		TabPressedStyle:           basic.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0),
 		TextBoxDefaultStyle:       basic.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray20, 1.0),
 		TextBoxOverStyle:          basic.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray50, 1.0),
+
+		ScreenWidth:  w,
+		ScreenHeight: h,
+		FontSize:     fontSize,
 	}
 }

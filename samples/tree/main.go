@@ -5,10 +5,10 @@
 package main
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/flags"
 )
 
 // item is used as an gxui.AdapterItem to identifiy each of the nodes.
@@ -113,8 +113,8 @@ type adapter struct {
 }
 
 // Size implements gxui.TreeAdapter.
-func (a *adapter) Size(t gxui.Theme) math.Size {
-	return math.Size{W: math.MaxSize.W, H: 18}
+func (a *adapter) Size(theme gxui.Theme) math.Size {
+	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
 }
 
 // addSpecies adds the list of species to animals.
@@ -196,7 +196,7 @@ func appMain(driver gxui.Driver) {
 	collapseAll.OnClick(func(gxui.MouseEvent) { tree.CollapseAll() })
 	row.AddChild(collapseAll)
 
-	window := theme.CreateWindow(800, 600, "Tree view")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Tree view")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)

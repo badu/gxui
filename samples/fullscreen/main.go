@@ -5,16 +5,16 @@
 package main
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/flags"
 )
 
 func appMain(driver gxui.Driver) {
 	theme := flags.CreateTheme(driver)
 
-	window := theme.CreateWindow(200, 150, "Window")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Window")
 	window.OnClose(driver.Terminate)
 	window.SetScale(flags.DefaultScaleFactor)
 	window.SetPadding(math.Spacing{L: 10, R: 10, T: 10, B: 10})

@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/file_dlg/roots"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/file_dlg/roots"
+	"github.com/badu/gxui/samples/flags"
 )
 
 var (
@@ -81,8 +81,8 @@ func (a *filesAdapter) Create(theme gxui.Theme, index int) gxui.Control {
 	return label
 }
 
-func (a *filesAdapter) Size(gxui.Theme) math.Size {
-	return math.Size{W: math.MaxSize.W, H: 20}
+func (a *filesAdapter) Size(theme gxui.Theme) math.Size {
+	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
 }
 
 // directory implements the gxui.TreeNode interface to represent a directory
@@ -95,17 +95,17 @@ type directory struct {
 // directoryAt returns a directory structure populated with the immediate
 // subdirectories at the given path.
 func directoryAt(path string) directory {
-	directory := directory{path: path}
+	result := directory{path: path}
 	filepath.Walk(path, func(subpath string, info os.FileInfo, err error) error {
 		if err == nil && path != subpath {
 			if info.IsDir() {
-				directory.subdirs = append(directory.subdirs, subpath)
+				result.subdirs = append(result.subdirs, subpath)
 				return filepath.SkipDir
 			}
 		}
 		return nil
 	})
-	return directory
+	return result
 }
 
 // Count implements gxui.TreeNodeContainer.
@@ -157,8 +157,8 @@ type directoryAdapter struct {
 	directory
 }
 
-func (a directoryAdapter) Size(gxui.Theme) math.Size {
-	return math.Size{W: math.MaxSize.W, H: 20}
+func (a directoryAdapter) Size(theme gxui.Theme) math.Size {
+	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
 }
 
 // Override directory.Create so that the full root is shown, unaltered.
@@ -172,7 +172,7 @@ func (a directoryAdapter) Create(theme gxui.Theme, index int) gxui.Control {
 func appMain(driver gxui.Driver) {
 	theme := flags.CreateTheme(driver)
 
-	window := theme.CreateWindow(800, 600, "Open file...")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Open file...")
 	window.SetScale(flags.DefaultScaleFactor)
 
 	// fullpath is the textbox at the top of the window holding the current
@@ -193,12 +193,12 @@ func appMain(driver gxui.Driver) {
 	// filesAdapter is the adapter used to show the currently selected directory's
 	// content. The adapter has its data changed whenever the selected directory
 	// changes.
-	filesAdapter := &filesAdapter{}
+	adapter := &filesAdapter{}
 
 	// files is the List of files in the selected directory to the right of the
 	// window.
 	files := theme.CreateList()
-	files.SetAdapter(filesAdapter)
+	files.SetAdapter(adapter)
 
 	open := theme.CreateButton()
 	open.SetText("Open...")
@@ -221,7 +221,7 @@ func appMain(driver gxui.Driver) {
 	// When the directory selection changes, update the files list
 	directories.OnSelectionChanged(func(item gxui.AdapterItem) {
 		dir := item.(string)
-		filesAdapter.SetFiles(filesAt(dir))
+		adapter.SetFiles(filesAt(dir))
 		fullpath.SetText(dir)
 	})
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/samples/flags"
 )
 
 func appMain(driver gxui.Driver) {
@@ -44,7 +44,7 @@ func appMain(driver gxui.Driver) {
 	table.SetChildAt(0, 1, 2, 1, cell2x1)
 	table.SetChildAt(2, 0, 1, 2, cell1x2)
 
-	window := theme.CreateWindow(800, 600, "Table")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Table")
 	window.AddChild(table)
 	window.OnClose(driver.Terminate)
 }

@@ -7,28 +7,32 @@ package flags
 
 import (
 	"flag"
-	"github.com/google/gxui"
-	"github.com/google/gxui/themes/dark"
-	"github.com/google/gxui/themes/light"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/themes/dark"
+	"github.com/badu/gxui/themes/light"
+	"strconv"
 )
 
 var DefaultScaleFactor float32
 var FlagTheme string
+var FontSize int
 
 func init() {
 	flagTheme := flag.String("theme", "dark", "Theme to use {dark|light}.")
+	fontSize := flag.String("fontSize", "24", "Adjust the font size")
 	defaultScaleFactor := flag.Float64("scaling", 1.0, "Adjusts the scaling of UI rendering")
 	flag.Parse()
 
 	DefaultScaleFactor = float32(*defaultScaleFactor)
 	FlagTheme = *flagTheme
+	FontSize, _ = strconv.Atoi(*fontSize)
 }
 
 // CreateTheme creates and returns the theme specified on the command line.
 // The default theme is dark.
 func CreateTheme(driver gxui.Driver) gxui.Theme {
 	if FlagTheme == "light" {
-		return light.CreateTheme(driver)
+		return light.CreateTheme(driver, FontSize)
 	}
-	return dark.CreateTheme(driver)
+	return dark.CreateTheme(driver, FontSize)
 }

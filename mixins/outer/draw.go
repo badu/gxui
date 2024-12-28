@@ -5,7 +5,7 @@
 package outer
 
 import (
-	"github.com/google/gxui"
+	"github.com/badu/gxui"
 )
 
 type Draw interface {

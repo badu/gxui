@@ -9,11 +9,12 @@ import (
 )
 
 // A 3x3 matrix:
-//   ╭          ╮
-//   │ M₀ M₁ M₂ │
-//   │ M₃ M₄ M₅ │
-//   │ M₆ M₇ M₈ │
-//   ╰          ╯
+//
+//	╭          ╮
+//	│ M₀ M₁ M₂ │
+//	│ M₃ M₄ M₅ │
+//	│ M₆ M₇ M₈ │
+//	╰          ╯
 type Mat3 [9]float32
 
 func CreateMat3(r0c0, r0c1, r0c2, r1c0, r1c1, r1c2, r2c0, r2c1, r2c2 float32) Mat3 {
@@ -25,11 +26,12 @@ func CreateMat3(r0c0, r0c1, r0c2, r1c0, r1c1, r1c2, r2c0, r2c1, r2c2 float32) Ma
 }
 
 // Build a 3x3 matrix from 3 row vectors
-//  ╭    ╮
-//  │ R₀ │
-//  │ R₁ │
-//  │ R₂ │
-//  ╰    ╯
+//
+//	╭    ╮
+//	│ R₀ │
+//	│ R₁ │
+//	│ R₂ │
+//	╰    ╯
 func CreateMat3FromRows(r0, r1, r2 Vec3) Mat3 {
 	return Mat3{
 		r0.X, r0.Y, r0.Z,
@@ -38,10 +40,10 @@ func CreateMat3FromRows(r0, r1, r2 Vec3) Mat3 {
 	}
 }
 
-//      A
-//     ╱ ╲
-//    ╱___╲
-//   B     C
+//	   A
+//	  ╱ ╲
+//	 ╱___╲
+//	B     C
 //
 // [V₀, V₁, V₂] * M = [λ₀, λ₁, 1]
 // λ₂ = 1 - (λ₀ + λ₁)

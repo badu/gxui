@@ -7,10 +7,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/flags"
 )
 
 // Number picker uses the gxui.DefaultAdapter for driving a list
@@ -134,7 +134,7 @@ func colorPicker(theme gxui.Theme) gxui.Control {
 	layout.AddChild(label1)
 
 	selected := theme.CreateImage()
-	selected.SetExplicitSize(math.Size{W: 32, H: 32})
+	selected.SetExplicitSize(math.Size{W: 32, H: theme.DefaultFontSize() + 8})
 	layout.AddChild(selected)
 
 	list.OnSelectionChanged(func(item gxui.AdapterItem) {
@@ -156,7 +156,7 @@ func appMain(driver gxui.Driver) {
 	holder.AddPanel(numberPicker(theme, overlay), "Default adapter")
 	holder.AddPanel(colorPicker(theme), "Custom adapter")
 
-	window := theme.CreateWindow(800, 600, "Lists")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Lists")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(holder)
 	window.AddChild(overlay)

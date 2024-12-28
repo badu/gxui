@@ -7,11 +7,11 @@ package main
 import (
 	"time"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/drivers/gl"
-	"github.com/google/gxui/gxfont"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/samples/flags"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/gxfont"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/samples/flags"
 )
 
 func appMain(driver gxui.Driver) {
@@ -22,7 +22,7 @@ func appMain(driver gxui.Driver) {
 		panic(err)
 	}
 
-	window := theme.CreateWindow(380, 100, "Hi")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Hi")
 	window.SetBackgroundBrush(gxui.CreateBrush(gxui.Gray50))
 
 	label := theme.CreateLabel()

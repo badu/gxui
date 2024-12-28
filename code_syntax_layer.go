@@ -5,8 +5,8 @@
 package gxui
 
 import (
-	"github.com/google/gxui/interval"
-	"github.com/google/gxui/math"
+	"github.com/badu/gxui/interval"
+	"github.com/badu/gxui/math"
 )
 
 type CodeSyntaxLayer struct {

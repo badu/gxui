@@ -7,9 +7,9 @@ package mixins
 import (
 	"fmt"
 
-	"github.com/google/gxui"
-	"github.com/google/gxui/math"
-	"github.com/google/gxui/mixins/base"
+	"github.com/badu/gxui"
+	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/mixins/base"
 )
 
 type PanelTab interface {
@@ -153,8 +153,8 @@ func (p *PanelHolder) AddPanelAt(panel gxui.Control, name string, index int) {
 	p.entries = append(p.entries, PanelEntry{})
 	copy(p.entries[index+1:], p.entries[index:])
 	p.entries[index] = PanelEntry{
-		Panel: panel,
-		Tab:   tab,
+		Panel:                 panel,
+		Tab:                   tab,
 		MouseDownSubscription: mds,
 	}
 	p.tabLayout.AddChildAt(index, tab)
