@@ -21,27 +21,27 @@ func (r resolution) dipsToPixels() float32 {
 	return float32(r) / 65536.0
 }
 
-func (r resolution) intDipsToPixels(s int) int {
-	return (s * int(r)) >> 16
+func (r resolution) intDipsToPixels(size int) int {
+	return (size * int(r)) >> 16
 }
 
-func (r resolution) pointDipsToPixels(s math.Point) math.Point {
+func (r resolution) pointDipsToPixels(point math.Point) math.Point {
 	return math.Point{
-		X: r.intDipsToPixels(s.X),
-		Y: r.intDipsToPixels(s.Y),
+		X: r.intDipsToPixels(point.X),
+		Y: r.intDipsToPixels(point.Y),
 	}
 }
 
-func (r resolution) sizeDipsToPixels(s math.Size) math.Size {
+func (r resolution) sizeDipsToPixels(size math.Size) math.Size {
 	return math.Size{
-		W: r.intDipsToPixels(s.W),
-		H: r.intDipsToPixels(s.H),
+		W: r.intDipsToPixels(size.W),
+		H: r.intDipsToPixels(size.H),
 	}
 }
 
-func (r resolution) rectDipsToPixels(s math.Rect) math.Rect {
+func (r resolution) rectDipsToPixels(rect math.Rect) math.Rect {
 	return math.Rect{
-		Min: r.pointDipsToPixels(s.Min),
-		Max: r.pointDipsToPixels(s.Max),
+		Min: r.pointDipsToPixels(rect.Min),
+		Max: r.pointDipsToPixels(rect.Max),
 	}
 }

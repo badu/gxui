@@ -55,19 +55,23 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 
 	result.pendingApp <- result.discoverUIGoRoutine
 	result.pendingApp <- func() { appRoutine(result) }
+
 	go result.applicationLoop()
+
 	result.driverLoop()
 }
 
-func (d *driver) asyncDriver(f func()) {
-	d.pendingDriver <- f
+func (d *driver) asyncDriver(callback func()) {
+	d.pendingDriver <- callback
 	d.wake()
 }
 
-func (d *driver) syncDriver(f func()) {
-	c := make(chan bool, 1)
-	d.asyncDriver(func() { f(); c <- true })
-	<-c
+func (d *driver) syncDriver(callback func()) {
+	done := make(chan bool, 1)
+	d.asyncDriver(
+		func() { callback(); done <- true },
+	)
+	<-done
 }
 
 func (d *driver) createDriverEvent(signature interface{}) gxui.Event {
@@ -89,7 +93,7 @@ func (d *driver) driverLoop() {
 			if open {
 				ev()
 			} else {
-				return // termintated
+				return // terminated
 			}
 		default:
 			glfw.WaitEvents()
@@ -110,86 +114,96 @@ func (d *driver) applicationLoop() {
 }
 
 // gxui.Driver compliance
-func (d *driver) Call(f func()) bool {
-	if f == nil {
+func (d *driver) Call(callback func()) bool {
+	if callback == nil {
 		panic("Function must not be nil")
 	}
+
 	if atomic.LoadInt32(&d.terminated) != 0 {
 		return false // Driver.Terminate has been called
 	}
-	d.pendingApp <- f
+	d.pendingApp <- callback
 	return true
 }
 
-func (d *driver) CallSync(f func()) bool {
-	c := make(chan struct{})
-	if d.Call(func() { f(); close(c) }) {
-		<-c
+func (d *driver) CallSync(callback func()) bool {
+	done := make(chan struct{})
+	if d.Call(
+		func() { callback(); close(done) },
+	) {
+		<-done
 		return true
 	}
 	return false
 }
 
 func (d *driver) Terminate() {
-	d.asyncDriver(func() {
-		// Close all viewports. This will notify the application.
-		for v := d.viewports.Front(); v != nil; v = v.Next() {
-			v.Value.(*viewport).Destroy()
-		}
+	d.asyncDriver(
+		func() {
+			// Close all viewports. This will notify the application.
+			for frontViewport := d.viewports.Front(); frontViewport != nil; frontViewport = frontViewport.Next() {
+				frontViewport.Value.(*viewport).Destroy()
+			}
 
-		// Flush all remaining events from the application and driver.
-		// This gives the application an opportunity to handle shutdown.
-		flushStart := time.Now()
-		for time.Since(flushStart) < maxFlushTime {
-			done := true
+			// Flush all remaining events from the application and driver.
+			// This gives the application an opportunity to handle shutdown.
+			flushStart := time.Now()
+			for time.Since(flushStart) < maxFlushTime {
+				done := true
 
-			// Process any application events
-			sync := make(chan struct{})
-			d.Call(func() {
+				// Process any application events
+				sync := make(chan struct{})
+				d.Call(func() {
+					select {
+					case ev := <-d.pendingApp:
+						ev()
+						done = false
+					default:
+					}
+					close(sync)
+				})
+
+				<-sync
+
+				// Process any driver events
 				select {
-				case ev := <-d.pendingApp:
+				case ev := <-d.pendingDriver:
 					ev()
 					done = false
 				default:
 				}
-				close(sync)
-			})
-			<-sync
 
-			// Process any driver events
-			select {
-			case ev := <-d.pendingDriver:
-				ev()
-				done = false
-			default:
+				if done {
+					break
+				}
 			}
 
-			if done {
-				break
-			}
-		}
+			// All done.
+			atomic.StoreInt32(&d.terminated, 1)
 
-		// All done.
-		atomic.StoreInt32(&d.terminated, 1)
-		close(d.pendingApp)
-		close(d.pendingDriver)
+			close(d.pendingApp)
+			close(d.pendingDriver)
 
-		d.viewports = nil
-	})
+			d.viewports = nil
+		})
 }
 
 func (d *driver) SetClipboard(str string) {
-	d.asyncDriver(func() {
-		v := d.viewports.Front().Value.(*viewport)
-		v.window.SetClipboardString(str)
-	})
+	d.asyncDriver(
+		func() {
+			frontViewport := d.viewports.Front().Value.(*viewport)
+			frontViewport.window.SetClipboardString(str)
+		},
+	)
 }
 
 func (d *driver) GetClipboard() (str string, err error) {
-	d.syncDriver(func() {
-		c := d.viewports.Front().Value.(*viewport)
-		str = c.window.GetClipboardString()
-	})
+	d.syncDriver(
+		func() {
+			frontViewport := d.viewports.Front().Value.(*viewport)
+			str = frontViewport.window.GetClipboardString()
+		},
+	)
 	return
 }
 

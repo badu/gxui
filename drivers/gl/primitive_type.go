@@ -34,7 +34,7 @@ func (p primitiveType) sizeInBytes() int {
 	case ptUbyte:
 		return 1
 	default:
-		panic(fmt.Errorf("Unknown primitiveType 0x%.4x", p))
+		panic(fmt.Errorf("unknown primitiveType 0x%.4x", p))
 	}
 }
 
@@ -52,6 +52,6 @@ func (p primitiveType) isArrayOfType(array interface{}) bool {
 	case ptUbyte:
 		return ty.Name() == "uint8"
 	default:
-		panic(fmt.Errorf("Unknown primitiveType 0x%.4x", p))
+		panic(fmt.Errorf("unknown primitiveType 0x%.4x", p))
 	}
 }

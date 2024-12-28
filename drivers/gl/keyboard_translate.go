@@ -231,18 +231,18 @@ func translateKeyboardKey(in glfw.Key) gxui.KeyboardKey {
 	}
 }
 
-func translateKeyboardModifier(in glfw.ModifierKey) gxui.KeyboardModifier {
+func translateKeyboardModifier(from glfw.ModifierKey) gxui.KeyboardModifier {
 	out := gxui.ModNone
-	if in&glfw.ModShift != 0 {
+	if from&glfw.ModShift != 0 {
 		out |= gxui.ModShift
 	}
-	if in&glfw.ModControl != 0 {
+	if from&glfw.ModControl != 0 {
 		out |= gxui.ModControl
 	}
-	if in&glfw.ModAlt != 0 {
+	if from&glfw.ModAlt != 0 {
 		out |= gxui.ModAlt
 	}
-	if in&glfw.ModSuper != 0 {
+	if from&glfw.ModSuper != 0 {
 		out |= gxui.ModSuper
 	}
 	return out

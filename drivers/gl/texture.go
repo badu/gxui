@@ -17,12 +17,12 @@ type texture struct {
 	flipY        bool
 }
 
-func newTexture(img image.Image, pixelsPerDip float32) *texture {
-	t := &texture{
-		image:        img,
+func newTexture(fromImage image.Image, pixelsPerDip float32) *texture {
+	result := &texture{
+		image:        fromImage,
 		pixelsPerDip: pixelsPerDip,
 	}
-	return t
+	return result
 }
 
 // gxui.Texture compliance
@@ -48,29 +48,29 @@ func (t *texture) SetFlipY(flipY bool) {
 }
 
 func (t *texture) newContext() *textureContext {
-	var fmt gl.Enum
+	var format gl.Enum
 	var data []byte
 	var pma bool
 
-	switch ty := t.image.(type) {
+	switch imageType := t.image.(type) {
 	case *image.RGBA:
-		fmt = gl.RGBA
-		data = ty.Pix
+		format = gl.RGBA
+		data = imageType.Pix
 		pma = true
 	case *image.NRGBA:
-		fmt = gl.RGBA
-		data = ty.Pix
+		format = gl.RGBA
+		data = imageType.Pix
 	case *image.Alpha:
-		fmt = gl.ALPHA
-		data = ty.Pix
+		format = gl.ALPHA
+		data = imageType.Pix
 	default:
 		panic("Unsupported image type")
 	}
 
-	texture := gl.CreateTexture()
-	gl.BindTexture(gl.TEXTURE_2D, texture)
+	glTexture := gl.CreateTexture()
+	gl.BindTexture(gl.TEXTURE_2D, glTexture)
 	w, h := t.SizePixels().WH()
-	gl.TexImage2D(gl.TEXTURE_2D, 0, w, h, fmt, gl.UNSIGNED_BYTE, data)
+	gl.TexImage2D(gl.TEXTURE_2D, 0, w, h, format, gl.UNSIGNED_BYTE, data)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.BindTexture(gl.TEXTURE_2D, gl.Texture{})
@@ -78,7 +78,7 @@ func (t *texture) newContext() *textureContext {
 
 	globalStats.textureContextCount.inc()
 	return &textureContext{
-		texture:    texture,
+		texture:    glTexture,
 		sizePixels: t.Size(),
 		flipY:      t.flipY,
 		pma:        pma,

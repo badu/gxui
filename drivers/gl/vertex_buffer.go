@@ -12,19 +12,16 @@ type vertexBuffer struct {
 }
 
 func newVertexBuffer(streams ...*vertexStream) *vertexBuffer {
-	vb := &vertexBuffer{
-		streams: map[string]*vertexStream{},
-	}
-	for i, s := range streams {
-		if i == 0 {
-			vb.count = s.count
+	vb := &vertexBuffer{streams: make(map[string]*vertexStream)}
+	for index, stream := range streams {
+		if index == 0 {
+			vb.count = stream.count
 		} else {
-			if vb.count != s.count {
-				panic(fmt.Errorf("Inconsistent vertex count in vertex buffer. %s has %d vertices, %s has %d",
-					streams[i-1].name, streams[i-1].count, s.name, s.count))
+			if vb.count != stream.count {
+				panic(fmt.Errorf("inconsistent vertex count in vertex buffer. %s has %d vertices, %s has %d", streams[index-1].name, streams[index-1].count, stream.name, stream.count))
 			}
 		}
-		vb.streams[s.name] = s
+		vb.streams[stream.name] = stream
 	}
 	return vb
 }

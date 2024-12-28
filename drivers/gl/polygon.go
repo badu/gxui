@@ -9,6 +9,8 @@ import (
 	"github.com/badu/gxui/math"
 )
 
+// TODO : @Badu - do NOT touch this YET!
+
 func appendVec2(arr []float32, vecs ...math.Vec2) []float32 {
 	for _, v := range vecs {
 		arr = append(arr, v.X, v.Y)

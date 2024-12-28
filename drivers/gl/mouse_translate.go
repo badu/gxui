@@ -21,16 +21,16 @@ func translateMouseButton(button glfw.MouseButton) gxui.MouseButton {
 	case glfw.MouseButtonRight:
 		return gxui.MouseButtonRight
 	default:
-		panic(fmt.Errorf("Unknown mouse button %v", button))
+		panic(fmt.Errorf("unknown mouse button %v", button))
 	}
 }
 
-func getMouseState(w *glfw.Window) gxui.MouseState {
-	var s gxui.MouseState
+func getMouseState(glfwWindow *glfw.Window) gxui.MouseState {
+	var state gxui.MouseState
 	for _, button := range []glfw.MouseButton{glfw.MouseButtonLeft, glfw.MouseButtonMiddle, glfw.MouseButtonRight} {
-		if w.GetMouseButton(button) == glfw.Press {
-			s |= 1 << uint(translateMouseButton(button))
+		if glfwWindow.GetMouseButton(button) == glfw.Press {
+			state |= 1 << uint(translateMouseButton(button))
 		}
 	}
-	return s
+	return state
 }

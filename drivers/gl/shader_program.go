@@ -18,26 +18,27 @@ type shaderProgram struct {
 	attributes []shaderAttribute
 }
 
-func compile(source string, ty int) gl.Shader {
-	shader := gl.CreateShader(gl.Enum(ty))
+func compile(source string, shaderType int) gl.Shader {
+	shader := gl.CreateShader(gl.Enum(shaderType))
 	gl.ShaderSource(shader, source)
 
 	gl.CompileShader(shader)
 	if gl.GetShaderi(shader, gl.COMPILE_STATUS) != gl.TRUE {
 		panic(gl.GetShaderInfoLog(shader))
 	}
+
 	checkError()
 
 	return shader
 }
 
-func newShaderProgram(ctx *context, vsSource, fsSource string) *shaderProgram {
-	vs := compile(vsSource, gl.VERTEX_SHADER)
-	fs := compile(fsSource, gl.FRAGMENT_SHADER)
+func newShaderProgram(ctx *context, vertSource, fragSource string) *shaderProgram {
+	vertex := compile(vertSource, gl.VERTEX_SHADER)
+	fragment := compile(fragSource, gl.FRAGMENT_SHADER)
 
 	program := gl.CreateProgram()
-	gl.AttachShader(program, vs)
-	gl.AttachShader(program, fs)
+	gl.AttachShader(program, vertex)
+	gl.AttachShader(program, fragment)
 	gl.LinkProgram(program)
 
 	if gl.GetProgrami(program, gl.LINK_STATUS) != gl.TRUE {
@@ -45,36 +46,37 @@ func newShaderProgram(ctx *context, vsSource, fsSource string) *shaderProgram {
 	}
 
 	gl.UseProgram(program)
+
 	checkError()
 
 	uniformCount := gl.GetProgrami(program, gl.ACTIVE_UNIFORMS)
 	uniforms := make([]shaderUniform, uniformCount)
 	textureUnit := 0
-	for i := range uniforms {
-		name, size, ty := gl.GetActiveUniform(program, uint32(i))
+	for index := range uniforms {
+		name, size, shaderType := gl.GetActiveUniform(program, uint32(index))
 		location := gl.GetUniformLocation(program, name)
-		uniforms[i] = shaderUniform{
+		uniforms[index] = shaderUniform{
 			name:        name,
 			size:        size,
-			ty:          shaderDataType(ty),
+			shaderType:  shaderDataType(shaderType),
 			location:    location,
 			textureUnit: textureUnit,
 		}
-		if ty == gl.SAMPLER_2D {
+		if shaderType == gl.SAMPLER_2D {
 			textureUnit++
 		}
 	}
 
 	attributeCount := gl.GetProgrami(program, gl.ACTIVE_ATTRIBUTES)
 	attributes := make([]shaderAttribute, attributeCount)
-	for i := range attributes {
-		name, size, ty := gl.GetActiveAttrib(program, uint32(i))
+	for index := range attributes {
+		name, size, shaderType := gl.GetActiveAttrib(program, uint32(index))
 		location := gl.GetAttribLocation(program, name)
-		attributes[i] = shaderAttribute{
-			name:     name,
-			size:     size,
-			ty:       shaderDataType(ty),
-			location: location,
+		attributes[index] = shaderAttribute{
+			name:       name,
+			size:       size,
+			shaderType: shaderDataType(shaderType),
+			glAttr:     location,
 		}
 	}
 
@@ -94,29 +96,32 @@ func (s *shaderProgram) destroy(ctx *context) {
 	ctx.stats.shaderProgramCount--
 }
 
-func (s *shaderProgram) bind(ctx *context, vb *vertexBuffer, uniforms uniformBindings) {
+func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms uniformBindings) {
 	gl.UseProgram(s.program)
-	for _, a := range s.attributes {
-		vs, found := vb.streams[a.name]
+
+	for _, attr := range s.attributes {
+		vertex, found := buffer.streams[attr.name]
 		if !found {
-			panic(fmt.Errorf("VertexBuffer missing required stream '%s'", a.name))
+			panic(fmt.Errorf("VertexBuffer missing required stream '%s'", attr.name))
 		}
-		if a.ty != vs.ty {
-			panic(fmt.Errorf("Attribute '%s' type '%s' does not match stream type '%s'",
-				a.name, a.ty, vs.ty))
+
+		if attr.shaderType != vertex.shaderType {
+			panic(fmt.Errorf("attribute '%s' type '%s' does not match stream type '%s'", attr.name, attr.shaderType, vertex.shaderType))
 		}
-		elementCount := a.ty.vectorElementCount()
-		elementTy := a.ty.vectorElementType()
-		ctx.getOrCreateVertexStreamContext(vs).bind()
-		a.enableArray()
-		a.attribPointer(int32(elementCount), uint32(elementTy), false, 0, 0)
+
+		elementCount := attr.shaderType.vectorElementCount()
+		elementTy := attr.shaderType.vectorElementType()
+		ctx.getOrCreateVertexStreamContext(vertex).bind()
+		attr.enableArray()
+		attr.attribPointer(int32(elementCount), uint32(elementTy), false, 0, 0)
 	}
-	for _, u := range s.uniforms {
-		v, found := uniforms[u.name]
+
+	for _, uni := range s.uniforms {
+		uniform, found := uniforms[uni.name]
 		if !found {
-			panic(fmt.Errorf("Uniforms missing '%s'", u.name))
+			panic(fmt.Errorf("uniforms missing '%s'", uni.name))
 		}
-		u.bind(ctx, v)
+		uni.bind(ctx, uniform)
 	}
 	checkError()
 }

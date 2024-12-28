@@ -124,15 +124,15 @@ func (b *blitter) destroy(ctx *context) {
 	b.fontShader.destroy(ctx)
 }
 
-func (b *blitter) blit(ctx *context, tc *textureContext, srcRect, dstRect math.Rect, ds *drawState) {
+func (b *blitter) blit(ctx *context, textureCtx *textureContext, srcRect, dstRect math.Rect, state *drawState) {
 	b.commitGlyphs(ctx)
 
-	dstRect = dstRect.Offset(ds.OriginPixels)
-	sw, sh := tc.sizePixels.WH()
+	dstRect = dstRect.Offset(state.OriginPixels)
+	sw, sh := textureCtx.sizePixels.WH()
 	dw, dh := ctx.sizePixels.WH()
 
 	var mUV math.Mat3
-	if tc.flipY {
+	if textureCtx.flipY {
 		mUV = math.CreateMat3(
 			float32(srcRect.W())/float32(sw), 0, 0,
 			0, -float32(srcRect.H())/float32(sh), 0,
@@ -147,52 +147,65 @@ func (b *blitter) blit(ctx *context, tc *textureContext, srcRect, dstRect math.R
 			float32(srcRect.Min.Y)/float32(sh), 1,
 		)
 	}
+
 	mPos := math.CreateMat3(
 		+2.0*float32(dstRect.W())/float32(dw), 0, 0,
 		0, -2.0*float32(dstRect.H())/float32(dh), 0,
 		-1.0+2.0*float32(dstRect.Min.X)/float32(dw),
 		+1.0-2.0*float32(dstRect.Min.Y)/float32(dh), 1,
 	)
-	if !tc.pma {
+
+	if !textureCtx.pma {
 		gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	}
-	b.quad.draw(ctx, b.copyShader, uniformBindings{
-		"source": tc,
-		"mUV":    mUV,
-		"mPos":   mPos,
-	})
-	if !tc.pma {
+
+	b.quad.draw(
+		ctx,
+		b.copyShader,
+		uniformBindings{
+			"source": textureCtx,
+			"mUV":    mUV,
+			"mPos":   mPos,
+		},
+	)
+
+	if !textureCtx.pma {
 		gl.BlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 	}
 	b.stats.drawCallCount++
 }
 
-func (b *blitter) blitGlyph(ctx *context, tc *textureContext, c gxui.Color, srcRect, dstRect math.Rect, ds *drawState) {
-	dstRect = dstRect.Offset(ds.OriginPixels)
+func (b *blitter) blitGlyph(ctx *context, textureCtx *textureContext, color gxui.Color, srcRect, dstRect math.Rect, state *drawState) {
+	dstRect = dstRect.Offset(state.OriginPixels)
 
-	if b.glyphBatch.GlyphPage != tc {
+	if b.glyphBatch.GlyphPage != textureCtx {
 		b.commitGlyphs(ctx)
-		b.glyphBatch.GlyphPage = tc
+		b.glyphBatch.GlyphPage = textureCtx
 	}
+
 	i := uint16(len(b.glyphBatch.DstRects)) / 2
+
 	clip := []float32{
-		float32(ds.ClipPixels.Min.X),
-		float32(ds.ClipPixels.Min.Y),
-		float32(ds.ClipPixels.Max.X),
-		float32(ds.ClipPixels.Max.Y),
+		float32(state.ClipPixels.Min.X),
+		float32(state.ClipPixels.Min.Y),
+		float32(state.ClipPixels.Max.X),
+		float32(state.ClipPixels.Max.Y),
 	}
+
 	b.glyphBatch.DstRects = append(b.glyphBatch.DstRects,
 		float32(dstRect.Min.X), float32(dstRect.Min.Y),
 		float32(dstRect.Max.X), float32(dstRect.Min.Y),
 		float32(dstRect.Min.X), float32(dstRect.Max.Y),
 		float32(dstRect.Max.X), float32(dstRect.Max.Y),
 	)
+
 	b.glyphBatch.SrcRects = append(b.glyphBatch.SrcRects,
 		float32(srcRect.Min.X), float32(srcRect.Min.Y),
 		float32(srcRect.Max.X), float32(srcRect.Min.Y),
 		float32(srcRect.Min.X), float32(srcRect.Max.Y),
 		float32(srcRect.Max.X), float32(srcRect.Max.Y),
 	)
+
 	b.glyphBatch.ClipRects = append(b.glyphBatch.ClipRects,
 		clip[0], clip[1], clip[2], clip[3],
 		clip[0], clip[1], clip[2], clip[3],
@@ -200,34 +213,41 @@ func (b *blitter) blitGlyph(ctx *context, tc *textureContext, c gxui.Color, srcR
 		clip[0], clip[1], clip[2], clip[3],
 	)
 
-	c = c.MulRGB(c.A) // PMA
+	color = color.MulRGB(color.A) // PMA
+
 	b.glyphBatch.Colors = append(b.glyphBatch.Colors,
-		c.R, c.G, c.B, c.A,
-		c.R, c.G, c.B, c.A,
-		c.R, c.G, c.B, c.A,
-		c.R, c.G, c.B, c.A,
+		color.R, color.G, color.B, color.A,
+		color.R, color.G, color.B, color.A,
+		color.R, color.G, color.B, color.A,
+		color.R, color.G, color.B, color.A,
 	)
+
 	b.glyphBatch.Indices = append(b.glyphBatch.Indices,
 		i, i+1, i+2,
 		i+2, i+1, i+3,
 	)
 }
 
-func (b *blitter) blitShape(ctx *context, shape shape, color gxui.Color, ds *drawState) {
+func (b *blitter) blitShape(ctx *context, shape shape, color gxui.Color, state *drawState) {
 	b.commitGlyphs(ctx)
+
 	dipsToPixels := ctx.resolution.dipsToPixels()
 	dw, dh := ctx.sizePixels.WH()
 	mPos := math.CreateMat3(
 		+2.0*dipsToPixels/float32(dw), 0, 0,
 		0, -2.0*dipsToPixels/float32(dh), 0,
-		-1.0+2.0*float32(ds.OriginPixels.X)/float32(dw),
-		+1.0-2.0*float32(ds.OriginPixels.Y)/float32(dh), 1,
+		-1.0+2.0*float32(state.OriginPixels.X)/float32(dw),
+		+1.0-2.0*float32(state.OriginPixels.Y)/float32(dh), 1,
 	)
 
-	shape.draw(ctx, b.colorShader, uniformBindings{
-		"mPos":  mPos,
-		"Color": color,
-	})
+	shape.draw(
+		ctx,
+		b.colorShader,
+		uniformBindings{
+			"mPos":  mPos,
+			"Color": color,
+		},
+	)
 
 	if debugWireframePolygons {
 		// glPolygonMode is not available in OpenGL ES/WebGL (since its implementation is very inefficient; a shame because it's useful for debugging).
@@ -238,12 +258,13 @@ func (b *blitter) blitShape(ctx *context, shape shape, color gxui.Color, ds *dra
 		})
 		//gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
 	}
+
 	b.stats.drawCallCount++
 }
 
-func (b *blitter) blitRect(ctx *context, dstRect math.Rect, color gxui.Color, ds *drawState) {
+func (b *blitter) blitRect(ctx *context, dstRect math.Rect, color gxui.Color, state *drawState) {
 	b.commitGlyphs(ctx)
-	dstRect = dstRect.Offset(ds.OriginPixels)
+	dstRect = dstRect.Offset(state.OriginPixels)
 	dw, dh := ctx.sizePixels.WH()
 	mPos := math.CreateMat3(
 		+2.0*float32(dstRect.W())/float32(dw), 0, 0,
@@ -256,6 +277,7 @@ func (b *blitter) blitRect(ctx *context, dstRect math.Rect, color gxui.Color, ds
 		"mPos":  mPos,
 		"Color": color,
 	})
+
 	b.stats.drawCallCount++
 }
 
@@ -268,6 +290,7 @@ func (b *blitter) commitGlyphs(ctx *context) {
 	if tc == nil {
 		return
 	}
+
 	sw, sh := tc.sizePixels.WH()
 	dw, dh := ctx.sizePixels.WH()
 
@@ -281,26 +304,36 @@ func (b *blitter) commitGlyphs(ctx *context) {
 		0, -2.0/float32(dh), 0,
 		-1.0, +1.0, 1,
 	)
-	vb := newVertexBuffer(
+
+	buffer := newVertexBuffer(
 		newVertexStream("aDst", stFloatVec2, b.glyphBatch.DstRects),
 		newVertexStream("aSrc", stFloatVec2, b.glyphBatch.SrcRects),
 		newVertexStream("aClp", stFloatVec4, b.glyphBatch.ClipRects),
 		newVertexStream("aCol", stFloatVec4, b.glyphBatch.Colors),
 	)
-	ib := newIndexBuffer(ptUshort, b.glyphBatch.Indices)
-	s := newShape(vb, ib, dmTriangles)
+
+	indexesBuffer := newIndexBuffer(ptUshort, b.glyphBatch.Indices)
+
+	targetShape := newShape(buffer, indexesBuffer, dmTriangles)
+
 	gl.Disable(gl.SCISSOR_TEST)
-	s.draw(ctx, b.fontShader, uniformBindings{
-		"source": tc,
-		"mDst":   mDst,
-		"mSrc":   mSrc,
-	})
+	targetShape.draw(
+		ctx,
+		b.fontShader,
+		uniformBindings{
+			"source": tc,
+			"mDst":   mDst,
+			"mSrc":   mSrc,
+		},
+	)
 	gl.Enable(gl.SCISSOR_TEST)
+
 	b.glyphBatch.GlyphPage = nil
 	b.glyphBatch.DstRects = b.glyphBatch.DstRects[:0]
 	b.glyphBatch.SrcRects = b.glyphBatch.SrcRects[:0]
 	b.glyphBatch.ClipRects = b.glyphBatch.ClipRects[:0]
 	b.glyphBatch.Colors = b.glyphBatch.Colors[:0]
 	b.glyphBatch.Indices = b.glyphBatch.Indices[:0]
+
 	b.stats.drawCallCount++
 }

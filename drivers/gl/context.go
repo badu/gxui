@@ -10,8 +10,7 @@ import (
 	"github.com/goxjs/gl"
 )
 
-// contextResource is used as an anonymous field by types that are constructed
-// per context.
+// contextResource is used as an anonymous field by types that are constructed per context.
 type contextResource struct {
 	lastContextUse int // used for mark-and-sweeping the resource.
 }
@@ -23,37 +22,41 @@ type context struct {
 	textureContexts      map[*texture]*textureContext
 	vertexStreamContexts map[*vertexStream]*vertexStreamContext
 	indexBufferContexts  map[*indexBuffer]*indexBufferContext
-	sizeDips, sizePixels math.Size
+	sizeDips             math.Size
+	sizePixels           math.Size
 	clip                 math.Rect
 	frame                int
 }
 
 func newContext() *context {
-	ctx := &context{
+	result := &context{
 		textureContexts:      make(map[*texture]*textureContext),
 		vertexStreamContexts: make(map[*vertexStream]*vertexStreamContext),
 		indexBufferContexts:  make(map[*indexBuffer]*indexBufferContext),
 	}
-	ctx.blitter = newBlitter(ctx, &ctx.stats)
-	return ctx
+	result.blitter = newBlitter(result, &result.stats)
+	return result
 }
 
 func (c *context) destroy() {
-	for texture, tc := range c.textureContexts {
-		delete(c.textureContexts, texture)
+	for textureCtx, tc := range c.textureContexts {
+		delete(c.textureContexts, textureCtx)
 		tc.destroy()
 		c.stats.textureCount--
 	}
+
 	for stream, sc := range c.vertexStreamContexts {
 		delete(c.vertexStreamContexts, stream)
 		sc.destroy()
 		c.stats.vertexStreamCount--
 	}
+
 	for buffer, ic := range c.indexBufferContexts {
 		delete(c.indexBufferContexts, buffer)
 		ic.destroy()
 		c.stats.indexBufferCount--
 	}
+
 	c.blitter.destroy(c)
 	c.blitter = nil
 }
@@ -71,13 +74,14 @@ func (c *context) beginDraw(sizeDips, sizePixels math.Size) {
 
 func (c *context) endDraw() {
 	// Reap any unused resources
-	for texture, tc := range c.textureContexts {
+	for textureCtx, tc := range c.textureContexts {
 		if tc.lastContextUse != c.frame {
-			delete(c.textureContexts, texture)
+			delete(c.textureContexts, textureCtx)
 			tc.destroy()
 			c.stats.textureCount--
 		}
 	}
+
 	for stream, sc := range c.vertexStreamContexts {
 		if sc.lastContextUse != c.frame {
 			delete(c.vertexStreamContexts, stream)
@@ -85,6 +89,7 @@ func (c *context) endDraw() {
 			c.stats.vertexStreamCount--
 		}
 	}
+
 	for buffer, ic := range c.indexBufferContexts {
 		if ic.lastContextUse != c.frame {
 			delete(c.indexBufferContexts, buffer)
@@ -98,46 +103,46 @@ func (c *context) endDraw() {
 	c.frame++
 }
 
-func (c *context) getOrCreateTextureContext(t *texture) *textureContext {
-	tc, found := c.textureContexts[t]
+func (c *context) getOrCreateTextureContext(targetTexture *texture) *textureContext {
+	textureCtx, found := c.textureContexts[targetTexture]
 	if !found {
-		tc = t.newContext()
-		c.textureContexts[t] = tc
+		textureCtx = targetTexture.newContext()
+		c.textureContexts[targetTexture] = textureCtx
 		c.stats.textureCount++
 	}
-	tc.lastContextUse = c.frame
-	return tc
+	textureCtx.lastContextUse = c.frame
+	return textureCtx
 }
 
-func (c *context) getOrCreateVertexStreamContext(vs *vertexStream) *vertexStreamContext {
-	vc, found := c.vertexStreamContexts[vs]
+func (c *context) getOrCreateVertexStreamContext(targetStream *vertexStream) *vertexStreamContext {
+	stream, found := c.vertexStreamContexts[targetStream]
 	if !found {
-		vc = vs.newContext()
-		c.vertexStreamContexts[vs] = vc
+		stream = targetStream.newContext()
+		c.vertexStreamContexts[targetStream] = stream
 		c.stats.vertexStreamCount++
 	}
-	vc.lastContextUse = c.frame
-	return vc
+	stream.lastContextUse = c.frame
+	return stream
 }
 
-func (c *context) getOrCreateIndexBufferContext(ib *indexBuffer) *indexBufferContext {
-	ic, found := c.indexBufferContexts[ib]
+func (c *context) getOrCreateIndexBufferContext(targetBuffer *indexBuffer) *indexBufferContext {
+	buffer, found := c.indexBufferContexts[targetBuffer]
 	if !found {
-		ic = ib.newContext()
-		c.indexBufferContexts[ib] = ic
+		buffer = targetBuffer.newContext()
+		c.indexBufferContexts[targetBuffer] = buffer
 		c.stats.indexBufferCount++
 	}
-	ic.lastContextUse = c.frame
-	return ic
+	buffer.lastContextUse = c.frame
+	return buffer
 }
 
-func (c *context) apply(ds *drawState) {
-	r := ds.ClipPixels
-	o := c.clip
-	if o != r {
-		c.clip = r
-		vs := c.sizePixels
-		rs := r.Size()
-		gl.Scissor(int32(r.Min.X), int32(vs.H)-int32(r.Max.Y), int32(rs.W), int32(rs.H))
+func (c *context) apply(state *drawState) {
+	rect := state.ClipPixels
+	cClip := c.clip
+	if cClip != rect {
+		c.clip = rect
+		sizePixels := c.sizePixels
+		rectSize := rect.Size()
+		gl.Scissor(int32(rect.Min.X), int32(sizePixels.H)-int32(rect.Max.Y), int32(rectSize.W), int32(rectSize.H))
 	}
 }

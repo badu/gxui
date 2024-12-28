@@ -61,14 +61,11 @@ type viewport struct {
 }
 
 func newViewport(driver *driver, width, height int, title string, fullscreen bool) *viewport {
-	v := &viewport{
-		fullscreen: fullscreen,
-		scaling:    1,
-		title:      title,
-	}
+	result := &viewport{fullscreen: fullscreen, scaling: 1, title: title}
 
 	glfw.DefaultWindowHints()
 	glfw.WindowHint(glfw.Samples, 4)
+
 	var monitor *glfw.Monitor
 	if fullscreen {
 		monitor = glfw.GetPrimaryMonitor()
@@ -77,7 +74,8 @@ func newViewport(driver *driver, width, height int, title string, fullscreen boo
 			width, height = vm.Width, vm.Height
 		}
 	}
-	wnd, err := glfw.CreateWindow(width, height, v.title, monitor, nil)
+
+	wnd, err := glfw.CreateWindow(width, height, result.title, monitor, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -85,144 +83,176 @@ func newViewport(driver *driver, width, height int, title string, fullscreen boo
 
 	wnd.MakeContextCurrent()
 
-	v.context = newContext()
+	result.context = newContext()
 
 	cursorPoint := func(x, y float64) math.Point {
 		// HACK: xpos is off by 1 and ypos is off by 3 on OSX.
 		// Compensate until real fix is found.
 		x -= 1.0
 		y -= 3.0
-		return math.Point{X: int(x), Y: int(y)}.ScaleS(1 / v.scaling)
+		return math.Point{X: int(x), Y: int(y)}.ScaleS(1 / result.scaling)
 	}
-	wnd.SetCloseCallback(func(*glfw.Window) {
-		v.Close()
-	})
-	wnd.SetPosCallback(func(w *glfw.Window, x, y int) {
-		v.Lock()
-		v.position = math.NewPoint(x, y)
-		v.Unlock()
-	})
-	wnd.SetSizeCallback(func(_ *glfw.Window, w, h int) {
-		v.Lock()
-		v.sizeDipsUnscaled = math.Size{W: w, H: h}
-		v.sizeDips = v.sizeDipsUnscaled.ScaleS(1 / v.scaling)
-		v.Unlock()
-		v.onResize.Fire()
-	})
-	wnd.SetFramebufferSizeCallback(func(_ *glfw.Window, w, h int) {
-		v.Lock()
-		v.sizePixels = math.Size{W: w, H: h}
-		v.Unlock()
-		gl.Viewport(0, 0, w, h)
-		gl.ClearColor(clearColorR, clearColorG, clearColorB, 1.0)
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-	})
-	wnd.SetCursorPosCallback(func(w *glfw.Window, x, y float64) {
-		p := cursorPoint(w.GetCursorPos())
-		v.Lock()
-		if v.pendingMouseMoveEvent == nil {
-			v.pendingMouseMoveEvent = &gxui.MouseEvent{}
-			driver.Call(func() {
-				v.Lock()
-				ev := *v.pendingMouseMoveEvent
-				v.pendingMouseMoveEvent = nil
-				v.Unlock()
-				v.onMouseMove.Fire(ev)
-			})
-		}
-		v.pendingMouseMoveEvent.Point = p
-		v.pendingMouseMoveEvent.State = getMouseState(w)
-		v.Unlock()
-	})
-	wnd.SetCursorEnterCallback(func(w *glfw.Window, entered bool) {
-		p := cursorPoint(w.GetCursorPos())
-		ev := gxui.MouseEvent{
-			Point: p,
-		}
-		ev.State = getMouseState(w)
-		if entered {
-			v.onMouseEnter.Fire(ev)
-		} else {
-			v.onMouseExit.Fire(ev)
-		}
-	})
-	wnd.SetScrollCallback(func(w *glfw.Window, xoff, yoff float64) {
-		p := cursorPoint(w.GetCursorPos())
-		v.Lock()
-		if v.pendingMouseScrollEvent == nil {
-			v.pendingMouseScrollEvent = &gxui.MouseEvent{}
-			driver.Call(func() {
-				v.Lock()
-				ev := *v.pendingMouseScrollEvent
-				v.pendingMouseScrollEvent = nil
-				ev.ScrollX, ev.ScrollY = int(v.scrollAccumX), int(v.scrollAccumY)
-				if ev.ScrollX != 0 || ev.ScrollY != 0 {
-					v.scrollAccumX -= float64(ev.ScrollX)
-					v.scrollAccumY -= float64(ev.ScrollY)
-					v.Unlock()
-					v.onMouseScroll.Fire(ev)
-				} else {
-					v.Unlock()
-				}
-			})
-		}
-		v.pendingMouseScrollEvent.Point = p
-		v.scrollAccumX += xoff * platform.ScrollSpeed
-		v.scrollAccumY += yoff * platform.ScrollSpeed
-		v.pendingMouseScrollEvent.State = getMouseState(w)
-		v.Unlock()
-	})
-	wnd.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
-		p := cursorPoint(w.GetCursorPos())
-		ev := gxui.MouseEvent{
-			Point:    p,
-			Modifier: translateKeyboardModifier(mod),
-		}
-		ev.Button = translateMouseButton(button)
-		ev.State = getMouseState(w)
-		if action == glfw.Press {
-			v.onMouseDown.Fire(ev)
-		} else {
-			v.onMouseUp.Fire(ev)
-		}
-	})
-	wnd.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		ev := gxui.KeyboardEvent{
-			Key:      translateKeyboardKey(key),
-			Modifier: translateKeyboardModifier(mods),
-		}
-		switch action {
-		case glfw.Press:
-			v.onKeyDown.Fire(ev)
-		case glfw.Release:
-			v.onKeyUp.Fire(ev)
-		case glfw.Repeat:
-			v.onKeyRepeat.Fire(ev)
-		}
-	})
-	wnd.SetCharModsCallback(func(w *glfw.Window, char rune, mods glfw.ModifierKey) {
-		if !unicode.IsControl(char) &&
-			!unicode.IsGraphic(char) &&
-			!unicode.IsLetter(char) &&
-			!unicode.IsMark(char) &&
-			!unicode.IsNumber(char) &&
-			!unicode.IsPunct(char) &&
-			!unicode.IsSpace(char) &&
-			!unicode.IsSymbol(char) {
-			return // Weird unicode character. Ignore
-		}
+	wnd.SetCloseCallback(
+		func(*glfw.Window) {
+			result.Close()
+		},
+	)
 
-		ev := gxui.KeyStrokeEvent{
-			Character: char,
-			Modifier:  translateKeyboardModifier(mods),
-		}
-		v.onKeyStroke.Fire(ev)
-	})
-	wnd.SetRefreshCallback(func(w *glfw.Window) {
-		if v.canvas != nil {
-			v.render()
-		}
-	})
+	wnd.SetPosCallback(
+		func(w *glfw.Window, x, y int) {
+			result.Lock()
+			result.position = math.NewPoint(x, y)
+			result.Unlock()
+		},
+	)
+
+	wnd.SetSizeCallback(
+		func(_ *glfw.Window, w, h int) {
+			result.Lock()
+			result.sizeDipsUnscaled = math.Size{W: w, H: h}
+			result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
+			result.Unlock()
+			result.onResize.Fire()
+		},
+	)
+
+	wnd.SetFramebufferSizeCallback(
+		func(_ *glfw.Window, w, h int) {
+			result.Lock()
+			result.sizePixels = math.Size{W: w, H: h}
+			result.Unlock()
+			gl.Viewport(0, 0, w, h)
+			gl.ClearColor(clearColorR, clearColorG, clearColorB, 1.0)
+			gl.Clear(gl.COLOR_BUFFER_BIT)
+		},
+	)
+
+	wnd.SetCursorPosCallback(
+		func(w *glfw.Window, x, y float64) {
+			p := cursorPoint(w.GetCursorPos())
+			result.Lock()
+			if result.pendingMouseMoveEvent == nil {
+				result.pendingMouseMoveEvent = &gxui.MouseEvent{}
+				driver.Call(func() {
+					result.Lock()
+					ev := *result.pendingMouseMoveEvent
+					result.pendingMouseMoveEvent = nil
+					result.Unlock()
+					result.onMouseMove.Fire(ev)
+				})
+			}
+			result.pendingMouseMoveEvent.Point = p
+			result.pendingMouseMoveEvent.State = getMouseState(w)
+			result.Unlock()
+		},
+	)
+
+	wnd.SetCursorEnterCallback(
+		func(w *glfw.Window, entered bool) {
+			p := cursorPoint(w.GetCursorPos())
+			ev := gxui.MouseEvent{
+				Point: p,
+			}
+			ev.State = getMouseState(w)
+			if entered {
+				result.onMouseEnter.Fire(ev)
+			} else {
+				result.onMouseExit.Fire(ev)
+			}
+		},
+	)
+
+	wnd.SetScrollCallback(
+		func(w *glfw.Window, xoff, yoff float64) {
+			p := cursorPoint(w.GetCursorPos())
+			result.Lock()
+			if result.pendingMouseScrollEvent == nil {
+				result.pendingMouseScrollEvent = &gxui.MouseEvent{}
+				driver.Call(func() {
+					result.Lock()
+					ev := *result.pendingMouseScrollEvent
+					result.pendingMouseScrollEvent = nil
+					ev.ScrollX, ev.ScrollY = int(result.scrollAccumX), int(result.scrollAccumY)
+					if ev.ScrollX != 0 || ev.ScrollY != 0 {
+						result.scrollAccumX -= float64(ev.ScrollX)
+						result.scrollAccumY -= float64(ev.ScrollY)
+						result.Unlock()
+						result.onMouseScroll.Fire(ev)
+					} else {
+						result.Unlock()
+					}
+				})
+			}
+			result.pendingMouseScrollEvent.Point = p
+			result.scrollAccumX += xoff * platform.ScrollSpeed
+			result.scrollAccumY += yoff * platform.ScrollSpeed
+			result.pendingMouseScrollEvent.State = getMouseState(w)
+			result.Unlock()
+		},
+	)
+
+	wnd.SetMouseButtonCallback(
+		func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
+			p := cursorPoint(w.GetCursorPos())
+			ev := gxui.MouseEvent{
+				Point:    p,
+				Modifier: translateKeyboardModifier(mod),
+			}
+			ev.Button = translateMouseButton(button)
+			ev.State = getMouseState(w)
+			if action == glfw.Press {
+				result.onMouseDown.Fire(ev)
+			} else {
+				result.onMouseUp.Fire(ev)
+			}
+		},
+	)
+
+	wnd.SetKeyCallback(
+		func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+			ev := gxui.KeyboardEvent{
+				Key:      translateKeyboardKey(key),
+				Modifier: translateKeyboardModifier(mods),
+			}
+			switch action {
+			case glfw.Press:
+				result.onKeyDown.Fire(ev)
+			case glfw.Release:
+				result.onKeyUp.Fire(ev)
+			case glfw.Repeat:
+				result.onKeyRepeat.Fire(ev)
+			}
+		},
+	)
+
+	wnd.SetCharModsCallback(
+		func(w *glfw.Window, char rune, mods glfw.ModifierKey) {
+			if !unicode.IsControl(char) &&
+				!unicode.IsGraphic(char) &&
+				!unicode.IsLetter(char) &&
+				!unicode.IsMark(char) &&
+				!unicode.IsNumber(char) &&
+				!unicode.IsPunct(char) &&
+				!unicode.IsSpace(char) &&
+				!unicode.IsSymbol(char) {
+				return // Weird unicode character. Ignore
+			}
+
+			ev := gxui.KeyStrokeEvent{
+				Character: char,
+				Modifier:  translateKeyboardModifier(mods),
+			}
+			result.onKeyStroke.Fire(ev)
+		},
+	)
+
+	wnd.SetRefreshCallback(
+		func(w *glfw.Window) {
+			if result.canvas != nil {
+				result.render()
+			}
+		},
+	)
 
 	fw, fh := wnd.GetFramebufferSize()
 	posX, posY := wnd.GetPos()
@@ -237,26 +267,30 @@ func newViewport(driver *driver, width, height int, title string, fullscreen boo
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	wnd.SwapBuffers()
 
-	v.window = wnd
-	v.driver = driver
-	v.onClose = driver.createAppEvent(func() {})
-	v.onResize = driver.createAppEvent(func() {})
-	v.onMouseMove = gxui.CreateEvent(func(gxui.MouseEvent) {})
-	v.onMouseEnter = driver.createAppEvent(func(gxui.MouseEvent) {})
-	v.onMouseExit = driver.createAppEvent(func(gxui.MouseEvent) {})
-	v.onMouseDown = driver.createAppEvent(func(gxui.MouseEvent) {})
-	v.onMouseUp = driver.createAppEvent(func(gxui.MouseEvent) {})
-	v.onMouseScroll = gxui.CreateEvent(func(gxui.MouseEvent) {})
-	v.onKeyDown = driver.createAppEvent(func(gxui.KeyboardEvent) {})
-	v.onKeyUp = driver.createAppEvent(func(gxui.KeyboardEvent) {})
-	v.onKeyRepeat = driver.createAppEvent(func(gxui.KeyboardEvent) {})
-	v.onKeyStroke = driver.createAppEvent(func(gxui.KeyStrokeEvent) {})
-	v.onDestroy = driver.createDriverEvent(func() {})
-	v.sizeDipsUnscaled = math.Size{W: width, H: height}
-	v.sizeDips = v.sizeDipsUnscaled.ScaleS(1 / v.scaling)
-	v.sizePixels = math.Size{W: fw, H: fh}
-	v.position = math.Point{X: posX, Y: posY}
-	return v
+	result.window = wnd
+	result.driver = driver
+
+	result.onClose = driver.createAppEvent(func() {})
+	result.onResize = driver.createAppEvent(func() {})
+
+	result.onMouseMove = gxui.CreateEvent(func(gxui.MouseEvent) {})
+	result.onMouseEnter = driver.createAppEvent(func(gxui.MouseEvent) {})
+	result.onMouseExit = driver.createAppEvent(func(gxui.MouseEvent) {})
+	result.onMouseDown = driver.createAppEvent(func(gxui.MouseEvent) {})
+	result.onMouseUp = driver.createAppEvent(func(gxui.MouseEvent) {})
+	result.onMouseScroll = gxui.CreateEvent(func(gxui.MouseEvent) {})
+	result.onKeyDown = driver.createAppEvent(func(gxui.KeyboardEvent) {})
+	result.onKeyUp = driver.createAppEvent(func(gxui.KeyboardEvent) {})
+	result.onKeyRepeat = driver.createAppEvent(func(gxui.KeyboardEvent) {})
+	result.onKeyStroke = driver.createAppEvent(func(gxui.KeyStrokeEvent) {})
+	result.onDestroy = driver.createDriverEvent(func() {})
+
+	result.sizeDipsUnscaled = math.Size{W: width, H: height}
+	result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
+	result.sizePixels = math.Size{W: fw, H: fh}
+	result.position = math.Point{X: posX, Y: posY}
+
+	return result
 }
 
 // Driver methods
@@ -271,16 +305,18 @@ func (v *viewport) render() {
 	ctx := v.context
 	ctx.beginDraw(v.SizeDips(), v.SizePixels())
 
-	dss := drawStateStack{drawState{
-		ClipPixels: v.sizePixels.Rect(),
-	}}
+	stack := drawStateStack{
+		drawState{
+			ClipPixels: v.sizePixels.Rect(),
+		},
+	}
 
-	v.canvas.draw(ctx, &dss)
-	if len(dss) != 1 {
+	v.canvas.draw(ctx, &stack)
+	if len(stack) != 1 {
 		panic("DrawStateStack count was not 1 after calling Canvas.Draw")
 	}
 
-	ctx.apply(dss.head())
+	ctx.apply(stack.head())
 	ctx.blitter.commit(ctx)
 
 	if viewportDebugEnabled {
@@ -294,21 +330,21 @@ func (v *viewport) render() {
 
 func (v *viewport) drawFrameUpdate(ctx *context) {
 	dx := (ctx.stats.frameCount * 10) & 0xFF
-	r := math.CreateRect(dx-5, 0, dx+5, 3)
-	ds := &drawState{}
-	ctx.blitter.blitRect(ctx, r, gxui.White, ds)
+	rect := math.CreateRect(dx-5, 0, dx+5, 3)
+	state := &drawState{}
+	ctx.blitter.blitRect(ctx, rect, gxui.White, state)
 }
 
 // gxui.viewport compliance
 // These methods are all called on the application routine
-func (v *viewport) SetCanvas(cc gxui.Canvas) {
+func (v *viewport) SetCanvas(newCanvas gxui.Canvas) {
 	cnt := atomic.AddUint32(&v.redrawCount, 1)
-	c := cc.(*canvas)
+	childCanvas := newCanvas.(*canvas)
 	v.driver.asyncDriver(func() {
 		// Only use the canvas of the most recent SetCanvas call.
 		v.window.MakeContextCurrent()
 		if atomic.LoadUint32(&v.redrawCount) == cnt {
-			v.canvas = c
+			v.canvas = childCanvas
 			if v.canvas != nil {
 				v.render()
 			}
@@ -322,12 +358,12 @@ func (v *viewport) Scale() float32 {
 	return v.scaling
 }
 
-func (v *viewport) SetScale(s float32) {
+func (v *viewport) SetScale(newScale float32) {
 	v.Lock()
 	defer v.Unlock()
-	if s != v.scaling {
-		v.scaling = s
-		v.sizeDips = v.sizeDipsUnscaled.ScaleS(1 / s)
+	if newScale != v.scaling {
+		v.scaling = newScale
+		v.sizeDips = v.sizeDipsUnscaled.ScaleS(1 / newScale)
 		v.onResize.Fire()
 	}
 }
@@ -373,12 +409,12 @@ func (v *viewport) Position() math.Point {
 	return v.position
 }
 
-func (v *viewport) SetPosition(pos math.Point) {
+func (v *viewport) SetPosition(newPosition math.Point) {
 	v.Lock()
-	v.position = pos
+	v.position = newPosition
 	v.Unlock()
 	v.driver.asyncDriver(func() {
-		v.window.SetPos(pos.X, pos.Y)
+		v.window.SetPos(newPosition.X, newPosition.Y)
 	})
 }
 

@@ -7,46 +7,56 @@ package gl
 import "github.com/goxjs/gl"
 
 type shape struct {
-	vb       *vertexBuffer
-	ib       *indexBuffer
-	drawMode drawMode
+	vertexBuffer *vertexBuffer
+	indexBuffer  *indexBuffer
+	drawMode     drawMode
 }
 
-func newShape(vb *vertexBuffer, ib *indexBuffer, drawMode drawMode) *shape {
-	if vb == nil {
+func newShape(vertexBuffer *vertexBuffer, indexBuffer *indexBuffer, mode drawMode) *shape {
+	if vertexBuffer == nil {
 		panic("VertexBuffer cannot be nil")
 	}
 
-	s := &shape{
-		vb:       vb,
-		ib:       ib,
-		drawMode: drawMode,
+	result := &shape{
+		vertexBuffer: vertexBuffer,
+		indexBuffer:  indexBuffer,
+		drawMode:     mode,
 	}
-	return s
+	return result
 }
 
 func newQuadShape() *shape {
-	pos := newVertexStream("aPosition", stFloatVec2, []float32{
-		0.0, 0.0,
-		1.0, 0.0,
-		0.0, 1.0,
-		1.0, 1.0,
-	})
-	vb := newVertexBuffer(pos)
-	ib := newIndexBuffer(ptUshort, []uint16{
-		0, 1, 2,
-		2, 1, 3,
-	})
-	return newShape(vb, ib, dmTriangles)
+	pos := newVertexStream(
+		"aPosition",
+		stFloatVec2,
+		[]float32{
+			0.0, 0.0,
+			1.0, 0.0,
+			0.0, 1.0,
+			1.0, 1.0,
+		},
+	)
+	vBuffer := newVertexBuffer(pos)
+	iBuffer := newIndexBuffer(
+		ptUshort,
+		[]uint16{
+			0, 1, 2,
+			2, 1, 3,
+		},
+	)
+
+	return newShape(vBuffer, iBuffer, dmTriangles)
 }
 
-func (s shape) draw(ctx *context, shader *shaderProgram, ub uniformBindings) {
-	shader.bind(ctx, s.vb, ub)
-	if s.ib != nil {
-		ctx.getOrCreateIndexBufferContext(s.ib).render(s.drawMode)
+func (s shape) draw(ctx *context, shader *shaderProgram, bindings uniformBindings) {
+	shader.bind(ctx, s.vertexBuffer, bindings)
+
+	if s.indexBuffer != nil {
+		ctx.getOrCreateIndexBufferContext(s.indexBuffer).render(s.drawMode)
 	} else {
-		gl.DrawArrays(gl.Enum(s.drawMode), 0, s.vb.count)
+		gl.DrawArrays(gl.Enum(s.drawMode), 0, s.vertexBuffer.count)
 	}
+
 	shader.unbind(ctx)
 	checkError()
 }

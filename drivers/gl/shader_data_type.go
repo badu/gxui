@@ -69,7 +69,7 @@ func (s shaderDataType) vectorElementCount() int {
 	case stSampler2d:
 		return 1
 	default:
-		panic(fmt.Errorf("Unknown shaderDataType 0x%.4x", s))
+		panic(fmt.Errorf("unknown shaderDataType 0x%.4x", s))
 	}
 }
 
@@ -92,6 +92,6 @@ func (s shaderDataType) vectorElementType() primitiveType {
 	case stSampler2d:
 		return ptInt
 	default:
-		panic(fmt.Errorf("Unknown shaderDataType 0x%.4x", s))
+		panic(fmt.Errorf("unknown shaderDataType 0x%.4x", s))
 	}
 }

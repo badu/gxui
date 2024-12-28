@@ -11,7 +11,7 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 	"github.com/golang/freetype/truetype"
-	fnt "golang.org/x/image/font"
+	imageFont "golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -46,42 +46,44 @@ func newFont(data []byte, size int) (*font, error) {
 	}, nil
 }
 
-func (f *font) advanceDips(r rune) int {
-	if g, found := f.glyphAdvanceDips[r]; found {
+func (f *font) advanceDips(ofRune rune) int {
+	if g, found := f.glyphAdvanceDips[ofRune]; found {
 		return g
 	}
-	idx := f.ttf.Index(r)
-	gb := &truetype.GlyphBuf{}
-	err := gb.Load(f.ttf, f.scale, idx, fnt.HintingFull)
+
+	idx := f.ttf.Index(ofRune)
+	buffer := &truetype.GlyphBuf{}
+	err := buffer.Load(f.ttf, f.scale, idx, imageFont.HintingFull)
 	if err != nil {
 		panic(err)
 	}
 
-	advance := int((gb.AdvanceWidth + 0x3f) >> 6)
-	f.glyphAdvanceDips[r] = advance
+	advance := int((buffer.AdvanceWidth + 0x3f) >> 6)
+	f.glyphAdvanceDips[ofRune] = advance
 	return advance
 }
 
 func (f *font) glyphTable(resolution resolution) *glyphTable {
-	t, found := f.resolutions[resolution]
+	result, found := f.resolutions[resolution]
 	if !found {
 		opt := truetype.Options{
 			Size:              float64(f.size),
 			DPI:               float64(resolution.intDipsToPixels(72)),
-			Hinting:           fnt.HintingFull,
+			Hinting:           imageFont.HintingFull,
 			GlyphCacheEntries: 1,
 			SubPixelsX:        1,
 			SubPixelsY:        1,
 		}
-		t = newGlyphTable(truetype.NewFace(f.ttf, &opt))
-		f.resolutions[resolution] = t
+		result = newGlyphTable(truetype.NewFace(f.ttf, &opt))
+		f.resolutions[resolution] = result
 	}
-	return t
+	return result
 }
 
-func (f *font) align(rect math.Rect, size math.Size, ascent int, h gxui.HorizontalAlignment, v gxui.VerticalAlignment) math.Point {
+func (f *font) align(rect math.Rect, size math.Size, ascent int, horizontalAlignment gxui.HorizontalAlignment, verticalAlignment gxui.VerticalAlignment) math.Point {
 	var origin math.Point
-	switch h {
+
+	switch horizontalAlignment {
 	case gxui.AlignLeft:
 		origin.X = rect.Min.X
 	case gxui.AlignCenter:
@@ -89,7 +91,8 @@ func (f *font) align(rect math.Rect, size math.Size, ascent int, h gxui.Horizont
 	case gxui.AlignRight:
 		origin.X = rect.Max.X - size.W
 	}
-	switch v {
+
+	switch verticalAlignment {
 	case gxui.AlignTop:
 		origin.Y = rect.Min.Y + ascent
 	case gxui.AlignMiddle:
@@ -97,28 +100,30 @@ func (f *font) align(rect math.Rect, size math.Size, ascent int, h gxui.Horizont
 	case gxui.AlignBottom:
 		origin.Y = rect.Max.Y - size.H + ascent
 	}
+
 	return origin
 }
 
-func (f *font) DrawRunes(ctx *context, runes []rune, offsets []math.Point, col gxui.Color, ds *drawState) {
+func (f *font) DrawRunes(ctx *context, runes []rune, offsets []math.Point, color gxui.Color, state *drawState) {
 	if len(runes) != len(offsets) {
-		panic(fmt.Errorf("There must be the same number of runes to offsets. Got %d runes and %d offsets",
-			len(runes), len(offsets)))
+		panic(fmt.Errorf("there must be the same number of runes to offsets. Got %d runes and %d offsets", len(runes), len(offsets)))
 	}
-	resolution := ctx.resolution
-	table := f.glyphTable(resolution)
 
-	for i, r := range runes {
-		if unicode.IsSpace(r) {
+	atResolution := ctx.resolution
+	table := f.glyphTable(atResolution)
+
+	for runeIdx, curRune := range runes {
+		if unicode.IsSpace(curRune) {
 			continue
 		}
-		page := table.get(r)
-		texture := page.texture()
-		entry := page.get(r)
+
+		page := table.get(curRune)
+		glyphTexture := page.texture()
+		entry := page.get(curRune)
 		srcRect := entry.bounds.Offset(entry.offset)
-		dstRect := entry.bounds.Offset(resolution.pointDipsToPixels(offsets[i]))
-		tc := ctx.getOrCreateTextureContext(texture)
-		ctx.blitter.blitGlyph(ctx, tc, col, srcRect, dstRect, ds)
+		dstRect := entry.bounds.Offset(atResolution.pointDipsToPixels(offsets[runeIdx]))
+		textureCtx := ctx.getOrCreateTextureContext(glyphTexture)
+		ctx.blitter.blitGlyph(ctx, textureCtx, color, srcRect, dstRect, state)
 	}
 }
 
@@ -126,26 +131,27 @@ func (f *font) Size() int {
 	return f.size
 }
 
-func (f *font) Measure(fl *gxui.TextBlock) math.Size {
+func (f *font) Measure(textBlock *gxui.TextBlock) math.Size {
 	size := math.Size{W: 0, H: f.glyphMaxSizeDips.H}
 	var offset math.Point
-	for _, r := range fl.Runes {
-		if r == '\n' {
+	for _, curRune := range textBlock.Runes {
+		if curRune == '\n' {
 			offset.X = 0
 			offset.Y += f.glyphMaxSizeDips.H
 			continue
 		}
-		offset.X += f.advanceDips(r)
+
+		offset.X += f.advanceDips(curRune)
 		size = size.Max(math.Size{W: offset.X, H: offset.Y + f.glyphMaxSizeDips.H})
 	}
 	return size
 }
 
-func (f *font) Layout(fl *gxui.TextBlock) (offsets []math.Point) {
+func (f *font) Layout(textBlock *gxui.TextBlock) []math.Point {
 	sizeDips := math.Size{}
-	offsets = make([]math.Point, len(fl.Runes))
+	offsets := make([]math.Point, len(textBlock.Runes))
 	var offset math.Point
-	for i, r := range fl.Runes {
+	for i, r := range textBlock.Runes {
 		if r == '\n' {
 			offset.X = 0
 			offset.Y += f.glyphMaxSizeDips.H
@@ -157,10 +163,11 @@ func (f *font) Layout(fl *gxui.TextBlock) (offsets []math.Point) {
 		sizeDips = sizeDips.Max(math.Size{W: offset.X, H: offset.Y + f.glyphMaxSizeDips.H})
 	}
 
-	origin := f.align(fl.AlignRect, sizeDips, f.ascentDips, fl.H, fl.V)
+	origin := f.align(textBlock.AlignRect, sizeDips, f.ascentDips, textBlock.H, textBlock.V)
 	for i, p := range offsets {
 		offsets[i] = p.Add(origin)
 	}
+
 	return offsets
 }
 

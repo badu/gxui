@@ -24,7 +24,7 @@ func (s *drawStateStack) pop() {
 	*s = (*s)[:len(*s)-1]
 }
 
-type canvasOp func(ctx *context, dss *drawStateStack)
+type canvasOp func(ctx *context, stack *drawStateStack)
 
 type drawState struct {
 	// The below are all in window coordinates
@@ -41,20 +41,19 @@ type canvas struct {
 
 func newCanvas(sizeDips math.Size) *canvas {
 	if sizeDips.W <= 0 || sizeDips.H < 0 {
-		panic(fmt.Errorf("Canvas width and height must be positive. Size: %d", sizeDips))
+		panic(fmt.Errorf("canvas width and height must be positive. Size: %d", sizeDips))
 	}
-	c := &canvas{
-		sizeDips: sizeDips,
-	}
-	return c
+
+	result := &canvas{sizeDips: sizeDips}
+	return result
 }
 
-func (c *canvas) draw(ctx *context, dss *drawStateStack) {
-	ds := dss.head()
-	ctx.apply(ds)
+func (c *canvas) draw(ctx *context, stack *drawStateStack) {
+	head := stack.head()
+	ctx.apply(head)
 
 	for _, op := range c.ops {
-		op(ctx, dss)
+		op(ctx, stack)
 	}
 }
 
@@ -76,128 +75,159 @@ func (c *canvas) IsComplete() bool {
 
 func (c *canvas) Complete() {
 	if c.built {
-		panic("Complete() called twice")
+		panic("complete() called twice")
 	}
+
 	if c.buildingPushCount != 0 {
-		panic(fmt.Errorf("Push() count was %d when calling Complete", c.buildingPushCount))
+		panic(fmt.Errorf("push() count was %d when calling Complete", c.buildingPushCount))
 	}
+
 	c.built = true
 }
 
 func (c *canvas) Push() {
 	c.buildingPushCount++
-	c.appendOp("Push", func(ctx *context, dss *drawStateStack) {
-		dss.push(*dss.head())
-	})
+	c.appendOp(
+		"Push",
+		func(ctx *context, stack *drawStateStack) {
+			stack.push(*stack.head())
+		},
+	)
 }
 
 func (c *canvas) Pop() {
 	c.buildingPushCount--
-	c.appendOp("Pop", func(ctx *context, dss *drawStateStack) {
-		dss.pop()
-		ctx.apply(dss.head())
-	})
+	c.appendOp(
+		"Pop",
+		func(ctx *context, stack *drawStateStack) {
+			stack.pop()
+			ctx.apply(stack.head())
+		},
+	)
 }
 
-func (c *canvas) AddClip(r math.Rect) {
-	c.appendOp("AddClip", func(ctx *context, dss *drawStateStack) {
-		ds := dss.head()
-		rectLocalPixels := ctx.resolution.rectDipsToPixels(r)
-		rectWindowPixels := rectLocalPixels.Offset(ds.OriginPixels)
-		ds.ClipPixels = ds.ClipPixels.Intersect(rectWindowPixels)
-		ctx.apply(ds)
-	})
+func (c *canvas) AddClip(rect math.Rect) {
+	c.appendOp(
+		"AddClip",
+		func(ctx *context, stack *drawStateStack) {
+			head := stack.head()
+			rectLocalPixels := ctx.resolution.rectDipsToPixels(rect)
+			rectWindowPixels := rectLocalPixels.Offset(head.OriginPixels)
+			head.ClipPixels = head.ClipPixels.Intersect(rectWindowPixels)
+			ctx.apply(head)
+		},
+	)
 }
 
 func (c *canvas) Clear(color gxui.Color) {
-	c.appendOp("Clear", func(ctx *context, dss *drawStateStack) {
-		gl.ClearColor(
-			color.R,
-			color.G,
-			color.B,
-			color.A,
-		)
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-	})
+	c.appendOp(
+		"Clear",
+		func(ctx *context, stack *drawStateStack) {
+			gl.ClearColor(color.R, color.G, color.B, color.A)
+			gl.Clear(gl.COLOR_BUFFER_BIT)
+		},
+	)
 }
 
-func (c *canvas) DrawCanvas(cc gxui.Canvas, offsetDips math.Point) {
-	if cc == nil {
-		panic("Canvas cannot be nil")
+func (c *canvas) DrawCanvas(targetCanvas gxui.Canvas, offsetDips math.Point) {
+	if targetCanvas == nil {
+		panic("target canvas cannot be nil")
 	}
-	childCanvas := cc.(*canvas)
-	c.appendOp("DrawCanvas", func(ctx *context, dss *drawStateStack) {
-		offsetPixels := ctx.resolution.pointDipsToPixels(offsetDips)
-		dss.push(*dss.head())
-		ds := dss.head()
-		ds.OriginPixels = ds.OriginPixels.Add(offsetPixels)
-		childCanvas.draw(ctx, dss)
-		dss.pop()
-		ctx.apply(dss.head())
-	})
+
+	childCanvas := targetCanvas.(*canvas)
+	c.appendOp(
+		"DrawCanvas",
+		func(ctx *context, stack *drawStateStack) {
+			offsetPixels := ctx.resolution.pointDipsToPixels(offsetDips)
+			stack.push(*stack.head())
+			head := stack.head()
+			head.OriginPixels = head.OriginPixels.Add(offsetPixels)
+			childCanvas.draw(ctx, stack)
+			stack.pop()
+			ctx.apply(stack.head())
+		},
+	)
 }
 
-func (c *canvas) DrawRunes(f gxui.Font, r []rune, p []math.Point, col gxui.Color) {
-	if f == nil {
-		panic("Font cannot be nil")
+func (c *canvas) DrawRunes(useFont gxui.Font, runes []rune, points []math.Point, color gxui.Color) {
+	if useFont == nil {
+		panic("font cannot be nil")
 	}
-	runes := append([]rune{}, r...)
-	points := append([]math.Point{}, p...)
-	c.appendOp("DrawRunes", func(ctx *context, dss *drawStateStack) {
-		f.(*font).DrawRunes(ctx, runes, points, col, dss.head())
-	})
+
+	runesCopy := append([]rune{}, runes...)
+	pointsCopy := append([]math.Point{}, points...)
+	c.appendOp(
+		"DrawRunes",
+		func(ctx *context, stack *drawStateStack) {
+			useFont.(*font).DrawRunes(ctx, runesCopy, pointsCopy, color, stack.head())
+		},
+	)
 }
 
 func (c *canvas) DrawLines(lines gxui.Polygon, pen gxui.Pen) {
 	edge := openPolyToShape(lines, pen.Width)
-	c.appendOp("DrawLines", func(ctx *context, dss *drawStateStack) {
-		ds := dss.head()
-		if edge != nil && pen.Color.A > 0 {
-			ctx.blitter.blitShape(ctx, *edge, pen.Color, ds)
-		}
-	})
+	c.appendOp(
+		"DrawLines",
+		func(ctx *context, dss *drawStateStack) {
+			head := dss.head()
+			if edge != nil && pen.Color.A > 0 {
+				ctx.blitter.blitShape(ctx, *edge, pen.Color, head)
+			}
+		},
+	)
 }
 
 func (c *canvas) DrawPolygon(poly gxui.Polygon, pen gxui.Pen, brush gxui.Brush) {
 	fill, edge := closedPolyToShape(poly, pen.Width)
-	c.appendOp("DrawPolygon", func(ctx *context, dss *drawStateStack) {
-		ds := dss.head()
-		if fill != nil && brush.Color.A > 0 {
-			ctx.blitter.blitShape(ctx, *fill, brush.Color, ds)
-		}
-		if edge != nil && pen.Color.A > 0 {
-			ctx.blitter.blitShape(ctx, *edge, pen.Color, ds)
-		}
-	})
+	c.appendOp(
+		"DrawPolygon",
+		func(ctx *context, stack *drawStateStack) {
+			head := stack.head()
+			if fill != nil && brush.Color.A > 0 {
+				ctx.blitter.blitShape(ctx, *fill, brush.Color, head)
+			}
+			if edge != nil && pen.Color.A > 0 {
+				ctx.blitter.blitShape(ctx, *edge, pen.Color, head)
+			}
+		},
+	)
 }
 
-func (c *canvas) DrawRect(r math.Rect, brush gxui.Brush) {
-	c.appendOp("DrawRect", func(ctx *context, dss *drawStateStack) {
-		ctx.blitter.blitRect(ctx, ctx.resolution.rectDipsToPixels(r), brush.Color, dss.head())
-	})
+func (c *canvas) DrawRect(rect math.Rect, brush gxui.Brush) {
+	c.appendOp(
+		"DrawRect",
+		func(ctx *context, dss *drawStateStack) {
+			ctx.blitter.blitRect(ctx, ctx.resolution.rectDipsToPixels(rect), brush.Color, dss.head())
+		},
+	)
 }
 
-func (c *canvas) DrawRoundedRect(r math.Rect, tl, tr, bl, br float32, pen gxui.Pen, brush gxui.Brush) {
+func (c *canvas) DrawRoundedRect(rect math.Rect, tl, tr, bl, br float32, pen gxui.Pen, brush gxui.Brush) {
 	if tl == 0 && tr == 0 && bl == 0 && br == 0 && pen.Color.A == 0 {
-		c.DrawRect(r, brush)
+		c.DrawRect(rect, brush)
 		return
 	}
-	p := gxui.Polygon{
-		gxui.PolygonVertex{Position: r.TL(), RoundedRadius: tl},
-		gxui.PolygonVertex{Position: r.TR(), RoundedRadius: tr},
-		gxui.PolygonVertex{Position: r.BR(), RoundedRadius: br},
-		gxui.PolygonVertex{Position: r.BL(), RoundedRadius: bl},
+
+	polygon := gxui.Polygon{
+		gxui.PolygonVertex{Position: rect.TL(), RoundedRadius: tl},
+		gxui.PolygonVertex{Position: rect.TR(), RoundedRadius: tr},
+		gxui.PolygonVertex{Position: rect.BR(), RoundedRadius: br},
+		gxui.PolygonVertex{Position: rect.BL(), RoundedRadius: bl},
 	}
-	c.DrawPolygon(p, pen, brush)
+
+	c.DrawPolygon(polygon, pen, brush)
 }
 
-func (c *canvas) DrawTexture(t gxui.Texture, r math.Rect) {
-	if t == nil {
-		panic("Texture cannot be nil")
+func (c *canvas) DrawTexture(targetTexture gxui.Texture, r math.Rect) {
+	if targetTexture == nil {
+		panic("target texture cannot be nil")
 	}
 
-	c.appendOp("DrawTexture", func(ctx *context, dss *drawStateStack) {
-		tc := ctx.getOrCreateTextureContext(t.(*texture))
-		ctx.blitter.blit(ctx, tc, tc.sizePixels.Rect(), ctx.resolution.rectDipsToPixels(r), dss.head())
-	})
+	c.appendOp(
+		"DrawTexture",
+		func(ctx *context, stack *drawStateStack) {
+			textureCtx := ctx.getOrCreateTextureContext(targetTexture.(*texture))
+			ctx.blitter.blit(ctx, textureCtx, textureCtx.sizePixels.Rect(), ctx.resolution.rectDipsToPixels(r), stack.head())
+		},
+	)
 }

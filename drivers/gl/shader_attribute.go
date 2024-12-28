@@ -7,20 +7,20 @@ package gl
 import "github.com/goxjs/gl"
 
 type shaderAttribute struct {
-	name     string
-	size     int
-	ty       shaderDataType
-	location gl.Attrib
+	name       string
+	size       int
+	shaderType shaderDataType
+	glAttr     gl.Attrib
 }
 
 func (a shaderAttribute) enableArray() {
-	gl.EnableVertexAttribArray(a.location)
+	gl.EnableVertexAttribArray(a.glAttr)
 }
 
 func (a shaderAttribute) disableArray() {
-	gl.DisableVertexAttribArray(a.location)
+	gl.DisableVertexAttribArray(a.glAttr)
 }
 
 func (a shaderAttribute) attribPointer(size int32, ty uint32, normalized bool, stride int32, offset int) {
-	gl.VertexAttribPointer(a.location, int(size), gl.Enum(ty), normalized, int(stride), offset)
+	gl.VertexAttribPointer(a.glAttr, int(size), gl.Enum(ty), normalized, int(stride), offset)
 }

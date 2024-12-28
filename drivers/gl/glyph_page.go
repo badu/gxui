@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/badu/gxui/math"
-	fnt "golang.org/x/image/font"
+	imageFont "golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -37,22 +37,22 @@ type glyphPage struct {
 	nextPoint math.Point
 }
 
-func point26_6toPoint(p fixed.Point26_6) math.Point {
-	return math.Point{X: int(p.X) >> 6, Y: int(p.Y) >> 6}
+func point26_6toPoint(point fixed.Point26_6) math.Point {
+	return math.Point{X: int(point.X) >> 6, Y: int(point.Y) >> 6}
 }
 
-func rectangle26_6toRect(p fixed.Rectangle26_6) math.Rect {
-	return math.Rect{Min: point26_6toPoint(p.Min), Max: point26_6toPoint(p.Max)}
+func rectangle26_6toRect(point fixed.Rectangle26_6) math.Rect {
+	return math.Rect{Min: point26_6toPoint(point.Min), Max: point26_6toPoint(point.Max)}
 }
 
-func align(v, pot int) int {
-	return (v + pot - 1) & ^(pot - 1)
+func align(width, size int) int {
+	return (width + size - 1) & ^(size - 1)
 }
 
-func newGlyphPage(face fnt.Face, r rune) *glyphPage {
+func newGlyphPage(face imageFont.Face, whichRune rune) *glyphPage {
 	// Start the page big enough to hold the initial rune.
-	b, _, _ := face.GlyphBounds(r)
-	bounds := rectangle26_6toRect(b)
+	glyphBounds, _, _ := face.GlyphBounds(whichRune)
+	bounds := rectangle26_6toRect(glyphBounds)
 	size := math.Size{W: glyphPageWidth, H: glyphPageHeight}.Max(bounds.Size())
 	size.W = align(size.W, glyphSizeAlignment)
 	size.H = align(size.H, glyphSizeAlignment)
@@ -63,7 +63,7 @@ func newGlyphPage(face fnt.Face, r rune) *glyphPage {
 		entries:   make(map[rune]glyphEntry),
 		rowHeight: 0,
 	}
-	page.add(face, r)
+	page.add(face, whichRune)
 	return page
 }
 
@@ -71,6 +71,7 @@ func (p *glyphPage) commit() {
 	if p.tex != nil {
 		return
 	}
+
 	p.tex = newTexture(p.image, 1.0)
 	if dumpGlyphPages {
 		f, _ := os.Create("glyph-page.png")
@@ -79,13 +80,13 @@ func (p *glyphPage) commit() {
 	}
 }
 
-func (p *glyphPage) add(face fnt.Face, r rune) bool {
-	if _, found := p.entries[r]; found {
+func (p *glyphPage) add(face imageFont.Face, whichRune rune) bool {
+	if _, found := p.entries[whichRune]; found {
 		panic("Glyph already added to glyph page")
 	}
 
-	b, mask, maskp, _, _ := face.Glyph(fixed.Point26_6{}, r)
-	bounds := math.CreateRect(b.Min.X, b.Min.Y, b.Max.X, b.Max.Y)
+	glyphBounds, mask, maskp, _, _ := face.Glyph(fixed.Point26_6{}, whichRune)
+	bounds := math.CreateRect(glyphBounds.Min.X, glyphBounds.Min.Y, glyphBounds.Max.X, glyphBounds.Max.Y)
 
 	w, h := bounds.Size().WH()
 	x, y := p.nextPoint.X, p.nextPoint.Y
@@ -103,7 +104,7 @@ func (p *glyphPage) add(face fnt.Face, r rune) bool {
 
 	draw.Draw(p.image, image.Rect(x, y, x+w, y+h), mask, maskp, draw.Src)
 
-	p.entries[r] = glyphEntry{
+	p.entries[whichRune] = glyphEntry{
 		offset: math.Point{X: x, Y: y}.Sub(bounds.Min),
 		bounds: bounds,
 	}

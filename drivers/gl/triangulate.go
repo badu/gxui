@@ -10,6 +10,8 @@ import (
 	"github.com/badu/gxui/math"
 )
 
+// TODO : @Badu - do NOT touch this YET!
+
 const debugTriangulate = false
 const epsilon = 0.00001
 
