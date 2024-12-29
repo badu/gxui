@@ -70,7 +70,7 @@ func (w *Window) update() {
 }
 
 func (w *Window) Init(outer gxui.WindowOuter, driver gxui.Driver, width, height int, title string) {
-	w.AttachablePart.Init(outer)
+	w.AttachablePart.Init()
 	w.BackgroundBorderPainter.Init(outer)
 	w.ContainerPart.Init(outer)
 	w.PaddablePart.Init(outer)

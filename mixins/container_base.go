@@ -21,13 +21,13 @@ type ContainerBase struct {
 }
 
 func (c *ContainerBase) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
-	c.AttachablePart.Init(outer)
+	c.AttachablePart.Init()
 	c.ContainerPart.Init(outer)
 	c.DrawPaintPart.Init(outer, theme)
-	c.InputEventHandlerPart.Init(outer)
+	c.InputEventHandlerPart.Init()
 	c.LayoutablePart.Init(outer, theme)
 	c.PaddablePart.Init(outer)
 	c.PaintChildrenPart.Init(outer)
-	c.ParentablePart.Init(outer)
+	c.ParentablePart.Init()
 	c.VisiblePart.Init(outer)
 }

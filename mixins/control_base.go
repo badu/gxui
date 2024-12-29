@@ -19,11 +19,11 @@ type ControlBase struct {
 }
 
 func (c *ControlBase) Init(outer gxui.ControlBaseOuter, theme gxui.Theme) {
-	c.AttachablePart.Init(outer)
+	c.AttachablePart.Init()
 	c.DrawPaintPart.Init(outer, theme)
 	c.LayoutablePart.Init(outer, theme)
-	c.InputEventHandlerPart.Init(outer)
-	c.ParentablePart.Init(outer)
+	c.InputEventHandlerPart.Init()
+	c.ParentablePart.Init()
 	c.VisiblePart.Init(outer)
 }
 

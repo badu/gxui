@@ -28,7 +28,7 @@ func (l *DropDownList) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
 	l.outer = outer
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
-	l.FocusablePart.Init(outer)
+	l.FocusablePart.Init()
 
 	l.theme = theme
 	l.list = theme.CreateList()

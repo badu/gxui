@@ -20,7 +20,7 @@ type Tree struct {
 
 func (t *Tree) Init(outer gxui.TreeOuter, theme gxui.Theme) {
 	t.List.Init(outer, theme)
-	t.FocusablePart.Init(outer)
+	t.FocusablePart.Init()
 	t.outer = outer
 	t.creator = defaultTreeControlCreator{}
 }

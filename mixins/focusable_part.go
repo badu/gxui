@@ -8,18 +8,15 @@ import (
 	"github.com/badu/gxui"
 )
 
-type FocusableOuter interface{}
-
 type FocusablePart struct {
-	outer         FocusableOuter
 	focusable     bool
 	hasFocus      bool
 	onGainedFocus gxui.Event
 	onLostFocus   gxui.Event
 }
 
-func (f *FocusablePart) Init(outer FocusableOuter) {
-	f.outer = outer
+func (f *FocusablePart) Init() {
+
 	f.focusable = true
 }
 

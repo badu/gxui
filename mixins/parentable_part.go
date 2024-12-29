@@ -8,16 +8,11 @@ import (
 	"github.com/badu/gxui"
 )
 
-type ParentableOuter interface{}
-
 type ParentablePart struct {
-	outer  ParentableOuter
 	parent gxui.Parent
 }
 
-func (p *ParentablePart) Init(outer ParentableOuter) {
-	p.outer = outer
-}
+func (p *ParentablePart) Init() {}
 
 func (p *ParentablePart) Parent() gxui.Parent {
 	return p.parent

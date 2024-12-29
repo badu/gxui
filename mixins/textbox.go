@@ -52,7 +52,7 @@ func (t *TextBox) lineMouseUp(line gxui.TextBoxLine, event gxui.MouseEvent) {
 
 func (t *TextBox) Init(outer gxui.TextBoxOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
 	t.List.Init(outer, theme)
-	t.FocusablePart.Init(outer)
+	t.FocusablePart.Init()
 	t.outer = outer
 	t.driver = driver
 	t.font = font

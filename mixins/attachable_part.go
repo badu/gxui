@@ -8,20 +8,13 @@ import (
 	"github.com/badu/gxui"
 )
 
-type AttachableOuter interface {
-	Relayout() // was outer.Relayouter
-}
-
 type AttachablePart struct {
-	outer    AttachableOuter
 	onAttach gxui.Event
 	onDetach gxui.Event
 	attached bool
 }
 
-func (a *AttachablePart) Init(outer AttachableOuter) {
-	a.outer = outer
-}
+func (a *AttachablePart) Init() {}
 
 func (a *AttachablePart) Attached() bool {
 	return a.attached

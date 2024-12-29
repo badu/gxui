@@ -5,8 +5,33 @@
 package gxui
 
 import (
+	"github.com/badu/gxui/math"
 	"time"
 )
+
+type MouseButton int
+
+const (
+	MouseButtonLeft MouseButton = iota
+	MouseButtonMiddle
+	MouseButtonRight
+)
+
+type MouseState int
+
+func (s MouseState) IsDown(b MouseButton) bool {
+	return s&(1<<uint(b)) != 0
+}
+
+type MouseEvent struct {
+	Button           MouseButton
+	State            MouseState
+	Point            math.Point // Local to the event receiver
+	WindowPoint      math.Point
+	Window           Window
+	ScrollX, ScrollY int
+	Modifier         KeyboardModifier
+}
 
 var doubleClickTime = time.Millisecond * 300
 

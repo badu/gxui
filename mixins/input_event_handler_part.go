@@ -8,10 +8,7 @@ import (
 	"github.com/badu/gxui"
 )
 
-type InputEventHandlerOuter interface{}
-
 type InputEventHandlerPart struct {
-	outer         InputEventHandlerOuter
 	isMouseOver   bool
 	isMouseDown   map[gxui.MouseButton]bool
 	onClick       gxui.Event
@@ -120,8 +117,7 @@ func (m *InputEventHandlerPart) getOnKeyRepeat() gxui.Event {
 	return m.onKeyRepeat
 }
 
-func (m *InputEventHandlerPart) Init(outer InputEventHandlerOuter) {
-	m.outer = outer
+func (m *InputEventHandlerPart) Init() {
 	m.isMouseDown = make(map[gxui.MouseButton]bool)
 }
 

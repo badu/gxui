@@ -12,7 +12,7 @@ import (
 )
 
 type Viewer interface {
-	View(t Theme) Control
+	View(theme Theme) Control
 }
 
 type Stringer interface {

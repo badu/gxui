@@ -21,7 +21,7 @@ type Button struct {
 
 func (b *Button) Init(outer gxui.ButtonOuter, theme gxui.Theme) {
 	b.LinearLayout.Init(outer, theme)
-	b.FocusablePart.Init(outer)
+	b.FocusablePart.Init()
 
 	b.buttonType = gxui.PushButton
 	b.theme = theme
