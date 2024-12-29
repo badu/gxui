@@ -33,7 +33,7 @@ type glyphPage struct {
 	size      math.Size // in pixels
 	entries   map[rune]glyphEntry
 	rowHeight int
-	tex       *texture
+	tex       *TextureImpl
 	nextPoint math.Point
 }
 
@@ -72,7 +72,7 @@ func (p *glyphPage) commit() {
 		return
 	}
 
-	p.tex = newTexture(p.image, 1.0)
+	p.tex = NewTexture(p.image, 1.0)
 	if dumpGlyphPages {
 		f, _ := os.Create("glyph-page.png")
 		defer f.Close()
@@ -117,7 +117,7 @@ func (p *glyphPage) add(face imageFont.Face, whichRune rune) bool {
 	return true
 }
 
-func (p *glyphPage) texture() *texture {
+func (p *glyphPage) texture() *TextureImpl {
 	if p.tex == nil {
 		p.commit()
 	}

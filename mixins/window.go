@@ -7,7 +7,7 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/parts"
+	"github.com/badu/gxui/mixins/base"
 )
 
 type WindowOuter interface {
@@ -27,11 +27,11 @@ type WindowOuter interface {
 }
 
 type Window struct {
-	parts.Attachable
-	parts.BackgroundBorderPainter
-	parts.Container
-	parts.Paddable
-	parts.PaintChildren
+	base.AttachablePart
+	base.BackgroundBorderPainter
+	base.ContainerPart
+	base.PaddablePart
+	base.PaintChildrenPart
 	driver                gxui.Driver
 	outer                 WindowOuter
 	viewport              gxui.Viewport
@@ -87,11 +87,11 @@ func (w *Window) update() {
 }
 
 func (w *Window) Init(outer WindowOuter, driver gxui.Driver, width, height int, title string) {
-	w.Attachable.Init(outer)
+	w.AttachablePart.Init(outer)
 	w.BackgroundBorderPainter.Init(outer)
-	w.Container.Init(outer)
-	w.Paddable.Init(outer)
-	w.PaintChildren.Init(outer)
+	w.ContainerPart.Init(outer)
+	w.PaddablePart.Init(outer)
+	w.PaintChildrenPart.Init(outer)
 	w.outer = outer
 	w.driver = driver
 
@@ -142,7 +142,7 @@ func (w *Window) Draw() gxui.Canvas {
 
 func (w *Window) Paint(canvas gxui.Canvas) {
 	w.PaintBackground(canvas, canvas.Size().Rect())
-	w.PaintChildren.Paint(canvas)
+	w.PaintChildrenPart.Paint(canvas)
 	w.PaintBorder(canvas, canvas.Size().Rect())
 }
 

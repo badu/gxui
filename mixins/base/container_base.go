@@ -6,17 +6,16 @@ package base
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins/parts"
 )
 
-type ContainerNoControlOuter interface {
+type ContainerBaseNoControlOuter interface {
 	gxui.Container
 	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
 	Paint(canvas gxui.Canvas)                                  // was outer.Painter
 	LayoutChildren()                                           // was outer.LayoutChildren
 }
 
-type ContainerOuter interface {
+type ContainerBaseOuter interface {
 	gxui.Container
 	gxui.Control
 	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
@@ -24,26 +23,26 @@ type ContainerOuter interface {
 	LayoutChildren()                                           // was outer.LayoutChildren
 }
 
-type Container struct {
-	parts.Attachable
-	parts.Container
-	parts.DrawPaint
-	parts.InputEventHandler
-	parts.Layoutable
-	parts.Paddable
-	parts.PaintChildren
-	parts.Parentable
-	parts.Visible
+type ContainerBase struct {
+	AttachablePart
+	ContainerPart
+	DrawPaintPart
+	InputEventHandlerPart
+	LayoutablePart
+	PaddablePart
+	PaintChildrenPart
+	ParentablePart
+	VisiblePart
 }
 
-func (c *Container) Init(outer ContainerOuter, theme gxui.Theme) {
-	c.Attachable.Init(outer)
-	c.Container.Init(outer)
-	c.DrawPaint.Init(outer, theme)
-	c.InputEventHandler.Init(outer)
-	c.Layoutable.Init(outer, theme)
-	c.Paddable.Init(outer)
-	c.PaintChildren.Init(outer)
-	c.Parentable.Init(outer)
-	c.Visible.Init(outer)
+func (c *ContainerBase) Init(outer ContainerBaseOuter, theme gxui.Theme) {
+	c.AttachablePart.Init(outer)
+	c.ContainerPart.Init(outer)
+	c.DrawPaintPart.Init(outer, theme)
+	c.InputEventHandlerPart.Init(outer)
+	c.LayoutablePart.Init(outer, theme)
+	c.PaddablePart.Init(outer)
+	c.PaintChildrenPart.Init(outer)
+	c.ParentablePart.Init(outer)
+	c.VisiblePart.Init(outer)
 }

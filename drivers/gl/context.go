@@ -19,7 +19,7 @@ type context struct {
 	blitter              *blitter
 	resolution           resolution
 	stats                contextStats
-	textureContexts      map[*texture]*textureContext
+	textureContexts      map[*TextureImpl]*textureContext
 	vertexStreamContexts map[*vertexStream]*vertexStreamContext
 	indexBufferContexts  map[*indexBuffer]*indexBufferContext
 	sizeDips             math.Size
@@ -30,7 +30,7 @@ type context struct {
 
 func newContext() *context {
 	result := &context{
-		textureContexts:      make(map[*texture]*textureContext),
+		textureContexts:      make(map[*TextureImpl]*textureContext),
 		vertexStreamContexts: make(map[*vertexStream]*vertexStreamContext),
 		indexBufferContexts:  make(map[*indexBuffer]*indexBufferContext),
 	}
@@ -103,7 +103,7 @@ func (c *context) endDraw() {
 	c.frame++
 }
 
-func (c *context) getOrCreateTextureContext(targetTexture *texture) *textureContext {
+func (c *context) getOrCreateTextureContext(targetTexture *TextureImpl) *textureContext {
 	textureCtx, found := c.textureContexts[targetTexture]
 	if !found {
 		textureCtx = targetTexture.newContext()

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -13,21 +13,21 @@ type VisibleOuter interface {
 	Redraw()             // was outer.Redrawer
 }
 
-type Visible struct {
+type VisiblePart struct {
 	outer   VisibleOuter
 	visible bool
 }
 
-func (v *Visible) Init(outer VisibleOuter) {
+func (v *VisiblePart) Init(outer VisibleOuter) {
 	v.outer = outer
 	v.visible = true
 }
 
-func (v *Visible) IsVisible() bool {
+func (v *VisiblePart) IsVisible() bool {
 	return v.visible
 }
 
-func (v *Visible) SetVisible(visible bool) {
+func (v *VisiblePart) SetVisible(visible bool) {
 	if v.visible != visible {
 		v.visible = visible
 		if p := v.outer.Parent(); p != nil {

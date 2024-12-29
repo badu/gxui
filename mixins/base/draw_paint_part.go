@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type DrawPaintOuter interface {
 	SetSize(newSize math.Size)                       // was outer.Sized
 }
 
-type DrawPaint struct {
+type DrawPaintPart struct {
 	outer           DrawPaintOuter
 	driver          gxui.Driver
 	canvas          gxui.Canvas
@@ -40,7 +40,7 @@ func verifyDetach(outer DrawPaintOuter) {
 	}
 }
 
-func (d *DrawPaint) Init(outer DrawPaintOuter, theme gxui.Theme) {
+func (d *DrawPaintPart) Init(outer DrawPaintOuter, theme gxui.Theme) {
 	d.outer = outer
 	d.driver = theme.Driver()
 
@@ -49,7 +49,7 @@ func (d *DrawPaint) Init(outer DrawPaintOuter, theme gxui.Theme) {
 	}
 }
 
-func (d *DrawPaint) Redraw() {
+func (d *DrawPaintPart) Redraw() {
 	d.driver.AssertUIGoroutine()
 
 	if !d.redrawRequested {
@@ -60,7 +60,7 @@ func (d *DrawPaint) Redraw() {
 	}
 }
 
-func (d *DrawPaint) Draw() gxui.Canvas {
+func (d *DrawPaintPart) Draw() gxui.Canvas {
 	if !d.outer.Attached() {
 		panic(fmt.Errorf("attempting to draw a non-attached control %T", d.outer))
 	}

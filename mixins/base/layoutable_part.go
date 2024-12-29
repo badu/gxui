@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type LayoutableOuter interface {
 	Redraw()             // was outer.Redrawer
 }
 
-type Layoutable struct {
+type LayoutablePart struct {
 	outer             LayoutableOuter
 	driver            gxui.Driver
 	margin            math.Spacing
@@ -29,27 +29,27 @@ type Layoutable struct {
 	inLayoutChildren  bool // True when calling LayoutChildren
 }
 
-func (l *Layoutable) Init(outer LayoutableOuter, theme gxui.Theme) {
+func (l *LayoutablePart) Init(outer LayoutableOuter, theme gxui.Theme) {
 	l.outer = outer
 	l.driver = theme.Driver()
 }
 
-func (l *Layoutable) SetMargin(margin math.Spacing) {
+func (l *LayoutablePart) SetMargin(margin math.Spacing) {
 	l.margin = margin
 	if p := l.outer.Parent(); p != nil {
 		p.Relayout()
 	}
 }
 
-func (l *Layoutable) Margin() math.Spacing {
+func (l *LayoutablePart) Margin() math.Spacing {
 	return l.margin
 }
 
-func (l *Layoutable) Size() math.Size {
+func (l *LayoutablePart) Size() math.Size {
 	return l.size
 }
 
-func (l *Layoutable) SetSize(newSize math.Size) {
+func (l *LayoutablePart) SetSize(newSize math.Size) {
 	if newSize.W < 0 {
 		panic(fmt.Errorf("SetSize() called with a negative width. Size: %v", newSize))
 	}
@@ -73,7 +73,7 @@ func (l *Layoutable) SetSize(newSize math.Size) {
 	}
 }
 
-func (l *Layoutable) Relayout() {
+func (l *LayoutablePart) Relayout() {
 	l.driver.AssertUIGoroutine()
 	if l.inLayoutChildren {
 		panic("cannot call Relayout() while in LayoutChildren")

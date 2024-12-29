@@ -7,7 +7,7 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/parts"
+	"github.com/badu/gxui/mixins/base"
 )
 
 type TreeOuter interface {
@@ -17,7 +17,7 @@ type TreeOuter interface {
 
 type Tree struct {
 	List
-	parts.Focusable
+	base.FocusablePart
 	outer       TreeOuter
 	treeAdapter gxui.TreeAdapter
 	listAdapter *TreeToListAdapter
@@ -26,7 +26,7 @@ type Tree struct {
 
 func (t *Tree) Init(outer TreeOuter, theme gxui.Theme) {
 	t.List.Init(outer, theme)
-	t.Focusable.Init(outer)
+	t.FocusablePart.Init(outer)
 	t.outer = outer
 	t.creator = defaultTreeControlCreator{}
 }
@@ -100,7 +100,7 @@ func (t *Tree) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
 	}
 }
 
-// InputEventHandler override
+// InputEventHandlerPart override
 func (t *Tree) KeyPress(event gxui.KeyboardEvent) bool {
 	switch event.Key {
 	case gxui.KeyLeft:

@@ -18,20 +18,16 @@ func (c Cell) AtRow(y int) bool {
 	return c.y <= y && c.y+c.h >= y
 }
 
-type TableLayoutOuter interface {
-	base.ContainerOuter
-}
-
 type TableLayout struct {
-	base.Container
-	outer   TableLayoutOuter
+	base.ContainerBase
+	outer   base.ContainerBaseOuter
 	grid    map[gxui.Control]Cell
 	rows    int
 	columns int
 }
 
-func (l *TableLayout) Init(outer TableLayoutOuter, theme gxui.Theme) {
-	l.Container.Init(outer, theme)
+func (l *TableLayout) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.grid = make(map[gxui.Control]Cell)
 }
@@ -108,10 +104,10 @@ func (l *TableLayout) SetChildAt(x, y, w, h int, child gxui.Control) *gxui.Child
 	}
 
 	l.grid[child] = Cell{x, y, w, h}
-	return l.Container.AddChild(child)
+	return l.ContainerBase.AddChild(child)
 }
 
 func (l *TableLayout) RemoveChild(child gxui.Control) {
 	delete(l.grid, child)
-	l.Container.RemoveChild(child)
+	l.ContainerBase.RemoveChild(child)
 }

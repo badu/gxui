@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -10,19 +10,19 @@ import (
 
 type ParentableOuter interface{}
 
-type Parentable struct {
+type ParentablePart struct {
 	outer  ParentableOuter
 	parent gxui.Parent
 }
 
-func (p *Parentable) Init(outer ParentableOuter) {
+func (p *ParentablePart) Init(outer ParentableOuter) {
 	p.outer = outer
 }
 
-func (p *Parentable) Parent() gxui.Parent {
+func (p *ParentablePart) Parent() gxui.Parent {
 	return p.parent
 }
 
-func (p *Parentable) SetParent(parent gxui.Parent) {
+func (p *ParentablePart) SetParent(parent gxui.Parent) {
 	p.parent = parent
 }

@@ -32,23 +32,23 @@ type drawState struct {
 	OriginPixels math.Point
 }
 
-type canvas struct {
+type CanvasImpl struct {
 	sizeDips          math.Size
 	ops               []canvasOp
 	built             bool
 	buildingPushCount int
 }
 
-func newCanvas(sizeDips math.Size) *canvas {
+func NewCanvas(sizeDips math.Size) *CanvasImpl {
 	if sizeDips.W <= 0 || sizeDips.H < 0 {
 		panic(fmt.Errorf("canvas width and height must be positive. Size: %d", sizeDips))
 	}
 
-	result := &canvas{sizeDips: sizeDips}
+	result := &CanvasImpl{sizeDips: sizeDips}
 	return result
 }
 
-func (c *canvas) draw(ctx *context, stack *drawStateStack) {
+func (c *CanvasImpl) draw(ctx *context, stack *drawStateStack) {
 	head := stack.head()
 	ctx.apply(head)
 
@@ -57,7 +57,7 @@ func (c *canvas) draw(ctx *context, stack *drawStateStack) {
 	}
 }
 
-func (c *canvas) appendOp(name string, op canvasOp) {
+func (c *CanvasImpl) appendOp(name string, op canvasOp) {
 	if c.built {
 		panic(fmt.Errorf("%s() called after Complete()", name))
 	}
@@ -65,15 +65,15 @@ func (c *canvas) appendOp(name string, op canvasOp) {
 }
 
 // gxui.Canvas compliance
-func (c *canvas) Size() math.Size {
+func (c *CanvasImpl) Size() math.Size {
 	return c.sizeDips
 }
 
-func (c *canvas) IsComplete() bool {
+func (c *CanvasImpl) IsComplete() bool {
 	return c.built
 }
 
-func (c *canvas) Complete() {
+func (c *CanvasImpl) Complete() {
 	if c.built {
 		panic("complete() called twice")
 	}
@@ -85,7 +85,7 @@ func (c *canvas) Complete() {
 	c.built = true
 }
 
-func (c *canvas) Push() {
+func (c *CanvasImpl) Push() {
 	c.buildingPushCount++
 	c.appendOp(
 		"Push",
@@ -95,7 +95,7 @@ func (c *canvas) Push() {
 	)
 }
 
-func (c *canvas) Pop() {
+func (c *CanvasImpl) Pop() {
 	c.buildingPushCount--
 	c.appendOp(
 		"Pop",
@@ -106,7 +106,7 @@ func (c *canvas) Pop() {
 	)
 }
 
-func (c *canvas) AddClip(rect math.Rect) {
+func (c *CanvasImpl) AddClip(rect math.Rect) {
 	c.appendOp(
 		"AddClip",
 		func(ctx *context, stack *drawStateStack) {
@@ -119,7 +119,7 @@ func (c *canvas) AddClip(rect math.Rect) {
 	)
 }
 
-func (c *canvas) Clear(color gxui.Color) {
+func (c *CanvasImpl) Clear(color gxui.Color) {
 	c.appendOp(
 		"Clear",
 		func(ctx *context, stack *drawStateStack) {
@@ -129,12 +129,12 @@ func (c *canvas) Clear(color gxui.Color) {
 	)
 }
 
-func (c *canvas) DrawCanvas(targetCanvas gxui.Canvas, offsetDips math.Point) {
+func (c *CanvasImpl) DrawCanvas(targetCanvas gxui.Canvas, offsetDips math.Point) {
 	if targetCanvas == nil {
 		panic("target canvas cannot be nil")
 	}
 
-	childCanvas := targetCanvas.(*canvas)
+	childCanvas := targetCanvas.(*CanvasImpl)
 	c.appendOp(
 		"DrawCanvas",
 		func(ctx *context, stack *drawStateStack) {
@@ -149,7 +149,7 @@ func (c *canvas) DrawCanvas(targetCanvas gxui.Canvas, offsetDips math.Point) {
 	)
 }
 
-func (c *canvas) DrawRunes(useFont gxui.Font, runes []rune, points []math.Point, color gxui.Color) {
+func (c *CanvasImpl) DrawRunes(useFont gxui.Font, runes []rune, points []math.Point, color gxui.Color) {
 	if useFont == nil {
 		panic("font cannot be nil")
 	}
@@ -164,7 +164,7 @@ func (c *canvas) DrawRunes(useFont gxui.Font, runes []rune, points []math.Point,
 	)
 }
 
-func (c *canvas) DrawLines(lines gxui.Polygon, pen gxui.Pen) {
+func (c *CanvasImpl) DrawLines(lines gxui.Polygon, pen gxui.Pen) {
 	edge := openPolyToShape(lines, pen.Width)
 	c.appendOp(
 		"DrawLines",
@@ -177,7 +177,7 @@ func (c *canvas) DrawLines(lines gxui.Polygon, pen gxui.Pen) {
 	)
 }
 
-func (c *canvas) DrawPolygon(poly gxui.Polygon, pen gxui.Pen, brush gxui.Brush) {
+func (c *CanvasImpl) DrawPolygon(poly gxui.Polygon, pen gxui.Pen, brush gxui.Brush) {
 	fill, edge := closedPolyToShape(poly, pen.Width)
 	c.appendOp(
 		"DrawPolygon",
@@ -193,7 +193,7 @@ func (c *canvas) DrawPolygon(poly gxui.Polygon, pen gxui.Pen, brush gxui.Brush) 
 	)
 }
 
-func (c *canvas) DrawRect(rect math.Rect, brush gxui.Brush) {
+func (c *CanvasImpl) DrawRect(rect math.Rect, brush gxui.Brush) {
 	c.appendOp(
 		"DrawRect",
 		func(ctx *context, dss *drawStateStack) {
@@ -202,7 +202,7 @@ func (c *canvas) DrawRect(rect math.Rect, brush gxui.Brush) {
 	)
 }
 
-func (c *canvas) DrawRoundedRect(rect math.Rect, tl, tr, bl, br float32, pen gxui.Pen, brush gxui.Brush) {
+func (c *CanvasImpl) DrawRoundedRect(rect math.Rect, tl, tr, bl, br float32, pen gxui.Pen, brush gxui.Brush) {
 	if tl == 0 && tr == 0 && bl == 0 && br == 0 && pen.Color.A == 0 {
 		c.DrawRect(rect, brush)
 		return
@@ -218,7 +218,7 @@ func (c *canvas) DrawRoundedRect(rect math.Rect, tl, tr, bl, br float32, pen gxu
 	c.DrawPolygon(polygon, pen, brush)
 }
 
-func (c *canvas) DrawTexture(targetTexture gxui.Texture, r math.Rect) {
+func (c *CanvasImpl) DrawTexture(targetTexture gxui.Texture, r math.Rect) {
 	if targetTexture == nil {
 		panic("target texture cannot be nil")
 	}
@@ -226,7 +226,7 @@ func (c *canvas) DrawTexture(targetTexture gxui.Texture, r math.Rect) {
 	c.appendOp(
 		"DrawTexture",
 		func(ctx *context, stack *drawStateStack) {
-			textureCtx := ctx.getOrCreateTextureContext(targetTexture.(*texture))
+			textureCtx := ctx.getOrCreateTextureContext(targetTexture.(*TextureImpl))
 			ctx.blitter.blit(ctx, textureCtx, textureCtx.sizePixels.Rect(), ctx.resolution.rectDipsToPixels(r), stack.head())
 		},
 	)

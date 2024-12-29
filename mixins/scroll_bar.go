@@ -10,13 +10,9 @@ import (
 	"github.com/badu/gxui/mixins/base"
 )
 
-type ScrollBarOuter interface {
-	base.ControlOuter
-}
-
 type ScrollBar struct {
-	base.Control
-	outer               ScrollBarOuter
+	base.ControlBase
+	outer               base.ControlBaseOuter
 	orientation         gxui.Orientation
 	thickness           int
 	minBarLength        int
@@ -69,8 +65,8 @@ func (s *ScrollBar) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBar) Init(outer ScrollBarOuter, theme gxui.Theme) {
-	s.Control.Init(outer, theme)
+func (s *ScrollBar) Init(outer base.ControlBaseOuter, theme gxui.Theme) {
+	s.ControlBase.Init(outer, theme)
 
 	s.outer = outer
 	s.thickness = 10
@@ -188,7 +184,7 @@ func (s *ScrollBar) IsVisible() bool {
 	if s.autoHide && s.scrollPositionFrom == 0 && s.scrollPositionTo == s.scrollLimit {
 		return false
 	}
-	return s.Control.IsVisible()
+	return s.ControlBase.IsVisible()
 }
 
 func (s *ScrollBar) Orientation() gxui.Orientation {
@@ -202,7 +198,7 @@ func (s *ScrollBar) SetOrientation(orientation gxui.Orientation) {
 	}
 }
 
-// InputEventHandler overrides
+// InputEventHandlerPart overrides
 func (s *ScrollBar) Click(event gxui.MouseEvent) bool {
 	if !s.barRect.Contains(event.Point) {
 		p := s.positionAt(event.Point)
@@ -234,5 +230,5 @@ func (s *ScrollBar) MouseDown(event gxui.MouseEvent) {
 			mus.Unlisten()
 		})
 	}
-	s.InputEventHandler.MouseDown(event)
+	s.InputEventHandlerPart.MouseDown(event)
 }

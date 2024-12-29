@@ -10,11 +10,10 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 	"github.com/badu/gxui/mixins/base"
-	"github.com/badu/gxui/mixins/parts"
 )
 
 type ListOuter interface {
-	base.ContainerOuter
+	base.ContainerBaseOuter
 	ContainsItem(gxui.AdapterItem) bool
 	PaintBackground(c gxui.Canvas, r math.Rect)
 	PaintMouseOverBackground(c gxui.Canvas, r math.Rect)
@@ -30,9 +29,9 @@ type itemDetails struct {
 }
 
 type List struct {
-	base.Container
-	parts.BackgroundBorderPainter
-	parts.Focusable
+	base.ContainerBase
+	base.BackgroundBorderPainter
+	base.FocusablePart
 	outer                    ListOuter
 	theme                    gxui.Theme
 	adapter                  gxui.ListAdapter
@@ -56,9 +55,9 @@ type List struct {
 
 func (l *List) Init(outer ListOuter, theme gxui.Theme) {
 	l.outer = outer
-	l.Container.Init(outer, theme)
+	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
-	l.Focusable.Init(outer)
+	l.FocusablePart.Init(outer)
 
 	l.theme = theme
 	l.scrollBar = theme.CreateScrollBar()
@@ -185,7 +184,7 @@ func (l *List) LayoutChildren() {
 }
 
 func (l *List) SetSize(size math.Size) {
-	l.Layoutable.SetSize(size)
+	l.LayoutablePart.SetSize(size)
 	// Ensure scroll offset is still valid
 	l.SetScrollOffset(l.scrollOffset)
 }
@@ -315,7 +314,7 @@ func (l *List) DataReplaced() {
 func (l *List) Paint(canvas gxui.Canvas) {
 	rect := l.outer.Size().Rect()
 	l.outer.PaintBackground(canvas, rect)
-	l.Container.Paint(canvas)
+	l.ContainerBase.Paint(canvas)
 	l.outer.PaintBorder(canvas, rect)
 }
 
@@ -357,13 +356,13 @@ func (l *List) RemoveAll() {
 	l.details = make(map[gxui.AdapterItem]itemDetails)
 }
 
-// PaintChildren overrides
+// PaintChildrenPart overrides
 func (l *List) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
 	if child == l.itemMouseOver {
 		b := child.Bounds().Expand(child.Control.Margin())
 		l.outer.PaintMouseOverBackground(canvas, b)
 	}
-	l.PaintChildren.PaintChild(canvas, child, idx)
+	l.PaintChildrenPart.PaintChild(canvas, child, idx)
 	if selected, found := l.details[l.selectedItem]; found {
 		if child == selected.child {
 			b := child.Bounds().Expand(child.Control.Margin())
@@ -372,21 +371,21 @@ func (l *List) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
 	}
 }
 
-// InputEventHandler override
+// InputEventHandlerPart override
 func (l *List) MouseMove(event gxui.MouseEvent) {
-	l.InputEventHandler.MouseMove(event)
+	l.InputEventHandlerPart.MouseMove(event)
 	l.mousePosition = event.Point
 	l.UpdateItemMouseOver()
 }
 
 func (l *List) MouseExit(event gxui.MouseEvent) {
-	l.InputEventHandler.MouseExit(event)
+	l.InputEventHandlerPart.MouseExit(event)
 	l.itemMouseOver = nil
 }
 
 func (l *List) MouseScroll(event gxui.MouseEvent) bool {
 	if event.ScrollY == 0 {
-		return l.InputEventHandler.MouseScroll(event)
+		return l.InputEventHandlerPart.MouseScroll(event)
 	}
 
 	prevOffset := l.scrollOffset
@@ -435,7 +434,7 @@ func (l *List) KeyPress(event gxui.KeyboardEvent) bool {
 			}
 		}
 	}
-	return l.Container.KeyPress(event)
+	return l.ContainerBase.KeyPress(event)
 }
 
 // gxui.List compliance

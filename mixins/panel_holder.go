@@ -23,7 +23,7 @@ type PanelTabCreater interface {
 }
 
 type PanelHolderOuter interface {
-	base.ContainerNoControlOuter
+	base.ContainerBaseNoControlOuter
 	gxui.PanelHolder
 	PanelTabCreater
 }
@@ -35,7 +35,7 @@ type PanelEntry struct {
 }
 
 type PanelHolder struct {
-	base.Container
+	base.ContainerBase
 	outer     PanelHolderOuter
 	theme     gxui.Theme
 	tabLayout gxui.LinearLayout
@@ -90,14 +90,14 @@ func beginTabDragging(holder gxui.PanelHolder, panel gxui.Control, name string, 
 }
 
 func (p *PanelHolder) Init(outer PanelHolderOuter, theme gxui.Theme) {
-	p.Container.Init(outer, theme)
+	p.ContainerBase.Init(outer, theme)
 
 	p.outer = outer
 	p.theme = theme
 
 	p.tabLayout = theme.CreateLinearLayout()
 	p.tabLayout.SetDirection(gxui.LeftToRight)
-	p.Container.AddChild(p.tabLayout)
+	p.ContainerBase.AddChild(p.tabLayout)
 	p.SetMargin(math.Spacing{L: 1, T: 2, R: 1, B: 1})
 	p.SetMouseEventTarget(true) // For drag-drop targets
 }
@@ -187,7 +187,7 @@ func (p *PanelHolder) Select(index int) {
 
 	if p.selected.Panel != nil {
 		p.selected.Tab.SetActive(false)
-		p.Container.RemoveChild(p.selected.Panel)
+		p.ContainerBase.RemoveChild(p.selected.Panel)
 	}
 
 	if index >= 0 {
@@ -197,7 +197,7 @@ func (p *PanelHolder) Select(index int) {
 	}
 
 	if p.selected.Panel != nil {
-		p.Container.AddChild(p.selected.Panel)
+		p.ContainerBase.AddChild(p.selected.Panel)
 		p.selected.Tab.SetActive(true)
 	}
 }

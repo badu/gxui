@@ -7,22 +7,17 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/mixins/base"
-	"github.com/badu/gxui/mixins/parts"
 )
 
-type LinearLayoutOuter interface {
-	base.ContainerOuter
-}
-
 type LinearLayout struct {
-	base.Container
-	parts.LinearLayout
-	parts.BackgroundBorderPainter
+	base.ContainerBase
+	base.LinearLayoutPart
+	base.BackgroundBorderPainter
 }
 
-func (l *LinearLayout) Init(outer LinearLayoutOuter, theme gxui.Theme) {
-	l.Container.Init(outer, theme)
-	l.LinearLayout.Init(outer)
+func (l *LinearLayout) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+	l.ContainerBase.Init(outer, theme)
+	l.LinearLayoutPart.Init(outer)
 	l.BackgroundBorderPainter.Init(outer)
 	l.SetMouseEventTarget(true)
 	l.SetBackgroundBrush(gxui.TransparentBrush)
@@ -32,6 +27,6 @@ func (l *LinearLayout) Init(outer LinearLayoutOuter, theme gxui.Theme) {
 func (l *LinearLayout) Paint(canvas gxui.Canvas) {
 	rect := l.Size().Rect()
 	l.BackgroundBorderPainter.PaintBackground(canvas, rect)
-	l.PaintChildren.Paint(canvas)
+	l.PaintChildrenPart.Paint(canvas)
 	l.BackgroundBorderPainter.PaintBorder(canvas, rect)
 }

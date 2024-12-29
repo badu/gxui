@@ -8,17 +8,16 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 	"github.com/badu/gxui/mixins/base"
-	"github.com/badu/gxui/mixins/parts"
 )
 
 type ProgressBarOuter interface {
-	base.ControlOuter
+	base.ControlBaseOuter
 	PaintProgress(gxui.Canvas, math.Rect, float32)
 }
 
 type ProgressBar struct {
-	base.Control
-	parts.BackgroundBorderPainter
+	base.ControlBase
+	base.BackgroundBorderPainter
 	outer            ProgressBarOuter
 	desiredSize      math.Size
 	progress, target int
@@ -26,7 +25,7 @@ type ProgressBar struct {
 
 func (b *ProgressBar) Init(outer ProgressBarOuter, theme gxui.Theme) {
 	b.outer = outer
-	b.Control.Init(outer, theme)
+	b.ControlBase.Init(outer, theme)
 	b.BackgroundBorderPainter.Init(outer)
 	b.desiredSize = math.MaxSize
 	b.target = 100

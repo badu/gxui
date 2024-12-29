@@ -25,7 +25,7 @@ func init() {
 	runtime.LockOSThread()
 }
 
-type driver struct {
+type DriverImpl struct {
 	pendingDriver chan func()
 	pendingApp    chan func()
 	terminated    int32 // non-zero represents driver terminations
@@ -46,7 +46,7 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 	}
 	defer glfw.Terminate()
 
-	result := &driver{
+	result := &DriverImpl{
 		pendingDriver: make(chan func(), 256),
 		pendingApp:    make(chan func(), 256),
 		viewports:     list.New(),
@@ -61,12 +61,12 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 	result.driverLoop()
 }
 
-func (d *driver) asyncDriver(callback func()) {
+func (d *DriverImpl) asyncDriver(callback func()) {
 	d.pendingDriver <- callback
 	d.wake()
 }
 
-func (d *driver) syncDriver(callback func()) {
+func (d *DriverImpl) syncDriver(callback func()) {
 	done := make(chan bool, 1)
 	d.asyncDriver(
 		func() { callback(); done <- true },
@@ -74,11 +74,11 @@ func (d *driver) syncDriver(callback func()) {
 	<-done
 }
 
-func (d *driver) createDriverEvent(signature interface{}) gxui.Event {
+func (d *DriverImpl) createDriverEvent(signature interface{}) gxui.Event {
 	return gxui.CreateChanneledEvent(signature, d.pendingDriver)
 }
 
-func (d *driver) createAppEvent(signature interface{}) gxui.Event {
+func (d *DriverImpl) createAppEvent(signature interface{}) gxui.Event {
 	return gxui.CreateChanneledEvent(signature, d.pendingApp)
 }
 
@@ -86,7 +86,7 @@ func (d *driver) createAppEvent(signature interface{}) gxui.Event {
 // close. If there are no funcs enqueued, the driver routine calls and blocks on
 // glfw.WaitEvents. All sends on the pendingDriver chan should be paired with a
 // call to wake() so that glfw.WaitEvents can return.
-func (d *driver) driverLoop() {
+func (d *DriverImpl) driverLoop() {
 	for {
 		select {
 		case ev, open := <-d.pendingDriver:
@@ -101,20 +101,20 @@ func (d *driver) driverLoop() {
 	}
 }
 
-func (d *driver) wake() {
+func (d *DriverImpl) wake() {
 	glfw.PostEmptyEvent()
 }
 
 // applicationLoop pulls and executes funcs from the pendingApp chan until
 // the chan is closed.
-func (d *driver) applicationLoop() {
+func (d *DriverImpl) applicationLoop() {
 	for ev := range d.pendingApp {
 		ev()
 	}
 }
 
 // gxui.Driver compliance
-func (d *driver) Call(callback func()) bool {
+func (d *DriverImpl) Call(callback func()) bool {
 	if callback == nil {
 		panic("Function must not be nil")
 	}
@@ -126,7 +126,7 @@ func (d *driver) Call(callback func()) bool {
 	return true
 }
 
-func (d *driver) CallSync(callback func()) bool {
+func (d *DriverImpl) CallSync(callback func()) bool {
 	done := make(chan struct{})
 	if d.Call(
 		func() { callback(); close(done) },
@@ -137,12 +137,12 @@ func (d *driver) CallSync(callback func()) bool {
 	return false
 }
 
-func (d *driver) Terminate() {
+func (d *DriverImpl) Terminate() {
 	d.asyncDriver(
 		func() {
 			// Close all viewports. This will notify the application.
 			for frontViewport := d.viewports.Front(); frontViewport != nil; frontViewport = frontViewport.Next() {
-				frontViewport.Value.(*viewport).Destroy()
+				frontViewport.Value.(*ViewportImpl).Destroy()
 			}
 
 			// Flush all remaining events from the application and driver.
@@ -188,57 +188,61 @@ func (d *driver) Terminate() {
 		})
 }
 
-func (d *driver) SetClipboard(str string) {
+func (d *DriverImpl) SetClipboard(str string) {
 	d.asyncDriver(
 		func() {
-			frontViewport := d.viewports.Front().Value.(*viewport)
+			frontViewport := d.viewports.Front().Value.(*ViewportImpl)
 			frontViewport.window.SetClipboardString(str)
 		},
 	)
 }
 
-func (d *driver) GetClipboard() (str string, err error) {
+func (d *DriverImpl) GetClipboard() (str string, err error) {
 	d.syncDriver(
 		func() {
-			frontViewport := d.viewports.Front().Value.(*viewport)
+			frontViewport := d.viewports.Front().Value.(*ViewportImpl)
 			str = frontViewport.window.GetClipboardString()
 		},
 	)
 	return
 }
 
-func (d *driver) CreateFont(data []byte, size int) (gxui.Font, error) {
+func (d *DriverImpl) CreateFont(data []byte, size int) (gxui.Font, error) {
 	return newFont(data, size)
 }
 
-func (d *driver) CreateWindowedViewport(width, height int, name string) gxui.Viewport {
-	var v *viewport
-	d.syncDriver(func() {
-		v = newViewport(d, width, height, name, false)
-		e := d.viewports.PushBack(v)
-		v.onDestroy.Listen(func() {
-			d.viewports.Remove(e)
-		})
-	})
+func (d *DriverImpl) CreateWindowedViewport(width, height int, name string) gxui.Viewport {
+	var v *ViewportImpl
+	d.syncDriver(
+		func() {
+			v = NewViewport(d, width, height, name, false)
+			e := d.viewports.PushBack(v)
+			v.onDestroy.Listen(func() {
+				d.viewports.Remove(e)
+			})
+		},
+	)
 	return v
 }
 
-func (d *driver) CreateFullscreenViewport(width, height int, name string) gxui.Viewport {
-	var v *viewport
-	d.syncDriver(func() {
-		v = newViewport(d, width, height, name, true)
-		e := d.viewports.PushBack(v)
-		v.onDestroy.Listen(func() {
-			d.viewports.Remove(e)
-		})
-	})
+func (d *DriverImpl) CreateFullscreenViewport(width, height int, name string) gxui.Viewport {
+	var v *ViewportImpl
+	d.syncDriver(
+		func() {
+			v = NewViewport(d, width, height, name, true)
+			e := d.viewports.PushBack(v)
+			v.onDestroy.Listen(func() {
+				d.viewports.Remove(e)
+			})
+		},
+	)
 	return v
 }
 
-func (d *driver) CreateCanvas(s math.Size) gxui.Canvas {
-	return newCanvas(s)
+func (d *DriverImpl) CreateCanvas(s math.Size) gxui.Canvas {
+	return NewCanvas(s)
 }
 
-func (d *driver) CreateTexture(img image.Image, pixelsPerDip float32) gxui.Texture {
-	return newTexture(img, pixelsPerDip)
+func (d *DriverImpl) CreateTexture(img image.Image, pixelsPerDip float32) gxui.Texture {
+	return NewTexture(img, pixelsPerDip)
 }

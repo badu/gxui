@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type ContainerOuter interface {
+type ContainerPartOuter interface {
 	gxui.Container
 	Attached() bool                         // was outer.Attachable
 	Attach()                                // was outer.Attachable
@@ -25,14 +25,14 @@ type ContainerOuter interface {
 	SetSize(newSize math.Size)              // was outer.Sized
 }
 
-type Container struct {
-	outer              ContainerOuter
+type ContainerPart struct {
+	outer              ContainerPartOuter
 	children           gxui.Children
 	isMouseEventTarget bool
 	relayoutSuspended  bool
 }
 
-func (c *Container) Init(outer ContainerOuter) {
+func (c *ContainerPart) Init(outer ContainerPartOuter) {
 	c.outer = outer
 	c.children = gxui.Children{}
 	outer.OnAttach(
@@ -51,38 +51,38 @@ func (c *Container) Init(outer ContainerOuter) {
 	)
 }
 
-func (c *Container) SetMouseEventTarget(mouseEventTarget bool) {
+func (c *ContainerPart) SetMouseEventTarget(mouseEventTarget bool) {
 	c.isMouseEventTarget = mouseEventTarget
 }
 
-func (c *Container) IsMouseEventTarget() bool {
+func (c *ContainerPart) IsMouseEventTarget() bool {
 	return c.isMouseEventTarget
 }
 
 // RelayoutSuspended returns true if adding or removing a child Control to this
-// Container will not trigger a relayout of this Container. The default is false
+// ContainerPart will not trigger a relayout of this ContainerPart. The default is false
 // where any mutation will trigger a relayout.
-func (c *Container) RelayoutSuspended() bool {
+func (c *ContainerPart) RelayoutSuspended() bool {
 	return c.relayoutSuspended
 }
 
-// SetRelayoutSuspended enables or disables relayout of the Container on
-// adding or removing a child Control to this Container.
-func (c *Container) SetRelayoutSuspended(enable bool) {
+// SetRelayoutSuspended enables or disables relayout of the ContainerPart on
+// adding or removing a child Control to this ContainerPart.
+func (c *ContainerPart) SetRelayoutSuspended(enable bool) {
 	c.relayoutSuspended = true
 }
 
 // gxui.Parent compliance
-func (c *Container) Children() gxui.Children {
+func (c *ContainerPart) Children() gxui.Children {
 	return c.children
 }
 
 // gxui.Container compliance
-func (c *Container) AddChild(control gxui.Control) *gxui.Child {
+func (c *ContainerPart) AddChild(control gxui.Control) *gxui.Child {
 	return c.outer.AddChildAt(len(c.children), control)
 }
 
-func (c *Container) AddChildAt(index int, control gxui.Control) *gxui.Child {
+func (c *ContainerPart) AddChildAt(index int, control gxui.Control) *gxui.Child {
 	if control.Parent() != nil {
 		panic("child already has a parent")
 	}
@@ -108,7 +108,7 @@ func (c *Container) AddChildAt(index int, control gxui.Control) *gxui.Child {
 	return child
 }
 
-func (c *Container) RemoveChild(control gxui.Control) {
+func (c *ContainerPart) RemoveChild(control gxui.Control) {
 	for i := range c.children {
 		if c.children[i].Control == control {
 			c.outer.RemoveChildAt(i)
@@ -119,7 +119,7 @@ func (c *Container) RemoveChild(control gxui.Control) {
 	panic("child not part of container")
 }
 
-func (c *Container) RemoveChildAt(index int) {
+func (c *ContainerPart) RemoveChildAt(index int) {
 	child := c.children[index]
 	c.children = append(c.children[:index], c.children[index+1:]...)
 	child.Control.SetParent(nil)
@@ -132,13 +132,13 @@ func (c *Container) RemoveChildAt(index int) {
 	}
 }
 
-func (c *Container) RemoveAll() {
+func (c *ContainerPart) RemoveAll() {
 	for i := len(c.children) - 1; i >= 0; i-- {
 		c.outer.RemoveChildAt(i)
 	}
 }
 
-func (c *Container) ContainsPoint(point math.Point) bool {
+func (c *ContainerPart) ContainsPoint(point math.Point) bool {
 	if !c.outer.IsVisible() || !c.outer.Size().Rect().Contains(point) {
 		return false
 	}

@@ -57,7 +57,7 @@ func (b *Button) Paint(c gxui.Canvas) {
 
 	c.DrawRoundedRect(r, 2, 2, 2, 2, gxui.TransparentPen, brush)
 
-	b.PaintChildren.Paint(c)
+	b.PaintChildrenPart.Paint(c)
 
 	c.DrawRoundedRect(r, 2, 2, 2, 2, pen, gxui.TransparentBrush)
 

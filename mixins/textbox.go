@@ -5,11 +5,11 @@
 package mixins
 
 import (
+	"github.com/badu/gxui/mixins/base"
 	"strings"
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/parts"
 )
 
 type TextBoxLine interface {
@@ -26,7 +26,7 @@ type TextBoxOuter interface {
 type TextBox struct {
 	List
 	gxui.AdapterBase
-	parts.Focusable
+	base.FocusablePart
 	outer             TextBoxOuter
 	driver            gxui.Driver
 	font              gxui.Font
@@ -64,7 +64,7 @@ func (t *TextBox) lineMouseUp(line TextBoxLine, event gxui.MouseEvent) {
 
 func (t *TextBox) Init(outer TextBoxOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
 	t.List.Init(outer, theme)
-	t.Focusable.Init(outer)
+	t.FocusablePart.Init(outer)
 	t.outer = outer
 	t.driver = driver
 	t.font = font
@@ -408,12 +408,12 @@ func (t *TextBox) KeyStroke(event gxui.KeyStrokeEvent) bool {
 		t.controller.ReplaceAllRunes([]rune{event.Character})
 		t.controller.Deselect(false)
 	}
-	t.InputEventHandler.KeyStroke(event)
+	t.InputEventHandlerPart.KeyStroke(event)
 	return true
 }
 
 func (t *TextBox) Click(event gxui.MouseEvent) bool {
-	t.InputEventHandler.Click(event)
+	t.InputEventHandlerPart.Click(event)
 	return true
 }
 
@@ -426,7 +426,7 @@ func (t *TextBox) DoubleClick(event gxui.MouseEvent) bool {
 			t.controller.SetSelection(gxui.CreateTextSelection(s, e, false))
 		}
 	}
-	t.InputEventHandler.DoubleClick(event)
+	t.InputEventHandlerPart.DoubleClick(event)
 	return true
 }
 

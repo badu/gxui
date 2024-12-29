@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui/math"
@@ -13,21 +13,21 @@ type PaddableOuter interface {
 	Redraw()         // was outer.Redrawer
 }
 
-type Paddable struct {
+type PaddablePart struct {
 	outer   PaddableOuter
 	padding math.Spacing
 }
 
-func (p *Paddable) Init(outer PaddableOuter) {
+func (p *PaddablePart) Init(outer PaddableOuter) {
 	p.outer = outer
 }
 
-func (p *Paddable) SetPadding(m math.Spacing) {
+func (p *PaddablePart) SetPadding(m math.Spacing) {
 	p.padding = m
 	p.outer.LayoutChildren()
 	p.outer.Redraw()
 }
 
-func (p *Paddable) Padding() math.Spacing {
+func (p *PaddablePart) Padding() math.Spacing {
 	return p.padding
 }

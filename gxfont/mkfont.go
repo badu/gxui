@@ -8,7 +8,9 @@
 // Small program to generate roboto_regular.go and droid_sans_mono.go.
 //
 // TODO(crawshaw): italics, bold.
-package main
+// TODO : @Badu - package main below breaks gofmt
+// package main
+package gxfont
 
 import (
 	"bytes"

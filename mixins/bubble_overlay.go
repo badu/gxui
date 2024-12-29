@@ -10,13 +10,9 @@ import (
 	"github.com/badu/gxui/mixins/base"
 )
 
-type BubbleOverlayOuter interface {
-	base.ContainerOuter
-}
-
 type BubbleOverlay struct {
-	base.Container
-	outer       BubbleOverlayOuter
+	base.ContainerBase
+	outer       base.ContainerBaseOuter
 	targetPoint math.Point
 	arrowLength int
 	arrowWidth  int
@@ -24,8 +20,8 @@ type BubbleOverlay struct {
 	pen         gxui.Pen
 }
 
-func (o *BubbleOverlay) Init(outer BubbleOverlayOuter, theme gxui.Theme) {
-	o.Container.Init(outer, theme)
+func (o *BubbleOverlay) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+	o.ContainerBase.Init(outer, theme)
 	o.outer = outer
 	o.arrowLength = 20
 	o.arrowWidth = 15
@@ -168,5 +164,5 @@ func (o *BubbleOverlay) Paint(canvas gxui.Canvas) {
 		canvas.DrawPolygon(polygon, o.pen, o.brush)
 	}
 
-	o.PaintChildren.Paint(canvas)
+	o.PaintChildrenPart.Paint(canvas)
 }

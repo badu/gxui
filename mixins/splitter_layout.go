@@ -11,12 +11,12 @@ import (
 )
 
 type SplitterLayoutOuter interface {
-	base.ContainerOuter
+	base.ContainerBaseOuter
 	CreateSplitterBar() gxui.Control
 }
 
 type SplitterLayout struct {
-	base.Container
+	base.ContainerBase
 	outer         SplitterLayoutOuter
 	theme         gxui.Theme
 	orientation   gxui.Orientation
@@ -25,7 +25,7 @@ type SplitterLayout struct {
 }
 
 func (l *SplitterLayout) Init(outer SplitterLayoutOuter, theme gxui.Theme) {
-	l.Container.Init(outer, theme)
+	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.theme = theme
 	l.weights = make(map[gxui.Control]float32)
@@ -118,7 +118,7 @@ func (l *SplitterLayout) CreateSplitterBar() gxui.Control {
 func (l *SplitterLayout) SplitterDragged(splitter gxui.Control, wndPnt math.Point) {
 	o := l.orientation
 	p := gxui.WindowToChild(wndPnt, l.outer)
-	children := l.Container.Children()
+	children := l.ContainerBase.Children()
 	splitterIndex := children.IndexOf(splitter)
 	childA, childB := children[splitterIndex-1], children[splitterIndex+1]
 	boundsA, boundsB := childA.Bounds(), childB.Bounds()
@@ -132,21 +132,21 @@ func (l *SplitterLayout) SplitterDragged(splitter gxui.Control, wndPnt math.Poin
 	l.LayoutChildren()
 }
 
-// parts.Container overrides
+// base.ContainerBase overrides
 func (l *SplitterLayout) AddChildAt(index int, control gxui.Control) *gxui.Child {
 	l.weights[control] = 1.0
-	if len(l.Container.Children()) > 0 {
-		l.Container.AddChildAt(index, l.outer.CreateSplitterBar())
+	if len(l.ContainerBase.Children()) > 0 {
+		l.ContainerBase.AddChildAt(index, l.outer.CreateSplitterBar())
 		index++
 	}
-	return l.Container.AddChildAt(index, control)
+	return l.ContainerBase.AddChildAt(index, control)
 }
 
 func (l *SplitterLayout) RemoveChildAt(index int) {
-	children := l.Container.Children()
+	children := l.ContainerBase.Children()
 	if len(children) > 1 {
-		l.Container.RemoveChildAt(index + 1)
+		l.ContainerBase.RemoveChildAt(index + 1)
 	}
 	delete(l.weights, children[index].Control)
-	l.Container.RemoveChildAt(index)
+	l.ContainerBase.RemoveChildAt(index)
 }

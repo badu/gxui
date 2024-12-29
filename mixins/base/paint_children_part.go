@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -16,15 +16,15 @@ type PaintChildrenOuter interface {
 	SetSize(newSize math.Size)                                 // was outer.Sized
 }
 
-type PaintChildren struct {
+type PaintChildrenPart struct {
 	outer PaintChildrenOuter
 }
 
-func (p *PaintChildren) Init(outer PaintChildrenOuter) {
+func (p *PaintChildrenPart) Init(outer PaintChildrenOuter) {
 	p.outer = outer
 }
 
-func (p *PaintChildren) Paint(canvas gxui.Canvas) {
+func (p *PaintChildrenPart) Paint(canvas gxui.Canvas) {
 	for i, v := range p.outer.Children() {
 		if v.Control.IsVisible() {
 			canvas.Push()
@@ -35,7 +35,7 @@ func (p *PaintChildren) Paint(canvas gxui.Canvas) {
 	}
 }
 
-func (p *PaintChildren) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
+func (p *PaintChildrenPart) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
 	if childCanvas := child.Control.Draw(); childCanvas != nil {
 		canvas.DrawCanvas(childCanvas, child.Offset)
 	}

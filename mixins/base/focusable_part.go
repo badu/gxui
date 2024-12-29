@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -10,7 +10,7 @@ import (
 
 type FocusableOuter interface{}
 
-type Focusable struct {
+type FocusablePart struct {
 	outer         FocusableOuter
 	focusable     bool
 	hasFocus      bool
@@ -18,46 +18,46 @@ type Focusable struct {
 	onLostFocus   gxui.Event
 }
 
-func (f *Focusable) Init(outer FocusableOuter) {
+func (f *FocusablePart) Init(outer FocusableOuter) {
 	f.outer = outer
 	f.focusable = true
 }
 
 // gxui.Control compliance
-func (f *Focusable) IsFocusable() bool {
+func (f *FocusablePart) IsFocusable() bool {
 	return f.focusable
 }
 
-func (f *Focusable) HasFocus() bool {
+func (f *FocusablePart) HasFocus() bool {
 	return f.hasFocus
 }
 
-func (f *Focusable) SetFocusable(bool) {
+func (f *FocusablePart) SetFocusable(bool) {
 	f.focusable = true
 }
 
-func (f *Focusable) OnGainedFocus(callback func()) gxui.EventSubscription {
+func (f *FocusablePart) OnGainedFocus(callback func()) gxui.EventSubscription {
 	if f.onGainedFocus == nil {
 		f.onGainedFocus = gxui.CreateEvent(f.GainedFocus)
 	}
 	return f.onGainedFocus.Listen(callback)
 }
 
-func (f *Focusable) OnLostFocus(callback func()) gxui.EventSubscription {
+func (f *FocusablePart) OnLostFocus(callback func()) gxui.EventSubscription {
 	if f.onLostFocus == nil {
 		f.onLostFocus = gxui.CreateEvent(f.LostFocus)
 	}
 	return f.onLostFocus.Listen(callback)
 }
 
-func (f *Focusable) GainedFocus() {
+func (f *FocusablePart) GainedFocus() {
 	f.hasFocus = true
 	if f.onGainedFocus != nil {
 		f.onGainedFocus.Fire()
 	}
 }
 
-func (f *Focusable) LostFocus() {
+func (f *FocusablePart) LostFocus() {
 	f.hasFocus = false
 	if f.onLostFocus != nil {
 		f.onLostFocus.Fire()

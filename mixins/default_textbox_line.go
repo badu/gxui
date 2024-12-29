@@ -12,7 +12,7 @@ import (
 )
 
 type DefaultTextBoxLineOuter interface {
-	base.ControlOuter
+	base.ControlBaseOuter
 	MeasureRunes(s, e int) math.Size
 	PaintText(c gxui.Canvas)
 	PaintCarets(c gxui.Canvas)
@@ -23,7 +23,7 @@ type DefaultTextBoxLineOuter interface {
 
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
-	base.Control
+	base.ControlBase
 	outer      DefaultTextBoxLineOuter
 	textbox    *TextBox
 	lineIndex  int
@@ -31,7 +31,7 @@ type DefaultTextBoxLine struct {
 }
 
 func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme gxui.Theme, textbox *TextBox, lineIndex int) {
-	t.Control.Init(outer, theme)
+	t.ControlBase.Init(outer, theme)
 	t.outer = outer
 	t.textbox = textbox
 	t.lineIndex = lineIndex

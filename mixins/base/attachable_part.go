@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -12,22 +12,22 @@ type AttachableOuter interface {
 	Relayout() // was outer.Relayouter
 }
 
-type Attachable struct {
+type AttachablePart struct {
 	outer    AttachableOuter
 	onAttach gxui.Event
 	onDetach gxui.Event
 	attached bool
 }
 
-func (a *Attachable) Init(outer AttachableOuter) {
+func (a *AttachablePart) Init(outer AttachableOuter) {
 	a.outer = outer
 }
 
-func (a *Attachable) Attached() bool {
+func (a *AttachablePart) Attached() bool {
 	return a.attached
 }
 
-func (a *Attachable) Attach() {
+func (a *AttachablePart) Attach() {
 	if a.attached {
 		panic("Control already attached")
 	}
@@ -37,7 +37,7 @@ func (a *Attachable) Attach() {
 	}
 }
 
-func (a *Attachable) Detach() {
+func (a *AttachablePart) Detach() {
 	if !a.attached {
 		panic("Control already detached")
 	}
@@ -47,14 +47,14 @@ func (a *Attachable) Detach() {
 	}
 }
 
-func (a *Attachable) OnAttach(callback func()) gxui.EventSubscription {
+func (a *AttachablePart) OnAttach(callback func()) gxui.EventSubscription {
 	if a.onAttach == nil {
 		a.onAttach = gxui.CreateEvent(func() {})
 	}
 	return a.onAttach.Listen(callback)
 }
 
-func (a *Attachable) OnDetach(callback func()) gxui.EventSubscription {
+func (a *AttachablePart) OnDetach(callback func()) gxui.EventSubscription {
 	if a.onDetach == nil {
 		a.onDetach = gxui.CreateEvent(func() {})
 	}

@@ -8,17 +8,12 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 	"github.com/badu/gxui/mixins/base"
-	"github.com/badu/gxui/mixins/parts"
 )
 
-type ImageOuter interface {
-	base.ControlOuter
-}
-
 type Image struct {
-	base.Control
-	parts.BackgroundBorderPainter
-	outer        ImageOuter
+	base.ControlBase
+	base.BackgroundBorderPainter
+	outer        base.ControlBaseOuter
 	texture      gxui.Texture
 	canvas       gxui.Canvas
 	scalingMode  gxui.ScalingMode
@@ -46,9 +41,9 @@ func (i *Image) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *Image) Init(outer ImageOuter, theme gxui.Theme) {
+func (i *Image) Init(outer base.ControlBaseOuter, theme gxui.Theme) {
 	i.outer = outer
-	i.Control.Init(outer, theme)
+	i.ControlBase.Init(outer, theme)
 	i.BackgroundBorderPainter.Init(outer)
 	i.SetBorderPen(gxui.TransparentPen)
 	i.SetBackgroundBrush(gxui.TransparentBrush)

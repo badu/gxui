@@ -16,7 +16,7 @@ import (
 // function 'applicationLoop' that must be in the callstack. The
 // PC is stored so that AssertUIGoroutine can verify that the call
 // came from the application loop (the UI go-routine).
-func (d *driver) discoverUIGoRoutine() {
+func (d *DriverImpl) discoverUIGoRoutine() {
 	for _, pc := range d.pcs[:runtime.Callers(2, d.pcs)] {
 		name := runtime.FuncForPC(pc).Name()
 		if strings.HasSuffix(name, "applicationLoop") {
@@ -27,7 +27,7 @@ func (d *driver) discoverUIGoRoutine() {
 	panic("applicationLoop was not found in the callstack")
 }
 
-func (d *driver) AssertUIGoroutine() {
+func (d *DriverImpl) AssertUIGoroutine() {
 	for _, pc := range d.pcs[:runtime.Callers(2, d.pcs)] {
 		if pc == d.uiPC {
 			return

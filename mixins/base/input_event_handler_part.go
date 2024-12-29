@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -10,7 +10,7 @@ import (
 
 type InputEventHandlerOuter interface{}
 
-type InputEventHandler struct {
+type InputEventHandlerPart struct {
 	outer         InputEventHandlerOuter
 	isMouseOver   bool
 	isMouseDown   map[gxui.MouseButton]bool
@@ -29,219 +29,219 @@ type InputEventHandler struct {
 	onKeyRepeat   gxui.Event
 }
 
-func (m *InputEventHandler) getOnClick() gxui.Event {
+func (m *InputEventHandlerPart) getOnClick() gxui.Event {
 	if m.onClick == nil {
 		m.onClick = gxui.CreateEvent(m.Click)
 	}
 	return m.onClick
 }
 
-func (m *InputEventHandler) getOnDoubleClick() gxui.Event {
+func (m *InputEventHandlerPart) getOnDoubleClick() gxui.Event {
 	if m.onDoubleClick == nil {
 		m.onDoubleClick = gxui.CreateEvent(m.DoubleClick)
 	}
 	return m.onDoubleClick
 }
 
-func (m *InputEventHandler) getOnKeyPress() gxui.Event {
+func (m *InputEventHandlerPart) getOnKeyPress() gxui.Event {
 	if m.onKeyPress == nil {
 		m.onKeyPress = gxui.CreateEvent(m.KeyPress)
 	}
 	return m.onKeyPress
 }
 
-func (m *InputEventHandler) getOnKeyStroke() gxui.Event {
+func (m *InputEventHandlerPart) getOnKeyStroke() gxui.Event {
 	if m.onKeyStroke == nil {
 		m.onKeyStroke = gxui.CreateEvent(m.KeyStroke)
 	}
 	return m.onKeyStroke
 }
 
-func (m *InputEventHandler) getOnMouseMove() gxui.Event {
+func (m *InputEventHandlerPart) getOnMouseMove() gxui.Event {
 	if m.onMouseMove == nil {
 		m.onMouseMove = gxui.CreateEvent(m.MouseMove)
 	}
 	return m.onMouseMove
 }
 
-func (m *InputEventHandler) getOnMouseEnter() gxui.Event {
+func (m *InputEventHandlerPart) getOnMouseEnter() gxui.Event {
 	if m.onMouseEnter == nil {
 		m.onMouseEnter = gxui.CreateEvent(m.MouseEnter)
 	}
 	return m.onMouseEnter
 }
 
-func (m *InputEventHandler) getOnMouseExit() gxui.Event {
+func (m *InputEventHandlerPart) getOnMouseExit() gxui.Event {
 	if m.onMouseExit == nil {
 		m.onMouseExit = gxui.CreateEvent(m.MouseExit)
 	}
 	return m.onMouseExit
 }
 
-func (m *InputEventHandler) getOnMouseDown() gxui.Event {
+func (m *InputEventHandlerPart) getOnMouseDown() gxui.Event {
 	if m.onMouseDown == nil {
 		m.onMouseDown = gxui.CreateEvent(m.MouseDown)
 	}
 	return m.onMouseDown
 }
 
-func (m *InputEventHandler) getOnMouseUp() gxui.Event {
+func (m *InputEventHandlerPart) getOnMouseUp() gxui.Event {
 	if m.onMouseUp == nil {
 		m.onMouseUp = gxui.CreateEvent(m.MouseUp)
 	}
 	return m.onMouseUp
 }
 
-func (m *InputEventHandler) getOnMouseScroll() gxui.Event {
+func (m *InputEventHandlerPart) getOnMouseScroll() gxui.Event {
 	if m.onMouseScroll == nil {
 		m.onMouseScroll = gxui.CreateEvent(m.MouseScroll)
 	}
 	return m.onMouseScroll
 }
 
-func (m *InputEventHandler) getOnKeyDown() gxui.Event {
+func (m *InputEventHandlerPart) getOnKeyDown() gxui.Event {
 	if m.onKeyDown == nil {
 		m.onKeyDown = gxui.CreateEvent(m.KeyDown)
 	}
 	return m.onKeyDown
 }
 
-func (m *InputEventHandler) getOnKeyUp() gxui.Event {
+func (m *InputEventHandlerPart) getOnKeyUp() gxui.Event {
 	if m.onKeyUp == nil {
 		m.onKeyUp = gxui.CreateEvent(m.KeyUp)
 	}
 	return m.onKeyUp
 }
 
-func (m *InputEventHandler) getOnKeyRepeat() gxui.Event {
+func (m *InputEventHandlerPart) getOnKeyRepeat() gxui.Event {
 	if m.onKeyRepeat == nil {
 		m.onKeyRepeat = gxui.CreateEvent(m.KeyRepeat)
 	}
 	return m.onKeyRepeat
 }
 
-func (m *InputEventHandler) Init(outer InputEventHandlerOuter) {
+func (m *InputEventHandlerPart) Init(outer InputEventHandlerOuter) {
 	m.outer = outer
 	m.isMouseDown = make(map[gxui.MouseButton]bool)
 }
 
-func (m *InputEventHandler) Click(ev gxui.MouseEvent) (consume bool) {
+func (m *InputEventHandlerPart) Click(ev gxui.MouseEvent) (consume bool) {
 	m.getOnClick().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandler) DoubleClick(ev gxui.MouseEvent) (consume bool) {
+func (m *InputEventHandlerPart) DoubleClick(ev gxui.MouseEvent) (consume bool) {
 	m.getOnDoubleClick().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandler) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
+func (m *InputEventHandlerPart) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 	m.getOnKeyPress().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandler) KeyStroke(ev gxui.KeyStrokeEvent) (consume bool) {
+func (m *InputEventHandlerPart) KeyStroke(ev gxui.KeyStrokeEvent) (consume bool) {
 	m.getOnKeyStroke().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandler) MouseScroll(ev gxui.MouseEvent) (consume bool) {
+func (m *InputEventHandlerPart) MouseScroll(ev gxui.MouseEvent) (consume bool) {
 	m.getOnMouseScroll().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandler) MouseMove(ev gxui.MouseEvent) {
+func (m *InputEventHandlerPart) MouseMove(ev gxui.MouseEvent) {
 	m.getOnMouseMove().Fire(ev)
 }
 
-func (m *InputEventHandler) MouseEnter(ev gxui.MouseEvent) {
+func (m *InputEventHandlerPart) MouseEnter(ev gxui.MouseEvent) {
 	m.isMouseOver = true
 	m.getOnMouseEnter().Fire(ev)
 }
 
-func (m *InputEventHandler) MouseExit(ev gxui.MouseEvent) {
+func (m *InputEventHandlerPart) MouseExit(ev gxui.MouseEvent) {
 	m.isMouseOver = false
 	m.getOnMouseExit().Fire(ev)
 }
 
-func (m *InputEventHandler) MouseDown(ev gxui.MouseEvent) {
+func (m *InputEventHandlerPart) MouseDown(ev gxui.MouseEvent) {
 	m.isMouseDown[ev.Button] = true
 	m.getOnMouseDown().Fire(ev)
 }
 
-func (m *InputEventHandler) MouseUp(ev gxui.MouseEvent) {
+func (m *InputEventHandlerPart) MouseUp(ev gxui.MouseEvent) {
 	m.isMouseDown[ev.Button] = false
 	m.getOnMouseUp().Fire(ev)
 }
 
-func (m *InputEventHandler) KeyDown(ev gxui.KeyboardEvent) {
+func (m *InputEventHandlerPart) KeyDown(ev gxui.KeyboardEvent) {
 	m.getOnKeyDown().Fire(ev)
 }
 
-func (m *InputEventHandler) KeyUp(ev gxui.KeyboardEvent) {
+func (m *InputEventHandlerPart) KeyUp(ev gxui.KeyboardEvent) {
 	m.getOnKeyUp().Fire(ev)
 }
 
-func (m *InputEventHandler) KeyRepeat(ev gxui.KeyboardEvent) {
+func (m *InputEventHandlerPart) KeyRepeat(ev gxui.KeyboardEvent) {
 	m.getOnKeyRepeat().Fire(ev)
 }
 
-func (m *InputEventHandler) OnClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnClick().Listen(callback)
 }
 
-func (m *InputEventHandler) OnDoubleClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnDoubleClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnDoubleClick().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyPress(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnKeyPress(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return m.getOnKeyPress().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyStroke(callback func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnKeyStroke(callback func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
 	return m.getOnKeyStroke().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseMove(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnMouseMove(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnMouseMove().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseEnter(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnMouseEnter(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnMouseEnter().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseExit(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnMouseExit(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnMouseExit().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseDown(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnMouseDown(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnMouseDown().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseUp(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnMouseUp(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnMouseUp().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseScroll(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnMouseScroll(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return m.getOnMouseScroll().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyDown(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnKeyDown(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return m.getOnKeyDown().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyUp(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnKeyUp(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return m.getOnKeyUp().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyRepeat(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (m *InputEventHandlerPart) OnKeyRepeat(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return m.getOnKeyRepeat().Listen(callback)
 }
 
-func (m *InputEventHandler) IsMouseOver() bool {
+func (m *InputEventHandlerPart) IsMouseOver() bool {
 	return m.isMouseOver
 }
 
-func (m *InputEventHandler) IsMouseDown(button gxui.MouseButton) bool {
+func (m *InputEventHandlerPart) IsMouseDown(button gxui.MouseButton) bool {
 	return m.isMouseDown[button]
 }

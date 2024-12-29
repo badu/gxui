@@ -11,14 +11,14 @@ import (
 	"github.com/goxjs/gl"
 )
 
-type texture struct {
+type TextureImpl struct {
 	image        image.Image
 	pixelsPerDip float32
 	flipY        bool
 }
 
-func newTexture(fromImage image.Image, pixelsPerDip float32) *texture {
-	result := &texture{
+func NewTexture(fromImage image.Image, pixelsPerDip float32) *TextureImpl {
+	result := &TextureImpl{
 		image:        fromImage,
 		pixelsPerDip: pixelsPerDip,
 	}
@@ -26,28 +26,28 @@ func newTexture(fromImage image.Image, pixelsPerDip float32) *texture {
 }
 
 // gxui.Texture compliance
-func (t *texture) Image() image.Image {
+func (t *TextureImpl) Image() image.Image {
 	return t.image
 }
 
-func (t *texture) Size() math.Size {
+func (t *TextureImpl) Size() math.Size {
 	return t.SizePixels().ScaleS(1.0 / t.pixelsPerDip)
 }
 
-func (t *texture) SizePixels() math.Size {
+func (t *TextureImpl) SizePixels() math.Size {
 	s := t.image.Bounds().Size()
 	return math.Size{W: s.X, H: s.Y}
 }
 
-func (t *texture) FlipY() bool {
+func (t *TextureImpl) FlipY() bool {
 	return t.flipY
 }
 
-func (t *texture) SetFlipY(flipY bool) {
+func (t *TextureImpl) SetFlipY(flipY bool) {
 	t.flipY = flipY
 }
 
-func (t *texture) newContext() *textureContext {
+func (t *TextureImpl) newContext() *textureContext {
 	var format gl.Enum
 	var data []byte
 	var pma bool

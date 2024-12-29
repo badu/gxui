@@ -7,18 +7,18 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/parts"
+	"github.com/badu/gxui/mixins/base"
 )
 
 type ButtonOuter interface {
-	LinearLayoutOuter
+	base.ContainerBaseOuter
 	IsChecked() bool
 	SetChecked(bool)
 }
 
 type Button struct {
 	LinearLayout
-	parts.Focusable
+	base.FocusablePart
 	outer      ButtonOuter
 	theme      gxui.Theme
 	label      gxui.Label
@@ -28,7 +28,7 @@ type Button struct {
 
 func (b *Button) Init(outer ButtonOuter, theme gxui.Theme) {
 	b.LinearLayout.Init(outer, theme)
-	b.Focusable.Init(outer)
+	b.FocusablePart.Init(outer)
 
 	b.buttonType = gxui.PushButton
 	b.theme = theme
@@ -88,7 +88,7 @@ func (b *Button) SetChecked(checked bool) {
 	}
 }
 
-// InputEventHandler override
+// InputEventHandlerPart override
 func (b *Button) Click(event gxui.MouseEvent) (consume bool) {
 	if event.Button == gxui.MouseButtonLeft {
 		if b.buttonType == gxui.ToggleButton {

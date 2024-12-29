@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package parts
+package base
 
 import (
 	"github.com/badu/gxui"
@@ -15,7 +15,7 @@ type LinearLayoutOuter interface {
 	SetSize(newSize math.Size) // was outer.Sized
 }
 
-type LinearLayout struct {
+type LinearLayoutPart struct {
 	outer               LinearLayoutOuter
 	direction           gxui.Direction
 	sizeMode            gxui.SizeMode
@@ -23,11 +23,11 @@ type LinearLayout struct {
 	verticalAlignment   gxui.VerticalAlignment
 }
 
-func (l *LinearLayout) Init(outer LinearLayoutOuter) {
+func (l *LinearLayoutPart) Init(outer LinearLayoutOuter) {
 	l.outer = outer
 }
 
-func (l *LinearLayout) LayoutChildren() {
+func (l *LinearLayoutPart) LayoutChildren() {
 	s := l.outer.Size().Contract(l.outer.Padding())
 	o := l.outer.Padding().LT()
 	children := l.outer.Children()
@@ -99,7 +99,7 @@ func (l *LinearLayout) LayoutChildren() {
 	}
 }
 
-func (l *LinearLayout) DesiredSize(min, max math.Size) math.Size {
+func (l *LinearLayoutPart) DesiredSize(min, max math.Size) math.Size {
 	if l.sizeMode.Fill() {
 		return max
 	}
@@ -124,44 +124,44 @@ func (l *LinearLayout) DesiredSize(min, max math.Size) math.Size {
 	return bounds.Size().Expand(l.outer.Padding()).Clamp(min, max)
 }
 
-func (l *LinearLayout) Direction() gxui.Direction {
+func (l *LinearLayoutPart) Direction() gxui.Direction {
 	return l.direction
 }
 
-func (l *LinearLayout) SetDirection(d gxui.Direction) {
+func (l *LinearLayoutPart) SetDirection(d gxui.Direction) {
 	if l.direction != d {
 		l.direction = d
 		l.outer.Relayout()
 	}
 }
 
-func (l *LinearLayout) SizeMode() gxui.SizeMode {
+func (l *LinearLayoutPart) SizeMode() gxui.SizeMode {
 	return l.sizeMode
 }
 
-func (l *LinearLayout) SetSizeMode(mode gxui.SizeMode) {
+func (l *LinearLayoutPart) SetSizeMode(mode gxui.SizeMode) {
 	if l.sizeMode != mode {
 		l.sizeMode = mode
 		l.outer.Relayout()
 	}
 }
 
-func (l *LinearLayout) HorizontalAlignment() gxui.HorizontalAlignment {
+func (l *LinearLayoutPart) HorizontalAlignment() gxui.HorizontalAlignment {
 	return l.horizontalAlignment
 }
 
-func (l *LinearLayout) SetHorizontalAlignment(alignment gxui.HorizontalAlignment) {
+func (l *LinearLayoutPart) SetHorizontalAlignment(alignment gxui.HorizontalAlignment) {
 	if l.horizontalAlignment != alignment {
 		l.horizontalAlignment = alignment
 		l.outer.Relayout()
 	}
 }
 
-func (l *LinearLayout) VerticalAlignment() gxui.VerticalAlignment {
+func (l *LinearLayoutPart) VerticalAlignment() gxui.VerticalAlignment {
 	return l.verticalAlignment
 }
 
-func (l *LinearLayout) SetVerticalAlignment(alignment gxui.VerticalAlignment) {
+func (l *LinearLayoutPart) SetVerticalAlignment(alignment gxui.VerticalAlignment) {
 	if l.verticalAlignment != alignment {
 		l.verticalAlignment = alignment
 		l.outer.Relayout()

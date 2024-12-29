@@ -12,13 +12,9 @@ import (
 	"github.com/badu/gxui/mixins/base"
 )
 
-type LabelOuter interface {
-	base.ControlOuter
-}
-
 type Label struct {
-	base.Control
-	outer               LabelOuter
+	base.ControlBase
+	outer               base.ControlBaseOuter
 	font                gxui.Font
 	color               gxui.Color
 	horizontalAlignment gxui.HorizontalAlignment
@@ -27,11 +23,11 @@ type Label struct {
 	text                string
 }
 
-func (l *Label) Init(outer LabelOuter, theme gxui.Theme, font gxui.Font, color gxui.Color) {
+func (l *Label) Init(outer base.ControlBaseOuter, theme gxui.Theme, font gxui.Font, color gxui.Color) {
 	if font == nil {
 		panic("Cannot create a label with a nil font")
 	}
-	l.Control.Init(outer, theme)
+	l.ControlBase.Init(outer, theme)
 	l.outer = outer
 	l.font = font
 	l.color = color
@@ -114,7 +110,7 @@ func (l *Label) VerticalAlignment() gxui.VerticalAlignment {
 	return l.verticalAlignment
 }
 
-// parts.DrawPaint overrides
+// parts.DrawPaintPart overrides
 func (l *Label) Paint(canvas gxui.Canvas) {
 	rect := l.outer.Size().Rect()
 	text := l.text

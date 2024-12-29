@@ -8,17 +8,12 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 	"github.com/badu/gxui/mixins/base"
-	"github.com/badu/gxui/mixins/parts"
 )
 
-type ScrollLayoutOuter interface {
-	base.ContainerOuter
-}
-
 type ScrollLayout struct {
-	base.Container
-	parts.BackgroundBorderPainter
-	outer                  ScrollLayoutOuter
+	base.ContainerBase
+	base.BackgroundBorderPainter
+	outer                  base.ContainerBaseOuter
 	theme                  gxui.Theme
 	scrollOffset           math.Point
 	canScrollX, canScrollY bool
@@ -27,8 +22,8 @@ type ScrollLayout struct {
 	innerSize              math.Size
 }
 
-func (l *ScrollLayout) Init(outer ScrollLayoutOuter, theme gxui.Theme) {
-	l.Container.Init(outer, theme)
+func (l *ScrollLayout) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
 
 	l.outer = outer
@@ -107,10 +102,10 @@ func (l *ScrollLayout) SetScrollOffset(scrollOffset math.Point) bool {
 	return false
 }
 
-// InputEventHandler override
+// InputEventHandlerPart override
 func (l *ScrollLayout) MouseScroll(event gxui.MouseEvent) bool {
 	if event.ScrollY == 0 {
-		return l.InputEventHandler.MouseScroll(event)
+		return l.InputEventHandlerPart.MouseScroll(event)
 	}
 
 	switch {

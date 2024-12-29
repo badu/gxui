@@ -37,7 +37,7 @@ type Driver interface {
 	// height is 0, then the viewport adopts the current screen resolution.
 	CreateFullscreenViewport(width, height int, name string) Viewport
 
-	CreateCanvas(math.Size) Canvas
+	CreateCanvas(size math.Size) Canvas
 	CreateTexture(img image.Image, pixelsPerDip float32) Texture
 
 	// Debug function used to verify that the caller is executing on the UI

@@ -22,13 +22,13 @@ const clearColorR = 0.5
 const clearColorG = 0.5
 const clearColorB = 0.5
 
-type viewport struct {
+type ViewportImpl struct {
 	sync.Mutex
 
-	driver                  *driver
+	driver                  *DriverImpl
 	context                 *context
 	window                  *glfw.Window
-	canvas                  *canvas
+	canvas                  *CanvasImpl
 	fullscreen              bool
 	scaling                 float32
 	sizeDipsUnscaled        math.Size
@@ -60,8 +60,8 @@ type viewport struct {
 	onDestroy gxui.Event
 }
 
-func newViewport(driver *driver, width, height int, title string, fullscreen bool) *viewport {
-	result := &viewport{fullscreen: fullscreen, scaling: 1, title: title}
+func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen bool) *ViewportImpl {
+	result := &ViewportImpl{fullscreen: fullscreen, scaling: 1, title: title}
 
 	glfw.DefaultWindowHints()
 	glfw.WindowHint(glfw.Samples, 4)
@@ -295,7 +295,7 @@ func newViewport(driver *driver, width, height int, title string, fullscreen boo
 
 // Driver methods
 // These methods are all called on the driver routine
-func (v *viewport) render() {
+func (v *ViewportImpl) render() {
 	if v.destroyed {
 		return
 	}
@@ -328,18 +328,18 @@ func (v *viewport) render() {
 	v.window.SwapBuffers()
 }
 
-func (v *viewport) drawFrameUpdate(ctx *context) {
+func (v *ViewportImpl) drawFrameUpdate(ctx *context) {
 	dx := (ctx.stats.frameCount * 10) & 0xFF
 	rect := math.CreateRect(dx-5, 0, dx+5, 3)
 	state := &drawState{}
 	ctx.blitter.blitRect(ctx, rect, gxui.White, state)
 }
 
-// gxui.viewport compliance
+// gxui.Viewport compliance
 // These methods are all called on the application routine
-func (v *viewport) SetCanvas(newCanvas gxui.Canvas) {
+func (v *ViewportImpl) SetCanvas(newCanvas gxui.Canvas) {
 	cnt := atomic.AddUint32(&v.redrawCount, 1)
-	childCanvas := newCanvas.(*canvas)
+	childCanvas := newCanvas.(*CanvasImpl)
 	v.driver.asyncDriver(func() {
 		// Only use the canvas of the most recent SetCanvas call.
 		v.window.MakeContextCurrent()
@@ -352,13 +352,13 @@ func (v *viewport) SetCanvas(newCanvas gxui.Canvas) {
 	})
 }
 
-func (v *viewport) Scale() float32 {
+func (v *ViewportImpl) Scale() float32 {
 	v.Lock()
 	defer v.Unlock()
 	return v.scaling
 }
 
-func (v *viewport) SetScale(newScale float32) {
+func (v *ViewportImpl) SetScale(newScale float32) {
 	v.Lock()
 	defer v.Unlock()
 	if newScale != v.scaling {
@@ -368,13 +368,13 @@ func (v *viewport) SetScale(newScale float32) {
 	}
 }
 
-func (v *viewport) SizeDips() math.Size {
+func (v *ViewportImpl) SizeDips() math.Size {
 	v.Lock()
 	defer v.Unlock()
 	return v.sizeDips
 }
 
-func (v *viewport) SetSizeDips(size math.Size) {
+func (v *ViewportImpl) SetSizeDips(size math.Size) {
 	v.driver.syncDriver(func() {
 		v.sizeDips = size
 		v.sizeDipsUnscaled = size.ScaleS(v.scaling)
@@ -382,19 +382,19 @@ func (v *viewport) SetSizeDips(size math.Size) {
 	})
 }
 
-func (v *viewport) SizePixels() math.Size {
+func (v *ViewportImpl) SizePixels() math.Size {
 	v.Lock()
 	defer v.Unlock()
 	return v.sizePixels
 }
 
-func (v *viewport) Title() string {
+func (v *ViewportImpl) Title() string {
 	v.Lock()
 	defer v.Unlock()
 	return v.title
 }
 
-func (v *viewport) SetTitle(title string) {
+func (v *ViewportImpl) SetTitle(title string) {
 	v.Lock()
 	v.title = title
 	v.Unlock()
@@ -403,13 +403,13 @@ func (v *viewport) SetTitle(title string) {
 	})
 }
 
-func (v *viewport) Position() math.Point {
+func (v *ViewportImpl) Position() math.Point {
 	v.Lock()
 	defer v.Unlock()
 	return v.position
 }
 
-func (v *viewport) SetPosition(newPosition math.Point) {
+func (v *ViewportImpl) SetPosition(newPosition math.Point) {
 	v.Lock()
 	v.position = newPosition
 	v.Unlock()
@@ -418,72 +418,72 @@ func (v *viewport) SetPosition(newPosition math.Point) {
 	})
 }
 
-func (v *viewport) Fullscreen() bool {
+func (v *ViewportImpl) Fullscreen() bool {
 	return v.fullscreen
 }
 
-func (v *viewport) Show() {
+func (v *ViewportImpl) Show() {
 	v.driver.asyncDriver(func() { v.window.Show() })
 }
 
-func (v *viewport) Hide() {
+func (v *ViewportImpl) Hide() {
 	v.driver.asyncDriver(func() { v.window.Hide() })
 }
 
-func (v *viewport) Close() {
+func (v *ViewportImpl) Close() {
 	v.onClose.Fire()
 	v.Destroy()
 }
 
-func (v *viewport) OnResize(f func()) gxui.EventSubscription {
+func (v *ViewportImpl) OnResize(f func()) gxui.EventSubscription {
 	return v.onResize.Listen(f)
 }
 
-func (v *viewport) OnClose(f func()) gxui.EventSubscription {
+func (v *ViewportImpl) OnClose(f func()) gxui.EventSubscription {
 	return v.onClose.Listen(f)
 }
 
-func (v *viewport) OnMouseMove(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnMouseMove(f func(gxui.MouseEvent)) gxui.EventSubscription {
 	return v.onMouseMove.Listen(f)
 }
 
-func (v *viewport) OnMouseEnter(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnMouseEnter(f func(gxui.MouseEvent)) gxui.EventSubscription {
 	return v.onMouseEnter.Listen(f)
 }
 
-func (v *viewport) OnMouseExit(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnMouseExit(f func(gxui.MouseEvent)) gxui.EventSubscription {
 	return v.onMouseExit.Listen(f)
 }
 
-func (v *viewport) OnMouseDown(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnMouseDown(f func(gxui.MouseEvent)) gxui.EventSubscription {
 	return v.onMouseDown.Listen(f)
 }
 
-func (v *viewport) OnMouseUp(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnMouseUp(f func(gxui.MouseEvent)) gxui.EventSubscription {
 	return v.onMouseUp.Listen(f)
 }
 
-func (v *viewport) OnMouseScroll(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnMouseScroll(f func(gxui.MouseEvent)) gxui.EventSubscription {
 	return v.onMouseScroll.Listen(f)
 }
 
-func (v *viewport) OnKeyDown(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnKeyDown(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return v.onKeyDown.Listen(f)
 }
 
-func (v *viewport) OnKeyUp(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnKeyUp(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return v.onKeyUp.Listen(f)
 }
 
-func (v *viewport) OnKeyRepeat(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnKeyRepeat(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
 	return v.onKeyRepeat.Listen(f)
 }
 
-func (v *viewport) OnKeyStroke(f func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
+func (v *ViewportImpl) OnKeyStroke(f func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
 	return v.onKeyStroke.Listen(f)
 }
 
-func (v *viewport) Destroy() {
+func (v *ViewportImpl) Destroy() {
 	v.driver.asyncDriver(func() {
 		if !v.destroyed {
 			v.window.MakeContextCurrent()

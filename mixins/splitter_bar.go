@@ -10,14 +10,10 @@ import (
 	"github.com/badu/gxui/mixins/base"
 )
 
-type SplitterBarOuter interface {
-	base.ControlOuter
-}
-
 type SplitterBar struct {
-	base.Control
+	base.ControlBase
 	onDrag          func(wndPnt math.Point)
-	outer           SplitterBarOuter
+	outer           base.ControlBaseOuter
 	theme           gxui.Theme
 	onDragStart     gxui.Event
 	onDragEnd       gxui.Event
@@ -26,8 +22,8 @@ type SplitterBar struct {
 	isDragging      bool
 }
 
-func (b *SplitterBar) Init(outer SplitterBarOuter, theme gxui.Theme) {
-	b.Control.Init(outer, theme)
+func (b *SplitterBar) Init(outer base.ControlBaseOuter, theme gxui.Theme) {
+	b.ControlBase.Init(outer, theme)
 
 	b.outer = outer
 	b.theme = theme
@@ -61,7 +57,7 @@ func (b *SplitterBar) OnDragEnd(callback func(event gxui.MouseEvent)) gxui.Event
 	return b.onDragEnd.Listen(callback)
 }
 
-// parts.DrawPaint overrides
+// parts.DrawPaintPart overrides
 func (b *SplitterBar) Paint(canvas gxui.Canvas) {
 	rect := b.outer.Size().Rect()
 	canvas.DrawRect(rect, gxui.CreateBrush(b.backgroundColor))
@@ -70,7 +66,7 @@ func (b *SplitterBar) Paint(canvas gxui.Canvas) {
 	}
 }
 
-// InputEventHandler overrides
+// InputEventHandlerPart overrides
 func (b *SplitterBar) MouseDown(event gxui.MouseEvent) {
 	b.isDragging = true
 	b.onDragStart.Fire(event)
@@ -87,5 +83,5 @@ func (b *SplitterBar) MouseDown(event gxui.MouseEvent) {
 		b.onDragEnd.Fire(we)
 	})
 
-	b.InputEventHandler.MouseDown(event)
+	b.InputEventHandlerPart.MouseDown(event)
 }

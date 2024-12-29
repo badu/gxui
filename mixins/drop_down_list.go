@@ -8,18 +8,13 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 	"github.com/badu/gxui/mixins/base"
-	"github.com/badu/gxui/mixins/parts"
 )
 
-type DropDownListOuter interface {
-	base.ContainerOuter
-}
-
 type DropDownList struct {
-	base.Container
-	parts.BackgroundBorderPainter
-	parts.Focusable
-	outer       DropDownListOuter
+	base.ContainerBase
+	base.BackgroundBorderPainter
+	base.FocusablePart
+	outer       base.ContainerBaseOuter
 	theme       gxui.Theme
 	list        gxui.List
 	listShowing bool
@@ -30,11 +25,11 @@ type DropDownList struct {
 	onHideList  gxui.Event
 }
 
-func (l *DropDownList) Init(outer DropDownListOuter, theme gxui.Theme) {
+func (l *DropDownList) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
 	l.outer = outer
-	l.Container.Init(outer, theme)
+	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
-	l.Focusable.Init(outer)
+	l.FocusablePart.Init(outer)
 
 	l.theme = theme
 	l.list = theme.CreateList()
@@ -141,9 +136,9 @@ func (l *DropDownList) List() gxui.List {
 	return l.list
 }
 
-// InputEventHandler override
+// InputEventHandlerPart override
 func (l *DropDownList) Click(ev gxui.MouseEvent) bool {
-	l.InputEventHandler.Click(ev)
+	l.InputEventHandlerPart.Click(ev)
 	if l.ListShowing() {
 		l.HideList()
 	} else {
@@ -206,7 +201,7 @@ func (l *DropDownList) OnHideList(callback func()) gxui.EventSubscription {
 	return l.onHideList.Listen(callback)
 }
 
-// InputEventHandler overrides
+// InputEventHandlerPart overrides
 func (l *DropDownList) KeyPress(event gxui.KeyboardEvent) (consume bool) {
 	if event.Key == gxui.KeySpace || event.Key == gxui.KeyEnter {
 		mouseEvent := gxui.MouseEvent{
@@ -214,13 +209,13 @@ func (l *DropDownList) KeyPress(event gxui.KeyboardEvent) (consume bool) {
 		}
 		return l.Click(mouseEvent)
 	}
-	return l.InputEventHandler.KeyPress(event)
+	return l.InputEventHandlerPart.KeyPress(event)
 }
 
-// parts.Container overrides
+// parts.ContainerPart overrides
 func (l *DropDownList) Paint(canvas gxui.Canvas) {
 	rect := l.outer.Size().Rect()
 	l.PaintBackground(canvas, rect)
-	l.Container.Paint(canvas)
+	l.ContainerBase.Paint(canvas)
 	l.PaintBorder(canvas, rect)
 }
