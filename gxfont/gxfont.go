@@ -16,7 +16,7 @@ package gxfont
 import (
 	"bytes"
 	"compress/flate"
-	"io/ioutil"
+	"io"
 )
 
 var (
@@ -28,10 +28,10 @@ var (
 )
 
 func inflate(src []byte) []byte {
-	r := bytes.NewReader(src)
-	b, err := ioutil.ReadAll(flate.NewReader(r))
+	reader := bytes.NewReader(src)
+	data, err := io.ReadAll(flate.NewReader(reader))
 	if err != nil {
 		panic(err)
 	}
-	return b
+	return data
 }

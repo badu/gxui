@@ -27,7 +27,6 @@ type Theme interface {
 	CreateTextBox() TextBox
 	CreateTree() Tree
 	CreateWindow(width, height int, title string) Window
-
 	DisplayWidth() int
 	DisplayHeight() int
 	DefaultFontSize() int

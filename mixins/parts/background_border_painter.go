@@ -7,11 +7,10 @@ package parts
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 )
 
 type BackgroundBorderPainterOuter interface {
-	outer.Redrawer
+	Redraw() // was outer.Redrawer
 }
 
 type BackgroundBorderPainter struct {
@@ -26,17 +25,17 @@ func (b *BackgroundBorderPainter) Init(outer BackgroundBorderPainterOuter) {
 	b.pen = gxui.DefaultPen
 }
 
-func (b *BackgroundBorderPainter) PaintBackground(c gxui.Canvas, r math.Rect) {
+func (b *BackgroundBorderPainter) PaintBackground(canvas gxui.Canvas, rect math.Rect) {
 	if b.brush.Color.A != 0 {
 		w := b.pen.Width
-		c.DrawRoundedRect(r, w, w, w, w, gxui.TransparentPen, b.brush)
+		canvas.DrawRoundedRect(rect, w, w, w, w, gxui.TransparentPen, b.brush)
 	}
 }
 
-func (b *BackgroundBorderPainter) PaintBorder(c gxui.Canvas, r math.Rect) {
+func (b *BackgroundBorderPainter) PaintBorder(canvas gxui.Canvas, rect math.Rect) {
 	if b.pen.Color.A != 0 && b.pen.Width != 0 {
 		w := b.pen.Width
-		c.DrawRoundedRect(r, w, w, w, w, b.pen, gxui.TransparentBrush)
+		canvas.DrawRoundedRect(rect, w, w, w, w, b.pen, gxui.TransparentBrush)
 	}
 }
 

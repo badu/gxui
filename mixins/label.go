@@ -18,7 +18,6 @@ type LabelOuter interface {
 
 type Label struct {
 	base.Control
-
 	outer               LabelOuter
 	font                gxui.Font
 	color               gxui.Color
@@ -38,8 +37,6 @@ func (l *Label) Init(outer LabelOuter, theme gxui.Theme, font gxui.Font, color g
 	l.color = color
 	l.horizontalAlignment = gxui.AlignLeft
 	l.verticalAlignment = gxui.AlignMiddle
-	// Interface compliance test
-	_ = gxui.Label(l)
 }
 
 func (l *Label) Text() string {
@@ -87,12 +84,12 @@ func (l *Label) SetMultiline(multiline bool) {
 }
 
 func (l *Label) DesiredSize(min, max math.Size) math.Size {
-	t := l.text
+	text := l.text
 	if !l.multiline {
-		t = strings.Replace(t, "\n", " ", -1)
+		text = strings.Replace(text, "\n", " ", -1)
 	}
-	s := l.font.Measure(&gxui.TextBlock{Runes: []rune(t)})
-	return s.Clamp(min, max)
+	size := l.font.Measure(&gxui.TextBlock{Runes: []rune(text)})
+	return size.Clamp(min, max)
 }
 
 func (l *Label) SetHorizontalAlignment(horizontalAlignment gxui.HorizontalAlignment) {
@@ -118,19 +115,19 @@ func (l *Label) VerticalAlignment() gxui.VerticalAlignment {
 }
 
 // parts.DrawPaint overrides
-func (l *Label) Paint(c gxui.Canvas) {
-	r := l.outer.Size().Rect()
-	t := l.text
+func (l *Label) Paint(canvas gxui.Canvas) {
+	rect := l.outer.Size().Rect()
+	text := l.text
 	if !l.multiline {
-		t = strings.Replace(t, "\n", " ", -1)
+		text = strings.Replace(text, "\n", " ", -1)
 	}
 
-	runes := []rune(t)
+	runes := []rune(text)
 	offsets := l.font.Layout(&gxui.TextBlock{
 		Runes:     runes,
-		AlignRect: r,
+		AlignRect: rect,
 		H:         l.horizontalAlignment,
 		V:         l.verticalAlignment,
 	})
-	c.DrawRunes(l.font, runes, offsets, l.color)
+	canvas.DrawRunes(l.font, runes, offsets, l.color)
 }

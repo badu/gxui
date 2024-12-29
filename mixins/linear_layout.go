@@ -27,14 +27,11 @@ func (l *LinearLayout) Init(outer LinearLayoutOuter, theme gxui.Theme) {
 	l.SetMouseEventTarget(true)
 	l.SetBackgroundBrush(gxui.TransparentBrush)
 	l.SetBorderPen(gxui.TransparentPen)
-
-	// Interface compliance test
-	_ = gxui.LinearLayout(l)
 }
 
-func (l *LinearLayout) Paint(c gxui.Canvas) {
-	r := l.Size().Rect()
-	l.BackgroundBorderPainter.PaintBackground(c, r)
-	l.PaintChildren.Paint(c)
-	l.BackgroundBorderPainter.PaintBorder(c, r)
+func (l *LinearLayout) Paint(canvas gxui.Canvas) {
+	rect := l.Size().Rect()
+	l.BackgroundBorderPainter.PaintBackground(canvas, rect)
+	l.PaintChildren.Paint(canvas)
+	l.BackgroundBorderPainter.PaintBorder(canvas, rect)
 }

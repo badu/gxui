@@ -8,52 +8,52 @@ type KeyboardController struct {
 	window Window
 }
 
-func CreateKeyboardController(w Window) *KeyboardController {
-	c := &KeyboardController{
-		window: w,
+func CreateKeyboardController(window Window) *KeyboardController {
+	result := &KeyboardController{
+		window: window,
 	}
-	w.OnKeyDown(c.keyDown)
-	w.OnKeyUp(c.keyUp)
-	w.OnKeyRepeat(c.keyPress)
-	w.OnKeyStroke(c.keyStroke)
-	return c
+	window.OnKeyDown(result.keyDown)
+	window.OnKeyUp(result.keyUp)
+	window.OnKeyRepeat(result.keyPress)
+	window.OnKeyStroke(result.keyStroke)
+	return result
 }
 
-func (c *KeyboardController) keyDown(ev KeyboardEvent) {
-	f := Control(c.window.Focus())
-	for f != nil {
-		f.KeyDown(ev)
-		f, _ = f.Parent().(Control)
+func (c *KeyboardController) keyDown(event KeyboardEvent) {
+	target := Control(c.window.Focus())
+	for target != nil {
+		target.KeyDown(event)
+		target, _ = target.Parent().(Control)
 	}
-	c.keyPress(ev)
+	c.keyPress(event)
 }
 
-func (c *KeyboardController) keyUp(ev KeyboardEvent) {
-	f := Control(c.window.Focus())
-	for f != nil {
-		f.KeyUp(ev)
-		f, _ = f.Parent().(Control)
+func (c *KeyboardController) keyUp(event KeyboardEvent) {
+	target := Control(c.window.Focus())
+	for target != nil {
+		target.KeyUp(event)
+		target, _ = target.Parent().(Control)
 	}
 }
 
-func (c *KeyboardController) keyPress(ev KeyboardEvent) {
-	f := Control(c.window.Focus())
-	for f != nil {
-		if f.KeyPress(ev) {
+func (c *KeyboardController) keyPress(event KeyboardEvent) {
+	target := Control(c.window.Focus())
+	for target != nil {
+		if target.KeyPress(event) {
 			return
 		}
-		f, _ = f.Parent().(Control)
+		target, _ = target.Parent().(Control)
 	}
-	c.window.KeyPress(ev)
+	c.window.KeyPress(event)
 }
 
-func (c *KeyboardController) keyStroke(ev KeyStrokeEvent) {
-	f := Control(c.window.Focus())
-	for f != nil {
-		if f.KeyStroke(ev) {
+func (c *KeyboardController) keyStroke(event KeyStrokeEvent) {
+	target := Control(c.window.Focus())
+	for target != nil {
+		if target.KeyStroke(event) {
 			return
 		}
-		f, _ = f.Parent().(Control)
+		target, _ = target.Parent().(Control)
 	}
-	c.window.KeyStroke(ev)
+	c.window.KeyStroke(event)
 }

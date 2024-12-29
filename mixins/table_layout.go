@@ -24,9 +24,7 @@ type TableLayoutOuter interface {
 
 type TableLayout struct {
 	base.Container
-
-	outer TableLayoutOuter
-
+	outer   TableLayoutOuter
 	grid    map[gxui.Control]Cell
 	rows    int
 	columns int
@@ -36,29 +34,25 @@ func (l *TableLayout) Init(outer TableLayoutOuter, theme gxui.Theme) {
 	l.Container.Init(outer, theme)
 	l.outer = outer
 	l.grid = make(map[gxui.Control]Cell)
-
-	// Interface compliance test
-	_ = gxui.TableLayout(l)
 }
 
 func (l *TableLayout) LayoutChildren() {
-	s := l.outer.Size().Contract(l.outer.Padding())
-	o := l.outer.Padding().LT()
+	size := l.outer.Size().Contract(l.outer.Padding())
+	offset := l.outer.Padding().LT()
 
-	cw, ch := s.W/l.columns, s.H/l.rows
+	columnWidth, columnHeight := size.W/l.columns, size.H/l.rows
 
-	var cr math.Rect
+	var childRect math.Rect
+	for _, child := range l.outer.Children() {
+		childMargin := child.Control.Margin()
+		cell := l.grid[child.Control]
 
-	for _, c := range l.outer.Children() {
-		cm := c.Control.Margin()
-		cell := l.grid[c.Control]
+		x, y := cell.x*columnWidth, cell.y*columnHeight
+		w, h := x+cell.w*columnWidth, y+cell.h*columnHeight
 
-		x, y := cell.x*cw, cell.y*ch
-		w, h := x+cell.w*cw, y+cell.h*ch
+		childRect = math.CreateRect(x+childMargin.L, y+childMargin.T, w-childMargin.R, h-childMargin.B)
 
-		cr = math.CreateRect(x+cm.L, y+cm.T, w-cm.R, h-cm.B)
-
-		c.Layout(cr.Offset(o).Canon())
+		child.Layout(childRect.Offset(offset).Canon())
 	}
 }
 

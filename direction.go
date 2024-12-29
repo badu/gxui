@@ -31,7 +31,7 @@ func (d Direction) Flip() Direction {
 	case RightToLeft:
 		return LeftToRight
 	default:
-		panic(fmt.Errorf("Unknown direction %d", d))
+		panic(fmt.Errorf("unknown direction %d", d))
 	}
 }
 
@@ -42,6 +42,6 @@ func (d Direction) Orientation() Orientation {
 	case LeftToRight, RightToLeft:
 		return Horizontal
 	default:
-		panic(fmt.Errorf("Unknown direction %d", d))
+		panic(fmt.Errorf("unknown direction %d", d))
 	}
 }

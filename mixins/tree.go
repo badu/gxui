@@ -29,13 +29,10 @@ func (t *Tree) Init(outer TreeOuter, theme gxui.Theme) {
 	t.Focusable.Init(outer)
 	t.outer = outer
 	t.creator = defaultTreeControlCreator{}
-
-	// Interface compliance test
-	_ = gxui.Tree(t)
 }
 
-func (t *Tree) SetControlCreator(c TreeControlCreator) {
-	t.creator = c
+func (t *Tree) SetControlCreator(control TreeControlCreator) {
+	t.creator = control
 	if t.treeAdapter != nil {
 		t.listAdapter = CreateTreeToListAdapter(t.treeAdapter, t.creator)
 		t.DataReplaced()
@@ -47,6 +44,7 @@ func (t *Tree) SetAdapter(adapter gxui.TreeAdapter) {
 	if t.treeAdapter == adapter {
 		return
 	}
+
 	if adapter != nil {
 		t.treeAdapter = adapter
 		t.listAdapter = CreateTreeToListAdapter(adapter, t.creator)
@@ -79,13 +77,13 @@ func (t *Tree) CollapseAll() {
 	t.listAdapter.CollapseAll()
 }
 
-func (t *Tree) PaintUnexpandedSelection(c gxui.Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, gxui.CreatePen(1, gxui.Gray50), gxui.TransparentBrush)
+func (t *Tree) PaintUnexpandedSelection(canvas gxui.Canvas, rect math.Rect) {
+	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, gxui.CreatePen(1, gxui.Gray50), gxui.TransparentBrush)
 }
 
 // List override
-func (t *Tree) PaintChild(c gxui.Canvas, child *gxui.Child, idx int) {
-	t.List.PaintChild(c, child, idx)
+func (t *Tree) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
+	t.List.PaintChild(canvas, child, idx)
 	if t.selectedItem != nil {
 		if deepest := t.listAdapter.DeepestNode(t.selectedItem); deepest != nil {
 			if item := deepest.Item(); item != t.selectedItem {
@@ -94,7 +92,7 @@ func (t *Tree) PaintChild(c gxui.Canvas, child *gxui.Child, idx int) {
 				if details, found := t.details[item]; found {
 					if child == details.child {
 						b := child.Bounds().Expand(child.Control.Margin())
-						t.outer.PaintUnexpandedSelection(c, b)
+						t.outer.PaintUnexpandedSelection(canvas, b)
 					}
 				}
 			}
@@ -103,8 +101,8 @@ func (t *Tree) PaintChild(c gxui.Canvas, child *gxui.Child, idx int) {
 }
 
 // InputEventHandler override
-func (t *Tree) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
-	switch ev.Key {
+func (t *Tree) KeyPress(event gxui.KeyboardEvent) bool {
+	switch event.Key {
 	case gxui.KeyLeft:
 		if item := t.Selected(); item != nil {
 			node := t.listAdapter.DeepestNode(item)
@@ -115,6 +113,7 @@ func (t *Tree) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 				return t.Select(p.Item())
 			}
 		}
+
 	case gxui.KeyRight:
 		if item := t.Selected(); item != nil {
 			node := t.listAdapter.DeepestNode(item)
@@ -123,7 +122,8 @@ func (t *Tree) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 			}
 		}
 	}
-	return t.List.KeyPress(ev)
+
+	return t.List.KeyPress(event)
 }
 
 type defaultTreeControlCreator struct{}

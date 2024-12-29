@@ -36,8 +36,8 @@ type Image interface {
 	SetBackgroundBrush(Brush)
 	ScalingMode() ScalingMode
 	SetScalingMode(ScalingMode)
-	SetExplicitSize(math.Size)
+	SetExplicitSize(size math.Size)
 	AspectMode() AspectMode
 	SetAspectMode(AspectMode)
-	PixelAt(math.Point) (math.Point, bool) // TODO: Remove
+	PixelAt(point math.Point) (math.Point, bool) // TODO: Remove
 }

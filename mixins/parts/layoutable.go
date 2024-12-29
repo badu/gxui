@@ -9,12 +9,15 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 )
 
+type LayoutChildren interface {
+	LayoutChildren()
+}
+
 type LayoutableOuter interface {
-	outer.Parenter
-	outer.Redrawer
+	Parent() gxui.Parent // was outer.Parenter
+	Redraw()             // was outer.Redrawer
 }
 
 type Layoutable struct {
@@ -31,8 +34,8 @@ func (l *Layoutable) Init(outer LayoutableOuter, theme gxui.Theme) {
 	l.driver = theme.Driver()
 }
 
-func (l *Layoutable) SetMargin(m math.Spacing) {
-	l.margin = m
+func (l *Layoutable) SetMargin(margin math.Spacing) {
+	l.margin = margin
 	if p := l.outer.Parent(); p != nil {
 		p.Relayout()
 	}
@@ -46,20 +49,25 @@ func (l *Layoutable) Size() math.Size {
 	return l.size
 }
 
-func (l *Layoutable) SetSize(size math.Size) {
-	if size.W < 0 {
-		panic(fmt.Errorf("SetSize() called with a negative width. Size: %v", size))
+func (l *Layoutable) SetSize(newSize math.Size) {
+	if newSize.W < 0 {
+		panic(fmt.Errorf("SetSize() called with a negative width. Size: %v", newSize))
 	}
-	if size.H < 0 {
-		panic(fmt.Errorf("SetSize() called with a negative height. Size: %v", size))
+	if newSize.H < 0 {
+		panic(fmt.Errorf("SetSize() called with a negative height. Size: %v", newSize))
 	}
 
-	sizeChanged := l.size != size
-	l.size = size
+	sizeChanged := l.size != newSize
+	l.size = newSize
 	if l.relayoutRequested || sizeChanged {
 		l.relayoutRequested = false
 		l.inLayoutChildren = true
-		callLayoutChildrenIfSupported(l.outer)
+
+		impl, ok := l.outer.(LayoutChildren)
+		if ok {
+			impl.LayoutChildren()
+		}
+
 		l.inLayoutChildren = false
 		l.outer.Redraw()
 	}
@@ -68,8 +76,9 @@ func (l *Layoutable) SetSize(size math.Size) {
 func (l *Layoutable) Relayout() {
 	l.driver.AssertUIGoroutine()
 	if l.inLayoutChildren {
-		panic("Cannot call Relayout() while in LayoutChildren")
+		panic("cannot call Relayout() while in LayoutChildren")
 	}
+
 	if !l.relayoutRequested {
 		if p := l.outer.Parent(); p != nil {
 			l.relayoutRequested = true

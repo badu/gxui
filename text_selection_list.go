@@ -8,39 +8,39 @@ import "github.com/badu/gxui/interval"
 
 type TextSelectionList []TextSelection
 
-func (l TextSelectionList) Transform(from int, transform func(i int) int) TextSelectionList {
-	res := TextSelectionList{}
-	for _, s := range l {
-		start := s.start
-		end := s.end
+func (l TextSelectionList) Transform(from int, transform func(index int) int) TextSelectionList {
+	result := TextSelectionList{}
+	for _, item := range l {
+		start := item.start
+		end := item.end
 		if start >= from {
 			start = transform(start)
 		}
 		if end >= from {
 			end = transform(end)
 		}
-		interval.Merge(&res, TextSelection{start, end, s.caretAtStart})
+		interval.Merge(&result, TextSelection{start, end, item.caretAtStart})
 	}
-	return res
+	return result
 }
 
-func (l TextSelectionList) TransformCarets(from int, transform func(i int) int) TextSelectionList {
-	res := TextSelectionList{}
-	for _, s := range l {
-		if s.caretAtStart && s.start >= from {
-			s.start = transform(s.start)
-		} else if s.end >= from {
-			s.end = transform(s.end)
+func (l TextSelectionList) TransformCarets(from int, transform func(index int) int) TextSelectionList {
+	result := TextSelectionList{}
+	for _, item := range l {
+		if item.caretAtStart && item.start >= from {
+			item.start = transform(item.start)
+		} else if item.end >= from {
+			item.end = transform(item.end)
 		}
-		if s.start > s.end {
-			tmp := s.start
-			s.start = s.end
-			s.end = tmp
-			s.caretAtStart = !s.caretAtStart
+		if item.start > item.end {
+			tmp := item.start
+			item.start = item.end
+			item.end = tmp
+			item.caretAtStart = !item.caretAtStart
 		}
-		interval.Merge(&res, s)
+		interval.Merge(&result, item)
 	}
-	return res
+	return result
 }
 
 func (l TextSelectionList) Len() int {

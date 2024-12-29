@@ -17,7 +17,6 @@ type SplitterLayoutOuter interface {
 
 type SplitterLayout struct {
 	base.Container
-
 	outer         SplitterLayoutOuter
 	theme         gxui.Theme
 	orientation   gxui.Orientation
@@ -32,14 +31,11 @@ func (l *SplitterLayout) Init(outer SplitterLayoutOuter, theme gxui.Theme) {
 	l.weights = make(map[gxui.Control]float32)
 	l.splitterWidth = 4
 	l.SetMouseEventTarget(true)
-
-	// Interface compliance test
-	_ = gxui.SplitterLayout(l)
 }
 
 func (l *SplitterLayout) LayoutChildren() {
-	s := l.outer.Size().Contract(l.Padding())
-	o := l.Padding().LT()
+	size := l.outer.Size().Contract(l.Padding())
+	offset := l.Padding().LT()
 
 	children := l.outer.Children()
 
@@ -47,9 +43,9 @@ func (l *SplitterLayout) LayoutChildren() {
 
 	splitterWidth := l.splitterWidth
 	if l.orientation.Horizontal() {
-		s.W -= splitterWidth * splitterCount
+		size.W -= splitterWidth * splitterCount
 	} else {
-		s.H -= splitterWidth * splitterCount
+		size.H -= splitterWidth * splitterCount
 	}
 
 	netWeight := float32(0.0)
@@ -59,30 +55,30 @@ func (l *SplitterLayout) LayoutChildren() {
 		}
 	}
 
-	d := 0
-	for i, c := range children {
-		var cr math.Rect
+	trackedDist := 0
+	for i, child := range children {
+		var childRect math.Rect
 		if isSplitter := (i & 1) == 1; !isSplitter {
-			cm := c.Control.Margin()
-			frac := l.weights[c.Control] / netWeight
+			childMargin := child.Control.Margin()
+			frac := l.weights[child.Control] / netWeight
 			if l.orientation.Horizontal() {
-				cw := int(float32(s.W) * frac)
-				cr = math.CreateRect(d+cm.L, cm.T, d+cw-cm.R, s.H-cm.B)
-				d += cw
+				childWidth := int(float32(size.W) * frac)
+				childRect = math.CreateRect(trackedDist+childMargin.L, childMargin.T, trackedDist+childWidth-childMargin.R, size.H-childMargin.B)
+				trackedDist += childWidth
 			} else {
-				ch := int(float32(s.H) * frac)
-				cr = math.CreateRect(cm.L, d+cm.T, s.W-cm.R, d+ch-cm.B)
-				d += ch
+				childHeight := int(float32(size.H) * frac)
+				childRect = math.CreateRect(childMargin.L, trackedDist+childMargin.T, size.W-childMargin.R, trackedDist+childHeight-childMargin.B)
+				trackedDist += childHeight
 			}
 		} else {
 			if l.orientation.Horizontal() {
-				cr = math.CreateRect(d, 0, d+splitterWidth, s.H)
+				childRect = math.CreateRect(trackedDist, 0, trackedDist+splitterWidth, size.H)
 			} else {
-				cr = math.CreateRect(0, d, s.W, d+splitterWidth)
+				childRect = math.CreateRect(0, trackedDist, size.W, trackedDist+splitterWidth)
 			}
-			d += splitterWidth
+			trackedDist += splitterWidth
 		}
-		c.Layout(cr.Offset(o).Canon())
+		child.Layout(childRect.Offset(offset).Canon())
 	}
 }
 

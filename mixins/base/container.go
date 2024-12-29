@@ -6,20 +6,22 @@ package base
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins/outer"
 	"github.com/badu/gxui/mixins/parts"
 )
 
 type ContainerNoControlOuter interface {
 	gxui.Container
-	outer.PaintChilder
-	outer.Painter
-	outer.LayoutChildren
+	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
+	Paint(canvas gxui.Canvas)                                  // was outer.Painter
+	LayoutChildren()                                           // was outer.LayoutChildren
 }
 
 type ContainerOuter interface {
-	ContainerNoControlOuter
+	gxui.Container
 	gxui.Control
+	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
+	Paint(canvas gxui.Canvas)                                  // was outer.Painter
+	LayoutChildren()                                           // was outer.LayoutChildren
 }
 
 type Container struct {
@@ -44,7 +46,4 @@ func (c *Container) Init(outer ContainerOuter, theme gxui.Theme) {
 	c.PaintChildren.Init(outer)
 	c.Parentable.Init(outer)
 	c.Visible.Init(outer)
-
-	// Interface compliance test
-	_ = gxui.Container(c)
 }

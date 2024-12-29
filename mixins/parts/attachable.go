@@ -6,11 +6,10 @@ package parts
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins/outer"
 )
 
 type AttachableOuter interface {
-	outer.Relayouter
+	Relayout() // was outer.Relayouter
 }
 
 type Attachable struct {
@@ -48,16 +47,16 @@ func (a *Attachable) Detach() {
 	}
 }
 
-func (a *Attachable) OnAttach(f func()) gxui.EventSubscription {
+func (a *Attachable) OnAttach(callback func()) gxui.EventSubscription {
 	if a.onAttach == nil {
 		a.onAttach = gxui.CreateEvent(func() {})
 	}
-	return a.onAttach.Listen(f)
+	return a.onAttach.Listen(callback)
 }
 
-func (a *Attachable) OnDetach(f func()) gxui.EventSubscription {
+func (a *Attachable) OnDetach(callback func()) gxui.EventSubscription {
 	if a.onDetach == nil {
 		a.onDetach = gxui.CreateEvent(func() {})
 	}
-	return a.onDetach.Listen(f)
+	return a.onDetach.Listen(callback)
 }

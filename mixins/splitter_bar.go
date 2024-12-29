@@ -16,7 +16,6 @@ type SplitterBarOuter interface {
 
 type SplitterBar struct {
 	base.Control
-
 	onDrag          func(wndPnt math.Point)
 	outer           SplitterBarOuter
 	theme           gxui.Theme
@@ -38,55 +37,55 @@ func (b *SplitterBar) Init(outer SplitterBarOuter, theme gxui.Theme) {
 	b.foregroundColor = gxui.Green
 }
 
-func (b *SplitterBar) SetBackgroundColor(c gxui.Color) {
-	b.backgroundColor = c
+func (b *SplitterBar) SetBackgroundColor(color gxui.Color) {
+	b.backgroundColor = color
 }
 
-func (b *SplitterBar) SetForegroundColor(c gxui.Color) {
-	b.foregroundColor = c
+func (b *SplitterBar) SetForegroundColor(color gxui.Color) {
+	b.foregroundColor = color
 }
 
-func (b *SplitterBar) OnSplitterDragged(f func(wndPnt math.Point)) {
-	b.onDrag = f
+func (b *SplitterBar) OnSplitterDragged(callback func(point math.Point)) {
+	b.onDrag = callback
 }
 
 func (b *SplitterBar) IsDragging() bool {
 	return b.isDragging
 }
 
-func (b *SplitterBar) OnDragStart(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return b.onDragStart.Listen(f)
+func (b *SplitterBar) OnDragStart(callback func(event gxui.MouseEvent)) gxui.EventSubscription {
+	return b.onDragStart.Listen(callback)
 }
 
-func (b *SplitterBar) OnDragEnd(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return b.onDragEnd.Listen(f)
+func (b *SplitterBar) OnDragEnd(callback func(event gxui.MouseEvent)) gxui.EventSubscription {
+	return b.onDragEnd.Listen(callback)
 }
 
 // parts.DrawPaint overrides
-func (b *SplitterBar) Paint(c gxui.Canvas) {
-	r := b.outer.Size().Rect()
-	c.DrawRect(r, gxui.CreateBrush(b.backgroundColor))
+func (b *SplitterBar) Paint(canvas gxui.Canvas) {
+	rect := b.outer.Size().Rect()
+	canvas.DrawRect(rect, gxui.CreateBrush(b.backgroundColor))
 	if b.foregroundColor != b.backgroundColor {
-		c.DrawRect(r.ContractI(1), gxui.CreateBrush(b.foregroundColor))
+		canvas.DrawRect(rect.ContractI(1), gxui.CreateBrush(b.foregroundColor))
 	}
 }
 
 // InputEventHandler overrides
-func (b *SplitterBar) MouseDown(e gxui.MouseEvent) {
+func (b *SplitterBar) MouseDown(event gxui.MouseEvent) {
 	b.isDragging = true
-	b.onDragStart.Fire(e)
+	b.onDragStart.Fire(event)
 	var mms, mus gxui.EventSubscription
-	mms = e.Window.OnMouseMove(func(we gxui.MouseEvent) {
+	mms = event.Window.OnMouseMove(func(we gxui.MouseEvent) {
 		if b.onDrag != nil {
 			b.onDrag(we.WindowPoint)
 		}
 	})
-	mus = e.Window.OnMouseUp(func(we gxui.MouseEvent) {
+	mus = event.Window.OnMouseUp(func(we gxui.MouseEvent) {
 		mms.Unlisten()
 		mus.Unlisten()
 		b.isDragging = false
 		b.onDragEnd.Fire(we)
 	})
 
-	b.InputEventHandler.MouseDown(e)
+	b.InputEventHandler.MouseDown(event)
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type ToolTipCreator func(math.Point) Control
+type ToolTipCreator func(point math.Point) Control
 
 type toolTipTracker struct {
 	creator      ToolTipCreator
@@ -61,45 +61,52 @@ func (c *ToolTipController) hideToolTipForTracker(tracker *toolTipTracker) {
 }
 
 func CreateToolTipController(bubbleOverlay BubbleOverlay, driver Driver) *ToolTipController {
-	return &ToolTipController{
-		driver:        driver,
-		bubbleOverlay: bubbleOverlay,
-	}
+	return &ToolTipController{driver: driver, bubbleOverlay: bubbleOverlay}
 }
 
 func (c *ToolTipController) AddToolTip(control Control, delaySeconds float32, creator ToolTipCreator) {
-	tracker := &toolTipTracker{
-		control: control,
-		creator: creator,
-	}
+	tracker := &toolTipTracker{control: control, creator: creator}
+
 	duration := time.Duration(delaySeconds * float32(time.Second))
+
 	bind := func() {
-		tracker.onEnterES = control.OnMouseEnter(func(ev MouseEvent) {
-			tracker.lastPosition = ev.Point
-			c.beginTimer(tracker, duration)
-		})
-		tracker.onExitES = control.OnMouseExit(func(ev MouseEvent) {
+		tracker.onEnterES = control.OnMouseEnter(
+			func(event MouseEvent) {
+				tracker.lastPosition = event.Point
+				c.beginTimer(tracker, duration)
+			},
+		)
+		tracker.onExitES = control.OnMouseExit(
+			func(event MouseEvent) {
+				if c.timer != nil {
+					c.timer.Stop()
+					c.timer = nil
+				}
+				c.hideToolTipForTracker(tracker)
+			},
+		)
+		tracker.onMoveES = control.OnMouseMove(
+			func(event MouseEvent) {
+				tracker.lastPosition = event.Point
+				c.beginTimer(tracker, duration)
+			},
+		)
+	}
+
+	control.OnAttach(bind)
+
+	control.OnDetach(
+		func() {
 			if c.timer != nil {
 				c.timer.Stop()
 				c.timer = nil
 			}
-			c.hideToolTipForTracker(tracker)
-		})
-		tracker.onMoveES = control.OnMouseMove(func(ev MouseEvent) {
-			tracker.lastPosition = ev.Point
-			c.beginTimer(tracker, duration)
-		})
-	}
-	control.OnAttach(bind)
-	control.OnDetach(func() {
-		if c.timer != nil {
-			c.timer.Stop()
-			c.timer = nil
-		}
-		tracker.onEnterES.Unlisten()
-		tracker.onExitES.Unlisten()
-		tracker.onMoveES.Unlisten()
-	})
+			tracker.onEnterES.Unlisten()
+			tracker.onExitES.Unlisten()
+			tracker.onMoveES.Unlisten()
+		},
+	)
+
 	if control.Attached() {
 		bind()
 	}

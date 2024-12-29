@@ -6,7 +6,6 @@ package gxui
 
 type ScrollBar interface {
 	Control
-
 	OnScroll(func(from, to int)) EventSubscription
 	ScrollPosition() (from, to int)
 	SetScrollPosition(from, to int)

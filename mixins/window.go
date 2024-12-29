@@ -7,19 +7,23 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 	"github.com/badu/gxui/mixins/parts"
 )
 
 type WindowOuter interface {
 	gxui.Window
-	outer.Attachable
-	outer.IsVisibler
-	outer.LayoutChildren
-	outer.PaintChilder
-	outer.Painter
-	outer.Parenter
-	outer.Sized
+	Attached() bool                                            // was outer.Attachable
+	Attach()                                                   // was outer.Attachable
+	Detach()                                                   // was outer.Attachable
+	OnAttach(callback func()) gxui.EventSubscription           // was outer.Attachable
+	OnDetach(callback func()) gxui.EventSubscription           // was outer.Attachable
+	IsVisible() bool                                           // was outer.IsVisibler
+	LayoutChildren()                                           // was outer.LayoutChildren
+	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
+	Paint(canvas gxui.Canvas)                                  // was outer.Painter
+	Parent() gxui.Parent                                       // was outer.Parenter
+	Size() math.Size                                           // was outer.Sized
+	SetSize(newSize math.Size)                                 // was outer.Sized
 }
 
 type Window struct {
@@ -28,33 +32,30 @@ type Window struct {
 	parts.Container
 	parts.Paddable
 	parts.PaintChildren
-
-	driver             gxui.Driver
-	outer              WindowOuter
-	viewport           gxui.Viewport
-	windowedSize       math.Size
-	mouseController    *gxui.MouseController
-	keyboardController *gxui.KeyboardController
-	focusController    *gxui.FocusController
-	layoutPending      bool
-	drawPending        bool
-	updatePending      bool
-	onClose            gxui.Event // Raised by viewport
-	onResize           gxui.Event // Raised by viewport
-	onMouseMove        gxui.Event // Raised by viewport
-	onMouseEnter       gxui.Event // Raised by viewport
-	onMouseExit        gxui.Event // Raised by viewport
-	onMouseDown        gxui.Event // Raised by viewport
-	onMouseUp          gxui.Event // Raised by viewport
-	onMouseScroll      gxui.Event // Raised by viewport
-	onKeyDown          gxui.Event // Raised by viewport
-	onKeyUp            gxui.Event // Raised by viewport
-	onKeyRepeat        gxui.Event // Raised by viewport
-	onKeyStroke        gxui.Event // Raised by viewport
-
-	onClick       gxui.Event // Raised by MouseController
-	onDoubleClick gxui.Event // Raised by MouseController
-
+	driver                gxui.Driver
+	outer                 WindowOuter
+	viewport              gxui.Viewport
+	windowedSize          math.Size
+	mouseController       *gxui.MouseController
+	keyboardController    *gxui.KeyboardController
+	focusController       *gxui.FocusController
+	layoutPending         bool
+	drawPending           bool
+	updatePending         bool
+	onClose               gxui.Event // Raised by viewport
+	onResize              gxui.Event // Raised by viewport
+	onMouseMove           gxui.Event // Raised by viewport
+	onMouseEnter          gxui.Event // Raised by viewport
+	onMouseExit           gxui.Event // Raised by viewport
+	onMouseDown           gxui.Event // Raised by viewport
+	onMouseUp             gxui.Event // Raised by viewport
+	onMouseScroll         gxui.Event // Raised by viewport
+	onKeyDown             gxui.Event // Raised by viewport
+	onKeyUp               gxui.Event // Raised by viewport
+	onKeyRepeat           gxui.Event // Raised by viewport
+	onKeyStroke           gxui.Event // Raised by viewport
+	onClick               gxui.Event // Raised by MouseController
+	onDoubleClick         gxui.Event // Raised by MouseController
 	viewportSubscriptions []gxui.EventSubscription
 }
 
@@ -125,9 +126,6 @@ func (w *Window) Init(outer WindowOuter, driver gxui.Driver, width, height int, 
 
 	// Window starts shown
 	w.Attach()
-
-	// Interface compliance test
-	_ = gxui.Window(w)
 }
 
 func (w *Window) Draw() gxui.Canvas {
@@ -142,17 +140,17 @@ func (w *Window) Draw() gxui.Canvas {
 	}
 }
 
-func (w *Window) Paint(c gxui.Canvas) {
-	w.PaintBackground(c, c.Size().Rect())
-	w.PaintChildren.Paint(c)
-	w.PaintBorder(c, c.Size().Rect())
+func (w *Window) Paint(canvas gxui.Canvas) {
+	w.PaintBackground(canvas, canvas.Size().Rect())
+	w.PaintChildren.Paint(canvas)
+	w.PaintBorder(canvas, canvas.Size().Rect())
 }
 
 func (w *Window) LayoutChildren() {
-	s := w.Size().Contract(w.Padding()).Max(math.ZeroSize)
-	o := w.Padding().LT()
-	for _, c := range w.outer.Children() {
-		c.Layout(c.Control.DesiredSize(math.ZeroSize, s).Rect().Offset(o))
+	size := w.Size().Contract(w.Padding()).Max(math.ZeroSize)
+	offset := w.Padding().LT()
+	for _, child := range w.outer.Children() {
+		child.Layout(child.Control.DesiredSize(math.ZeroSize, size).Rect().Offset(offset))
 	}
 }
 
@@ -176,8 +174,8 @@ func (w *Window) Title() string {
 	return w.viewport.Title()
 }
 
-func (w *Window) SetTitle(t string) {
-	w.viewport.SetTitle(t)
+func (w *Window) SetTitle(title string) {
+	w.viewport.SetTitle(title)
 }
 
 func (w *Window) Scale() float32 {
@@ -192,8 +190,8 @@ func (w *Window) Position() math.Point {
 	return w.viewport.Position()
 }
 
-func (w *Window) SetPosition(pos math.Point) {
-	w.viewport.SetPosition(pos)
+func (w *Window) SetPosition(point math.Point) {
+	w.viewport.SetPosition(point)
 }
 
 func (w *Window) Fullscreen() bool {
@@ -234,16 +232,18 @@ func (w *Window) Focus() gxui.Focusable {
 	return w.focusController.Focus()
 }
 
-func (w *Window) SetFocus(c gxui.Control) bool {
-	fc := w.focusController
-	if c == nil {
-		fc.SetFocus(nil)
+func (w *Window) SetFocus(control gxui.Control) bool {
+	focusController := w.focusController
+	if control == nil {
+		focusController.SetFocus(nil)
 		return true
 	}
-	if f := fc.Focusable(c); f != nil {
-		fc.SetFocus(f)
+
+	if target := focusController.Focusable(control); target != nil {
+		focusController.SetFocus(target)
 		return true
 	}
+
 	return false
 }
 
@@ -251,84 +251,84 @@ func (w *Window) IsVisible() bool {
 	return true
 }
 
-func (w *Window) OnClose(f func()) gxui.EventSubscription {
-	return w.onClose.Listen(f)
+func (w *Window) OnClose(callback func()) gxui.EventSubscription {
+	return w.onClose.Listen(callback)
 }
 
-func (w *Window) OnResize(f func()) gxui.EventSubscription {
-	return w.onResize.Listen(f)
+func (w *Window) OnResize(callback func()) gxui.EventSubscription {
+	return w.onResize.Listen(callback)
 }
 
-func (w *Window) OnClick(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return w.onClick.Listen(f)
+func (w *Window) OnClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return w.onClick.Listen(callback)
 }
 
-func (w *Window) OnDoubleClick(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return w.onDoubleClick.Listen(f)
+func (w *Window) OnDoubleClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return w.onDoubleClick.Listen(callback)
 }
 
-func (w *Window) OnMouseMove(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (w *Window) OnMouseMove(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return w.onMouseMove.Listen(func(ev gxui.MouseEvent) {
 		ev.Window = w
 		ev.WindowPoint = ev.Point
-		f(ev)
+		callback(ev)
 	})
 }
 
-func (w *Window) OnMouseEnter(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (w *Window) OnMouseEnter(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return w.onMouseEnter.Listen(func(ev gxui.MouseEvent) {
 		ev.Window = w
 		ev.WindowPoint = ev.Point
-		f(ev)
+		callback(ev)
 	})
 }
 
-func (w *Window) OnMouseExit(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (w *Window) OnMouseExit(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return w.onMouseExit.Listen(func(ev gxui.MouseEvent) {
 		ev.Window = w
 		ev.WindowPoint = ev.Point
-		f(ev)
+		callback(ev)
 	})
 }
 
-func (w *Window) OnMouseDown(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (w *Window) OnMouseDown(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return w.onMouseDown.Listen(func(ev gxui.MouseEvent) {
 		ev.Window = w
 		ev.WindowPoint = ev.Point
-		f(ev)
+		callback(ev)
 	})
 }
 
-func (w *Window) OnMouseUp(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (w *Window) OnMouseUp(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return w.onMouseUp.Listen(func(ev gxui.MouseEvent) {
 		ev.Window = w
 		ev.WindowPoint = ev.Point
-		f(ev)
+		callback(ev)
 	})
 }
 
-func (w *Window) OnMouseScroll(f func(gxui.MouseEvent)) gxui.EventSubscription {
+func (w *Window) OnMouseScroll(callback func(gxui.MouseEvent)) gxui.EventSubscription {
 	return w.onMouseScroll.Listen(func(ev gxui.MouseEvent) {
 		ev.Window = w
 		ev.WindowPoint = ev.Point
-		f(ev)
+		callback(ev)
 	})
 }
 
-func (w *Window) OnKeyDown(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return w.onKeyDown.Listen(f)
+func (w *Window) OnKeyDown(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return w.onKeyDown.Listen(callback)
 }
 
-func (w *Window) OnKeyUp(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return w.onKeyUp.Listen(f)
+func (w *Window) OnKeyUp(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return w.onKeyUp.Listen(callback)
 }
 
-func (w *Window) OnKeyRepeat(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return w.onKeyRepeat.Listen(f)
+func (w *Window) OnKeyRepeat(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return w.onKeyRepeat.Listen(callback)
 }
 
-func (w *Window) OnKeyStroke(f func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
-	return w.onKeyStroke.Listen(f)
+func (w *Window) OnKeyStroke(callback func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
+	return w.onKeyStroke.Listen(callback)
 }
 
 func (w *Window) Relayout() {
@@ -341,43 +341,46 @@ func (w *Window) Redraw() {
 	w.requestUpdate()
 }
 
-func (w *Window) Click(ev gxui.MouseEvent) {
-	w.onClick.Fire(ev)
+func (w *Window) Click(event gxui.MouseEvent) {
+	w.onClick.Fire(event)
 }
 
-func (w *Window) DoubleClick(ev gxui.MouseEvent) {
-	w.onDoubleClick.Fire(ev)
+func (w *Window) DoubleClick(event gxui.MouseEvent) {
+	w.onDoubleClick.Fire(event)
 }
 
-func (w *Window) KeyPress(ev gxui.KeyboardEvent) {
-	if ev.Key == gxui.KeyTab {
-		if ev.Modifier&gxui.ModShift != 0 {
+func (w *Window) KeyPress(event gxui.KeyboardEvent) {
+	if event.Key == gxui.KeyTab {
+		if event.Modifier&gxui.ModShift != 0 {
 			w.focusController.FocusPrev()
 		} else {
 			w.focusController.FocusNext()
 		}
 	}
 }
-func (w *Window) KeyStroke(gxui.KeyStrokeEvent) {}
+func (w *Window) KeyStroke(event gxui.KeyStrokeEvent) {}
 
-func (w *Window) setViewport(v gxui.Viewport) {
-	for _, s := range w.viewportSubscriptions {
-		s.Unlisten()
+func (w *Window) setViewport(viewport gxui.Viewport) {
+	for _, subscription := range w.viewportSubscriptions {
+		subscription.Unlisten()
 	}
-	w.viewport = v
+
+	w.viewport = viewport
+
 	w.viewportSubscriptions = []gxui.EventSubscription{
-		v.OnClose(func() { w.onClose.Fire() }),
-		v.OnResize(func() { w.onResize.Fire() }),
-		v.OnMouseMove(func(ev gxui.MouseEvent) { w.onMouseMove.Fire(ev) }),
-		v.OnMouseEnter(func(ev gxui.MouseEvent) { w.onMouseEnter.Fire(ev) }),
-		v.OnMouseExit(func(ev gxui.MouseEvent) { w.onMouseExit.Fire(ev) }),
-		v.OnMouseDown(func(ev gxui.MouseEvent) { w.onMouseDown.Fire(ev) }),
-		v.OnMouseUp(func(ev gxui.MouseEvent) { w.onMouseUp.Fire(ev) }),
-		v.OnMouseScroll(func(ev gxui.MouseEvent) { w.onMouseScroll.Fire(ev) }),
-		v.OnKeyDown(func(ev gxui.KeyboardEvent) { w.onKeyDown.Fire(ev) }),
-		v.OnKeyUp(func(ev gxui.KeyboardEvent) { w.onKeyUp.Fire(ev) }),
-		v.OnKeyRepeat(func(ev gxui.KeyboardEvent) { w.onKeyRepeat.Fire(ev) }),
-		v.OnKeyStroke(func(ev gxui.KeyStrokeEvent) { w.onKeyStroke.Fire(ev) }),
+		viewport.OnClose(func() { w.onClose.Fire() }),
+		viewport.OnResize(func() { w.onResize.Fire() }),
+		viewport.OnMouseMove(func(ev gxui.MouseEvent) { w.onMouseMove.Fire(ev) }),
+		viewport.OnMouseEnter(func(ev gxui.MouseEvent) { w.onMouseEnter.Fire(ev) }),
+		viewport.OnMouseExit(func(ev gxui.MouseEvent) { w.onMouseExit.Fire(ev) }),
+		viewport.OnMouseDown(func(ev gxui.MouseEvent) { w.onMouseDown.Fire(ev) }),
+		viewport.OnMouseUp(func(ev gxui.MouseEvent) { w.onMouseUp.Fire(ev) }),
+		viewport.OnMouseScroll(func(ev gxui.MouseEvent) { w.onMouseScroll.Fire(ev) }),
+		viewport.OnKeyDown(func(ev gxui.KeyboardEvent) { w.onKeyDown.Fire(ev) }),
+		viewport.OnKeyUp(func(ev gxui.KeyboardEvent) { w.onKeyUp.Fire(ev) }),
+		viewport.OnKeyRepeat(func(ev gxui.KeyboardEvent) { w.onKeyRepeat.Fire(ev) }),
+		viewport.OnKeyStroke(func(ev gxui.KeyStrokeEvent) { w.onKeyStroke.Fire(ev) }),
 	}
+
 	w.Relayout()
 }

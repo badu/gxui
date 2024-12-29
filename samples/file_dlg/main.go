@@ -24,7 +24,7 @@ var (
 
 // filesAt returns a list of all immediate files in the given directory path.
 func filesAt(path string) []string {
-	files := []string{}
+	var files []string
 	filepath.Walk(path, func(subpath string, info os.FileInfo, err error) error {
 		if err == nil && path != subpath {
 			files = append(files, subpath)

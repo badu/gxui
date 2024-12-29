@@ -17,13 +17,13 @@ func CreateTextSelection(start, end int, caretAtStart bool) TextSelection {
 	}
 }
 
-func (i TextSelection) Length() int             { return i.end - i.start }
-func (i TextSelection) Range() (start, end int) { return i.start, i.end }
-func (i TextSelection) Start() int              { return i.start }
-func (i TextSelection) End() int                { return i.end }
-func (i TextSelection) First() int              { return i.start }
-func (i TextSelection) Last() int               { return i.end - 1 }
-func (i TextSelection) CaretAtStart() bool      { return i.caretAtStart }
+func (i TextSelection) Length() int        { return i.end - i.start }
+func (i TextSelection) Range() (int, int)  { return i.start, i.end }
+func (i TextSelection) Start() int         { return i.start }
+func (i TextSelection) End() int           { return i.end }
+func (i TextSelection) First() int         { return i.start }
+func (i TextSelection) Last() int          { return i.end - 1 }
+func (i TextSelection) CaretAtStart() bool { return i.caretAtStart }
 
 func (t TextSelection) Offset(i int) TextSelection {
 	return TextSelection{
@@ -48,6 +48,6 @@ func (i TextSelection) From() int { // TODO: Think of a better name for this fun
 	}
 }
 
-func (i TextSelection) Span() (start, end uint64) {
+func (i TextSelection) Span() (uint64, uint64) {
 	return uint64(i.start), uint64(i.end)
 }

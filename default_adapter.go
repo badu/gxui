@@ -56,8 +56,8 @@ func (a *DefaultAdapter) SetSizeAsLargest(theme Theme) {
 	a.SetSize(s)
 }
 
-func (a *DefaultAdapter) SetStyleLabel(f func(Theme, Label)) {
-	a.styleLabel = f
+func (a *DefaultAdapter) SetStyleLabel(providerFn func(Theme, Label)) {
+	a.styleLabel = providerFn
 	a.DataChanged(true)
 }
 

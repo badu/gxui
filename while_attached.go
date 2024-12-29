@@ -12,27 +12,31 @@ import (
 // WhileAttached binds the function callback to event for the duration of c
 // being attached.
 // event can either be:
-//  • A event of the signature:    event(callback)
-//  • A function of the signature: func(callback) EventSubscription
-func WhileAttached(c Control, event, callback interface{}) {
+//   - A event of the signature:    event(callback)
+//   - A function of the signature: func(callback) EventSubscription
+func WhileAttached(control Control, event, callback interface{}) {
 	if err := verifyWhileAttachedSignature(event, callback); err != nil {
 		panic(err)
 	}
-	var s EventSubscription
+
+	var subscription EventSubscription
+
 	bind := func() {
 		if e, ok := event.(Event); ok {
-			s = e.Listen(callback)
+			subscription = e.Listen(callback)
 		} else {
 			params := []reflect.Value{reflect.ValueOf(callback)}
 			res := reflect.ValueOf(event).Call(params)[0]
-			s = res.Interface().(EventSubscription)
+			subscription = res.Interface().(EventSubscription)
 		}
 	}
-	if c.Attached() {
+
+	if control.Attached() {
 		bind()
 	}
-	c.OnAttach(bind)
-	c.OnDetach(func() { s.Unlisten() })
+
+	control.OnAttach(bind)
+	control.OnDetach(func() { subscription.Unlisten() })
 }
 
 func verifyWhileAttachedSignature(event, callback interface{}) error {
@@ -50,15 +54,13 @@ func verifyWhileAttachedSignature(event, callback interface{}) error {
 		return fmt.Errorf("event as func must only take 1 parameter, got %d", c)
 	}
 	if got := e.In(0); got != c {
-		return fmt.Errorf("event as func must only take 1 parameter of type callback, got type %s, callback type: %s",
-			got, c)
+		return fmt.Errorf("event as func must only take 1 parameter of type callback, got type %s, callback type: %s", got, c)
 	}
 	if c := e.NumOut(); c != 1 {
 		return fmt.Errorf("event as func must only return 1 value, got %d", c)
 	}
 	if got, expected := e.Out(0), reflect.TypeOf((*EventSubscription)(nil)).Elem(); got != expected {
-		return fmt.Errorf("event as func must only return 1 value of type %s, got type %s",
-			expected, got)
+		return fmt.Errorf("event as func must only return 1 value of type %s, got type %s", expected, got)
 	}
 	return nil
 }

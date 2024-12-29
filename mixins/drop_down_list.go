@@ -19,9 +19,7 @@ type DropDownList struct {
 	base.Container
 	parts.BackgroundBorderPainter
 	parts.Focusable
-
-	outer DropDownListOuter
-
+	outer       DropDownListOuter
 	theme       gxui.Theme
 	list        gxui.List
 	listShowing bool
@@ -40,31 +38,36 @@ func (l *DropDownList) Init(outer DropDownListOuter, theme gxui.Theme) {
 
 	l.theme = theme
 	l.list = theme.CreateList()
-	l.list.OnSelectionChanged(func(item gxui.AdapterItem) {
-		l.outer.RemoveAll()
-		adapter := l.list.Adapter()
-		if item != nil && adapter != nil {
-			l.selected = l.AddChild(adapter.Create(l.theme, adapter.ItemIndex(item)))
-		} else {
-			l.selected = nil
-		}
-		l.Relayout()
-	})
-	l.list.OnItemClicked(func(gxui.MouseEvent, gxui.AdapterItem) {
-		l.HideList()
-	})
-	l.list.OnKeyPress(func(ev gxui.KeyboardEvent) {
-		switch ev.Key {
-		case gxui.KeyEnter, gxui.KeyEscape:
+	l.list.OnSelectionChanged(
+		func(item gxui.AdapterItem) {
+			l.outer.RemoveAll()
+			adapter := l.list.Adapter()
+			if item != nil && adapter != nil {
+				l.selected = l.AddChild(adapter.Create(l.theme, adapter.ItemIndex(item)))
+			} else {
+				l.selected = nil
+			}
+			l.Relayout()
+		},
+	)
+
+	l.list.OnItemClicked(
+		func(gxui.MouseEvent, gxui.AdapterItem) {
 			l.HideList()
-		}
-	})
+		},
+	)
+	l.list.OnKeyPress(
+		func(ev gxui.KeyboardEvent) {
+			switch ev.Key {
+			case gxui.KeyEnter, gxui.KeyEscape:
+				l.HideList()
+			}
+		},
+	)
+
 	l.list.OnLostFocus(l.HideList)
 	l.OnDetach(l.HideList)
 	l.SetMouseEventTarget(true)
-
-	// Interface compliance test
-	_ = gxui.DropDownList(l)
 }
 
 func (l *DropDownList) LayoutChildren() {
@@ -75,9 +78,9 @@ func (l *DropDownList) LayoutChildren() {
 	}
 
 	if l.selected != nil {
-		s := l.outer.Size().Contract(l.Padding()).Max(math.ZeroSize)
-		o := l.Padding().LT()
-		l.selected.Layout(s.Rect().Offset(o))
+		size := l.outer.Size().Contract(l.Padding()).Max(math.ZeroSize)
+		offset := l.Padding().LT()
+		l.selected.Layout(size.Rect().Offset(offset))
 	}
 }
 
@@ -104,14 +107,18 @@ func (l *DropDownList) ShowList() bool {
 	if l.listShowing || l.overlay == nil {
 		return false
 	}
+
 	l.listShowing = true
-	s := l.Size()
-	at := math.Point{X: s.W / 2, Y: s.H}
+	size := l.Size()
+	at := math.Point{X: size.W / 2, Y: size.H}
 	l.overlay.Show(l.list, gxui.TransformCoordinate(at, l.outer, l.overlay))
+
 	gxui.SetFocus(l.list)
+
 	if l.onShowList != nil {
 		l.onShowList.Fire()
 	}
+
 	return true
 }
 
@@ -119,9 +126,11 @@ func (l *DropDownList) HideList() {
 	if l.listShowing {
 		l.listShowing = false
 		l.overlay.Hide()
+
 		if l.Attached() {
 			gxui.SetFocus(l)
 		}
+
 		if l.onHideList != nil {
 			l.onHideList.Fire()
 		}
@@ -133,7 +142,7 @@ func (l *DropDownList) List() gxui.List {
 }
 
 // InputEventHandler override
-func (l *DropDownList) Click(ev gxui.MouseEvent) (consume bool) {
+func (l *DropDownList) Click(ev gxui.MouseEvent) bool {
 	l.InputEventHandler.Click(ev)
 	if l.ListShowing() {
 		l.HideList()
@@ -179,39 +188,39 @@ func (l *DropDownList) Select(item gxui.AdapterItem) {
 	}
 }
 
-func (l *DropDownList) OnSelectionChanged(f func(gxui.AdapterItem)) gxui.EventSubscription {
-	return l.list.OnSelectionChanged(f)
+func (l *DropDownList) OnSelectionChanged(callback func(gxui.AdapterItem)) gxui.EventSubscription {
+	return l.list.OnSelectionChanged(callback)
 }
 
-func (l *DropDownList) OnShowList(f func()) gxui.EventSubscription {
+func (l *DropDownList) OnShowList(callback func()) gxui.EventSubscription {
 	if l.onShowList == nil {
-		l.onShowList = gxui.CreateEvent(f)
+		l.onShowList = gxui.CreateEvent(callback)
 	}
-	return l.onShowList.Listen(f)
+	return l.onShowList.Listen(callback)
 }
 
-func (l *DropDownList) OnHideList(f func()) gxui.EventSubscription {
+func (l *DropDownList) OnHideList(callback func()) gxui.EventSubscription {
 	if l.onHideList == nil {
-		l.onHideList = gxui.CreateEvent(f)
+		l.onHideList = gxui.CreateEvent(callback)
 	}
-	return l.onHideList.Listen(f)
+	return l.onHideList.Listen(callback)
 }
 
 // InputEventHandler overrides
-func (l *DropDownList) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
-	if ev.Key == gxui.KeySpace || ev.Key == gxui.KeyEnter {
-		me := gxui.MouseEvent{
+func (l *DropDownList) KeyPress(event gxui.KeyboardEvent) (consume bool) {
+	if event.Key == gxui.KeySpace || event.Key == gxui.KeyEnter {
+		mouseEvent := gxui.MouseEvent{
 			Button: gxui.MouseButtonLeft,
 		}
-		return l.Click(me)
+		return l.Click(mouseEvent)
 	}
-	return l.InputEventHandler.KeyPress(ev)
+	return l.InputEventHandler.KeyPress(event)
 }
 
 // parts.Container overrides
-func (l *DropDownList) Paint(c gxui.Canvas) {
-	r := l.outer.Size().Rect()
-	l.PaintBackground(c, r)
-	l.Container.Paint(c)
-	l.PaintBorder(c, r)
+func (l *DropDownList) Paint(canvas gxui.Canvas) {
+	rect := l.outer.Size().Rect()
+	l.PaintBackground(canvas, rect)
+	l.Container.Paint(canvas)
+	l.PaintBorder(canvas, rect)
 }

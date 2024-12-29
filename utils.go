@@ -13,13 +13,13 @@ import (
 )
 
 type ParentPoint struct {
-	C Parent
-	P math.Point
+	Control Parent
+	Point   math.Point
 }
 
 type ControlPoint struct {
-	C Control
-	P math.Point
+	Control Control
+	Point   math.Point
 }
 
 type ControlPointList []ControlPoint
@@ -31,8 +31,8 @@ func (l ControlPointList) Contains(c Control) bool {
 
 func (l ControlPointList) Find(c Control) (math.Point, bool) {
 	for _, i := range l {
-		if i.C == c {
-			return i.P, true
+		if i.Control == c {
+			return i.Point, true
 		}
 	}
 	return math.Point{}, false
@@ -95,8 +95,8 @@ func ControlsUnder(p math.Point, c Parent) ControlPointList {
 	toVisit := []ParentPoint{ParentPoint{c, p}}
 	l := ControlPointList{}
 	for len(toVisit) > 0 {
-		c = toVisit[0].C
-		p = toVisit[0].P
+		c = toVisit[0].Control
+		p = toVisit[0].Point
 		toVisit = toVisit[1:]
 		for _, child := range c.Children() {
 			cp := p.Sub(child.Offset)
@@ -216,9 +216,9 @@ func WindowContaining(c Control) Window {
 	}
 }
 
-func SetFocus(focusable Focusable) {
-	wnd := WindowContaining(focusable)
-	wnd.SetFocus(focusable)
+func SetFocus(target Focusable) {
+	window := WindowContaining(target)
+	window.SetFocus(target)
 }
 
 func StringToRuneArray(str string) []rune {

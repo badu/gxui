@@ -29,12 +29,12 @@ func (n *TreeToListNode) adjustDescendants(delta int) {
 	n.parent.adjustDescendants(delta)
 }
 
-func (n *TreeToListNode) update(nAsParent treeToListNodeParent) {
+func (n *TreeToListNode) update(parent treeToListNodeParent) {
 	if n.IsExpanded() {
 		// Build a map of item -> child for the current state.
-		m := make(map[gxui.AdapterItem]*TreeToListNode, len(n.children))
-		for _, c := range n.children {
-			m[c.item] = c
+		childrenMap := make(map[gxui.AdapterItem]*TreeToListNode, len(n.children))
+		for _, child := range n.children {
+			childrenMap[child.item] = child
 		}
 
 		// Re-create children, reusing previous nodes if found.
@@ -44,13 +44,13 @@ func (n *TreeToListNode) update(nAsParent treeToListNodeParent) {
 		for i := range n.children {
 			node := n.container.NodeAt(i)
 			item := node.Item()
-			if p, ok := m[item]; ok {
+			if p, ok := childrenMap[item]; ok {
 				p.container = node
 				p.update(p)
 				n.children[i] = p
 				n.descendants += p.descendants + 1
 			} else {
-				n.children[i] = &TreeToListNode{container: node, item: item, parent: nAsParent, depth: depth}
+				n.children[i] = &TreeToListNode{container: node, item: item, parent: parent, depth: depth}
 				n.descendants++
 			}
 		}
@@ -86,9 +86,11 @@ func (n *TreeToListNode) Expand() bool {
 	if n.parent == nil {
 		panic("Expand cannot be called for root nodes")
 	}
+
 	if n.IsExpanded() || n.IsLeaf() {
 		return false
 	}
+
 	depth := n.depth + 1
 	n.descendants = n.container.Count()
 	n.children = make([]*TreeToListNode, n.descendants)
@@ -97,6 +99,7 @@ func (n *TreeToListNode) Expand() bool {
 		item := node.Item()
 		n.children[i] = &TreeToListNode{container: node, item: item, parent: n, depth: depth}
 	}
+
 	n.parent.adjustDescendants(n.descendants)
 	if n.onChange != nil {
 		n.onChange.Fire()
@@ -150,11 +153,11 @@ func (n *TreeToListNode) CollapseAll() {
 
 // OnChange registers f to be called when the node is expanded, collapsed or has
 // a change in the number of children.
-func (n *TreeToListNode) OnChange(f func()) gxui.EventSubscription {
+func (n *TreeToListNode) OnChange(callback func()) gxui.EventSubscription {
 	if n.onChange == nil {
-		n.onChange = gxui.CreateEvent(f)
+		n.onChange = gxui.CreateEvent(callback)
 	}
-	return n.onChange.Listen(f)
+	return n.onChange.Listen(callback)
 }
 
 // Descendants returns the total number of descendants of this node.
@@ -177,15 +180,15 @@ func (n *TreeToListNode) Parent() *TreeToListNode {
 // this node treated as a flattened list.
 // Index 0 represents the first child of n, index 1 may represent the the second
 // child of n or the first grandchild of n, and so on.
-func (n *TreeToListNode) NodeAt(idx int) *TreeToListNode {
-	for _, c := range n.children {
+func (n *TreeToListNode) NodeAt(index int) *TreeToListNode {
+	for _, child := range n.children {
 		switch {
-		case idx == 0:
-			return c
-		case idx <= c.descendants:
-			return c.NodeAt(idx - 1)
+		case index == 0:
+			return child
+		case index <= child.descendants:
+			return child.NodeAt(index - 1)
 		default:
-			idx -= c.descendants + 1
+			index -= child.descendants + 1
 		}
 	}
 	panic("Index out of bounds")
@@ -195,8 +198,8 @@ func (n *TreeToListNode) NodeAt(idx int) *TreeToListNode {
 // flattened list.
 // Index 0 represents the first child of n, index 1 may represent the the second
 // child of n or the first grandchild of n, and so on.
-func (n *TreeToListNode) ItemAt(idx int) gxui.AdapterItem {
-	return n.NodeAt(idx).item
+func (n *TreeToListNode) ItemAt(index int) gxui.AdapterItem {
+	return n.NodeAt(index).item
 }
 
 // ItemIndex returns the index of item in the list of all the expanded nodes

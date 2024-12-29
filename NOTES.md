@@ -21,3 +21,5 @@ be accessed by descendants of `AdapterBase`.
 
 [x] Light and dark themes, are setting display width and height, so `samples` resize the window to right half of the
 monitor.
+
+[x] Increasing readability : renaming parameters, properties, returns and eliminate named returns

@@ -36,9 +36,7 @@ type PanelEntry struct {
 
 type PanelHolder struct {
 	base.Container
-
-	outer PanelHolderOuter
-
+	outer     PanelHolderOuter
 	theme     gxui.Theme
 	tabLayout gxui.LinearLayout
 	entries   []PanelEntry
@@ -71,8 +69,8 @@ func beginTabDragging(holder gxui.PanelHolder, panel gxui.Control, name string, 
 	var mms, mos gxui.EventSubscription
 	mms = window.OnMouseMove(func(ev gxui.MouseEvent) {
 		for _, c := range gxui.TopControlsUnder(ev.WindowPoint, ev.Window) {
-			if over, ok := c.C.(gxui.PanelHolder); ok {
-				insertAt := insertIndex(over, c.P)
+			if over, ok := c.Control.(gxui.PanelHolder); ok {
+				insertAt := insertIndex(over, c.Point)
 				if over == holder {
 					if insertAt > over.PanelIndex(panel) {
 						insertAt--
@@ -102,20 +100,17 @@ func (p *PanelHolder) Init(outer PanelHolderOuter, theme gxui.Theme) {
 	p.Container.AddChild(p.tabLayout)
 	p.SetMargin(math.Spacing{L: 1, T: 2, R: 1, B: 1})
 	p.SetMouseEventTarget(true) // For drag-drop targets
-
-	// Interface compliance test
-	_ = gxui.PanelHolder(p)
 }
 
 func (p *PanelHolder) LayoutChildren() {
-	s := p.Size()
+	size := p.Size()
 
-	tabHeight := p.tabLayout.DesiredSize(math.ZeroSize, s).H
-	panelRect := math.CreateRect(0, tabHeight, s.W, s.H).Contract(p.Padding())
+	tabHeight := p.tabLayout.DesiredSize(math.ZeroSize, size).H
+	panelRect := math.CreateRect(0, tabHeight, size.W, size.H).Contract(p.Padding())
 
 	for _, child := range p.Children() {
 		if child.Control == p.tabLayout {
-			child.Control.SetSize(math.Size{W: s.W, H: tabHeight})
+			child.Control.SetSize(math.Size{W: size.W, H: tabHeight})
 			child.Offset = math.ZeroPoint
 		} else {
 			rect := panelRect.Contract(child.Control.Margin())
@@ -140,15 +135,16 @@ func (p *PanelHolder) AddPanel(panel gxui.Control, name string) {
 
 func (p *PanelHolder) AddPanelAt(panel gxui.Control, name string, index int) {
 	if index < 0 || index > p.PanelCount() {
-		panic(fmt.Errorf("Index %d is out of bounds. Acceptable range: [%d - %d]",
-			index, 0, p.PanelCount()))
+		panic(fmt.Errorf("index %d is out of bounds. Acceptable range: [%d - %d]", index, 0, p.PanelCount()))
 	}
 	tab := p.outer.CreatePanelTab()
 	tab.SetText(name)
-	mds := tab.OnMouseDown(func(ev gxui.MouseEvent) {
-		p.Select(p.PanelIndex(panel))
-		beginTabDragging(p.outer, panel, name, ev.Window)
-	})
+	mds := tab.OnMouseDown(
+		func(ev gxui.MouseEvent) {
+			p.Select(p.PanelIndex(panel))
+			beginTabDragging(p.outer, panel, name, ev.Window)
+		},
+	)
 
 	p.entries = append(p.entries, PanelEntry{})
 	copy(p.entries[index+1:], p.entries[index:])
@@ -186,8 +182,7 @@ func (p *PanelHolder) RemovePanel(panel gxui.Control) {
 
 func (p *PanelHolder) Select(index int) {
 	if index >= p.PanelCount() {
-		panic(fmt.Errorf("Index %d is out of bounds. Acceptable range: [%d - %d]",
-			index, -1, p.PanelCount()-1))
+		panic(fmt.Errorf("index %d is out of bounds. Acceptable range: [%d - %d]", index, -1, p.PanelCount()-1))
 	}
 
 	if p.selected.Panel != nil {

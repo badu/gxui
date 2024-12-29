@@ -18,7 +18,6 @@ type ScrollLayoutOuter interface {
 type ScrollLayout struct {
 	base.Container
 	parts.BackgroundBorderPainter
-
 	outer                  ScrollLayoutOuter
 	theme                  gxui.Theme
 	scrollOffset           math.Point
@@ -45,27 +44,24 @@ func (l *ScrollLayout) Init(outer ScrollLayoutOuter, theme gxui.Theme) {
 	l.scrollBarX = l.AddChild(scrollBarX)
 	l.scrollBarY = l.AddChild(scrollBarY)
 	l.SetMouseEventTarget(true)
-
-	// Interface compliance test
-	_ = gxui.ScrollLayout(l)
 }
 
 func (l *ScrollLayout) LayoutChildren() {
-	s := l.outer.Size().Contract(l.Padding())
-	o := l.Padding().LT()
+	size := l.outer.Size().Contract(l.Padding())
+	offset := l.Padding().LT()
 
 	var sxs, sys math.Size
 	if l.canScrollX {
-		sxs = l.scrollBarX.Control.DesiredSize(math.ZeroSize, s)
+		sxs = l.scrollBarX.Control.DesiredSize(math.ZeroSize, size)
 	}
 	if l.canScrollY {
-		sys = l.scrollBarY.Control.DesiredSize(math.ZeroSize, s)
+		sys = l.scrollBarY.Control.DesiredSize(math.ZeroSize, size)
 	}
 
-	l.scrollBarX.Layout(math.CreateRect(0, s.H-sxs.H, s.W-sys.W, s.H).Canon().Offset(o))
-	l.scrollBarY.Layout(math.CreateRect(s.W-sys.W, 0, s.W, s.H-sxs.H).Canon().Offset(o))
+	l.scrollBarX.Layout(math.CreateRect(0, size.H-sxs.H, size.W-sys.W, size.H).Canon().Offset(offset))
+	l.scrollBarY.Layout(math.CreateRect(size.W-sys.W, 0, size.W, size.H-sxs.H).Canon().Offset(offset))
 
-	l.innerSize = s.Contract(math.Spacing{R: sys.W, B: sxs.H})
+	l.innerSize = size.Contract(math.Spacing{R: sys.W, B: sxs.H})
 
 	if l.child != nil {
 		max := l.innerSize
@@ -76,7 +72,7 @@ func (l *ScrollLayout) LayoutChildren() {
 			max.H = math.MaxSize.H
 		}
 		cs := l.child.Control.DesiredSize(math.ZeroSize, max)
-		l.child.Layout(cs.Rect().Offset(l.scrollOffset.Neg()).Offset(o))
+		l.child.Layout(cs.Rect().Offset(l.scrollOffset.Neg()).Offset(offset))
 		l.scrollBarX.Control.(gxui.ScrollBar).SetScrollLimit(cs.W)
 		l.scrollBarY.Control.(gxui.ScrollBar).SetScrollLimit(cs.H)
 	}
@@ -89,18 +85,18 @@ func (l *ScrollLayout) DesiredSize(min, max math.Size) math.Size {
 }
 
 func (l *ScrollLayout) SetScrollOffset(scrollOffset math.Point) bool {
-	var cs math.Size
+	var childSize math.Size
 	if l.child != nil {
-		cs = l.child.Control.Size()
+		childSize = l.child.Control.Size()
 	}
 
-	s := l.innerSize
-	scrollOffset = scrollOffset.Min(cs.Sub(s).Point()).Max(math.Point{})
+	innerSize := l.innerSize
+	scrollOffset = scrollOffset.Min(childSize.Sub(innerSize).Point()).Max(math.Point{})
 
-	l.scrollBarX.Control.SetVisible(l.canScrollX && cs.W > s.W)
-	l.scrollBarY.Control.SetVisible(l.canScrollY && cs.H > s.H)
-	l.scrollBarX.Control.(gxui.ScrollBar).SetScrollPosition(l.scrollOffset.X, l.scrollOffset.X+s.W)
-	l.scrollBarY.Control.(gxui.ScrollBar).SetScrollPosition(l.scrollOffset.Y, l.scrollOffset.Y+s.H)
+	l.scrollBarX.Control.SetVisible(l.canScrollX && childSize.W > innerSize.W)
+	l.scrollBarY.Control.SetVisible(l.canScrollY && childSize.H > innerSize.H)
+	l.scrollBarX.Control.(gxui.ScrollBar).SetScrollPosition(l.scrollOffset.X, l.scrollOffset.X+innerSize.W)
+	l.scrollBarY.Control.(gxui.ScrollBar).SetScrollPosition(l.scrollOffset.Y, l.scrollOffset.Y+innerSize.H)
 
 	if l.scrollOffset != scrollOffset {
 		l.scrollOffset = scrollOffset
@@ -112,15 +108,16 @@ func (l *ScrollLayout) SetScrollOffset(scrollOffset math.Point) bool {
 }
 
 // InputEventHandler override
-func (l *ScrollLayout) MouseScroll(ev gxui.MouseEvent) (consume bool) {
-	if ev.ScrollY == 0 {
-		return l.InputEventHandler.MouseScroll(ev)
+func (l *ScrollLayout) MouseScroll(event gxui.MouseEvent) bool {
+	if event.ScrollY == 0 {
+		return l.InputEventHandler.MouseScroll(event)
 	}
+
 	switch {
 	case l.canScrollY:
-		return l.SetScrollOffset(l.scrollOffset.AddY(-ev.ScrollY))
+		return l.SetScrollOffset(l.scrollOffset.AddY(-event.ScrollY))
 	case l.canScrollX:
-		return l.SetScrollOffset(l.scrollOffset.AddX(-ev.ScrollY))
+		return l.SetScrollOffset(l.scrollOffset.AddX(-event.ScrollY))
 	default:
 		return false
 	}

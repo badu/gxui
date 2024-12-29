@@ -11,7 +11,7 @@ import (
 	"github.com/badu/gxui/samples/flags"
 )
 
-// item is used as an gxui.AdapterItem to identifiy each of the nodes.
+// item is used as an gxui.AdapterItem to identify each of the nodes.
 // Each node's item must be equality-unique for the entire tree.
 type item int
 
@@ -167,16 +167,16 @@ func appMain(driver gxui.Driver) {
 	layout := theme.CreateLinearLayout()
 	layout.SetDirection(gxui.TopToBottom)
 
-	adapter := &adapter{}
+	customAdapter := &adapter{}
 
 	// hook up node changed function to the adapter OnDataChanged event.
-	adapter.changed = func() { adapter.DataChanged(false) }
+	customAdapter.changed = func() { customAdapter.DataChanged(false) }
 
 	// add all the species to the 'Animals' root node.
-	items := addSpecies(adapter.add("Animals"))
+	items := addSpecies(customAdapter.add("Animals"))
 
 	tree := theme.CreateTree()
-	tree.SetAdapter(adapter)
+	tree.SetAdapter(customAdapter)
 	tree.Select(items["Doves"])
 	tree.Show(tree.Selected())
 

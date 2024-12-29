@@ -6,13 +6,14 @@ package parts
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins/outer"
+	"github.com/badu/gxui/math"
 )
 
 type PaintChildrenOuter interface {
 	gxui.Container
-	outer.PaintChilder
-	outer.Sized
+	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
+	Size() math.Size                                           // was outer.Sized
+	SetSize(newSize math.Size)                                 // was outer.Sized
 }
 
 type PaintChildren struct {
@@ -23,19 +24,19 @@ func (p *PaintChildren) Init(outer PaintChildrenOuter) {
 	p.outer = outer
 }
 
-func (p *PaintChildren) Paint(c gxui.Canvas) {
+func (p *PaintChildren) Paint(canvas gxui.Canvas) {
 	for i, v := range p.outer.Children() {
 		if v.Control.IsVisible() {
-			c.Push()
-			c.AddClip(v.Control.Size().Rect().Offset(v.Offset))
-			p.outer.PaintChild(c, v, i)
-			c.Pop()
+			canvas.Push()
+			canvas.AddClip(v.Control.Size().Rect().Offset(v.Offset))
+			p.outer.PaintChild(canvas, v, i)
+			canvas.Pop()
 		}
 	}
 }
 
-func (p *PaintChildren) PaintChild(c gxui.Canvas, child *gxui.Child, idx int) {
-	if canvas := child.Control.Draw(); canvas != nil {
-		c.DrawCanvas(canvas, child.Offset)
+func (p *PaintChildren) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
+	if childCanvas := child.Control.Draw(); childCanvas != nil {
+		canvas.DrawCanvas(childCanvas, child.Offset)
 	}
 }

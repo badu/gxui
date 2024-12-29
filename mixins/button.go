@@ -19,7 +19,6 @@ type ButtonOuter interface {
 type Button struct {
 	LinearLayout
 	parts.Focusable
-
 	outer      ButtonOuter
 	theme      gxui.Theme
 	label      gxui.Label
@@ -34,9 +33,6 @@ func (b *Button) Init(outer ButtonOuter, theme gxui.Theme) {
 	b.buttonType = gxui.PushButton
 	b.theme = theme
 	b.outer = outer
-
-	// Interface compliance test
-	_ = gxui.Button(b)
 }
 
 func (b *Button) Label() gxui.Label {
@@ -93,20 +89,20 @@ func (b *Button) SetChecked(checked bool) {
 }
 
 // InputEventHandler override
-func (b *Button) Click(ev gxui.MouseEvent) (consume bool) {
-	if ev.Button == gxui.MouseButtonLeft {
+func (b *Button) Click(event gxui.MouseEvent) (consume bool) {
+	if event.Button == gxui.MouseButtonLeft {
 		if b.buttonType == gxui.ToggleButton {
 			b.outer.SetChecked(!b.outer.IsChecked())
 		}
-		b.LinearLayout.Click(ev)
+		b.LinearLayout.Click(event)
 		return true
 	}
-	return b.LinearLayout.Click(ev)
+	return b.LinearLayout.Click(event)
 }
 
-func (b *Button) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
-	consume = b.LinearLayout.KeyPress(ev)
-	if ev.Key == gxui.KeySpace || ev.Key == gxui.KeyEnter {
+func (b *Button) KeyPress(event gxui.KeyboardEvent) (consume bool) {
+	consume = b.LinearLayout.KeyPress(event)
+	if event.Key == gxui.KeySpace || event.Key == gxui.KeyEnter {
 		me := gxui.MouseEvent{
 			Button: gxui.MouseButtonLeft,
 		}

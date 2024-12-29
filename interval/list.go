@@ -17,7 +17,9 @@ type RList interface {
 }
 
 type List interface {
-	RList
+	Len() int
+	GetInterval(index int) (start, end uint64)
+	SetInterval(index int, start, end uint64)
 	Copy(to, from, count int)
 	Cap() int
 	SetLen(len int)
@@ -29,13 +31,15 @@ type ExtendedList interface {
 }
 
 type intersection struct {
-	overlap            int
-	lowIndex           int
-	lowStart, lowEnd   uint64
-	intersectsLow      bool
-	highIndex          int
-	highStart, highEnd uint64
-	intersectsHigh     bool
+	overlap        int
+	lowIndex       int
+	lowStart       uint64
+	lowEnd         uint64
+	intersectsLow  bool
+	highIndex      int
+	highStart      uint64
+	highEnd        uint64
+	intersectsHigh bool
 }
 
 const (
@@ -43,74 +47,77 @@ const (
 	minCap   = 5
 )
 
-func Merge(l List, i Node) {
-	start, end := i.Span()
+func Merge(target List, node Node) {
+	start, end := node.Span()
 	s := intersection{}
-	s.intersect(l, start, end)
-	adjust(l, s.lowIndex, 1-s.overlap)
+	s.intersect(target, start, end)
+	adjust(target, s.lowIndex, 1-s.overlap)
 	if s.intersectsLow {
 		start = s.lowStart
 	}
 	if s.intersectsHigh {
 		end = s.highEnd
 	}
-	l.SetInterval(s.lowIndex, start, end)
-	if dl, ok := l.(ExtendedList); ok {
-		dl.MergeData(s.lowIndex, i)
+	target.SetInterval(s.lowIndex, start, end)
+	if dl, ok := target.(ExtendedList); ok {
+		dl.MergeData(s.lowIndex, node)
 	}
 }
 
-func Replace(l List, i Node) {
-	start, end := i.Span()
-	index, start, end := replace(l, start, end, true)
-	l.SetInterval(index, start, end)
-	if dl, ok := l.(ExtendedList); ok {
-		dl.MergeData(index, i)
+func Replace(target List, node Node) {
+	start, end := node.Span()
+	index, start, end := replace(target, start, end, true)
+	target.SetInterval(index, start, end)
+	if dl, ok := target.(ExtendedList); ok {
+		dl.MergeData(index, node)
 	}
 }
 
-func Remove(l List, i Node) {
-	start, end := i.Span()
-	replace(l, start, end, false)
+func Remove(target List, node Node) {
+	start, end := node.Span()
+	replace(target, start, end, false)
 }
 
-func Intersect(l RList, i Node) (first, count int) {
-	start, end := i.Span()
+func Intersect(target RList, node Node) (first, count int) {
+	start, end := node.Span()
 	s := intersection{}
-	s.intersect(l, start, end)
+	s.intersect(target, start, end)
 	return s.lowIndex, s.overlap
 }
 
 type Visitor func(start, end uint64, index int)
 
-func Visit(l RList, i Node, v Visitor) {
-	start, end := i.Span()
+func Visit(target RList, node Node, visitorFn Visitor) {
+	start, end := node.Span()
 	s := intersection{}
-	s.intersect(l, start, end)
+	s.intersect(target, start, end)
 	for index := s.lowIndex; index < s.lowIndex+s.overlap; index++ {
-		s, e := l.GetInterval(index)
+		s, e := target.GetInterval(index)
 		if s < start {
 			s = start
 		}
 		if e > end {
 			e = end
 		}
-		v(s, e, index)
+		visitorFn(s, e, index)
 	}
 }
 
-func Contains(l RList, p uint64) bool {
-	return IndexOf(l, p) >= 0
+func Contains(target RList, index uint64) bool {
+	return IndexOf(target, index) >= 0
 }
 
-func IndexOf(l RList, p uint64) int {
-	index := sort.Search(l.Len(), func(at int) bool {
-		iStart, _ := l.GetInterval(at)
-		return p < iStart
-	})
+func IndexOf(target RList, p uint64) int {
+	index := sort.Search(
+		target.Len(),
+		func(at int) bool {
+			iStart, _ := target.GetInterval(at)
+			return p < iStart
+		},
+	)
 	index--
 	if index >= 0 {
-		_, iEnd := l.GetInterval(index)
+		_, iEnd := target.GetInterval(index)
 		if p < iEnd {
 			return index
 		}
@@ -118,21 +125,23 @@ func IndexOf(l RList, p uint64) int {
 	return -1
 }
 
-func FindStart(l RList, at int, start uint64) bool {
-	_, iEnd := l.GetInterval(at)
-	return start < iEnd
+func FindStart(target RList, at int, start uint64) bool {
+	_, end := target.GetInterval(at)
+	return start < end
 }
 
-func FindEnd(l RList, at int, end uint64) bool {
-	iStart, _ := l.GetInterval(at)
-	return end <= iStart
+func FindEnd(target RList, at int, end uint64) bool {
+	start, _ := target.GetInterval(at)
+	return end <= start
 }
 
-func Search(l RList, v uint64, f func(l RList, at int, v uint64) bool) int {
-	i, j := 0, l.Len()
+type Searcher func(target RList, at int, v uint64) bool
+
+func Search(target RList, v uint64, searcherFn Searcher) int {
+	i, j := 0, target.Len()
 	for i < j {
 		h := i + (j-i)/2
-		if !f(l, h, v) {
+		if !searcherFn(target, h, v) {
 			i = h + 1
 		} else {
 			j = h
@@ -141,9 +150,9 @@ func Search(l RList, v uint64, f func(l RList, at int, v uint64) bool) int {
 	return i
 }
 
-func (s *intersection) intersect(l RList, start, end uint64) {
-	beforeLen := Search(l, start, FindStart)
-	afterIndex := Search(l, end, FindEnd)
+func (s *intersection) intersect(target RList, start, end uint64) {
+	beforeLen := Search(target, start, FindStart)
+	afterIndex := Search(target, end, FindEnd)
 	if afterIndex < beforeLen {
 		afterIndex, beforeLen = beforeLen, afterIndex
 	}
@@ -153,26 +162,26 @@ func (s *intersection) intersect(l RList, start, end uint64) {
 	s.intersectsLow = false
 	s.intersectsHigh = false
 	if s.overlap > 0 {
-		s.lowStart, s.lowEnd = l.GetInterval(s.lowIndex)
+		s.lowStart, s.lowEnd = target.GetInterval(s.lowIndex)
 		s.intersectsLow = s.lowStart < start
-		s.highStart, s.highEnd = l.GetInterval(s.highIndex)
+		s.highStart, s.highEnd = target.GetInterval(s.highIndex)
 		s.intersectsHigh = end < s.highEnd
 	}
 }
 
-func adjust(l List, at, delta int) {
+func adjust(target List, at, delta int) {
 	if delta == 0 {
 		return
 	}
-	oldLen := l.Len()
+	oldLen := target.Len()
 	newLen := oldLen + delta
 	if delta > 0 {
-		cap := l.Cap()
+		cap := target.Cap()
 		if cap < newLen {
 			newCap := newLen + (newLen >> 1)
-			l.GrowTo(newLen, newCap)
+			target.GrowTo(newLen, newCap)
 		} else {
-			l.SetLen(newLen)
+			target.SetLen(newLen)
 		}
 	}
 	copyStart := at - delta
@@ -181,18 +190,18 @@ func adjust(l List, at, delta int) {
 		copyTo -= copyStart
 		copyStart = 0
 	}
-	l.Copy(copyTo, copyStart, newLen-copyTo)
+	target.Copy(copyTo, copyStart, newLen-copyTo)
 	if delta < 0 {
-		l.SetLen(newLen)
+		target.SetLen(newLen)
 	}
 }
 
-func replace(l List, start, end uint64, add bool) (int, uint64, uint64) {
+func replace(target List, start, end uint64, add bool) (int, uint64, uint64) {
 	s := intersection{}
-	s.intersect(l, start, end)
+	s.intersect(target, start, end)
 	if s.overlap == 0 {
 		if add {
-			adjust(l, s.lowIndex, 1)
+			adjust(target, s.lowIndex, 1)
 		}
 		return s.lowIndex, start, end
 	}
@@ -212,12 +221,12 @@ func replace(l List, start, end uint64, add bool) (int, uint64, uint64) {
 		insertLen++
 	}
 	delta := insertLen - s.overlap
-	adjust(l, insertPoint, delta)
+	adjust(target, insertPoint, delta)
 	if s.intersectsLow {
-		l.SetInterval(s.lowIndex, s.lowStart, s.lowEnd)
+		target.SetInterval(s.lowIndex, s.lowStart, s.lowEnd)
 	}
 	if s.intersectsHigh {
-		l.SetInterval(s.lowIndex+insertLen-1, s.highStart, s.highEnd)
+		target.SetInterval(s.lowIndex+insertLen-1, s.highStart, s.highEnd)
 	}
 	return insertPoint, start, end
 }

@@ -18,7 +18,6 @@ type ImageOuter interface {
 type Image struct {
 	base.Control
 	parts.BackgroundBorderPainter
-
 	outer        ImageOuter
 	texture      gxui.Texture
 	canvas       gxui.Canvas
@@ -28,21 +27,23 @@ type Image struct {
 }
 
 func (i *Image) calculateDrawRect() math.Rect {
-	r := i.outer.Size().Rect()
+	rect := i.outer.Size().Rect()
 	texW, texH := i.texture.Size().WH()
 	aspectSrc := float32(texH) / float32(texW)
-	aspectDst := float32(r.H()) / float32(r.W())
+	aspectDst := float32(rect.H()) / float32(rect.W())
 	switch i.aspectMode {
 	case gxui.AspectCorrectLetterbox, gxui.AspectCorrectCrop:
 		if (aspectDst < aspectSrc) != (i.aspectMode == gxui.AspectCorrectLetterbox) {
-			contract := r.H() - int(float32(r.W())*aspectSrc)
-			r = r.Contract(math.Spacing{T: contract / 2, B: contract / 2})
+			contract := rect.H() - int(float32(rect.W())*aspectSrc)
+			rect = rect.Contract(math.Spacing{T: contract / 2, B: contract / 2})
 		} else {
-			contract := r.W() - int(float32(r.H())/aspectSrc)
-			r = r.Contract(math.Spacing{L: contract / 2, R: contract / 2})
+			contract := rect.W() - int(float32(rect.H())/aspectSrc)
+			rect = rect.Contract(math.Spacing{L: contract / 2, R: contract / 2})
 		}
+	default:
+		//
 	}
-	return r
+	return rect
 }
 
 func (i *Image) Init(outer ImageOuter, theme gxui.Theme) {
@@ -51,18 +52,15 @@ func (i *Image) Init(outer ImageOuter, theme gxui.Theme) {
 	i.BackgroundBorderPainter.Init(outer)
 	i.SetBorderPen(gxui.TransparentPen)
 	i.SetBackgroundBrush(gxui.TransparentBrush)
-
-	// Interface compliance test
-	_ = gxui.Image(i)
 }
 
 func (i *Image) Texture() gxui.Texture {
 	return i.texture
 }
 
-func (i *Image) SetTexture(tex gxui.Texture) {
-	if i.texture != tex {
-		i.texture = tex
+func (i *Image) SetTexture(texture gxui.Texture) {
+	if i.texture != texture {
+		i.texture = texture
 		i.canvas = nil
 		i.outer.Relayout()
 	}
@@ -114,44 +112,44 @@ func (i *Image) SetExplicitSize(explicitSize math.Size) {
 	i.SetScalingMode(gxui.ScalingExplicitSize)
 }
 
-func (i *Image) PixelAt(p math.Point) (math.Point, bool) {
-	ir := i.calculateDrawRect()
+func (i *Image) PixelAt(point math.Point) (math.Point, bool) {
+	rect := i.calculateDrawRect()
 	if tex := i.Texture(); tex != nil {
-		s := tex.SizePixels()
-		p = p.Sub(ir.Min).
-			ScaleX(float32(s.W) / float32(ir.W())).
-			ScaleY(float32(s.H) / float32(ir.H()))
-		if s.Rect().Contains(p) {
-			return p, true
+		size := tex.SizePixels()
+		point = point.Sub(rect.Min).
+			ScaleX(float32(size.W) / float32(rect.W())).
+			ScaleY(float32(size.H) / float32(rect.H()))
+		if size.Rect().Contains(point) {
+			return point, true
 		}
 	}
 	return math.Point{X: -1, Y: -1}, false
 }
 
 func (i *Image) DesiredSize(min, max math.Size) math.Size {
-	s := max
+	size := max
 	switch i.scalingMode {
 	case gxui.ScalingExplicitSize:
-		s = i.explicitSize
+		size = i.explicitSize
 	case gxui.Scaling1to1:
 		switch {
 		case i.texture != nil:
-			s = i.texture.Size()
+			size = i.texture.Size()
 		case i.canvas != nil:
-			s = i.canvas.Size()
+			size = i.canvas.Size()
 		}
 	}
-	return s.Expand(math.CreateSpacing(int(i.BorderPen().Width))).Clamp(min, max)
+	return size.Expand(math.CreateSpacing(int(i.BorderPen().Width))).Clamp(min, max)
 }
 
-func (i *Image) Paint(c gxui.Canvas) {
-	r := i.outer.Size().Rect()
-	i.PaintBackground(c, r)
+func (i *Image) Paint(canvas gxui.Canvas) {
+	rect := i.outer.Size().Rect()
+	i.PaintBackground(canvas, rect)
 	switch {
 	case i.texture != nil:
-		c.DrawTexture(i.texture, i.calculateDrawRect())
+		canvas.DrawTexture(i.texture, i.calculateDrawRect())
 	case i.canvas != nil:
-		c.DrawCanvas(i.canvas, math.ZeroPoint)
+		canvas.DrawCanvas(i.canvas, math.ZeroPoint)
 	}
-	i.PaintBorder(c, r)
+	i.PaintBorder(canvas, rect)
 }

@@ -5,12 +5,12 @@
 package parts
 
 import (
-	"github.com/badu/gxui/mixins/outer"
+	"github.com/badu/gxui"
 )
 
 type VisibleOuter interface {
-	outer.Redrawer
-	outer.Parenter
+	Parent() gxui.Parent // was outer.Parenter
+	Redraw()             // was outer.Redrawer
 }
 
 type Visible struct {

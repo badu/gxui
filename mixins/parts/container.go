@@ -9,16 +9,20 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 )
 
 type ContainerOuter interface {
 	gxui.Container
-	outer.Attachable
-	outer.IsVisibler
-	outer.LayoutChildren
-	outer.Parenter
-	outer.Sized
+	Attached() bool                         // was outer.Attachable
+	Attach()                                // was outer.Attachable
+	Detach()                                // was outer.Attachable
+	OnAttach(func()) gxui.EventSubscription // was outer.Attachable
+	OnDetach(func()) gxui.EventSubscription // was outer.Attachable
+	IsVisible() bool                        // was outer.IsVisibler
+	LayoutChildren()                        // was outer.LayoutChildren
+	Parent() gxui.Parent                    // was outer.Parenter
+	Size() math.Size                        // was outer.Sized
+	SetSize(newSize math.Size)              // was outer.Sized
 }
 
 type Container struct {
@@ -31,16 +35,20 @@ type Container struct {
 func (c *Container) Init(outer ContainerOuter) {
 	c.outer = outer
 	c.children = gxui.Children{}
-	outer.OnAttach(func() {
-		for _, v := range c.children {
-			v.Control.Attach()
-		}
-	})
-	outer.OnDetach(func() {
-		for _, v := range c.children {
-			v.Control.Detach()
-		}
-	})
+	outer.OnAttach(
+		func() {
+			for _, v := range c.children {
+				v.Control.Attach()
+			}
+		},
+	)
+	outer.OnDetach(
+		func() {
+			for _, v := range c.children {
+				v.Control.Detach()
+			}
+		},
+	)
 }
 
 func (c *Container) SetMouseEventTarget(mouseEventTarget bool) {
@@ -76,11 +84,10 @@ func (c *Container) AddChild(control gxui.Control) *gxui.Child {
 
 func (c *Container) AddChildAt(index int, control gxui.Control) *gxui.Child {
 	if control.Parent() != nil {
-		panic("Child already has a parent")
+		panic("child already has a parent")
 	}
 	if index < 0 || index > len(c.children) {
-		panic(fmt.Errorf("Index %d is out of bounds. Acceptable range: [%d - %d]",
-			index, 0, len(c.children)))
+		panic(fmt.Errorf("index %d is out of bounds. Acceptable range: [%d - %d]", index, 0, len(c.children)))
 	}
 
 	child := &gxui.Child{Control: control}
@@ -93,9 +100,11 @@ func (c *Container) AddChildAt(index int, control gxui.Control) *gxui.Child {
 	if c.outer.Attached() {
 		control.Attach()
 	}
+
 	if !c.relayoutSuspended {
 		c.outer.Relayout()
 	}
+
 	return child
 }
 
@@ -106,7 +115,8 @@ func (c *Container) RemoveChild(control gxui.Control) {
 			return
 		}
 	}
-	panic("Child not part of container")
+
+	panic("child not part of container")
 }
 
 func (c *Container) RemoveChildAt(index int) {
@@ -116,6 +126,7 @@ func (c *Container) RemoveChildAt(index int) {
 	if c.outer.Attached() {
 		child.Control.Detach()
 	}
+
 	if !c.relayoutSuspended {
 		c.outer.Relayout()
 	}
@@ -127,17 +138,20 @@ func (c *Container) RemoveAll() {
 	}
 }
 
-func (c *Container) ContainsPoint(p math.Point) bool {
-	if !c.outer.IsVisible() || !c.outer.Size().Rect().Contains(p) {
+func (c *Container) ContainsPoint(point math.Point) bool {
+	if !c.outer.IsVisible() || !c.outer.Size().Rect().Contains(point) {
 		return false
 	}
+
 	for _, v := range c.children {
-		if v.Control.ContainsPoint(p.Sub(v.Offset)) {
+		if v.Control.ContainsPoint(point.Sub(v.Offset)) {
 			return true
 		}
 	}
+
 	if c.IsMouseEventTarget() {
 		return true
 	}
+
 	return false
 }

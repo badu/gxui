@@ -36,25 +36,28 @@ type EventBase struct {
 
 func (e *EventBase) init(signature interface{}) {
 	e.unlisten = func(id int) {
-		for i, l := range e.listeners {
-			if l.Id == id {
-				copy(e.listeners[i:], e.listeners[i+1:])
+		for index, listener := range e.listeners {
+			if listener.Id == id {
+				copy(e.listeners[index:], e.listeners[index+1:])
 				e.listeners = e.listeners[:len(e.listeners)-1]
 				return
 			}
 		}
-		panic(fmt.Errorf("Listener not added to event"))
+		panic(fmt.Errorf("listener not added to event"))
 	}
 
-	f := reflect.TypeOf(signature)
-	e.paramTypes = make([]reflect.Type, f.NumIn())
-	for i, _ := range e.paramTypes {
-		e.paramTypes[i] = f.In(i)
+	fn := reflect.TypeOf(signature)
+	e.paramTypes = make([]reflect.Type, fn.NumIn())
+
+	for index := range e.paramTypes {
+		e.paramTypes[index] = fn.In(index)
 	}
-	e.isVariadic = f.IsVariadic()
+
+	e.isVariadic = fn.IsVariadic()
 }
 
 func (e *EventBase) String() string {
+	// TODO : @Badu - use strings.Builder
 	s := "Event<"
 	for i, t := range e.paramTypes {
 		if i > 0 {
@@ -82,6 +85,7 @@ func assignable(to, from reflect.Type) bool {
 
 func (e *EventBase) VerifySignature(argTys []reflect.Type, isVariadic bool) {
 	paramTypes := e.paramTypes
+
 	if isVariadic {
 		if len(argTys) < len(paramTypes)-1 {
 			panic(fmt.Errorf("%v.Fire(%v) Too few arguments. Must have at least %v, but got %v",
@@ -159,28 +163,24 @@ func (e *EventBase) Listen(listener interface{}) EventSubscription {
 			paramTypes = ty.ParameterTypes()
 			function = reflect.ValueOf(listener).MethodByName("Fire")
 		default:
-			panic(fmt.Errorf("Listener cannot be of type %v", reflectTy.String()))
+			panic(fmt.Errorf("listener cannot be of type %v", reflectTy.String()))
 		}
 	}
 
 	if function.IsNil() {
-		panic("Listener function is nil")
+		panic("listener function is nil")
 	}
 
 	for i, listenerTy := range paramTypes {
 		if !listenerTy.AssignableTo(e.paramTypes[i]) {
-			panic(fmt.Errorf("%v.Listen(%v) Listener parameter %v for was of the wrong type. Got: %v, Expected: %v",
-				e.String(), listener, i, listenerTy, e.paramTypes[i]))
+			panic(fmt.Errorf("%v.Listen(%v) Listener parameter %v for was of the wrong type. Got: %v, Expected: %v", e.String(), listener, i, listenerTy, e.paramTypes[i]))
 		}
 	}
 
 	id := e.nextId
 	e.nextId++
 
-	e.listeners = append(e.listeners, EventListener{
-		Id:       id,
-		Function: function,
-	})
+	e.listeners = append(e.listeners, EventListener{Id: id, Function: function})
 
 	return &eventBaseSubscription{e, id}
 }

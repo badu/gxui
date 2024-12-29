@@ -32,17 +32,17 @@ type TreeToListAdapter struct {
 
 // CreateTreeToListAdapter wraps the provided TreeAdapter with an adapter
 // conforming to the ListAdapter interface.
-func CreateTreeToListAdapter(treeAdapter gxui.TreeAdapter, creator TreeControlCreator) *TreeToListAdapter {
+func CreateTreeToListAdapter(adapter gxui.TreeAdapter, control TreeControlCreator) *TreeToListAdapter {
 	listAdapter := &TreeToListAdapter{}
 	listAdapter.node.depth = -1 // The node is just a container.
-	listAdapter.node.container = treeAdapter
-	listAdapter.adapter = treeAdapter
-	listAdapter.creator = creator
-	treeAdapter.OnDataReplaced(func() {
+	listAdapter.node.container = adapter
+	listAdapter.adapter = adapter
+	listAdapter.creator = control
+	adapter.OnDataReplaced(func() {
 		listAdapter.reset()
 		listAdapter.DataReplaced()
 	})
-	treeAdapter.OnDataChanged(func(recreateControls bool) {
+	adapter.OnDataChanged(func(recreateControls bool) {
 		listAdapter.node.update(listAdapter)
 		listAdapter.DataChanged(recreateControls)
 	})
@@ -108,8 +108,8 @@ func (a *TreeToListAdapter) DeepestNode(item gxui.AdapterItem) *TreeToListNode {
 // flattened list.
 // Index 0 represents the first root node, index 1 may represent the the second
 // root node or the first child of the first root node, and so on.
-func (a *TreeToListAdapter) ItemAt(idx int) gxui.AdapterItem {
-	return a.node.ItemAt(idx)
+func (a *TreeToListAdapter) ItemAt(index int) gxui.AdapterItem {
+	return a.node.ItemAt(index)
 }
 
 // ItemIndex returns the index of item in the list of all the expanded nodes

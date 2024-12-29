@@ -43,8 +43,8 @@ func (i U64) Contains(value uint64) bool {
 	return i.first <= value && value <= i.Last()
 }
 
-func (i U64) Range() (start, end uint64) {
-	return i.first, i.first + i.count
+func (i U64) Range() (uint64, uint64) {
+	return i.first, i.first + i.count // start, end
 }
 
 func (i U64) First() uint64 {
@@ -63,13 +63,13 @@ func (i U64) String() string {
 	return fmt.Sprintf("[0x%.16x-0x%.16x]", i.first, i.Last())
 }
 
-func (i U64) Span() (start, end uint64) {
-	return i.first, i.first + i.count
+func (i U64) Span() (uint64, uint64) {
+	return i.first, i.first + i.count // start, end
 }
 
 // encoding.BinaryMarshaler compliance
 func (i U64) MarshalBinary() ([]byte, error) {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.LittleEndian, i.first)
 	if err != nil {
 		return nil, err
@@ -114,8 +114,8 @@ func (l U64List) Copy(to, from, count int) {
 	copy(l[to:to+count], l[from:from+count])
 }
 
-func (l U64List) GetInterval(index int) (start, end uint64) {
-	return l[index].Span()
+func (l U64List) GetInterval(index int) (uint64, uint64) {
+	return l[index].Span() // start, end
 }
 
 func (l U64List) SetInterval(index int, start, end uint64) {

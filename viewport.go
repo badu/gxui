@@ -17,7 +17,7 @@ type Viewport interface {
 	// SetSizeDips sets the size of the viewport in device-independent pixels.
 	// The ratio of pixels to DIPs is based on the screen density and scale
 	// adjustments made with the SetScale method.
-	SetSizeDips(math.Size)
+	SetSizeDips(newSize math.Size)
 
 	// SizePixels returns the size of the viewport in pixels.
 	SizePixels() math.Size
@@ -28,7 +28,7 @@ type Viewport interface {
 
 	// SetScale alters the display scaling for this viewport.
 	// A scale of 1 is unscaled, 2 is twice the regular scaling.
-	SetScale(float32)
+	SetScale(scale float32)
 
 	// Fullscreen returns true if the viewport was created full-screen.
 	Fullscreen() bool
@@ -38,13 +38,13 @@ type Viewport interface {
 	Title() string
 
 	// SetTitle changes the title of the window.
-	SetTitle(string)
+	SetTitle(title string)
 
 	// Position returns position of the window.
 	Position() math.Point
 
 	// SetPosition changes position of the window.
-	SetPosition(math.Point)
+	SetPosition(newPosition math.Point)
 
 	// Show makes the window visible.
 	Show()
@@ -59,51 +59,51 @@ type Viewport interface {
 	// SetCanvas changes the displayed content of the viewport to the specified
 	// Canvas. As canvases are immutable once completed, every visual update of a
 	// viewport will require a call to SetCanvas.
-	SetCanvas(Canvas)
+	SetCanvas(canvas Canvas)
 
 	// OnClose subscribes f to be called when the viewport closes.
-	OnClose(f func()) EventSubscription
+	OnClose(callback func()) EventSubscription
 
 	// OnResize subscribes f to be called whenever the viewport changes size.
-	OnResize(f func()) EventSubscription
+	OnResize(callback func()) EventSubscription
 
 	// OnMouseMove subscribes f to be called whenever the mouse cursor moves over
 	// the viewport.
-	OnMouseMove(f func(MouseEvent)) EventSubscription
+	OnMouseMove(callback func(MouseEvent)) EventSubscription
 
 	// OnMouseEnter subscribes f to be called whenever the mouse cursor enters the
 	// viewport.
-	OnMouseEnter(f func(MouseEvent)) EventSubscription
+	OnMouseEnter(callback func(MouseEvent)) EventSubscription
 
 	// OnMouseEnter subscribes f to be called whenever the mouse cursor leaves the
 	// viewport.
-	OnMouseExit(f func(MouseEvent)) EventSubscription
+	OnMouseExit(callback func(MouseEvent)) EventSubscription
 
 	// OnMouseDown subscribes f to be called whenever a mouse button is pressed
 	// while the cursor is inside the viewport.
-	OnMouseDown(f func(MouseEvent)) EventSubscription
+	OnMouseDown(callback func(MouseEvent)) EventSubscription
 
 	// OnMouseUp subscribes f to be called whenever a mouse button is released
 	// while the cursor is inside the viewport.
-	OnMouseUp(f func(MouseEvent)) EventSubscription
+	OnMouseUp(callback func(MouseEvent)) EventSubscription
 
 	// OnMouseScroll subscribes f to be called whenever the mouse scroll wheel
 	// turns while the cursor is inside the viewport.
-	OnMouseScroll(f func(MouseEvent)) EventSubscription
+	OnMouseScroll(callback func(MouseEvent)) EventSubscription
 
 	// OnKeyDown subscribes f to be called whenever a keyboard key is pressed
 	// while the viewport has focus.
-	OnKeyDown(f func(KeyboardEvent)) EventSubscription
+	OnKeyDown(callback func(KeyboardEvent)) EventSubscription
 
 	// OnKeyUp subscribes f to be called whenever a keyboard key is released
 	// while the viewport has focus.
-	OnKeyUp(f func(KeyboardEvent)) EventSubscription
+	OnKeyUp(callback func(KeyboardEvent)) EventSubscription
 
 	// OnKeyRepeat subscribes f to be called whenever a keyboard key-repeat event
 	// is raised while the viewport has focus.
-	OnKeyRepeat(f func(KeyboardEvent)) EventSubscription
+	OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription
 
 	// OnKeyStroke subscribes f to be called whenever a keyboard key-stroke event
 	// is raised while the viewport has focus.
-	OnKeyStroke(f func(KeyStrokeEvent)) EventSubscription
+	OnKeyStroke(callback func(KeyStrokeEvent)) EventSubscription
 }

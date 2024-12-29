@@ -6,12 +6,11 @@ package parts
 
 import (
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 )
 
 type PaddableOuter interface {
-	outer.LayoutChildren
-	outer.Redrawer
+	LayoutChildren() // was outer.LayoutChildren
+	Redraw()         // was outer.Redrawer
 }
 
 type Paddable struct {

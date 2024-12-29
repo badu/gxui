@@ -20,16 +20,16 @@ func (a *AdapterBase) DataReplaced() {
 	}
 }
 
-func (a *AdapterBase) OnDataChanged(f func(recreateControls bool)) EventSubscription {
+func (a *AdapterBase) OnDataChanged(callback func(recreateControls bool)) EventSubscription {
 	if a.onDataChanged == nil {
 		a.onDataChanged = CreateEvent(func(bool) {})
 	}
-	return a.onDataChanged.Listen(f)
+	return a.onDataChanged.Listen(callback)
 }
 
-func (a *AdapterBase) OnDataReplaced(f func()) EventSubscription {
+func (a *AdapterBase) OnDataReplaced(callback func()) EventSubscription {
 	if a.onDataReplaced == nil {
 		a.onDataReplaced = CreateEvent(func() {})
 	}
-	return a.onDataReplaced.Listen(f)
+	return a.onDataReplaced.Listen(callback)
 }

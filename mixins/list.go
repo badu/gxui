@@ -33,9 +33,7 @@ type List struct {
 	base.Container
 	parts.BackgroundBorderPainter
 	parts.Focusable
-
-	outer ListOuter
-
+	outer                    ListOuter
 	theme                    gxui.Theme
 	adapter                  gxui.ListAdapter
 	scrollBar                gxui.ScrollBar
@@ -73,9 +71,6 @@ func (l *List) Init(outer ListOuter, theme gxui.Theme) {
 	l.SetMouseEventTarget(true)
 
 	l.details = make(map[gxui.AdapterItem]itemDetails)
-
-	// Interface compliance test
-	_ = gxui.List(l)
 }
 
 func (l *List) UpdateItemMouseOver() {
@@ -86,10 +81,11 @@ func (l *List) UpdateItemMouseOver() {
 		}
 		return
 	}
-	for _, details := range l.details {
-		if details.child.Bounds().Contains(l.mousePosition) {
-			if l.itemMouseOver != details.child {
-				l.itemMouseOver = details.child
+
+	for _, detail := range l.details {
+		if detail.child.Bounds().Contains(l.mousePosition) {
+			if l.itemMouseOver != detail.child {
+				l.itemMouseOver = detail.child
 				l.Redraw()
 				return
 			}
@@ -109,20 +105,20 @@ func (l *List) LayoutChildren() {
 		defer l.SetRelayoutSuspended(false)
 	}
 
-	s := l.outer.Size().Contract(l.Padding())
-	o := l.Padding().LT()
+	size := l.outer.Size().Contract(l.Padding())
+	offset := l.Padding().LT()
 
 	var itemSize math.Size
 	if l.orientation.Horizontal() {
-		itemSize = math.Size{W: l.itemSize.W, H: s.H}
+		itemSize = math.Size{W: l.itemSize.W, H: size.H}
 	} else {
-		itemSize = math.Size{W: s.W, H: l.itemSize.H}
+		itemSize = math.Size{W: size.W, H: l.itemSize.H}
 	}
 
 	startIndex, endIndex := l.VisibleItemRange(true)
 	majorAxisItemSize := l.MajorAxisItemSize()
 
-	d := startIndex*majorAxisItemSize - l.scrollOffset
+	displacement := startIndex*majorAxisItemSize - l.scrollOffset
 
 	mark := l.layoutMark
 	l.layoutMark++
@@ -133,46 +129,51 @@ func (l *List) LayoutChildren() {
 		details, found := l.details[item]
 		if found {
 			if details.mark == mark {
-				panic(fmt.Errorf("Adapter for control '%s' returned duplicate item (%v) for indices %v and %v",
-					gxui.Path(l.outer), item, details.index, idx))
+				panic(fmt.Errorf("adapter for control '%s' returned duplicate item (%v) for indices %v and %v", gxui.Path(l.outer), item, details.index, idx))
 			}
 		} else {
 			control := l.adapter.Create(l.theme, idx)
-			details.onClickSubscription = control.OnClick(func(ev gxui.MouseEvent) {
-				l.ItemClicked(ev, item)
-			})
+			details.onClickSubscription = control.OnClick(
+				func(ev gxui.MouseEvent) {
+					l.ItemClicked(ev, item)
+				},
+			)
 			details.child = l.AddChildAt(0, control)
 		}
+
 		details.mark = mark
 		details.index = idx
+
 		l.details[item] = details
 
-		c := details.child
-		cm := c.Control.Margin()
-		cs := itemSize.Contract(cm).Max(math.ZeroSize)
+		child := details.child
+		childMargin := child.Control.Margin()
+		childSize := itemSize.Contract(childMargin).Max(math.ZeroSize)
+
 		if l.orientation.Horizontal() {
-			c.Layout(math.CreateRect(d, cm.T, d+cs.W, cm.T+cs.H).Offset(o))
+			child.Layout(math.CreateRect(displacement, childMargin.T, displacement+childSize.W, childMargin.T+childSize.H).Offset(offset))
 		} else {
-			c.Layout(math.CreateRect(cm.L, d, cm.L+cs.W, d+cs.H).Offset(o))
+			child.Layout(math.CreateRect(childMargin.L, displacement, childMargin.L+childSize.W, displacement+childSize.H).Offset(offset))
 		}
-		d += majorAxisItemSize
+
+		displacement += majorAxisItemSize
 	}
 
 	// Reap unused items
-	for item, details := range l.details {
-		if details.mark != mark {
-			details.onClickSubscription.Unlisten()
-			l.RemoveChild(details.child.Control)
+	for item, detail := range l.details {
+		if detail.mark != mark {
+			detail.onClickSubscription.Unlisten()
+			l.RemoveChild(detail.child.Control)
 			delete(l.details, item)
 		}
 	}
 
 	if l.scrollBarEnabled {
-		ss := l.scrollBar.DesiredSize(math.ZeroSize, s)
+		ss := l.scrollBar.DesiredSize(math.ZeroSize, size)
 		if l.Orientation().Horizontal() {
-			l.scrollBarChild.Layout(math.CreateRect(0, s.H-ss.H, s.W, s.H).Canon().Offset(o))
+			l.scrollBarChild.Layout(math.CreateRect(0, size.H-ss.H, size.W, size.H).Canon().Offset(offset))
 		} else {
-			l.scrollBarChild.Layout(math.CreateRect(s.W-ss.W, 0, s.W, s.H).Canon().Offset(o))
+			l.scrollBarChild.Layout(math.CreateRect(size.W-ss.W, 0, size.W, size.H).Canon().Offset(offset))
 		}
 
 		// Only show the scroll bar if needed
@@ -193,21 +194,25 @@ func (l *List) DesiredSize(min, max math.Size) math.Size {
 	if l.adapter == nil {
 		return min
 	}
+
 	count := math.Max(l.itemCount, 1)
-	var s math.Size
+
+	var size math.Size
 	if l.orientation.Horizontal() {
-		s = math.Size{W: l.itemSize.W * count, H: l.itemSize.H}
+		size = math.Size{W: l.itemSize.W * count, H: l.itemSize.H}
 	} else {
-		s = math.Size{W: l.itemSize.W, H: l.itemSize.H * count}
+		size = math.Size{W: l.itemSize.W, H: l.itemSize.H * count}
 	}
+
 	if l.scrollBarEnabled {
 		if l.orientation.Horizontal() {
-			s.H += l.scrollBar.DesiredSize(min, max).H
+			size.H += l.scrollBar.DesiredSize(min, max).H
 		} else {
-			s.W += l.scrollBar.DesiredSize(min, max).W
+			size.W += l.scrollBar.DesiredSize(min, max).W
 		}
 	}
-	return s.Expand(l.outer.Padding()).Clamp(min, max)
+
+	return size.Expand(l.outer.Padding()).Clamp(min, max)
 }
 
 func (l *List) ScrollBarEnabled(bool) bool {
@@ -225,16 +230,19 @@ func (l *List) SetScrollOffset(scrollOffset int) {
 	if l.adapter == nil {
 		return
 	}
-	s := l.outer.Size().Contract(l.outer.Padding())
+
+	size := l.outer.Size().Contract(l.outer.Padding())
+
 	if l.orientation.Horizontal() {
-		maxScroll := math.Max(l.itemSize.W*l.itemCount-s.W, 0)
+		maxScroll := math.Max(l.itemSize.W*l.itemCount-size.W, 0)
 		scrollOffset = math.Clamp(scrollOffset, 0, maxScroll)
-		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+s.W)
+		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+size.W)
 	} else {
-		maxScroll := math.Max(l.itemSize.H*l.itemCount-s.H, 0)
+		maxScroll := math.Max(l.itemSize.H*l.itemCount-size.H, 0)
 		scrollOffset = math.Clamp(scrollOffset, 0, maxScroll)
-		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+s.H)
+		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+size.H)
 	}
+
 	if l.scrollOffset != scrollOffset {
 		l.scrollOffset = scrollOffset
 		l.LayoutChildren()
@@ -245,28 +253,34 @@ func (l *List) MajorAxisItemSize() int {
 	return l.orientation.Major(l.itemSize.WH())
 }
 
-func (l *List) VisibleItemRange(includePartiallyVisible bool) (startIndex, endIndex int) {
+func (l *List) VisibleItemRange(includePartiallyVisible bool) (int, int) {
 	if l.itemCount == 0 {
 		return 0, 0
 	}
-	s := l.outer.Size()
-	p := l.outer.Padding()
+
+	size := l.outer.Size()
+	padding := l.outer.Padding()
 	majorAxisItemSize := l.MajorAxisItemSize()
 	if majorAxisItemSize == 0 {
 		return 0, 0
 	}
-	startIndex = l.scrollOffset
+
+	startIndex := l.scrollOffset
 	if !includePartiallyVisible {
 		startIndex += majorAxisItemSize - 1
 	}
+
+	endIndex := 0
 	if l.orientation.Horizontal() {
-		endIndex = l.scrollOffset + s.W - p.W()
+		endIndex = l.scrollOffset + size.W - padding.W()
 	} else {
-		endIndex = l.scrollOffset + s.H - p.H()
+		endIndex = l.scrollOffset + size.H - padding.H()
 	}
+
 	if includePartiallyVisible {
 		endIndex += majorAxisItemSize - 1
 	}
+
 	startIndex = math.Max(startIndex/majorAxisItemSize, 0)
 	endIndex = math.Min(endIndex/majorAxisItemSize, l.itemCount)
 
@@ -288,6 +302,7 @@ func (l *List) DataChanged(recreateControls bool) {
 			delete(l.details, item)
 		}
 	}
+
 	l.itemCount = l.adapter.Count()
 	l.SizeChanged()
 }
@@ -297,19 +312,19 @@ func (l *List) DataReplaced() {
 	l.DataChanged(true)
 }
 
-func (l *List) Paint(c gxui.Canvas) {
-	r := l.outer.Size().Rect()
-	l.outer.PaintBackground(c, r)
-	l.Container.Paint(c)
-	l.outer.PaintBorder(c, r)
+func (l *List) Paint(canvas gxui.Canvas) {
+	rect := l.outer.Size().Rect()
+	l.outer.PaintBackground(canvas, rect)
+	l.Container.Paint(canvas)
+	l.outer.PaintBorder(canvas, rect)
 }
 
-func (l *List) PaintSelection(c gxui.Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, gxui.WhitePen, gxui.TransparentBrush)
+func (l *List) PaintSelection(canvas gxui.Canvas, rect math.Rect) {
+	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, gxui.WhitePen, gxui.TransparentBrush)
 }
 
-func (l *List) PaintMouseOverBackground(c gxui.Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, gxui.TransparentPen, gxui.CreateBrush(gxui.Gray90))
+func (l *List) PaintMouseOverBackground(canvas gxui.Canvas, rect math.Rect) {
+	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, gxui.TransparentPen, gxui.CreateBrush(gxui.Gray90))
 }
 
 func (l *List) SelectPrevious() {
@@ -343,51 +358,53 @@ func (l *List) RemoveAll() {
 }
 
 // PaintChildren overrides
-func (l *List) PaintChild(c gxui.Canvas, child *gxui.Child, idx int) {
+func (l *List) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
 	if child == l.itemMouseOver {
 		b := child.Bounds().Expand(child.Control.Margin())
-		l.outer.PaintMouseOverBackground(c, b)
+		l.outer.PaintMouseOverBackground(canvas, b)
 	}
-	l.PaintChildren.PaintChild(c, child, idx)
+	l.PaintChildren.PaintChild(canvas, child, idx)
 	if selected, found := l.details[l.selectedItem]; found {
 		if child == selected.child {
 			b := child.Bounds().Expand(child.Control.Margin())
-			l.outer.PaintSelection(c, b)
+			l.outer.PaintSelection(canvas, b)
 		}
 	}
 }
 
 // InputEventHandler override
-func (l *List) MouseMove(ev gxui.MouseEvent) {
-	l.InputEventHandler.MouseMove(ev)
-	l.mousePosition = ev.Point
+func (l *List) MouseMove(event gxui.MouseEvent) {
+	l.InputEventHandler.MouseMove(event)
+	l.mousePosition = event.Point
 	l.UpdateItemMouseOver()
 }
 
-func (l *List) MouseExit(ev gxui.MouseEvent) {
-	l.InputEventHandler.MouseExit(ev)
+func (l *List) MouseExit(event gxui.MouseEvent) {
+	l.InputEventHandler.MouseExit(event)
 	l.itemMouseOver = nil
 }
 
-func (l *List) MouseScroll(ev gxui.MouseEvent) (consume bool) {
-	if ev.ScrollY == 0 {
-		return l.InputEventHandler.MouseScroll(ev)
+func (l *List) MouseScroll(event gxui.MouseEvent) bool {
+	if event.ScrollY == 0 {
+		return l.InputEventHandler.MouseScroll(event)
 	}
+
 	prevOffset := l.scrollOffset
 	if l.orientation.Horizontal() {
-		delta := ev.ScrollY * l.itemSize.W / 8
+		delta := event.ScrollY * l.itemSize.W / 8
 		l.SetScrollOffset(l.scrollOffset - delta)
 	} else {
-		delta := ev.ScrollY * l.itemSize.H / 8
+		delta := event.ScrollY * l.itemSize.H / 8
 		l.SetScrollOffset(l.scrollOffset - delta)
 	}
+
 	return prevOffset != l.scrollOffset
 }
 
-func (l *List) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
+func (l *List) KeyPress(event gxui.KeyboardEvent) bool {
 	if l.itemCount > 0 {
 		if l.orientation.Horizontal() {
-			switch ev.Key {
+			switch event.Key {
 			case gxui.KeyLeft:
 				l.SelectPrevious()
 				return true
@@ -402,7 +419,7 @@ func (l *List) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 				return true
 			}
 		} else {
-			switch ev.Key {
+			switch event.Key {
 			case gxui.KeyUp:
 				l.SelectPrevious()
 				return true
@@ -418,7 +435,7 @@ func (l *List) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 			}
 		}
 	}
-	return l.Container.KeyPress(ev)
+	return l.Container.KeyPress(event)
 }
 
 // gxui.List compliance

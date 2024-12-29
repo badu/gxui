@@ -61,7 +61,7 @@ type globalDriverStats struct {
 }
 
 func (s *globalDriverStats) get() string {
-	buffer := &bytes.Buffer{}
+	buffer := new(bytes.Buffer)
 	fmt.Fprintf(buffer, "Vertex stream context count: %v\n", s.vertexStreamContextCount)
 	fmt.Fprintf(buffer, "Index buffer context count: %v\n", s.indexBufferContextCount)
 	fmt.Fprintf(buffer, "Texture context count: %v\n", s.textureContextCount)
@@ -135,7 +135,7 @@ func (s *contextStats) timer(name string) *timer {
 }
 
 func (s contextStats) String() string {
-	buffer := &bytes.Buffer{}
+	buffer := new(bytes.Buffer)
 	for _, t := range s.timers {
 		fmt.Fprintf(buffer, "%v\n", t)
 	}

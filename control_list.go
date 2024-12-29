@@ -6,11 +6,12 @@ package gxui
 
 type ControlList []Control
 
-func (l ControlList) Contains(c Control) bool {
-	for _, i := range l {
-		if i == c {
+func (l ControlList) Contains(control Control) bool {
+	for _, item := range l {
+		if item == control {
 			return true
 		}
 	}
+
 	return false
 }

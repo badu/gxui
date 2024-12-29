@@ -7,15 +7,14 @@ package base
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 	"github.com/badu/gxui/mixins/parts"
 )
 
 type ControlOuter interface {
 	gxui.Control
-	outer.Painter
-	outer.Redrawer
-	outer.Relayouter
+	Paint(canvas gxui.Canvas) // was outer.Painter
+	Redraw()                  // was outer.Redrawer
+	Relayout()                // was outer.Relayouter
 }
 
 type Control struct {
@@ -34,15 +33,12 @@ func (c *Control) Init(outer ControlOuter, theme gxui.Theme) {
 	c.InputEventHandler.Init(outer)
 	c.Parentable.Init(outer)
 	c.Visible.Init(outer)
-
-	// Interface compliance test
-	_ = gxui.Control(c)
 }
 
 func (c *Control) DesiredSize(min, max math.Size) math.Size {
 	return max
 }
 
-func (c *Control) ContainsPoint(p math.Point) bool {
-	return c.IsVisible() && c.Size().Rect().Contains(p)
+func (c *Control) ContainsPoint(point math.Point) bool {
+	return c.IsVisible() && c.Size().Rect().Contains(point)
 }

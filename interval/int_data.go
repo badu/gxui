@@ -5,18 +5,15 @@
 package interval
 
 type IntData struct {
-	start, end int
-	data       interface{}
+	start int
+	end   int
+	data  interface{} //TODO : @Badu - good candidate for generics?
 }
 
 type IntDataList []IntData
 
 func CreateIntData(start, end int, data interface{}) IntData {
-	return IntData{
-		start: start,
-		end:   end,
-		data:  data,
-	}
+	return IntData{start: start, end: end, data: data}
 }
 
 func (t IntData) Range() (start, end int) {

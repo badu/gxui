@@ -7,11 +7,11 @@ package gxui
 type Label interface {
 	Control
 	Text() string
-	SetText(string)
+	SetText(text string)
 	Font() Font
-	SetFont(Font)
+	SetFont(font Font)
 	Color() Color
-	SetColor(Color)
+	SetColor(color Color)
 	Multiline() bool
 	SetMultiline(bool)
 	SetHorizontalAlignment(HorizontalAlignment)

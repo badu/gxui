@@ -186,56 +186,56 @@ func (m *InputEventHandler) KeyRepeat(ev gxui.KeyboardEvent) {
 	m.getOnKeyRepeat().Fire(ev)
 }
 
-func (m *InputEventHandler) OnClick(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnClick().Listen(f)
+func (m *InputEventHandler) OnClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnClick().Listen(callback)
 }
 
-func (m *InputEventHandler) OnDoubleClick(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnDoubleClick().Listen(f)
+func (m *InputEventHandler) OnDoubleClick(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnDoubleClick().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyPress(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return m.getOnKeyPress().Listen(f)
+func (m *InputEventHandler) OnKeyPress(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return m.getOnKeyPress().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyStroke(f func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
-	return m.getOnKeyStroke().Listen(f)
+func (m *InputEventHandler) OnKeyStroke(callback func(gxui.KeyStrokeEvent)) gxui.EventSubscription {
+	return m.getOnKeyStroke().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseMove(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnMouseMove().Listen(f)
+func (m *InputEventHandler) OnMouseMove(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnMouseMove().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseEnter(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnMouseEnter().Listen(f)
+func (m *InputEventHandler) OnMouseEnter(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnMouseEnter().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseExit(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnMouseExit().Listen(f)
+func (m *InputEventHandler) OnMouseExit(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnMouseExit().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseDown(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnMouseDown().Listen(f)
+func (m *InputEventHandler) OnMouseDown(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnMouseDown().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseUp(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnMouseUp().Listen(f)
+func (m *InputEventHandler) OnMouseUp(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnMouseUp().Listen(callback)
 }
 
-func (m *InputEventHandler) OnMouseScroll(f func(gxui.MouseEvent)) gxui.EventSubscription {
-	return m.getOnMouseScroll().Listen(f)
+func (m *InputEventHandler) OnMouseScroll(callback func(gxui.MouseEvent)) gxui.EventSubscription {
+	return m.getOnMouseScroll().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyDown(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return m.getOnKeyDown().Listen(f)
+func (m *InputEventHandler) OnKeyDown(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return m.getOnKeyDown().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyUp(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return m.getOnKeyUp().Listen(f)
+func (m *InputEventHandler) OnKeyUp(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return m.getOnKeyUp().Listen(callback)
 }
 
-func (m *InputEventHandler) OnKeyRepeat(f func(gxui.KeyboardEvent)) gxui.EventSubscription {
-	return m.getOnKeyRepeat().Listen(f)
+func (m *InputEventHandler) OnKeyRepeat(callback func(gxui.KeyboardEvent)) gxui.EventSubscription {
+	return m.getOnKeyRepeat().Listen(callback)
 }
 
 func (m *InputEventHandler) IsMouseOver() bool {

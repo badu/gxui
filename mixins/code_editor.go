@@ -27,13 +27,6 @@ type CodeEditor struct {
 	theme              gxui.Theme
 }
 
-func (t *CodeEditor) updateSpans(edits []gxui.TextBoxEdit) {
-	runeCount := len(t.controller.TextRunes())
-	for _, l := range t.layers {
-		l.UpdateSpans(runeCount, edits)
-	}
-}
-
 func (t *CodeEditor) Init(outer CodeEditorOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
 	t.outer = outer
 	t.tabWidth = 2
@@ -45,9 +38,6 @@ func (t *CodeEditor) Init(outer CodeEditorOuter, driver gxui.Driver, theme gxui.
 
 	t.TextBox.Init(outer, driver, theme, font)
 	t.controller.OnTextChanged(t.updateSpans)
-
-	// Interface compliance test
-	_ = gxui.CodeEditor(t)
 }
 
 func (t *CodeEditor) ItemSize(theme gxui.Theme) math.Size {
@@ -55,10 +45,10 @@ func (t *CodeEditor) ItemSize(theme gxui.Theme) math.Size {
 }
 
 func (t *CodeEditor) CreateSuggestionList() gxui.List {
-	l := t.theme.CreateList()
-	l.SetBackgroundBrush(gxui.DefaultBrush)
-	l.SetBorderPen(gxui.DefaultPen)
-	return l
+	list := t.theme.CreateList()
+	list.SetBackgroundBrush(gxui.DefaultBrush)
+	list.SetBorderPen(gxui.DefaultPen)
+	return list
 }
 
 func (t *CodeEditor) SyntaxLayers() gxui.CodeSyntaxLayers {
@@ -107,9 +97,9 @@ func (t *CodeEditor) ShowSuggestionList() {
 	}
 
 	caret := t.controller.LastCaret()
-	s, _ := t.controller.WordAt(caret)
+	word, _ := t.controller.WordAt(caret)
 
-	suggestions := t.suggestionProvider.SuggestionsAt(s)
+	suggestions := t.suggestionProvider.SuggestionsAt(word)
 	if len(suggestions) == 0 {
 		t.HideSuggestionList()
 		return
@@ -139,25 +129,28 @@ func (t *CodeEditor) HideSuggestionList() {
 }
 
 func (t *CodeEditor) Line(idx int) TextBoxLine {
-	return gxui.FindControl(t.ItemControl(idx).(gxui.Parent), func(c gxui.Control) bool {
-		_, b := c.(TextBoxLine)
-		return b
-	}).(TextBoxLine)
+	return gxui.FindControl(
+		t.ItemControl(idx).(gxui.Parent),
+		func(c gxui.Control) bool {
+			_, b := c.(TextBoxLine)
+			return b
+		},
+	).(TextBoxLine)
 }
 
 // mixins.List overrides
-func (t *CodeEditor) Click(ev gxui.MouseEvent) (consume bool) {
+func (t *CodeEditor) Click(event gxui.MouseEvent) bool {
 	t.HideSuggestionList()
-	return t.TextBox.Click(ev)
+	return t.TextBox.Click(event)
 }
 
-func (t *CodeEditor) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
-	switch ev.Key {
+func (t *CodeEditor) KeyPress(event gxui.KeyboardEvent) bool {
+	switch event.Key {
 	case gxui.KeyTab:
 		replace := true
-		for _, sel := range t.controller.Selections() {
-			s, e := sel.Range()
-			if t.controller.LineIndex(s) != t.controller.LineIndex(e) {
+		for _, selection := range t.controller.Selections() {
+			start, end := selection.Range()
+			if t.controller.LineIndex(start) != t.controller.LineIndex(end) {
 				replace = false
 				break
 			}
@@ -166,33 +159,39 @@ func (t *CodeEditor) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 		case replace:
 			t.controller.ReplaceAll(strings.Repeat(" ", t.tabWidth))
 			t.controller.Deselect(false)
-		case ev.Modifier.Shift():
+		case event.Modifier.Shift():
 			t.controller.UnindentSelection(t.tabWidth)
 		default:
 			t.controller.IndentSelection(t.tabWidth)
 		}
 		return true
+
 	case gxui.KeySpace:
-		if ev.Modifier.Control() {
+		if event.Modifier.Control() {
 			t.ShowSuggestionList()
-			return
+			return false
 		}
+
 	case gxui.KeyUp:
 		fallthrough
+
 	case gxui.KeyDown:
 		if t.IsSuggestionListShowing() {
-			return t.suggestionList.KeyPress(ev)
+			return t.suggestionList.KeyPress(event)
 		}
+
 	case gxui.KeyLeft:
 		t.HideSuggestionList()
+
 	case gxui.KeyRight:
 		t.HideSuggestionList()
+
 	case gxui.KeyEnter:
 		controller := t.controller
 		if t.IsSuggestionListShowing() {
 			text := t.suggestionAdapter.Suggestion(t.suggestionList.Selected()).Code()
-			s, e := controller.WordAt(t.controller.LastCaret())
-			controller.SetSelection(gxui.CreateTextSelection(s, e, false))
+			start, end := controller.WordAt(t.controller.LastCaret())
+			controller.SetSelection(gxui.CreateTextSelection(start, end, false))
 			controller.ReplaceAll(text)
 			controller.Deselect(false)
 			t.HideSuggestionList()
@@ -200,27 +199,30 @@ func (t *CodeEditor) KeyPress(ev gxui.KeyboardEvent) (consume bool) {
 			t.controller.ReplaceWithNewlineKeepIndent()
 		}
 		return true
+
 	case gxui.KeyEscape:
 		if t.IsSuggestionListShowing() {
 			t.HideSuggestionList()
 			return true
 		}
 	}
-	return t.TextBox.KeyPress(ev)
+
+	return t.TextBox.KeyPress(event)
 }
 
-func (t *CodeEditor) KeyStroke(ev gxui.KeyStrokeEvent) (consume bool) {
-	consume = t.TextBox.KeyStroke(ev)
+func (t *CodeEditor) KeyStroke(event gxui.KeyStrokeEvent) bool {
+	consume := t.TextBox.KeyStroke(event)
 	if t.IsSuggestionListShowing() {
 		t.SortSuggestionList()
 	}
-	return
+
+	return consume
 }
 
 // mixins.TextBox overrides
 func (t *CodeEditor) CreateLine(theme gxui.Theme, index int) (TextBoxLine, gxui.Control) {
 	lineNumber := theme.CreateLabel()
-	lineNumber.SetText(fmt.Sprintf("%.4d", index+1)) // Displayed lines start at 1
+	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 
 	line := &CodeEditorLine{}
 	line.Init(line, theme, t, index)
@@ -231,4 +233,11 @@ func (t *CodeEditor) CreateLine(theme gxui.Theme, index int) (TextBoxLine, gxui.
 	layout.AddChild(line)
 
 	return line, layout
+}
+
+func (t *CodeEditor) updateSpans(edits []gxui.TextBoxEdit) {
+	runeCount := len(t.controller.TextRunes())
+	for _, layer := range t.layers {
+		layer.UpdateSpans(runeCount, edits)
+	}
 }

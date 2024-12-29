@@ -11,7 +11,7 @@ import (
 	"runtime"
 )
 
-func indent(depth int) string {
+func debugIndent(depth int) string {
 	s := ""
 	for i := 0; i < depth; i++ {
 		s += "   |"
@@ -30,7 +30,7 @@ func dump(c interface{}, depth int) string {
 	switch t := c.(type) {
 	case Container:
 		for i, c := range t.Children() {
-			s += fmt.Sprintf("%s--- Child %d: ", indent(depth), i)
+			s += fmt.Sprintf("%s--- Child %d: ", debugIndent(depth), i)
 			s += dump(c.Control, depth+1)
 		}
 	}

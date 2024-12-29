@@ -29,9 +29,6 @@ func (o *BubbleOverlay) Init(outer BubbleOverlayOuter, theme gxui.Theme) {
 	o.outer = outer
 	o.arrowLength = 20
 	o.arrowWidth = 15
-
-	// Interface compliance test
-	_ = gxui.BubbleOverlay(o)
 }
 
 func (o *BubbleOverlay) LayoutChildren() {
@@ -49,10 +46,10 @@ func (o *BubbleOverlay) DesiredSize(min, max math.Size) math.Size {
 	return max
 }
 
-func (o *BubbleOverlay) Show(control gxui.Control, target math.Point) {
+func (o *BubbleOverlay) Show(control gxui.Control, point math.Point) {
 	o.Hide()
 	o.outer.AddChild(control)
-	o.targetPoint = target
+	o.targetPoint = point
 }
 
 func (o *BubbleOverlay) Hide() {
@@ -81,18 +78,19 @@ func (o *BubbleOverlay) SetPen(pen gxui.Pen) {
 	}
 }
 
-func (o *BubbleOverlay) Paint(c gxui.Canvas) {
+func (o *BubbleOverlay) Paint(canvas gxui.Canvas) {
 	if !o.IsVisible() {
 		return
 	}
+
 	for _, child := range o.outer.Children() {
-		b := child.Bounds().Expand(o.outer.Padding())
-		t := o.targetPoint
-		a := o.arrowWidth / 2
-		var p gxui.Polygon
+		expandedBounds := child.Bounds().Expand(o.outer.Padding())
+		targetPoint := o.targetPoint
+		halfWidth := o.arrowWidth / 2
+		var polygon gxui.Polygon
 
 		switch {
-		case t.X < b.Min.X:
+		case targetPoint.X < expandedBounds.Min.X:
 			/*
 			    A-----------------B
 			    G                 |
@@ -100,17 +98,17 @@ func (o *BubbleOverlay) Paint(c gxui.Canvas) {
 			    E                 |
 			    D-----------------C
 			*/
-			p = gxui.Polygon{
-				/*A*/ {Position: b.TL(), RoundedRadius: 5},
-				/*B*/ {Position: b.TR(), RoundedRadius: 5},
-				/*C*/ {Position: b.BR(), RoundedRadius: 5},
-				/*D*/ {Position: b.BL(), RoundedRadius: 5},
-				/*E*/ {Position: math.Point{X: b.Min.X, Y: math.Clamp(t.Y+a, b.Min.Y+a, b.Max.Y)}, RoundedRadius: 0},
-				/*F*/ {Position: t, RoundedRadius: 0},
-				/*G*/ {Position: math.Point{X: b.Min.X, Y: math.Clamp(t.Y-a, b.Min.Y, b.Max.Y-a)}, RoundedRadius: 0},
+			polygon = gxui.Polygon{
+				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
+				/*B*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
+				/*C*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
+				/*D*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
+				/*E*/ {Position: math.Point{X: expandedBounds.Min.X, Y: math.Clamp(targetPoint.Y+halfWidth, expandedBounds.Min.Y+halfWidth, expandedBounds.Max.Y)}, RoundedRadius: 0},
+				/*F*/ {Position: targetPoint, RoundedRadius: 0},
+				/*G*/ {Position: math.Point{X: expandedBounds.Min.X, Y: math.Clamp(targetPoint.Y-halfWidth, expandedBounds.Min.Y, expandedBounds.Max.Y-halfWidth)}, RoundedRadius: 0},
 			}
-			// fmt.Printf("A: %+v\n", p)
-		case t.X > b.Max.X:
+			// fmt.Printf("A: %+v\n", polygon)
+		case targetPoint.X > expandedBounds.Max.X:
 			/*
 			   A-----------------B
 			   |                 C
@@ -118,17 +116,17 @@ func (o *BubbleOverlay) Paint(c gxui.Canvas) {
 			   |                 E
 			   G-----------------F
 			*/
-			p = gxui.Polygon{
-				/*A*/ {Position: b.TL(), RoundedRadius: 5},
-				/*B*/ {Position: b.TR(), RoundedRadius: 5},
-				/*C*/ {Position: math.Point{X: b.Max.X, Y: math.Clamp(t.Y-a, b.Min.Y, b.Max.Y-a)}, RoundedRadius: 0},
-				/*D*/ {Position: t, RoundedRadius: 0},
-				/*E*/ {Position: math.Point{X: b.Max.X, Y: math.Clamp(t.Y+a, b.Min.Y+a, b.Max.Y)}, RoundedRadius: 0},
-				/*F*/ {Position: b.BR(), RoundedRadius: 5},
-				/*G*/ {Position: b.BL(), RoundedRadius: 5},
+			polygon = gxui.Polygon{
+				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
+				/*B*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
+				/*C*/ {Position: math.Point{X: expandedBounds.Max.X, Y: math.Clamp(targetPoint.Y-halfWidth, expandedBounds.Min.Y, expandedBounds.Max.Y-halfWidth)}, RoundedRadius: 0},
+				/*D*/ {Position: targetPoint, RoundedRadius: 0},
+				/*E*/ {Position: math.Point{X: expandedBounds.Max.X, Y: math.Clamp(targetPoint.Y+halfWidth, expandedBounds.Min.Y+halfWidth, expandedBounds.Max.Y)}, RoundedRadius: 0},
+				/*F*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
+				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
 			}
-			// fmt.Printf("B: %+v\n", p)
-		case t.Y < b.Min.Y:
+			// fmt.Printf("B: %+v\n", polygon)
+		case targetPoint.Y < expandedBounds.Min.Y:
 			/*
 			                 C
 			                / \
@@ -137,16 +135,16 @@ func (o *BubbleOverlay) Paint(c gxui.Canvas) {
 			   |                 |
 			   G-----------------F
 			*/
-			p = gxui.Polygon{
-				/*A*/ {Position: b.TL(), RoundedRadius: 5},
-				/*B*/ {Position: math.Point{X: math.Clamp(t.X-a, b.Min.X, b.Max.X-a), Y: b.Min.Y}, RoundedRadius: 0},
-				/*C*/ {Position: t, RoundedRadius: 0},
-				/*D*/ {Position: math.Point{X: math.Clamp(t.X+a, b.Min.X+a, b.Max.X), Y: b.Min.Y}, RoundedRadius: 0},
-				/*E*/ {Position: b.TR(), RoundedRadius: 5},
-				/*F*/ {Position: b.BR(), RoundedRadius: 5},
-				/*G*/ {Position: b.BL(), RoundedRadius: 5},
+			polygon = gxui.Polygon{
+				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
+				/*B*/ {Position: math.Point{X: math.Clamp(targetPoint.X-halfWidth, expandedBounds.Min.X, expandedBounds.Max.X-halfWidth), Y: expandedBounds.Min.Y}, RoundedRadius: 0},
+				/*C*/ {Position: targetPoint, RoundedRadius: 0},
+				/*D*/ {Position: math.Point{X: math.Clamp(targetPoint.X+halfWidth, expandedBounds.Min.X+halfWidth, expandedBounds.Max.X), Y: expandedBounds.Min.Y}, RoundedRadius: 0},
+				/*E*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
+				/*F*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
+				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
 			}
-			// fmt.Printf("C: %+v\n", p)
+			// fmt.Printf("C: %+v\n", polygon)
 		default:
 			/*
 			   A-----------------B
@@ -156,18 +154,19 @@ func (o *BubbleOverlay) Paint(c gxui.Canvas) {
 			                \ /
 			                 E
 			*/
-			p = gxui.Polygon{
-				/*A*/ {Position: b.TL(), RoundedRadius: 5},
-				/*B*/ {Position: b.TR(), RoundedRadius: 5},
-				/*C*/ {Position: b.BR(), RoundedRadius: 5},
-				/*D*/ {Position: math.Point{X: math.Clamp(t.X+a, b.Min.X+a, b.Max.X), Y: b.Max.Y}, RoundedRadius: 0},
-				/*E*/ {Position: t, RoundedRadius: 0},
-				/*F*/ {Position: math.Point{X: math.Clamp(t.X-a, b.Min.X, b.Max.X-a), Y: b.Max.Y}, RoundedRadius: 0},
-				/*G*/ {Position: b.BL(), RoundedRadius: 5},
+			polygon = gxui.Polygon{
+				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
+				/*B*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
+				/*C*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
+				/*D*/ {Position: math.Point{X: math.Clamp(targetPoint.X+halfWidth, expandedBounds.Min.X+halfWidth, expandedBounds.Max.X), Y: expandedBounds.Max.Y}, RoundedRadius: 0},
+				/*E*/ {Position: targetPoint, RoundedRadius: 0},
+				/*F*/ {Position: math.Point{X: math.Clamp(targetPoint.X-halfWidth, expandedBounds.Min.X, expandedBounds.Max.X-halfWidth), Y: expandedBounds.Max.Y}, RoundedRadius: 0},
+				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
 			}
-			// fmt.Printf("D: %+v\n", p)
+			// fmt.Printf("D: %+v\n", polygon)
 		}
-		c.DrawPolygon(p, o.pen, o.brush)
+		canvas.DrawPolygon(polygon, o.pen, o.brush)
 	}
-	o.PaintChildren.Paint(c)
+
+	o.PaintChildren.Paint(canvas)
 }

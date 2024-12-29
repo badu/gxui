@@ -24,25 +24,29 @@ func (l *CodeSyntaxLayer) Clear() {
 }
 
 func (l *CodeSyntaxLayer) UpdateSpans(runeCount int, edits []TextBoxEdit) {
-	min := 0
-	max := runeCount
-	for _, e := range edits {
-		if l == nil {
+	pMin := 0
+	pMax := runeCount
+	for _, edit := range edits {
+		if l == nil { // TODO : @Badu - why?
 			continue
 		}
-		for j, s := range l.spans {
-			at := e.At
-			start, end := s.Range()
+
+		for index, span := range l.spans {
+			at := edit.At
+			start, end := span.Range()
 			if start >= at {
-				start = math.Clamp(start+e.Delta, min, max)
+				start = math.Clamp(start+edit.Delta, pMin, pMax)
 			}
+
 			if end > at {
-				end = math.Clamp(end+e.Delta, min, max)
+				end = math.Clamp(end+edit.Delta, pMin, pMax)
 			}
+
 			if end < start {
 				end = start
 			}
-			l.spans[j] = interval.CreateIntData(start, end, s.Data())
+
+			l.spans[index] = interval.CreateIntData(start, end, span.Data())
 		}
 	}
 }

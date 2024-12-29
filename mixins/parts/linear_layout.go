@@ -7,12 +7,12 @@ package parts
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/outer"
 )
 
 type LinearLayoutOuter interface {
 	gxui.Container
-	outer.Sized
+	Size() math.Size           // was outer.Sized
+	SetSize(newSize math.Size) // was outer.Sized
 }
 
 type LinearLayout struct {
@@ -32,6 +32,7 @@ func (l *LinearLayout) LayoutChildren() {
 	o := l.outer.Padding().LT()
 	children := l.outer.Children()
 	major := 0
+
 	if l.direction.RightToLeft() || l.direction.BottomToTop() {
 		if l.direction.RightToLeft() {
 			major = s.W
@@ -39,10 +40,11 @@ func (l *LinearLayout) LayoutChildren() {
 			major = s.H
 		}
 	}
-	for _, c := range children {
-		cm := c.Control.Margin()
-		cs := c.Control.DesiredSize(math.ZeroSize, s.Contract(cm).Max(math.ZeroSize))
-		c.Control.SetSize(cs)
+
+	for _, child := range children {
+		cm := child.Control.Margin()
+		cs := child.Control.DesiredSize(math.ZeroSize, s.Contract(cm).Max(math.ZeroSize))
+		child.Control.SetSize(cs)
 
 		// Calculate minor-axis alignment
 		var minor int
@@ -71,25 +73,25 @@ func (l *LinearLayout) LayoutChildren() {
 		switch l.direction {
 		case gxui.LeftToRight:
 			major += cm.L
-			c.Offset = math.Point{X: major, Y: minor}.Add(o)
+			child.Offset = math.Point{X: major, Y: minor}.Add(o)
 			major += cs.W
 			major += cm.R
 			s.W -= cs.W + cm.W()
 		case gxui.RightToLeft:
 			major -= cm.R
-			c.Offset = math.Point{X: major - cs.W, Y: minor}.Add(o)
+			child.Offset = math.Point{X: major - cs.W, Y: minor}.Add(o)
 			major -= cs.W
 			major -= cm.L
 			s.W -= cs.W + cm.W()
 		case gxui.TopToBottom:
 			major += cm.T
-			c.Offset = math.Point{X: minor, Y: major}.Add(o)
+			child.Offset = math.Point{X: minor, Y: major}.Add(o)
 			major += cs.H
 			major += cm.B
 			s.H -= cs.H + cm.H()
 		case gxui.BottomToTop:
 			major -= cm.B
-			c.Offset = math.Point{X: minor, Y: major - cs.H}.Add(o)
+			child.Offset = math.Point{X: minor, Y: major - cs.H}.Add(o)
 			major -= cs.H
 			major -= cm.T
 			s.H -= cs.H + cm.H()
@@ -107,9 +109,9 @@ func (l *LinearLayout) DesiredSize(min, max math.Size) math.Size {
 
 	horizontal := l.direction.Orientation().Horizontal()
 	offset := math.Point{X: 0, Y: 0}
-	for _, c := range children {
-		cs := c.Control.DesiredSize(math.ZeroSize, max)
-		cm := c.Control.Margin()
+	for _, child := range children {
+		cs := child.Control.DesiredSize(math.ZeroSize, max)
+		cm := child.Control.Margin()
 		cb := cs.Expand(cm).Rect().Offset(offset)
 		if horizontal {
 			offset.X += cb.W()

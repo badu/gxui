@@ -36,18 +36,18 @@ func (f *Focusable) SetFocusable(bool) {
 	f.focusable = true
 }
 
-func (f *Focusable) OnGainedFocus(l func()) gxui.EventSubscription {
+func (f *Focusable) OnGainedFocus(callback func()) gxui.EventSubscription {
 	if f.onGainedFocus == nil {
 		f.onGainedFocus = gxui.CreateEvent(f.GainedFocus)
 	}
-	return f.onGainedFocus.Listen(l)
+	return f.onGainedFocus.Listen(callback)
 }
 
-func (f *Focusable) OnLostFocus(l func()) gxui.EventSubscription {
+func (f *Focusable) OnLostFocus(callback func()) gxui.EventSubscription {
 	if f.onLostFocus == nil {
 		f.onLostFocus = gxui.CreateEvent(f.LostFocus)
 	}
-	return f.onLostFocus.Listen(l)
+	return f.onLostFocus.Listen(callback)
 }
 
 func (f *Focusable) GainedFocus() {
