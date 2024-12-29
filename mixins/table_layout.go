@@ -3,7 +3,6 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type Cell struct {
@@ -19,14 +18,14 @@ func (c Cell) AtRow(y int) bool {
 }
 
 type TableLayout struct {
-	base.ContainerBase
-	outer   base.ContainerBaseOuter
+	ContainerBase
+	outer   ContainerBaseOuter
 	grid    map[gxui.Control]Cell
 	rows    int
 	columns int
 }
 
-func (l *TableLayout) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+func (l *TableLayout) Init(outer ContainerBaseOuter, theme gxui.Theme) {
 	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.grid = make(map[gxui.Control]Cell)

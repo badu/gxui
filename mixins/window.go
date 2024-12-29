@@ -7,7 +7,6 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type WindowOuter interface {
@@ -27,11 +26,11 @@ type WindowOuter interface {
 }
 
 type Window struct {
-	base.AttachablePart
-	base.BackgroundBorderPainter
-	base.ContainerPart
-	base.PaddablePart
-	base.PaintChildrenPart
+	AttachablePart
+	BackgroundBorderPainter
+	ContainerPart
+	PaddablePart
+	PaintChildrenPart
 	driver                gxui.Driver
 	outer                 WindowOuter
 	viewport              gxui.Viewport

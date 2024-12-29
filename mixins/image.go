@@ -7,13 +7,12 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type Image struct {
-	base.ControlBase
-	base.BackgroundBorderPainter
-	outer        base.ControlBaseOuter
+	ControlBase
+	BackgroundBorderPainter
+	outer        ControlBaseOuter
 	texture      gxui.Texture
 	canvas       gxui.Canvas
 	scalingMode  gxui.ScalingMode
@@ -41,7 +40,7 @@ func (i *Image) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *Image) Init(outer base.ControlBaseOuter, theme gxui.Theme) {
+func (i *Image) Init(outer ControlBaseOuter, theme gxui.Theme) {
 	i.outer = outer
 	i.ControlBase.Init(outer, theme)
 	i.BackgroundBorderPainter.Init(outer)

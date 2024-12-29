@@ -7,17 +7,16 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type ProgressBarOuter interface {
-	base.ControlBaseOuter
+	ControlBaseOuter
 	PaintProgress(gxui.Canvas, math.Rect, float32)
 }
 
 type ProgressBar struct {
-	base.ControlBase
-	base.BackgroundBorderPainter
+	ControlBase
+	BackgroundBorderPainter
 	outer            ProgressBarOuter
 	desiredSize      math.Size
 	progress, target int

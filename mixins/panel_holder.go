@@ -9,7 +9,6 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type PanelTab interface {
@@ -23,7 +22,7 @@ type PanelTabCreater interface {
 }
 
 type PanelHolderOuter interface {
-	base.ContainerBaseNoControlOuter
+	ContainerBaseNoControlOuter
 	gxui.PanelHolder
 	PanelTabCreater
 }
@@ -35,7 +34,7 @@ type PanelEntry struct {
 }
 
 type PanelHolder struct {
-	base.ContainerBase
+	ContainerBase
 	outer     PanelHolderOuter
 	theme     gxui.Theme
 	tabLayout gxui.LinearLayout

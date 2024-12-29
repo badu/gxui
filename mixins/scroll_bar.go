@@ -7,12 +7,11 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type ScrollBar struct {
-	base.ControlBase
-	outer               base.ControlBaseOuter
+	ControlBase
+	outer               ControlBaseOuter
 	orientation         gxui.Orientation
 	thickness           int
 	minBarLength        int
@@ -65,7 +64,7 @@ func (s *ScrollBar) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBar) Init(outer base.ControlBaseOuter, theme gxui.Theme) {
+func (s *ScrollBar) Init(outer ControlBaseOuter, theme gxui.Theme) {
 	s.ControlBase.Init(outer, theme)
 
 	s.outer = outer

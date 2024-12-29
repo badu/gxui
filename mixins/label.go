@@ -9,12 +9,11 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type Label struct {
-	base.ControlBase
-	outer               base.ControlBaseOuter
+	ControlBase
+	outer               ControlBaseOuter
 	font                gxui.Font
 	color               gxui.Color
 	horizontalAlignment gxui.HorizontalAlignment
@@ -23,7 +22,7 @@ type Label struct {
 	text                string
 }
 
-func (l *Label) Init(outer base.ControlBaseOuter, theme gxui.Theme, font gxui.Font, color gxui.Color) {
+func (l *Label) Init(outer ControlBaseOuter, theme gxui.Theme, font gxui.Font, color gxui.Color) {
 	if font == nil {
 		panic("Cannot create a label with a nil font")
 	}

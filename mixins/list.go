@@ -9,11 +9,10 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type ListOuter interface {
-	base.ContainerBaseOuter
+	ContainerBaseOuter
 	ContainsItem(gxui.AdapterItem) bool
 	PaintBackground(c gxui.Canvas, r math.Rect)
 	PaintMouseOverBackground(c gxui.Canvas, r math.Rect)
@@ -29,9 +28,9 @@ type itemDetails struct {
 }
 
 type List struct {
-	base.ContainerBase
-	base.BackgroundBorderPainter
-	base.FocusablePart
+	ContainerBase
+	BackgroundBorderPainter
+	FocusablePart
 	outer                    ListOuter
 	theme                    gxui.Theme
 	adapter                  gxui.ListAdapter

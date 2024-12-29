@@ -7,18 +7,17 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type ButtonOuter interface {
-	base.ContainerBaseOuter
+	ContainerBaseOuter
 	IsChecked() bool
 	SetChecked(bool)
 }
 
 type Button struct {
 	LinearLayout
-	base.FocusablePart
+	FocusablePart
 	outer      ButtonOuter
 	theme      gxui.Theme
 	label      gxui.Label

@@ -5,7 +5,6 @@
 package mixins
 
 import (
-	"github.com/badu/gxui/mixins/base"
 	"strings"
 
 	"github.com/badu/gxui"
@@ -26,7 +25,7 @@ type TextBoxOuter interface {
 type TextBox struct {
 	List
 	gxui.AdapterBase
-	base.FocusablePart
+	FocusablePart
 	outer             TextBoxOuter
 	driver            gxui.Driver
 	font              gxui.Font

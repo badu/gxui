@@ -8,11 +8,10 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/interval"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type DefaultTextBoxLineOuter interface {
-	base.ControlBaseOuter
+	ControlBaseOuter
 	MeasureRunes(s, e int) math.Size
 	PaintText(c gxui.Canvas)
 	PaintCarets(c gxui.Canvas)
@@ -23,7 +22,7 @@ type DefaultTextBoxLineOuter interface {
 
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
-	base.ControlBase
+	ControlBase
 	outer      DefaultTextBoxLineOuter
 	textbox    *TextBox
 	lineIndex  int

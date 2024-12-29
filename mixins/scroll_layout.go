@@ -7,13 +7,12 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type ScrollLayout struct {
-	base.ContainerBase
-	base.BackgroundBorderPainter
-	outer                  base.ContainerBaseOuter
+	ContainerBase
+	BackgroundBorderPainter
+	outer                  ContainerBaseOuter
 	theme                  gxui.Theme
 	scrollOffset           math.Point
 	canScrollX, canScrollY bool
@@ -22,7 +21,7 @@ type ScrollLayout struct {
 	innerSize              math.Size
 }
 
-func (l *ScrollLayout) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+func (l *ScrollLayout) Init(outer ContainerBaseOuter, theme gxui.Theme) {
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
 

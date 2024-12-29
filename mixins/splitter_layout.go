@@ -7,16 +7,15 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type SplitterLayoutOuter interface {
-	base.ContainerBaseOuter
+	ContainerBaseOuter
 	CreateSplitterBar() gxui.Control
 }
 
 type SplitterLayout struct {
-	base.ContainerBase
+	ContainerBase
 	outer         SplitterLayoutOuter
 	theme         gxui.Theme
 	orientation   gxui.Orientation

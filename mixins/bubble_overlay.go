@@ -7,12 +7,11 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type BubbleOverlay struct {
-	base.ContainerBase
-	outer       base.ContainerBaseOuter
+	ContainerBase
+	outer       ContainerBaseOuter
 	targetPoint math.Point
 	arrowLength int
 	arrowWidth  int
@@ -20,7 +19,7 @@ type BubbleOverlay struct {
 	pen         gxui.Pen
 }
 
-func (o *BubbleOverlay) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+func (o *BubbleOverlay) Init(outer ContainerBaseOuter, theme gxui.Theme) {
 	o.ContainerBase.Init(outer, theme)
 	o.outer = outer
 	o.arrowLength = 20

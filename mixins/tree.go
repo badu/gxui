@@ -7,7 +7,6 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type TreeOuter interface {
@@ -17,7 +16,7 @@ type TreeOuter interface {
 
 type Tree struct {
 	List
-	base.FocusablePart
+	FocusablePart
 	outer       TreeOuter
 	treeAdapter gxui.TreeAdapter
 	listAdapter *TreeToListAdapter

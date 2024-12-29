@@ -6,16 +6,15 @@ package mixins
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type LinearLayout struct {
-	base.ContainerBase
-	base.LinearLayoutPart
-	base.BackgroundBorderPainter
+	ContainerBase
+	LinearLayoutPart
+	BackgroundBorderPainter
 }
 
-func (l *LinearLayout) Init(outer base.ContainerBaseOuter, theme gxui.Theme) {
+func (l *LinearLayout) Init(outer ContainerBaseOuter, theme gxui.Theme) {
 	l.ContainerBase.Init(outer, theme)
 	l.LinearLayoutPart.Init(outer)
 	l.BackgroundBorderPainter.Init(outer)

@@ -7,13 +7,12 @@ package mixins
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins/base"
 )
 
 type SplitterBar struct {
-	base.ControlBase
+	ControlBase
 	onDrag          func(wndPnt math.Point)
-	outer           base.ControlBaseOuter
+	outer           ControlBaseOuter
 	theme           gxui.Theme
 	onDragStart     gxui.Event
 	onDragEnd       gxui.Event
@@ -22,7 +21,7 @@ type SplitterBar struct {
 	isDragging      bool
 }
 
-func (b *SplitterBar) Init(outer base.ControlBaseOuter, theme gxui.Theme) {
+func (b *SplitterBar) Init(outer ControlBaseOuter, theme gxui.Theme) {
 	b.ControlBase.Init(outer, theme)
 
 	b.outer = outer
