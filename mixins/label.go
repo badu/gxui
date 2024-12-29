@@ -13,7 +13,7 @@ import (
 
 type Label struct {
 	ControlBase
-	outer               ControlBaseOuter
+	outer               gxui.ControlBaseOuter
 	font                gxui.Font
 	color               gxui.Color
 	horizontalAlignment gxui.HorizontalAlignment
@@ -22,7 +22,7 @@ type Label struct {
 	text                string
 }
 
-func (l *Label) Init(outer ControlBaseOuter, theme gxui.Theme, font gxui.Font, color gxui.Color) {
+func (l *Label) Init(outer gxui.ControlBaseOuter, theme gxui.Theme, font gxui.Font, color gxui.Color) {
 	if font == nil {
 		panic("Cannot create a label with a nil font")
 	}

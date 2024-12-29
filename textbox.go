@@ -37,3 +37,24 @@ type TextBox interface {
 	LineStart(line int) int
 	LineEnd(line int) int
 }
+
+type TextBoxLine interface {
+	Control
+	RuneIndexAt(math.Point) int
+	PositionAt(int) math.Point
+}
+
+type TextBoxOuter interface {
+	ListOuter
+	CreateLine(theme Theme, index int) (line TextBoxLine, container Control)
+}
+
+type DefaultTextBoxLineOuter interface {
+	ControlBaseOuter
+	MeasureRunes(s, e int) math.Size
+	PaintText(c Canvas)
+	PaintCarets(c Canvas)
+	PaintCaret(c Canvas, top, bottom math.Point)
+	PaintSelections(c Canvas)
+	PaintSelection(c Canvas, top, bottom math.Point)
+}

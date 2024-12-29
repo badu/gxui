@@ -11,7 +11,7 @@ import (
 
 type ScrollBar struct {
 	ControlBase
-	outer               ControlBaseOuter
+	outer               gxui.ControlBaseOuter
 	orientation         gxui.Orientation
 	thickness           int
 	minBarLength        int
@@ -64,7 +64,7 @@ func (s *ScrollBar) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBar) Init(outer ControlBaseOuter, theme gxui.Theme) {
+func (s *ScrollBar) Init(outer gxui.ControlBaseOuter, theme gxui.Theme) {
 	s.ControlBase.Init(outer, theme)
 
 	s.outer = outer

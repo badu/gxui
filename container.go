@@ -33,6 +33,21 @@ type Container interface {
 	SetPadding(math.Spacing)
 }
 
+type ContainerBaseNoControlOuter interface {
+	Container
+	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
+	Paint(canvas Canvas)                             // was outer.Painter
+	LayoutChildren()                                 // was outer.LayoutChildren
+}
+
+type ContainerBaseOuter interface {
+	Container
+	Control
+	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
+	Paint(canvas Canvas)                             // was outer.Painter
+	LayoutChildren()                                 // was outer.LayoutChildren
+}
+
 // String returns a string describing the child type and bounds.
 func (c *Child) String() string {
 	return fmt.Sprintf("Type: %T, Bounds: %v", c.Control, c.Bounds())

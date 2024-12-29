@@ -13,7 +13,7 @@ type DropDownList struct {
 	ContainerBase
 	BackgroundBorderPainter
 	FocusablePart
-	outer       ContainerBaseOuter
+	outer       gxui.ContainerBaseOuter
 	theme       gxui.Theme
 	list        gxui.List
 	listShowing bool
@@ -24,7 +24,7 @@ type DropDownList struct {
 	onHideList  gxui.Event
 }
 
-func (l *DropDownList) Init(outer ContainerBaseOuter, theme gxui.Theme) {
+func (l *DropDownList) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
 	l.outer = outer
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)

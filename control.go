@@ -190,3 +190,10 @@ type Control interface {
 	// key-repeat event.
 	OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription
 }
+
+type ControlBaseOuter interface {
+	Control
+	Paint(canvas Canvas) // was outer.Painter
+	Redraw()             // was outer.Redrawer
+	Relayout()           // was outer.Relayouter
+}

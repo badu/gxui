@@ -14,7 +14,7 @@ type LinearLayout struct {
 	BackgroundBorderPainter
 }
 
-func (l *LinearLayout) Init(outer ContainerBaseOuter, theme gxui.Theme) {
+func (l *LinearLayout) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
 	l.ContainerBase.Init(outer, theme)
 	l.LinearLayoutPart.Init(outer)
 	l.BackgroundBorderPainter.Init(outer)

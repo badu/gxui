@@ -11,7 +11,7 @@ import (
 
 type BubbleOverlay struct {
 	ContainerBase
-	outer       ContainerBaseOuter
+	outer       gxui.ContainerBaseOuter
 	targetPoint math.Point
 	arrowLength int
 	arrowWidth  int
@@ -19,7 +19,7 @@ type BubbleOverlay struct {
 	pen         gxui.Pen
 }
 
-func (o *BubbleOverlay) Init(outer ContainerBaseOuter, theme gxui.Theme) {
+func (o *BubbleOverlay) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
 	o.ContainerBase.Init(outer, theme)
 	o.outer = outer
 	o.arrowLength = 20

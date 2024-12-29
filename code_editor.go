@@ -24,3 +24,8 @@ type CodeEditor interface {
 	ShowSuggestionList()
 	HideSuggestionList()
 }
+
+type CodeEditorOuter interface {
+	TextBoxOuter
+	CreateSuggestionList() List
+}

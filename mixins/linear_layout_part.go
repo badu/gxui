@@ -9,21 +9,15 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type LinearLayoutOuter interface {
-	gxui.Container
-	Size() math.Size           // was outer.Sized
-	SetSize(newSize math.Size) // was outer.Sized
-}
-
 type LinearLayoutPart struct {
-	outer               LinearLayoutOuter
+	outer               gxui.LinearLayoutOuter
 	direction           gxui.Direction
 	sizeMode            gxui.SizeMode
 	horizontalAlignment gxui.HorizontalAlignment
 	verticalAlignment   gxui.VerticalAlignment
 }
 
-func (l *LinearLayoutPart) Init(outer LinearLayoutOuter) {
+func (l *LinearLayoutPart) Init(outer gxui.LinearLayoutOuter) {
 	l.outer = outer
 }
 

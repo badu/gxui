@@ -91,3 +91,8 @@ type TreeAdapter interface {
 	// replacement of items in the adapter.
 	OnDataReplaced(f func()) EventSubscription
 }
+
+type TreeOuter interface {
+	ListOuter
+	PaintUnexpandedSelection(c Canvas, r math.Rect)
+}

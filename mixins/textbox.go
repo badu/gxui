@@ -11,22 +11,11 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type TextBoxLine interface {
-	gxui.Control
-	RuneIndexAt(math.Point) int
-	PositionAt(int) math.Point
-}
-
-type TextBoxOuter interface {
-	ListOuter
-	CreateLine(theme gxui.Theme, index int) (line TextBoxLine, container gxui.Control)
-}
-
 type TextBox struct {
 	List
 	gxui.AdapterBase
 	FocusablePart
-	outer             TextBoxOuter
+	outer             gxui.TextBoxOuter
 	driver            gxui.Driver
 	font              gxui.Font
 	textColor         gxui.Color
@@ -39,7 +28,7 @@ type TextBox struct {
 	desiredWidth      int
 }
 
-func (t *TextBox) lineMouseDown(line TextBoxLine, event gxui.MouseEvent) {
+func (t *TextBox) lineMouseDown(line gxui.TextBoxLine, event gxui.MouseEvent) {
 	if event.Button == gxui.MouseButtonLeft {
 		p := line.RuneIndexAt(event.Point)
 		t.selectionDragging = true
@@ -50,7 +39,7 @@ func (t *TextBox) lineMouseDown(line TextBoxLine, event gxui.MouseEvent) {
 	}
 }
 
-func (t *TextBox) lineMouseUp(line TextBoxLine, event gxui.MouseEvent) {
+func (t *TextBox) lineMouseUp(line gxui.TextBoxLine, event gxui.MouseEvent) {
 	if event.Button == gxui.MouseButtonLeft {
 		t.selectionDragging = false
 		if !event.Modifier.Control() {
@@ -61,7 +50,7 @@ func (t *TextBox) lineMouseUp(line TextBoxLine, event gxui.MouseEvent) {
 	}
 }
 
-func (t *TextBox) Init(outer TextBoxOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
+func (t *TextBox) Init(outer gxui.TextBoxOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
 	t.List.Init(outer, theme)
 	t.FocusablePart.Init(outer)
 	t.outer = outer
@@ -181,7 +170,7 @@ func (t *TextBox) Carets() []int {
 
 func (t *TextBox) RuneIndexAt(point math.Point) (int, bool) {
 	for _, child := range gxui.ControlsUnder(point, t) {
-		line, _ := child.Control.(TextBoxLine)
+		line, _ := child.Control.(gxui.TextBoxLine)
 		if line == nil {
 			continue
 		}
@@ -440,7 +429,7 @@ func (t *TextBox) MouseMove(event gxui.MouseEvent) {
 	}
 }
 
-func (t *TextBox) CreateLine(theme gxui.Theme, index int) (TextBoxLine, gxui.Control) {
+func (t *TextBox) CreateLine(theme gxui.Theme, index int) (gxui.TextBoxLine, gxui.Control) {
 	l := &DefaultTextBoxLine{}
 	l.Init(l, theme, t, index)
 	return l, l

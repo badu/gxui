@@ -16,3 +16,8 @@ type ProgressBar interface {
 	SetTarget(int)
 	Target() int
 }
+
+type ProgressBarOuter interface {
+	ControlBaseOuter
+	PaintProgress(Canvas, math.Rect, float32)
+}

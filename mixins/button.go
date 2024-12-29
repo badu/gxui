@@ -9,23 +9,17 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type ButtonOuter interface {
-	ContainerBaseOuter
-	IsChecked() bool
-	SetChecked(bool)
-}
-
 type Button struct {
 	LinearLayout
 	FocusablePart
-	outer      ButtonOuter
+	outer      gxui.ButtonOuter
 	theme      gxui.Theme
 	label      gxui.Label
 	buttonType gxui.ButtonType
 	checked    bool
 }
 
-func (b *Button) Init(outer ButtonOuter, theme gxui.Theme) {
+func (b *Button) Init(outer gxui.ButtonOuter, theme gxui.Theme) {
 	b.LinearLayout.Init(outer, theme)
 	b.FocusablePart.Init(outer)
 

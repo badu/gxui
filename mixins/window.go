@@ -9,22 +9,6 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type WindowOuter interface {
-	gxui.Window
-	Attached() bool                                            // was outer.Attachable
-	Attach()                                                   // was outer.Attachable
-	Detach()                                                   // was outer.Attachable
-	OnAttach(callback func()) gxui.EventSubscription           // was outer.Attachable
-	OnDetach(callback func()) gxui.EventSubscription           // was outer.Attachable
-	IsVisible() bool                                           // was outer.IsVisibler
-	LayoutChildren()                                           // was outer.LayoutChildren
-	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
-	Paint(canvas gxui.Canvas)                                  // was outer.Painter
-	Parent() gxui.Parent                                       // was outer.Parenter
-	Size() math.Size                                           // was outer.Sized
-	SetSize(newSize math.Size)                                 // was outer.Sized
-}
-
 type Window struct {
 	AttachablePart
 	BackgroundBorderPainter
@@ -32,7 +16,7 @@ type Window struct {
 	PaddablePart
 	PaintChildrenPart
 	driver                gxui.Driver
-	outer                 WindowOuter
+	outer                 gxui.WindowOuter
 	viewport              gxui.Viewport
 	windowedSize          math.Size
 	mouseController       *gxui.MouseController
@@ -85,7 +69,7 @@ func (w *Window) update() {
 	}
 }
 
-func (w *Window) Init(outer WindowOuter, driver gxui.Driver, width, height int, title string) {
+func (w *Window) Init(outer gxui.WindowOuter, driver gxui.Driver, width, height int, title string) {
 	w.AttachablePart.Init(outer)
 	w.BackgroundBorderPainter.Init(outer)
 	w.ContainerPart.Init(outer)

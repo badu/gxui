@@ -16,7 +16,7 @@ type PanelTab struct {
 	active bool
 }
 
-func CreatePanelTab(theme *Theme) mixins.PanelTab {
+func CreatePanelTab(theme *Theme) gxui.PanelTab {
 	t := &PanelTab{}
 	t.Button.Init(t, theme)
 	t.theme = theme

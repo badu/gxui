@@ -8,21 +8,6 @@ import (
 	"github.com/badu/gxui"
 )
 
-type ContainerBaseNoControlOuter interface {
-	gxui.Container
-	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
-	Paint(canvas gxui.Canvas)                                  // was outer.Painter
-	LayoutChildren()                                           // was outer.LayoutChildren
-}
-
-type ContainerBaseOuter interface {
-	gxui.Container
-	gxui.Control
-	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
-	Paint(canvas gxui.Canvas)                                  // was outer.Painter
-	LayoutChildren()                                           // was outer.LayoutChildren
-}
-
 type ContainerBase struct {
 	AttachablePart
 	ContainerPart
@@ -35,7 +20,7 @@ type ContainerBase struct {
 	VisiblePart
 }
 
-func (c *ContainerBase) Init(outer ContainerBaseOuter, theme gxui.Theme) {
+func (c *ContainerBase) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
 	c.AttachablePart.Init(outer)
 	c.ContainerPart.Init(outer)
 	c.DrawPaintPart.Init(outer, theme)

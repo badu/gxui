@@ -9,21 +9,16 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type SplitterLayoutOuter interface {
-	ContainerBaseOuter
-	CreateSplitterBar() gxui.Control
-}
-
 type SplitterLayout struct {
 	ContainerBase
-	outer         SplitterLayoutOuter
+	outer         gxui.SplitterLayoutOuter
 	theme         gxui.Theme
 	orientation   gxui.Orientation
 	splitterWidth int
 	weights       map[gxui.Control]float32
 }
 
-func (l *SplitterLayout) Init(outer SplitterLayoutOuter, theme gxui.Theme) {
+func (l *SplitterLayout) Init(outer gxui.SplitterLayoutOuter, theme gxui.Theme) {
 	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.theme = theme

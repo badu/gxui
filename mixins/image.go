@@ -12,7 +12,7 @@ import (
 type Image struct {
 	ControlBase
 	BackgroundBorderPainter
-	outer        ControlBaseOuter
+	outer        gxui.ControlBaseOuter
 	texture      gxui.Texture
 	canvas       gxui.Canvas
 	scalingMode  gxui.ScalingMode
@@ -40,7 +40,7 @@ func (i *Image) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *Image) Init(outer ControlBaseOuter, theme gxui.Theme) {
+func (i *Image) Init(outer gxui.ControlBaseOuter, theme gxui.Theme) {
 	i.outer = outer
 	i.ControlBase.Init(outer, theme)
 	i.BackgroundBorderPainter.Init(outer)

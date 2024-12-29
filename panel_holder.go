@@ -15,3 +15,19 @@ type PanelHolder interface {
 	Panel(int) Control
 	Tab(int) Control
 }
+
+type PanelTab interface {
+	Control
+	SetText(string)
+	SetActive(bool)
+}
+
+type PanelTabCreator interface {
+	CreatePanelTab() PanelTab
+}
+
+type PanelHolderOuter interface {
+	ContainerBaseNoControlOuter
+	PanelHolder
+	PanelTabCreator
+}

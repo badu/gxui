@@ -26,6 +26,15 @@ type List interface {
 	OnItemClicked(func(MouseEvent, AdapterItem)) EventSubscription
 }
 
+type ListOuter interface {
+	ContainerBaseOuter
+	ContainsItem(AdapterItem) bool
+	PaintBackground(c Canvas, r math.Rect)
+	PaintMouseOverBackground(c Canvas, r math.Rect)
+	PaintSelection(c Canvas, r math.Rect)
+	PaintBorder(c Canvas, r math.Rect)
+}
+
 // ListAdapter is an interface used to visualize a flat set of items.
 // Users of the ListAdapter should presume the data is unchanged until the
 // OnDataChanged or OnDataReplaced events are fired.

@@ -12,7 +12,7 @@ import (
 type SplitterBar struct {
 	ControlBase
 	onDrag          func(wndPnt math.Point)
-	outer           ControlBaseOuter
+	outer           gxui.ControlBaseOuter
 	theme           gxui.Theme
 	onDragStart     gxui.Event
 	onDragEnd       gxui.Event
@@ -21,7 +21,7 @@ type SplitterBar struct {
 	isDragging      bool
 }
 
-func (b *SplitterBar) Init(outer ControlBaseOuter, theme gxui.Theme) {
+func (b *SplitterBar) Init(outer gxui.ControlBaseOuter, theme gxui.Theme) {
 	b.ControlBase.Init(outer, theme)
 
 	b.outer = outer

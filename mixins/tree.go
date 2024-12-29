@@ -9,21 +9,16 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type TreeOuter interface {
-	ListOuter
-	PaintUnexpandedSelection(c gxui.Canvas, r math.Rect)
-}
-
 type Tree struct {
 	List
 	FocusablePart
-	outer       TreeOuter
+	outer       gxui.TreeOuter
 	treeAdapter gxui.TreeAdapter
 	listAdapter *TreeToListAdapter
 	creator     TreeControlCreator
 }
 
-func (t *Tree) Init(outer TreeOuter, theme gxui.Theme) {
+func (t *Tree) Init(outer gxui.TreeOuter, theme gxui.Theme) {
 	t.List.Init(outer, theme)
 	t.FocusablePart.Init(outer)
 	t.outer = outer

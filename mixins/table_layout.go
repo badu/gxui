@@ -19,13 +19,13 @@ func (c Cell) AtRow(y int) bool {
 
 type TableLayout struct {
 	ContainerBase
-	outer   ContainerBaseOuter
+	outer   gxui.ContainerBaseOuter
 	grid    map[gxui.Control]Cell
 	rows    int
 	columns int
 }
 
-func (l *TableLayout) Init(outer ContainerBaseOuter, theme gxui.Theme) {
+func (l *TableLayout) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
 	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.grid = make(map[gxui.Control]Cell)

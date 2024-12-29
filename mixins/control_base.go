@@ -9,13 +9,6 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type ControlBaseOuter interface {
-	gxui.Control
-	Paint(canvas gxui.Canvas) // was outer.Painter
-	Redraw()                  // was outer.Redrawer
-	Relayout()                // was outer.Relayouter
-}
-
 type ControlBase struct {
 	AttachablePart
 	DrawPaintPart
@@ -25,7 +18,7 @@ type ControlBase struct {
 	VisiblePart
 }
 
-func (c *ControlBase) Init(outer ControlBaseOuter, theme gxui.Theme) {
+func (c *ControlBase) Init(outer gxui.ControlBaseOuter, theme gxui.Theme) {
 	c.AttachablePart.Init(outer)
 	c.DrawPaintPart.Init(outer, theme)
 	c.LayoutablePart.Init(outer, theme)

@@ -11,14 +11,9 @@ import (
 	"strings"
 )
 
-type CodeEditorOuter interface {
-	TextBoxOuter
-	CreateSuggestionList() gxui.List
-}
-
 type CodeEditor struct {
 	TextBox
-	outer              CodeEditorOuter
+	outer              gxui.CodeEditorOuter
 	layers             gxui.CodeSyntaxLayers
 	suggestionAdapter  *SuggestionAdapter
 	suggestionList     gxui.List
@@ -27,7 +22,7 @@ type CodeEditor struct {
 	theme              gxui.Theme
 }
 
-func (t *CodeEditor) Init(outer CodeEditorOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
+func (t *CodeEditor) Init(outer gxui.CodeEditorOuter, driver gxui.Driver, theme gxui.Theme, font gxui.Font) {
 	t.outer = outer
 	t.tabWidth = 2
 	t.theme = theme
@@ -128,14 +123,14 @@ func (t *CodeEditor) HideSuggestionList() {
 	}
 }
 
-func (t *CodeEditor) Line(idx int) TextBoxLine {
+func (t *CodeEditor) Line(idx int) gxui.TextBoxLine {
 	return gxui.FindControl(
 		t.ItemControl(idx).(gxui.Parent),
 		func(c gxui.Control) bool {
-			_, b := c.(TextBoxLine)
+			_, b := c.(gxui.TextBoxLine)
 			return b
 		},
-	).(TextBoxLine)
+	).(gxui.TextBoxLine)
 }
 
 // mixins.List overrides
@@ -220,7 +215,7 @@ func (t *CodeEditor) KeyStroke(event gxui.KeyStrokeEvent) bool {
 }
 
 // mixins.TextBox overrides
-func (t *CodeEditor) CreateLine(theme gxui.Theme, index int) (TextBoxLine, gxui.Control) {
+func (t *CodeEditor) CreateLine(theme gxui.Theme, index int) (gxui.TextBoxLine, gxui.Control) {
 	lineNumber := theme.CreateLabel()
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 

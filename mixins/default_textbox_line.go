@@ -10,26 +10,16 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type DefaultTextBoxLineOuter interface {
-	ControlBaseOuter
-	MeasureRunes(s, e int) math.Size
-	PaintText(c gxui.Canvas)
-	PaintCarets(c gxui.Canvas)
-	PaintCaret(c gxui.Canvas, top, bottom math.Point)
-	PaintSelections(c gxui.Canvas)
-	PaintSelection(c gxui.Canvas, top, bottom math.Point)
-}
-
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
 	ControlBase
-	outer      DefaultTextBoxLineOuter
+	outer      gxui.DefaultTextBoxLineOuter
 	textbox    *TextBox
 	lineIndex  int
 	caretWidth int
 }
 
-func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme gxui.Theme, textbox *TextBox, lineIndex int) {
+func (t *DefaultTextBoxLine) Init(outer gxui.DefaultTextBoxLineOuter, theme gxui.Theme, textbox *TextBox, lineIndex int) {
 	t.ControlBase.Init(outer, theme)
 	t.outer = outer
 	t.textbox = textbox

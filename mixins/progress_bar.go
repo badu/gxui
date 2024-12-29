@@ -9,20 +9,15 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type ProgressBarOuter interface {
-	ControlBaseOuter
-	PaintProgress(gxui.Canvas, math.Rect, float32)
-}
-
 type ProgressBar struct {
 	ControlBase
 	BackgroundBorderPainter
-	outer            ProgressBarOuter
+	outer            gxui.ProgressBarOuter
 	desiredSize      math.Size
 	progress, target int
 }
 
-func (b *ProgressBar) Init(outer ProgressBarOuter, theme gxui.Theme) {
+func (b *ProgressBar) Init(outer gxui.ProgressBarOuter, theme gxui.Theme) {
 	b.outer = outer
 	b.ControlBase.Init(outer, theme)
 	b.BackgroundBorderPainter.Init(outer)

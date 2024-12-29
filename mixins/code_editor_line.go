@@ -11,7 +11,7 @@ import (
 )
 
 type CodeEditorLineOuter interface {
-	DefaultTextBoxLineOuter
+	gxui.DefaultTextBoxLineOuter
 	PaintBackgroundSpans(c gxui.Canvas, info CodeEditorLinePaintInfo)
 	PaintGlyphs(c gxui.Canvas, info CodeEditorLinePaintInfo)
 	PaintBorders(c gxui.Canvas, info CodeEditorLinePaintInfo)

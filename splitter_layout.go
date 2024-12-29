@@ -12,3 +12,8 @@ type SplitterLayout interface {
 	Orientation() Orientation
 	SetOrientation(Orientation)
 }
+
+type SplitterLayoutOuter interface {
+	ContainerBaseOuter
+	CreateSplitterBar() Control
+}

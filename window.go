@@ -88,3 +88,19 @@ type Window interface {
 	OnKeyRepeat(func(KeyboardEvent)) EventSubscription
 	OnKeyStroke(func(KeyStrokeEvent)) EventSubscription
 }
+
+type WindowOuter interface {
+	Window
+	Attached() bool                                  // was outer.Attachable
+	Attach()                                         // was outer.Attachable
+	Detach()                                         // was outer.Attachable
+	OnAttach(callback func()) EventSubscription      // was outer.Attachable
+	OnDetach(callback func()) EventSubscription      // was outer.Attachable
+	IsVisible() bool                                 // was outer.IsVisibler
+	LayoutChildren()                                 // was outer.LayoutChildren
+	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
+	Paint(canvas Canvas)                             // was outer.Painter
+	Parent() Parent                                  // was outer.Parenter
+	Size() math.Size                                 // was outer.Sized
+	SetSize(newSize math.Size)                       // was outer.Sized
+}

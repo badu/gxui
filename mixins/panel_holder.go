@@ -11,31 +11,15 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type PanelTab interface {
-	gxui.Control
-	SetText(string)
-	SetActive(bool)
-}
-
-type PanelTabCreater interface {
-	CreatePanelTab() PanelTab
-}
-
-type PanelHolderOuter interface {
-	ContainerBaseNoControlOuter
-	gxui.PanelHolder
-	PanelTabCreater
-}
-
 type PanelEntry struct {
-	Tab                   PanelTab
+	Tab                   gxui.PanelTab
 	Panel                 gxui.Control
 	MouseDownSubscription gxui.EventSubscription
 }
 
 type PanelHolder struct {
 	ContainerBase
-	outer     PanelHolderOuter
+	outer     gxui.PanelHolderOuter
 	theme     gxui.Theme
 	tabLayout gxui.LinearLayout
 	entries   []PanelEntry
@@ -88,7 +72,7 @@ func beginTabDragging(holder gxui.PanelHolder, panel gxui.Control, name string, 
 	})
 }
 
-func (p *PanelHolder) Init(outer PanelHolderOuter, theme gxui.Theme) {
+func (p *PanelHolder) Init(outer gxui.PanelHolderOuter, theme gxui.Theme) {
 	p.ContainerBase.Init(outer, theme)
 
 	p.outer = outer

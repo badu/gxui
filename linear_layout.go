@@ -4,6 +4,8 @@
 
 package gxui
 
+import "github.com/badu/gxui/math"
+
 // LinearLayout is a Container that lays out its child Controls into a column or
 // row. The layout will always start by positioning the first (0'th) child, and
 // then depending on the direction, will position each successive child either
@@ -64,4 +66,10 @@ type LinearLayout interface {
 	// SetBackgroundBrush sets the Brush used to fill the LinearLayout's
 	// background.
 	SetBackgroundBrush(Brush)
+}
+
+type LinearLayoutOuter interface {
+	Container
+	Size() math.Size           // was outer.Sized
+	SetSize(newSize math.Size) // was outer.Sized
 }

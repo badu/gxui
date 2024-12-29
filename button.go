@@ -20,3 +20,9 @@ type Button interface {
 	IsChecked() bool
 	SetChecked(bool)
 }
+
+type ButtonOuter interface {
+	ContainerBaseOuter
+	IsChecked() bool
+	SetChecked(bool)
+}

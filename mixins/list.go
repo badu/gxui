@@ -11,15 +11,6 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type ListOuter interface {
-	ContainerBaseOuter
-	ContainsItem(gxui.AdapterItem) bool
-	PaintBackground(c gxui.Canvas, r math.Rect)
-	PaintMouseOverBackground(c gxui.Canvas, r math.Rect)
-	PaintSelection(c gxui.Canvas, r math.Rect)
-	PaintBorder(c gxui.Canvas, r math.Rect)
-}
-
 type itemDetails struct {
 	child               *gxui.Child
 	index               int
@@ -31,7 +22,7 @@ type List struct {
 	ContainerBase
 	BackgroundBorderPainter
 	FocusablePart
-	outer                    ListOuter
+	outer                    gxui.ListOuter
 	theme                    gxui.Theme
 	adapter                  gxui.ListAdapter
 	scrollBar                gxui.ScrollBar
@@ -52,7 +43,7 @@ type List struct {
 	dataReplacedSubscription gxui.EventSubscription
 }
 
-func (l *List) Init(outer ListOuter, theme gxui.Theme) {
+func (l *List) Init(outer gxui.ListOuter, theme gxui.Theme) {
 	l.outer = outer
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)

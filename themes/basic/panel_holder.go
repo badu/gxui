@@ -23,7 +23,7 @@ func CreatePanelHolder(theme *Theme) gxui.PanelHolder {
 	return p
 }
 
-func (p *PanelHolder) CreatePanelTab() mixins.PanelTab {
+func (p *PanelHolder) CreatePanelTab() gxui.PanelTab {
 	return CreatePanelTab(p.theme)
 }
 
