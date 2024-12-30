@@ -32,7 +32,7 @@ type CodeEditor interface {
 }
 
 type CodeEditorOuter interface {
-	TextBoxOuter
+	ParentTextBox
 	CreateSuggestionList() List
 }
 
@@ -44,10 +44,10 @@ type CodeEditorImpl struct {
 	suggestionList     List
 	suggestionProvider CodeSuggestionProvider
 	tabWidth           int
-	theme              Theme
+	theme              App
 }
 
-func (t *CodeEditorImpl) Init(outer CodeEditorOuter, driver Driver, theme Theme, font Font) {
+func (t *CodeEditorImpl) Init(outer CodeEditorOuter, driver Driver, theme App, font Font) {
 	t.outer = outer
 	t.tabWidth = 2
 	t.theme = theme
@@ -60,7 +60,7 @@ func (t *CodeEditorImpl) Init(outer CodeEditorOuter, driver Driver, theme Theme,
 	t.controller.OnTextChanged(t.updateSpans)
 }
 
-func (t *CodeEditorImpl) ItemSize(theme Theme) math.Size {
+func (t *CodeEditorImpl) ItemSize(theme App) math.Size {
 	return math.Size{W: math.MaxSize.W, H: t.font.GlyphMaxSize().H}
 }
 
@@ -240,7 +240,7 @@ func (t *CodeEditorImpl) KeyStroke(event KeyStrokeEvent) bool {
 }
 
 // mixins.TextBoxImpl overrides
-func (t *CodeEditorImpl) CreateLine(theme Theme, index int) (TextBoxLine, Control) {
+func (t *CodeEditorImpl) CreateLine(theme App, index int) (TextBoxLine, Control) {
 	lineNumber := theme.CreateLabel()
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 

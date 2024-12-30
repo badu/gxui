@@ -38,7 +38,7 @@ func verifyDetach(outer DrawPaintOuter) {
 	}
 }
 
-func (d *DrawPaintPart) Init(outer DrawPaintOuter, theme Theme) {
+func (d *DrawPaintPart) Init(outer DrawPaintOuter, theme App) {
 	d.outer = outer
 	d.driver = theme.Driver()
 

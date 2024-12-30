@@ -32,7 +32,7 @@ type CodeEditorLine struct {
 	editor *CodeEditorImpl
 }
 
-func (l *CodeEditorLine) Init(outer CodeEditorLineOuter, theme Theme, ce *CodeEditorImpl, lineIndex int) {
+func (l *CodeEditorLine) Init(outer CodeEditorLineOuter, theme App, ce *CodeEditorImpl, lineIndex int) {
 	l.DefaultTextBoxLine.Init(outer, theme, &ce.TextBoxImpl, lineIndex)
 	l.outer = outer
 	l.editor = ce

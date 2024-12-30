@@ -11,7 +11,7 @@ import (
 )
 
 // Create a PanelHolderImpl with a 3 panels
-func panelHolder(name string, theme gxui.Theme) gxui.PanelHolder {
+func panelHolder(name string, theme gxui.App) gxui.PanelHolder {
 	label := func(text string) gxui.Label {
 		label := theme.CreateLabel()
 		label.SetText(text)

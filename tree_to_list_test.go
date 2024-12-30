@@ -15,10 +15,10 @@ type testTreeNode struct {
 	children []*testTreeNode
 }
 
-func (n *testTreeNode) Count() int                 { return len(n.children) }
-func (n *testTreeNode) NodeAt(index int) TreeNode  { return n.children[index] }
-func (n *testTreeNode) Item() AdapterItem          { return n.item }
-func (n *testTreeNode) Create(theme Theme) Control { return nil }
+func (n *testTreeNode) Count() int                { return len(n.children) }
+func (n *testTreeNode) NodeAt(index int) TreeNode { return n.children[index] }
+func (n *testTreeNode) Item() AdapterItem         { return n.item }
+func (n *testTreeNode) Create(theme App) Control  { return nil }
 
 func (n *testTreeNode) ItemIndex(item AdapterItem) int {
 	for i, c := range n.children {
@@ -37,7 +37,7 @@ type testTreeAdapter struct {
 	testTreeNode
 }
 
-func (n *testTreeNode) Size(theme Theme) math.Size { return math.ZeroSize }
+func (n *testTreeNode) Size(theme App) math.Size { return math.ZeroSize }
 
 // n creates and returns a testTreeNode with the item i and children c.
 func n(i AdapterItem, c ...*testTreeNode) *testTreeNode {

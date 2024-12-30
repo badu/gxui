@@ -68,7 +68,7 @@ func (a *filesAdapter) ItemIndex(item gxui.AdapterItem) int {
 	return -1 // Not found
 }
 
-func (a *filesAdapter) Create(theme gxui.Theme, index int) gxui.Control {
+func (a *filesAdapter) Create(theme gxui.App, index int) gxui.Control {
 	path := a.files[index]
 	_, name := filepath.Split(path)
 	label := theme.CreateLabel()
@@ -81,7 +81,7 @@ func (a *filesAdapter) Create(theme gxui.Theme, index int) gxui.Control {
 	return label
 }
 
-func (a *filesAdapter) Size(theme gxui.Theme) math.Size {
+func (a *filesAdapter) Size(theme gxui.App) math.Size {
 	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
 }
 
@@ -139,7 +139,7 @@ func (d directory) Item() gxui.AdapterItem {
 }
 
 // Create implements gxui.TreeNode.
-func (d directory) Create(theme gxui.Theme) gxui.Control {
+func (d directory) Create(theme gxui.App) gxui.Control {
 	_, name := filepath.Split(d.path)
 	if name == "" {
 		name = d.path
@@ -157,12 +157,12 @@ type directoryAdapter struct {
 	directory
 }
 
-func (a directoryAdapter) Size(theme gxui.Theme) math.Size {
+func (a directoryAdapter) Size(theme gxui.App) math.Size {
 	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
 }
 
 // Override directory.Create so that the full root is shown, unaltered.
-func (a directoryAdapter) Create(theme gxui.Theme, index int) gxui.Control {
+func (a directoryAdapter) Create(theme gxui.App, index int) gxui.Control {
 	l := theme.CreateLabel()
 	l.SetText(a.subdirs[index])
 	l.SetColor(directoryColor)

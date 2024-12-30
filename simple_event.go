@@ -9,7 +9,7 @@ type SimpleEvent struct {
 }
 
 func CreateEvent(signature interface{}) Event {
-	e := &SimpleEvent{}
-	e.init(signature)
-	return e
+	result := &SimpleEvent{}
+	result.init(signature)
+	return result
 }

@@ -19,7 +19,7 @@ type eventBaseSubscription struct {
 	id    int
 }
 
-func (s *eventBaseSubscription) Unlisten() {
+func (s *eventBaseSubscription) Forget() {
 	if s.event != nil {
 		s.event.unlisten(s.id)
 		s.event = nil

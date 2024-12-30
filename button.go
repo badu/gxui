@@ -24,7 +24,7 @@ type Button interface {
 }
 
 type ButtonOuter interface {
-	ContainerBaseOuter
+	ParentBaseContainer
 	IsChecked() bool
 	SetChecked(bool)
 }
@@ -33,13 +33,13 @@ type ButtonImpl struct {
 	LinearLayoutImpl
 	FocusablePart
 	outer      ButtonOuter
-	theme      Theme
+	theme      App
 	label      Label
 	buttonType ButtonType
 	checked    bool
 }
 
-func (b *ButtonImpl) Init(outer ButtonOuter, theme Theme) {
+func (b *ButtonImpl) Init(outer ButtonOuter, theme App) {
 	b.LinearLayoutImpl.Init(outer, theme)
 	b.FocusablePart.Init()
 

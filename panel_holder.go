@@ -40,7 +40,7 @@ type PanelHolderOuter interface {
 type PanelHolderImpl struct {
 	ContainerBase
 	outer     PanelHolderOuter
-	theme     Theme
+	theme     App
 	tabLayout LinearLayout
 	entries   []PanelEntry
 	selected  PanelEntry
@@ -70,29 +70,33 @@ func insertIndex(holder PanelHolder, at math.Point) int {
 
 func beginTabDragging(holder PanelHolder, panel Control, name string, window Window) {
 	var mms, mos EventSubscription
-	mms = window.OnMouseMove(func(ev MouseEvent) {
-		for _, c := range TopControlsUnder(ev.WindowPoint, ev.Window) {
-			if over, ok := c.Control.(PanelHolder); ok {
-				insertAt := insertIndex(over, c.Point)
-				if over == holder {
-					if insertAt > over.PanelIndex(panel) {
-						insertAt--
+	mms = window.OnMouseMove(
+		func(event MouseEvent) {
+			for _, c := range TopControlsUnder(event.WindowPoint, event.Window) {
+				if over, ok := c.Control.(PanelHolder); ok {
+					insertAt := insertIndex(over, c.Point)
+					if over == holder {
+						if insertAt > over.PanelIndex(panel) {
+							insertAt--
+						}
 					}
+					holder.RemovePanel(panel)
+					holder = over
+					holder.AddPanelAt(panel, name, insertAt)
+					holder.Select(insertAt)
 				}
-				holder.RemovePanel(panel)
-				holder = over
-				holder.AddPanelAt(panel, name, insertAt)
-				holder.Select(insertAt)
 			}
-		}
-	})
-	mos = window.OnMouseUp(func(MouseEvent) {
-		mms.Unlisten()
-		mos.Unlisten()
-	})
+		},
+	)
+	mos = window.OnMouseUp(
+		func(event MouseEvent) {
+			mms.Forget()
+			mos.Forget()
+		},
+	)
 }
 
-func (p *PanelHolderImpl) Init(outer PanelHolderOuter, theme Theme) {
+func (p *PanelHolderImpl) Init(outer PanelHolderOuter, theme App) {
 	p.ContainerBase.Init(outer, theme)
 
 	p.outer = outer
@@ -170,7 +174,7 @@ func (p *PanelHolderImpl) RemovePanel(panel Control) {
 	}
 
 	entry := p.entries[index]
-	entry.MouseDownSubscription.Unlisten()
+	entry.MouseDownSubscription.Forget()
 	p.entries = append(p.entries[:index], p.entries[index+1:]...)
 	p.tabLayout.RemoveChildAt(index)
 

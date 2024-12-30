@@ -28,7 +28,7 @@ type LayoutablePart struct {
 	inLayoutChildren  bool // True when calling LayoutChildren
 }
 
-func (l *LayoutablePart) Init(outer LayoutableOuter, theme Theme) {
+func (l *LayoutablePart) Init(outer LayoutableOuter, theme App) {
 	l.outer = outer
 	l.driver = theme.Driver()
 }

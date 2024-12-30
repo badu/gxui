@@ -30,7 +30,7 @@ type List interface {
 }
 
 type ListOuter interface {
-	ContainerBaseOuter
+	ParentBaseContainer
 	ContainsItem(AdapterItem) bool
 	PaintBackground(c Canvas, r math.Rect)
 	PaintMouseOverBackground(c Canvas, r math.Rect)
@@ -57,11 +57,11 @@ type ListAdapter interface {
 	ItemIndex(item AdapterItem) int
 
 	// Create returns a Control visualizing the item at the specified index.
-	Create(theme Theme, index int) Control
+	Create(theme App, index int) Control
 
 	// Size returns the size that each of the item's controls will be displayed
 	// at for the given theme.
-	Size(Theme) math.Size
+	Size(App) math.Size
 
 	// OnDataChanged registers f to be called when there is a partial change in
 	// the items of the adapter. Scroll positions and selections should be
@@ -87,7 +87,7 @@ type ListImpl struct {
 	BackgroundBorderPainter
 	FocusablePart
 	outer                    ListOuter
-	theme                    Theme
+	theme                    App
 	adapter                  ListAdapter
 	scrollBar                ScrollBar
 	scrollBarChild           *Child
@@ -107,7 +107,7 @@ type ListImpl struct {
 	dataReplacedSubscription EventSubscription
 }
 
-func (l *ListImpl) Init(outer ListOuter, theme Theme) {
+func (l *ListImpl) Init(outer ListOuter, theme App) {
 	l.outer = outer
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
@@ -215,7 +215,7 @@ func (l *ListImpl) LayoutChildren() {
 	// Reap unused items
 	for item, detail := range l.details {
 		if detail.mark != mark {
-			detail.onClickSubscription.Unlisten()
+			detail.onClickSubscription.Forget()
 			l.RemoveChild(detail.child.Control)
 			delete(l.details, item)
 		}
@@ -350,7 +350,7 @@ func (l *ListImpl) SizeChanged() {
 func (l *ListImpl) DataChanged(recreateControls bool) {
 	if recreateControls {
 		for item, details := range l.details {
-			details.onClickSubscription.Unlisten()
+			details.onClickSubscription.Forget()
 			l.RemoveChild(details.child.Control)
 			delete(l.details, item)
 		}
@@ -404,7 +404,7 @@ func (l *ListImpl) ContainsItem(item AdapterItem) bool {
 
 func (l *ListImpl) RemoveAll() {
 	for _, details := range l.details {
-		details.onClickSubscription.Unlisten()
+		details.onClickSubscription.Forget()
 		l.outer.RemoveChild(details.child.Control)
 	}
 	l.details = make(map[AdapterItem]itemDetails)
@@ -499,8 +499,8 @@ func (l *ListImpl) Adapter() ListAdapter {
 func (l *ListImpl) SetAdapter(adapter ListAdapter) {
 	if l.adapter != adapter {
 		if l.adapter != nil {
-			l.dataChangedSubscription.Unlisten()
-			l.dataReplacedSubscription.Unlisten()
+			l.dataChangedSubscription.Forget()
+			l.dataReplacedSubscription.Forget()
 		}
 		l.adapter = adapter
 		if l.adapter != nil {

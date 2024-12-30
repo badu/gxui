@@ -16,7 +16,7 @@ type ContainerBase struct {
 	VisiblePart
 }
 
-func (c *ContainerBase) Init(outer ContainerBaseOuter, theme Theme) {
+func (c *ContainerBase) Init(outer ParentBaseContainer, theme App) {
 	c.AttachablePart.Init()
 	c.ContainerPart.Init(outer)
 	c.DrawPaintPart.Init(outer, theme)

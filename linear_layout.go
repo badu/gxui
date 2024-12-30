@@ -80,7 +80,7 @@ type LinearLayoutImpl struct {
 	BackgroundBorderPainter
 }
 
-func (l *LinearLayoutImpl) Init(outer ContainerBaseOuter, theme Theme) {
+func (l *LinearLayoutImpl) Init(outer ParentBaseContainer, theme App) {
 	l.ContainerBase.Init(outer, theme)
 	l.LinearLayoutPart.Init(outer)
 	l.BackgroundBorderPainter.Init(outer)

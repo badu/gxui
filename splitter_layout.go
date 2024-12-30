@@ -18,20 +18,20 @@ type SplitterLayout interface {
 }
 
 type SplitterLayoutOuter interface {
-	ContainerBaseOuter
+	ParentBaseContainer
 	CreateSplitterBar() Control
 }
 
 type SplitterLayoutImpl struct {
 	ContainerBase
 	outer         SplitterLayoutOuter
-	theme         Theme
+	theme         App
 	orientation   Orientation
 	splitterWidth int
 	weights       map[Control]float32
 }
 
-func (l *SplitterLayoutImpl) Init(outer SplitterLayoutOuter, theme Theme) {
+func (l *SplitterLayoutImpl) Init(outer SplitterLayoutOuter, theme App) {
 	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.theme = theme

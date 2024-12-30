@@ -74,7 +74,7 @@ func (s *ScrollBarImpl) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBarImpl) Init(outer ControlBaseOuter, theme Theme) {
+func (s *ScrollBarImpl) Init(outer ControlBaseOuter, theme App) {
 	s.ControlBase.Init(outer, theme)
 
 	s.outer = outer
@@ -235,8 +235,8 @@ func (s *ScrollBarImpl) MouseDown(event MouseEvent) {
 			s.SetScrollPosition(s.rangeAt(p.Sub(initialOffset)))
 		})
 		mus = event.Window.OnMouseUp(func(we MouseEvent) {
-			mms.Unlisten()
-			mus.Unlisten()
+			mms.Forget()
+			mus.Forget()
 		})
 	}
 	s.InputEventHandlerPart.MouseDown(event)

@@ -12,7 +12,7 @@ import (
 )
 
 type Viewer interface {
-	View(theme Theme) Control
+	View(theme App) Control
 }
 
 type Stringer interface {
@@ -24,7 +24,7 @@ type DefaultAdapter struct {
 	items       reflect.Value
 	itemToIndex map[AdapterItem]int
 	size        math.Size
-	styleLabel  func(Theme, Label)
+	styleLabel  func(App, Label)
 }
 
 func CreateDefaultAdapter() *DefaultAdapter {
@@ -34,7 +34,7 @@ func CreateDefaultAdapter() *DefaultAdapter {
 	return l
 }
 
-func (a *DefaultAdapter) SetSizeAsLargest(theme Theme) {
+func (a *DefaultAdapter) SetSizeAsLargest(theme App) {
 	s := math.Size{}
 	font := theme.DefaultFont()
 	for i := 0; i < a.Count(); i++ {
@@ -56,7 +56,7 @@ func (a *DefaultAdapter) SetSizeAsLargest(theme Theme) {
 	a.SetSize(s)
 }
 
-func (a *DefaultAdapter) SetStyleLabel(providerFn func(Theme, Label)) {
+func (a *DefaultAdapter) SetStyleLabel(providerFn func(App, Label)) {
 	a.styleLabel = providerFn
 	a.DataChanged(true)
 }
@@ -96,7 +96,7 @@ func (a *DefaultAdapter) ItemIndex(item AdapterItem) int {
 	return a.itemToIndex[item]
 }
 
-func (a *DefaultAdapter) Size(theme Theme) math.Size {
+func (a *DefaultAdapter) Size(theme App) math.Size {
 	return a.size
 }
 
@@ -105,7 +105,7 @@ func (a *DefaultAdapter) SetSize(s math.Size) {
 	a.DataChanged(true)
 }
 
-func (a *DefaultAdapter) Create(theme Theme, index int) Control {
+func (a *DefaultAdapter) Create(theme App, index int) Control {
 	switch t := a.ItemAt(index).(type) {
 	case Viewer:
 		return t.View(theme)

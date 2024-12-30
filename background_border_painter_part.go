@@ -25,10 +25,12 @@ func (b *BackgroundBorderPainter) Init(outer BackgroundBorderPainterOuter) {
 }
 
 func (b *BackgroundBorderPainter) PaintBackground(canvas Canvas, rect math.Rect) {
-	if b.brush.Color.A != 0 {
-		w := b.pen.Width
-		canvas.DrawRoundedRect(rect, w, w, w, w, TransparentPen, b.brush)
+	if b.brush.Color.A == 0 {
+		return
 	}
+
+	w := b.pen.Width
+	canvas.DrawRoundedRect(rect, w, w, w, w, TransparentPen, b.brush)
 }
 
 func (b *BackgroundBorderPainter) PaintBorder(canvas Canvas, rect math.Rect) {
@@ -43,10 +45,12 @@ func (b *BackgroundBorderPainter) BackgroundBrush() Brush {
 }
 
 func (b *BackgroundBorderPainter) SetBackgroundBrush(brush Brush) {
-	if b.brush != brush {
-		b.brush = brush
-		b.outer.Redraw()
+	if b.brush == brush {
+		return
 	}
+
+	b.brush = brush
+	b.outer.Redraw()
 }
 
 func (b *BackgroundBorderPainter) BorderPen() Pen {
@@ -54,8 +58,10 @@ func (b *BackgroundBorderPainter) BorderPen() Pen {
 }
 
 func (b *BackgroundBorderPainter) SetBorderPen(pen Pen) {
-	if b.pen != pen {
-		b.pen = pen
-		b.outer.Redraw()
+	if b.pen == pen {
+		return
 	}
+
+	b.pen = pen
+	b.outer.Redraw()
 }

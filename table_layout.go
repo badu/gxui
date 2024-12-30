@@ -25,13 +25,13 @@ func (c Cell) AtRow(y int) bool {
 
 type TableLayoutImpl struct {
 	ContainerBase
-	outer   ContainerBaseOuter
+	outer   ParentBaseContainer
 	grid    map[Control]Cell
 	rows    int
 	columns int
 }
 
-func (l *TableLayoutImpl) Init(outer ContainerBaseOuter, theme Theme) {
+func (l *TableLayoutImpl) Init(outer ParentBaseContainer, theme App) {
 	l.ContainerBase.Init(outer, theme)
 	l.outer = outer
 	l.grid = make(map[Control]Cell)

@@ -40,7 +40,7 @@ type ContainerBaseNoControlOuter interface {
 	LayoutChildren()                                 // was outer.LayoutChildren
 }
 
-type ContainerBaseOuter interface {
+type ParentBaseContainer interface {
 	Container
 	Control
 	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder

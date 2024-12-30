@@ -64,7 +64,7 @@ func (n *node) Item() gxui.AdapterItem {
 }
 
 // Create implements gxui.TreeNode.
-func (n *node) Create(theme gxui.Theme) gxui.Control {
+func (n *node) Create(theme gxui.App) gxui.Control {
 	layout := theme.CreateLinearLayout()
 	layout.SetDirection(gxui.LeftToRight)
 
@@ -113,7 +113,7 @@ type adapter struct {
 }
 
 // Size implements gxui.TreeAdapter.
-func (a *adapter) Size(theme gxui.Theme) math.Size {
+func (a *adapter) Size(theme gxui.App) math.Size {
 	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
 }
 

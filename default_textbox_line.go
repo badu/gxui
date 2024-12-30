@@ -18,7 +18,7 @@ type DefaultTextBoxLine struct {
 	caretWidth int
 }
 
-func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme Theme, textbox *TextBoxImpl, lineIndex int) {
+func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme App, textbox *TextBoxImpl, lineIndex int) {
 	t.ControlBase.Init(outer, theme)
 	t.outer = outer
 	t.textbox = textbox
@@ -26,7 +26,7 @@ func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme Theme, te
 	t.SetCaretWidth(2)
 	t.OnAttach(func() {
 		ev := t.textbox.OnRedrawLines(t.Redraw)
-		t.OnDetach(ev.Unlisten)
+		t.OnDetach(ev.Forget)
 	})
 }
 

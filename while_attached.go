@@ -36,7 +36,7 @@ func WhileAttached(control Control, event, callback interface{}) {
 	}
 
 	control.OnAttach(bind)
-	control.OnDetach(func() { subscription.Unlisten() })
+	control.OnDetach(func() { subscription.Forget() })
 }
 
 func verifyWhileAttachedSignature(event, callback interface{}) error {

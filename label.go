@@ -36,7 +36,7 @@ type LabelImpl struct {
 	text                string
 }
 
-func (l *LabelImpl) Init(outer ControlBaseOuter, theme Theme, font Font, color Color) {
+func (l *LabelImpl) Init(outer ControlBaseOuter, theme App, font Font, color Color) {
 	if font == nil {
 		panic("Cannot create a label with a nil font")
 	}

@@ -441,7 +441,7 @@ func (w *WindowImpl) KeyStroke(event KeyStrokeEvent) {}
 
 func (w *WindowImpl) setViewport(viewport Viewport) {
 	for _, subscription := range w.viewportSubscriptions {
-		subscription.Unlisten()
+		subscription.Forget()
 	}
 
 	w.viewport = viewport

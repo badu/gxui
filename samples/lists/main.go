@@ -14,7 +14,7 @@ import (
 )
 
 // Number picker uses the gxui.DefaultAdapter for driving a list
-func numberPicker(theme gxui.Theme, overlay gxui.BubbleOverlay) gxui.Control {
+func numberPicker(theme gxui.App, overlay gxui.BubbleOverlay) gxui.Control {
 	items := []string{
 		"zero", "one", "two", "three", "four", "five",
 		"six", "seven", "eight", "nine", "ten",
@@ -82,11 +82,11 @@ func (a *customAdapter) ItemIndex(item gxui.AdapterItem) int {
 	return item.(int) // Inverse of ItemAt()
 }
 
-func (a *customAdapter) Size(theme gxui.Theme) math.Size {
+func (a *customAdapter) Size(theme gxui.App) math.Size {
 	return math.Size{W: 100, H: 100}
 }
 
-func (a *customAdapter) Create(theme gxui.Theme, index int) gxui.Control {
+func (a *customAdapter) Create(theme gxui.App, index int) gxui.Control {
 	phase := float32(index) / 1000
 	c := gxui.Color{
 		R: 0.5 + 0.5*math.Sinf(math.TwoPi*(phase+0.000)),
@@ -113,7 +113,7 @@ func (a *customAdapter) Create(theme gxui.Theme, index int) gxui.Control {
 }
 
 // Color picker uses the customAdapter for driving a list
-func colorPicker(theme gxui.Theme) gxui.Control {
+func colorPicker(theme gxui.App) gxui.Control {
 	layout := theme.CreateLinearLayout()
 	layout.SetDirection(gxui.TopToBottom)
 

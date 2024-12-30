@@ -12,12 +12,12 @@ import (
 type TreeControlCreator interface {
 	// Create returns a Control that contains control (returned by the backing
 	// TreeNode) and visualizes the expanded state of node.
-	Create(theme Theme, control Control, node *TreeToListNode) Control
+	Create(theme App, control Control, node *TreeToListNode) Control
 
 	// Size returns the size that each of the controls returned by Create will
 	// be displayed at for the given theme.
 	// treeControlSize is the size returned the backing TreeNode.
-	Size(theme Theme, treeControlSize math.Size) math.Size
+	Size(theme App, treeControlSize math.Size) math.Size
 }
 
 // TreeToListAdapter converts a TreeAdapter to a ListAdapter so that the
@@ -75,7 +75,7 @@ func (a *TreeToListAdapter) Count() int {
 
 // Create returns a Control visualizing the item at the specified index in the
 // list of all the expanded nodes treated as as a flattened list.
-func (a *TreeToListAdapter) Create(theme Theme, index int) Control {
+func (a *TreeToListAdapter) Create(theme App, index int) Control {
 	n := a.node.NodeAt(index)
 	c := n.container.(TreeNode).Create(theme)
 	return a.creator.Create(theme, c, n)
@@ -83,7 +83,7 @@ func (a *TreeToListAdapter) Create(theme Theme, index int) Control {
 
 // Size returns the size that each of the item's controls will be displayed
 // at for the given theme.
-func (a *TreeToListAdapter) Size(theme Theme) math.Size {
+func (a *TreeToListAdapter) Size(theme App) math.Size {
 	return a.creator.Size(theme, a.adapter.Size(theme))
 }
 

@@ -101,9 +101,9 @@ func (c *ToolTipController) AddToolTip(control Control, delaySeconds float32, cr
 				c.timer.Stop()
 				c.timer = nil
 			}
-			tracker.onEnterES.Unlisten()
-			tracker.onExitES.Unlisten()
-			tracker.onMoveES.Unlisten()
+			tracker.onEnterES.Forget()
+			tracker.onExitES.Forget()
+			tracker.onMoveES.Forget()
 		},
 	)
 

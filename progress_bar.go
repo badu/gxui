@@ -30,7 +30,7 @@ type ProgressBarImpl struct {
 	progress, target int
 }
 
-func (b *ProgressBarImpl) Init(outer ProgressBarOuter, theme Theme) {
+func (b *ProgressBarImpl) Init(outer ProgressBarOuter, theme App) {
 	b.outer = outer
 	b.ControlBase.Init(outer, theme)
 	b.BackgroundBorderPainter.Init(outer)

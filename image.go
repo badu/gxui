@@ -73,7 +73,7 @@ func (i *ImageImpl) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *ImageImpl) Init(outer ControlBaseOuter, theme Theme) {
+func (i *ImageImpl) Init(outer ControlBaseOuter, theme App) {
 	i.outer = outer
 	i.ControlBase.Init(outer, theme)
 	i.BackgroundBorderPainter.Init(outer)

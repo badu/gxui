@@ -150,21 +150,21 @@ func TestEventUnlisten(t *testing.T) {
 	test.AssertEquals(t, 1, j)
 	test.AssertEquals(t, 1, k)
 
-	subJ.Unlisten()
+	subJ.Forget()
 
 	e.Fire()
 	test.AssertEquals(t, 2, i)
 	test.AssertEquals(t, 1, j)
 	test.AssertEquals(t, 2, k)
 
-	subK.Unlisten()
+	subK.Forget()
 
 	e.Fire()
 	test.AssertEquals(t, 3, i)
 	test.AssertEquals(t, 1, j)
 	test.AssertEquals(t, 2, k)
 
-	subI.Unlisten()
+	subI.Forget()
 
 	e.Fire()
 	test.AssertEquals(t, 3, i)

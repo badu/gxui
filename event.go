@@ -9,7 +9,7 @@ import (
 )
 
 type EventSubscription interface {
-	Unlisten()
+	Forget()
 }
 
 type Event interface {

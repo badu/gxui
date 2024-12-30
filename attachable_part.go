@@ -20,6 +20,7 @@ func (a *AttachablePart) Attach() {
 	if a.attached {
 		panic("Control already attached")
 	}
+
 	a.attached = true
 	if a.onAttach != nil {
 		a.onAttach.Fire()
@@ -30,6 +31,7 @@ func (a *AttachablePart) Detach() {
 	if !a.attached {
 		panic("Control already detached")
 	}
+
 	a.attached = false
 	if a.onDetach != nil {
 		a.onDetach.Fire()
@@ -40,6 +42,7 @@ func (a *AttachablePart) OnAttach(callback func()) EventSubscription {
 	if a.onAttach == nil {
 		a.onAttach = CreateEvent(func() {})
 	}
+
 	return a.onAttach.Listen(callback)
 }
 
@@ -47,5 +50,6 @@ func (a *AttachablePart) OnDetach(callback func()) EventSubscription {
 	if a.onDetach == nil {
 		a.onDetach = CreateEvent(func() {})
 	}
+
 	return a.onDetach.Listen(callback)
 }

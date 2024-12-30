@@ -67,7 +67,7 @@ type TreeNode interface {
 	Item() AdapterItem
 
 	// Create returns a Control visualizing this node.
-	Create(theme Theme) Control
+	Create(theme App) Control
 }
 
 // TreeAdapter is an interface used to visualize a set of hierarchical items.
@@ -78,7 +78,7 @@ type TreeAdapter interface {
 
 	// Size returns the size that each of the item's controls will be displayed
 	// at for the given theme.
-	Size(Theme) math.Size
+	Size(App) math.Size
 
 	// OnDataChanged registers f to be called when there is a partial change in
 	// the items of the adapter. Scroll positions and selections should be
@@ -106,7 +106,7 @@ type TreeImpl struct {
 	creator     TreeControlCreator
 }
 
-func (t *TreeImpl) Init(outer TreeOuter, theme Theme) {
+func (t *TreeImpl) Init(outer TreeOuter, theme App) {
 	t.ListImpl.Init(outer, theme)
 	t.FocusablePart.Init()
 	t.outer = outer
@@ -210,7 +210,7 @@ func (t *TreeImpl) KeyPress(event KeyboardEvent) bool {
 
 type defaultTreeControlCreator struct{}
 
-func (defaultTreeControlCreator) Create(theme Theme, control Control, node *TreeToListNode) Control {
+func (defaultTreeControlCreator) Create(theme App, control Control, node *TreeToListNode) Control {
 	ll := theme.CreateLinearLayout()
 	ll.SetDirection(LeftToRight)
 
@@ -242,6 +242,6 @@ func (defaultTreeControlCreator) Create(theme Theme, control Control, node *Tree
 	return ll
 }
 
-func (defaultTreeControlCreator) Size(theme Theme, treeControlSize math.Size) math.Size {
+func (defaultTreeControlCreator) Size(theme App, treeControlSize math.Size) math.Size {
 	return treeControlSize
 }

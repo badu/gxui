@@ -12,7 +12,7 @@ type SplitterBar struct {
 	ControlBase
 	onDrag          func(wndPnt math.Point)
 	outer           ControlBaseOuter
-	theme           Theme
+	theme           App
 	onDragStart     Event
 	onDragEnd       Event
 	backgroundColor Color
@@ -20,7 +20,7 @@ type SplitterBar struct {
 	isDragging      bool
 }
 
-func (b *SplitterBar) Init(outer ControlBaseOuter, theme Theme) {
+func (b *SplitterBar) Init(outer ControlBaseOuter, theme App) {
 	b.ControlBase.Init(outer, theme)
 
 	b.outer = outer
@@ -75,8 +75,8 @@ func (b *SplitterBar) MouseDown(event MouseEvent) {
 		}
 	})
 	mus = event.Window.OnMouseUp(func(we MouseEvent) {
-		mms.Unlisten()
-		mus.Unlisten()
+		mms.Forget()
+		mus.Forget()
 		b.isDragging = false
 		b.onDragEnd.Fire(we)
 	})

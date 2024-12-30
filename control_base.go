@@ -17,7 +17,7 @@ type ControlBase struct {
 	VisiblePart
 }
 
-func (c *ControlBase) Init(outer ControlBaseOuter, theme Theme) {
+func (c *ControlBase) Init(outer ControlBaseOuter, theme App) {
 	c.AttachablePart.Init()
 	c.DrawPaintPart.Init(outer, theme)
 	c.LayoutablePart.Init(outer, theme)

@@ -28,8 +28,8 @@ type DropDownListImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
 	FocusablePart
-	outer       ContainerBaseOuter
-	theme       Theme
+	outer       ParentBaseContainer
+	theme       App
 	list        List
 	listShowing bool
 	itemSize    math.Size
@@ -39,7 +39,7 @@ type DropDownListImpl struct {
 	onHideList  Event
 }
 
-func (l *DropDownListImpl) Init(outer ContainerBaseOuter, theme Theme) {
+func (l *DropDownListImpl) Init(outer ParentBaseContainer, theme App) {
 	l.outer = outer
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
@@ -181,7 +181,7 @@ func (l *DropDownListImpl) SetAdapter(adapter ListAdapter) {
 			adapter.OnDataChanged(func(bool) { l.DataReplaced() })
 			adapter.OnDataReplaced(l.DataReplaced)
 		}
-		// TODO: Unlisten
+		// TODO: Forget
 		l.DataReplaced()
 	}
 }

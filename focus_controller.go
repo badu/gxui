@@ -24,7 +24,7 @@ func (c *FocusController) SetFocus(target Focusable) {
 	if c.focus != nil {
 		o := c.focus
 		c.focus = nil
-		c.detachSubscription.Unlisten()
+		c.detachSubscription.Forget()
 		o.LostFocus()
 		if c.focus != nil {
 			return // Something in LostFocus() called SetFocus(). Respect their call.

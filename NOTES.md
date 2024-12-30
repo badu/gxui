@@ -28,3 +28,5 @@ monitor.
 ---
 
 [x] Moved `mixins` into main package, because I am planning to reduce the number of returned interfaces.
+
+[x] Promoted `theme` as `DefaultApp`, trying to break the interface dependency into a direct dependency.

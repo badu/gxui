@@ -45,9 +45,9 @@ type TextBoxLine interface {
 	PositionAt(int) math.Point
 }
 
-type TextBoxOuter interface {
+type ParentTextBox interface {
 	ListOuter
-	CreateLine(theme Theme, index int) (line TextBoxLine, container Control)
+	CreateLine(theme App, index int) (line TextBoxLine, container Control)
 }
 
 type DefaultTextBoxLineOuter interface {
@@ -64,7 +64,7 @@ type TextBoxImpl struct {
 	ListImpl
 	AdapterBase
 	FocusablePart
-	outer             TextBoxOuter
+	outer             ParentTextBox
 	driver            Driver
 	font              Font
 	textColor         Color
@@ -99,7 +99,7 @@ func (t *TextBoxImpl) lineMouseUp(line TextBoxLine, event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) Init(outer TextBoxOuter, driver Driver, theme Theme, font Font) {
+func (t *TextBoxImpl) Init(outer ParentTextBox, driver Driver, theme App, font Font) {
 	t.ListImpl.Init(outer, theme)
 	t.FocusablePart.Init()
 	t.outer = outer
@@ -478,7 +478,7 @@ func (t *TextBoxImpl) MouseMove(event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) CreateLine(theme Theme, index int) (TextBoxLine, Control) {
+func (t *TextBoxImpl) CreateLine(theme App, index int) (TextBoxLine, Control) {
 	l := &DefaultTextBoxLine{}
 	l.Init(l, theme, t, index)
 	return l, l
@@ -507,12 +507,12 @@ func (t *TextBoxAdapter) ItemIndex(item AdapterItem) int {
 	return item.(int)
 }
 
-func (t *TextBoxAdapter) Size(theme Theme) math.Size {
+func (t *TextBoxAdapter) Size(theme App) math.Size {
 	tb := t.TextBox
 	return math.Size{W: tb.desiredWidth, H: tb.font.GlyphMaxSize().H}
 }
 
-func (t *TextBoxAdapter) Create(theme Theme, index int) Control {
+func (t *TextBoxAdapter) Create(theme App, index int) Control {
 	line, container := t.TextBox.outer.CreateLine(theme, index)
 	line.OnMouseDown(func(ev MouseEvent) {
 		t.TextBox.lineMouseDown(line, ev)

@@ -22,8 +22,8 @@ type ScrollLayout interface {
 type ScrollLayoutImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
-	outer                  ContainerBaseOuter
-	theme                  Theme
+	outer                  ParentBaseContainer
+	theme                  App
 	scrollOffset           math.Point
 	canScrollX, canScrollY bool
 	scrollBarX, scrollBarY *Child
@@ -31,7 +31,7 @@ type ScrollLayoutImpl struct {
 	innerSize              math.Size
 }
 
-func (l *ScrollLayoutImpl) Init(outer ContainerBaseOuter, theme Theme) {
+func (l *ScrollLayoutImpl) Init(outer ParentBaseContainer, theme App) {
 	l.ContainerBase.Init(outer, theme)
 	l.BackgroundBorderPainter.Init(outer)
 

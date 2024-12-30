@@ -16,7 +16,7 @@ type BubbleOverlay interface {
 
 type BubbleOverlayImpl struct {
 	ContainerBase
-	outer       ContainerBaseOuter
+	outer       ParentBaseContainer
 	targetPoint math.Point
 	arrowLength int
 	arrowWidth  int
@@ -24,7 +24,7 @@ type BubbleOverlayImpl struct {
 	pen         Pen
 }
 
-func (o *BubbleOverlayImpl) Init(outer ContainerBaseOuter, theme Theme) {
+func (o *BubbleOverlayImpl) Init(outer ParentBaseContainer, theme App) {
 	o.ContainerBase.Init(outer, theme)
 	o.outer = outer
 	o.arrowLength = 20
