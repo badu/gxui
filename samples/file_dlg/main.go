@@ -184,11 +184,13 @@ func appMain(driver gxui.Driver) {
 	// It uses the directoryAdapter to show the entire system's directory
 	// hierarchy.
 	directories := theme.CreateTree()
-	directories.SetAdapter(&directoryAdapter{
-		directory: directory{
-			subdirs: roots.Roots(),
+	directories.SetAdapter(
+		&directoryAdapter{
+			directory: directory{
+				subdirs: roots.Roots(),
+			},
 		},
-	})
+	)
 
 	// filesAdapter is the adapter used to show the currently selected directory's
 	// content. The adapter has its data changed whenever the selected directory

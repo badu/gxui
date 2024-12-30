@@ -8,7 +8,7 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type PaintChildrenOuter interface {
+type PaintChildrenParent interface {
 	Container
 	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
 	Size() math.Size                                 // was outer.Sized
@@ -16,19 +16,19 @@ type PaintChildrenOuter interface {
 }
 
 type PaintChildrenPart struct {
-	outer PaintChildrenOuter
+	parent PaintChildrenParent
 }
 
-func (p *PaintChildrenPart) Init(outer PaintChildrenOuter) {
-	p.outer = outer
+func (p *PaintChildrenPart) Init(parent PaintChildrenParent) {
+	p.parent = parent
 }
 
 func (p *PaintChildrenPart) Paint(canvas Canvas) {
-	for i, v := range p.outer.Children() {
+	for i, v := range p.parent.Children() {
 		if v.Control.IsVisible() {
 			canvas.Push()
 			canvas.AddClip(v.Control.Size().Rect().Offset(v.Offset))
-			p.outer.PaintChild(canvas, v, i)
+			p.parent.PaintChild(canvas, v, i)
 			canvas.Pop()
 		}
 	}

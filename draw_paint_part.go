@@ -12,7 +12,7 @@ import (
 
 const debugVerifyDetachOnGC = false
 
-type DrawPaintOuter interface {
+type DrawPaintParent interface {
 	Attached() bool                             // was outer.Attachable
 	Attach()                                    // was outer.Attachable
 	Detach()                                    // was outer.Attachable
@@ -25,25 +25,25 @@ type DrawPaintOuter interface {
 }
 
 type DrawPaintPart struct {
-	outer           DrawPaintOuter
+	parent          DrawPaintParent
 	driver          Driver
 	canvas          Canvas
 	dirty           bool
 	redrawRequested bool
 }
 
-func verifyDetach(outer DrawPaintOuter) {
-	if outer.Attached() {
-		panic(fmt.Errorf("%T garbage collected while still attached", outer))
+func verifyDetach(parent DrawPaintParent) {
+	if parent.Attached() {
+		panic(fmt.Errorf("%T garbage collected while still attached", parent))
 	}
 }
 
-func (d *DrawPaintPart) Init(outer DrawPaintOuter, theme App) {
-	d.outer = outer
-	d.driver = theme.Driver()
+func (d *DrawPaintPart) Init(parent DrawPaintParent, app App) {
+	d.parent = parent
+	d.driver = app.Driver()
 
 	if debugVerifyDetachOnGC {
-		runtime.SetFinalizer(d.outer, verifyDetach)
+		runtime.SetFinalizer(d.parent, verifyDetach)
 	}
 }
 
@@ -51,7 +51,7 @@ func (d *DrawPaintPart) Redraw() {
 	d.driver.AssertUIGoroutine()
 
 	if !d.redrawRequested {
-		if p := d.outer.Parent(); p != nil {
+		if p := d.parent.Parent(); p != nil {
 			d.redrawRequested = true
 			p.Redraw()
 		}
@@ -59,11 +59,11 @@ func (d *DrawPaintPart) Redraw() {
 }
 
 func (d *DrawPaintPart) Draw() Canvas {
-	if !d.outer.Attached() {
-		panic(fmt.Errorf("attempting to draw a non-attached control %T", d.outer))
+	if !d.parent.Attached() {
+		panic(fmt.Errorf("attempting to draw a non-attached control %T", d.parent))
 	}
 
-	size := d.outer.Size()
+	size := d.parent.Size()
 	if size.Area() == 0 {
 		return nil // No area to draw in
 	}
@@ -71,7 +71,7 @@ func (d *DrawPaintPart) Draw() Canvas {
 	if d.canvas == nil || d.canvas.Size() != size || d.redrawRequested {
 		d.canvas = d.driver.CreateCanvas(size)
 		d.redrawRequested = false
-		d.outer.Paint(d.canvas)
+		d.parent.Paint(d.canvas)
 		d.canvas.Complete()
 	}
 

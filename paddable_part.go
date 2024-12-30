@@ -8,24 +8,24 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type PaddableOuter interface {
+type PaddableParent interface {
 	LayoutChildren() // was outer.LayoutChildren
 	Redraw()         // was outer.Redrawer
 }
 
 type PaddablePart struct {
-	outer   PaddableOuter
+	parent  PaddableParent
 	padding math.Spacing
 }
 
-func (p *PaddablePart) Init(outer PaddableOuter) {
-	p.outer = outer
+func (p *PaddablePart) Init(parent PaddableParent) {
+	p.parent = parent
 }
 
 func (p *PaddablePart) SetPadding(m math.Spacing) {
 	p.padding = m
-	p.outer.LayoutChildren()
-	p.outer.Redraw()
+	p.parent.LayoutChildren()
+	p.parent.Redraw()
 }
 
 func (p *PaddablePart) Padding() math.Spacing {

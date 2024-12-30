@@ -16,7 +16,7 @@ type BubbleOverlay interface {
 
 type BubbleOverlayImpl struct {
 	ContainerBase
-	outer       ParentBaseContainer
+	parent      BaseContainerParent
 	targetPoint math.Point
 	arrowLength int
 	arrowWidth  int
@@ -24,16 +24,16 @@ type BubbleOverlayImpl struct {
 	pen         Pen
 }
 
-func (o *BubbleOverlayImpl) Init(outer ParentBaseContainer, theme App) {
-	o.ContainerBase.Init(outer, theme)
-	o.outer = outer
+func (o *BubbleOverlayImpl) Init(parent BaseContainerParent, app App) {
+	o.ContainerBase.Init(parent, app)
+	o.parent = parent
 	o.arrowLength = 20
 	o.arrowWidth = 15
 }
 
 func (o *BubbleOverlayImpl) LayoutChildren() {
-	for _, child := range o.outer.Children() {
-		bounds := o.outer.Size().Rect().Contract(o.outer.Padding())
+	for _, child := range o.parent.Children() {
+		bounds := o.parent.Size().Rect().Contract(o.parent.Padding())
 		arrowPadding := math.CreateSpacing(o.arrowLength)
 		cm := child.Control.Margin()
 		cs := child.Control.DesiredSize(math.ZeroSize, bounds.Size().Contract(cm).Max(math.ZeroSize))
@@ -48,12 +48,12 @@ func (o *BubbleOverlayImpl) DesiredSize(min, max math.Size) math.Size {
 
 func (o *BubbleOverlayImpl) Show(control Control, point math.Point) {
 	o.Hide()
-	o.outer.AddChild(control)
+	o.parent.AddChild(control)
 	o.targetPoint = point
 }
 
 func (o *BubbleOverlayImpl) Hide() {
-	o.outer.RemoveAll()
+	o.parent.RemoveAll()
 }
 
 func (o *BubbleOverlayImpl) Brush() Brush {
@@ -83,8 +83,8 @@ func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
 		return
 	}
 
-	for _, child := range o.outer.Children() {
-		expandedBounds := child.Bounds().Expand(o.outer.Padding())
+	for _, child := range o.parent.Children() {
+		expandedBounds := child.Bounds().Expand(o.parent.Padding())
 		targetPoint := o.targetPoint
 		halfWidth := o.arrowWidth / 2
 		var polygon Polygon

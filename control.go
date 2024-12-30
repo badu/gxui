@@ -191,9 +191,35 @@ type Control interface {
 	OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription
 }
 
-type ControlBaseOuter interface {
+type ControlBaseParent interface {
 	Control
 	Paint(canvas Canvas) // was outer.Painter
 	Redraw()             // was outer.Redrawer
 	Relayout()           // was outer.Relayouter
+}
+
+type ControlBase struct {
+	AttachablePart
+	DrawPaintPart
+	InputEventHandlerPart
+	LayoutablePart
+	ParentablePart
+	VisiblePart
+}
+
+func (c *ControlBase) Init(parent ControlBaseParent, app App) {
+	c.AttachablePart.Init()
+	c.DrawPaintPart.Init(parent, app)
+	c.LayoutablePart.Init(parent, app)
+	c.InputEventHandlerPart.Init()
+	c.ParentablePart.Init()
+	c.VisiblePart.Init(parent)
+}
+
+func (c *ControlBase) DesiredSize(min, max math.Size) math.Size {
+	return max
+}
+
+func (c *ControlBase) ContainsPoint(point math.Point) bool {
+	return c.IsVisible() && c.Size().Rect().Contains(point)
 }

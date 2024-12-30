@@ -29,8 +29,8 @@ type List interface {
 	OnItemClicked(func(MouseEvent, AdapterItem)) EventSubscription
 }
 
-type ListOuter interface {
-	ParentBaseContainer
+type ListParent interface {
+	BaseContainerParent
 	ContainsItem(AdapterItem) bool
 	PaintBackground(c Canvas, r math.Rect)
 	PaintMouseOverBackground(c Canvas, r math.Rect)
@@ -61,7 +61,7 @@ type ListAdapter interface {
 
 	// Size returns the size that each of the item's controls will be displayed
 	// at for the given theme.
-	Size(App) math.Size
+	Size(app App) math.Size
 
 	// OnDataChanged registers f to be called when there is a partial change in
 	// the items of the adapter. Scroll positions and selections should be
@@ -86,8 +86,8 @@ type ListImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
 	FocusablePart
-	outer                    ListOuter
-	theme                    App
+	parent                   ListParent
+	app                      App
 	adapter                  ListAdapter
 	scrollBar                ScrollBar
 	scrollBarChild           *Child
@@ -107,14 +107,14 @@ type ListImpl struct {
 	dataReplacedSubscription EventSubscription
 }
 
-func (l *ListImpl) Init(outer ListOuter, theme App) {
-	l.outer = outer
-	l.ContainerBase.Init(outer, theme)
-	l.BackgroundBorderPainter.Init(outer)
+func (l *ListImpl) Init(parent ListParent, app App) {
+	l.parent = parent
+	l.ContainerBase.Init(parent, app)
+	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
 
-	l.theme = theme
-	l.scrollBar = theme.CreateScrollBar()
+	l.app = app
+	l.scrollBar = app.CreateScrollBar()
 	l.scrollBarChild = l.AddChild(l.scrollBar)
 	l.scrollBarEnabled = true
 	l.scrollBar.OnScroll(func(from, to int) { l.SetScrollOffset(from) })
@@ -148,7 +148,7 @@ func (l *ListImpl) UpdateItemMouseOver() {
 
 func (l *ListImpl) LayoutChildren() {
 	if l.adapter == nil {
-		l.outer.RemoveAll()
+		l.parent.RemoveAll()
 		return
 	}
 
@@ -158,7 +158,7 @@ func (l *ListImpl) LayoutChildren() {
 		defer l.SetRelayoutSuspended(false)
 	}
 
-	size := l.outer.Size().Contract(l.Padding())
+	size := l.parent.Size().Contract(l.Padding())
 	offset := l.Padding().LT()
 
 	var itemSize math.Size
@@ -182,10 +182,10 @@ func (l *ListImpl) LayoutChildren() {
 		details, found := l.details[item]
 		if found {
 			if details.mark == mark {
-				panic(fmt.Errorf("adapter for control '%s' returned duplicate item (%v) for indices %v and %v", Path(l.outer), item, details.index, idx))
+				panic(fmt.Errorf("adapter for control '%s' returned duplicate item (%v) for indices %v and %v", Path(l.parent), item, details.index, idx))
 			}
 		} else {
-			control := l.adapter.Create(l.theme, idx)
+			control := l.adapter.Create(l.app, idx)
 			details.onClickSubscription = control.OnClick(
 				func(ev MouseEvent) {
 					l.ItemClicked(ev, item)
@@ -265,7 +265,7 @@ func (l *ListImpl) DesiredSize(min, max math.Size) math.Size {
 		}
 	}
 
-	return size.Expand(l.outer.Padding()).Clamp(min, max)
+	return size.Expand(l.parent.Padding()).Clamp(min, max)
 }
 
 func (l *ListImpl) ScrollBarEnabled(bool) bool {
@@ -284,7 +284,7 @@ func (l *ListImpl) SetScrollOffset(scrollOffset int) {
 		return
 	}
 
-	size := l.outer.Size().Contract(l.outer.Padding())
+	size := l.parent.Size().Contract(l.parent.Padding())
 
 	if l.orientation.Horizontal() {
 		maxScroll := math.Max(l.itemSize.W*l.itemCount-size.W, 0)
@@ -311,8 +311,8 @@ func (l *ListImpl) VisibleItemRange(includePartiallyVisible bool) (int, int) {
 		return 0, 0
 	}
 
-	size := l.outer.Size()
-	padding := l.outer.Padding()
+	size := l.parent.Size()
+	padding := l.parent.Padding()
 	majorAxisItemSize := l.MajorAxisItemSize()
 	if majorAxisItemSize == 0 {
 		return 0, 0
@@ -341,10 +341,10 @@ func (l *ListImpl) VisibleItemRange(includePartiallyVisible bool) (int, int) {
 }
 
 func (l *ListImpl) SizeChanged() {
-	l.itemSize = l.adapter.Size(l.theme)
+	l.itemSize = l.adapter.Size(l.app)
 	l.scrollBar.SetScrollLimit(l.itemCount * l.MajorAxisItemSize())
 	l.SetScrollOffset(l.scrollOffset)
-	l.outer.Relayout()
+	l.parent.Relayout()
 }
 
 func (l *ListImpl) DataChanged(recreateControls bool) {
@@ -366,10 +366,10 @@ func (l *ListImpl) DataReplaced() {
 }
 
 func (l *ListImpl) Paint(canvas Canvas) {
-	rect := l.outer.Size().Rect()
-	l.outer.PaintBackground(canvas, rect)
+	rect := l.parent.Size().Rect()
+	l.parent.PaintBackground(canvas, rect)
 	l.ContainerBase.Paint(canvas)
-	l.outer.PaintBorder(canvas, rect)
+	l.parent.PaintBorder(canvas, rect)
 }
 
 func (l *ListImpl) PaintSelection(canvas Canvas, rect math.Rect) {
@@ -405,7 +405,7 @@ func (l *ListImpl) ContainsItem(item AdapterItem) bool {
 func (l *ListImpl) RemoveAll() {
 	for _, details := range l.details {
 		details.onClickSubscription.Forget()
-		l.outer.RemoveChild(details.child.Control)
+		l.parent.RemoveChild(details.child.Control)
 	}
 	l.details = make(map[AdapterItem]itemDetails)
 }
@@ -414,13 +414,13 @@ func (l *ListImpl) RemoveAll() {
 func (l *ListImpl) PaintChild(canvas Canvas, child *Child, idx int) {
 	if child == l.itemMouseOver {
 		b := child.Bounds().Expand(child.Control.Margin())
-		l.outer.PaintMouseOverBackground(canvas, b)
+		l.parent.PaintMouseOverBackground(canvas, b)
 	}
 	l.PaintChildrenPart.PaintChild(canvas, child, idx)
 	if selected, found := l.details[l.selectedItem]; found {
 		if child == selected.child {
 			b := child.Bounds().Expand(child.Control.Margin())
-			l.outer.PaintSelection(canvas, b)
+			l.parent.PaintSelection(canvas, b)
 		}
 	}
 }
@@ -574,7 +574,7 @@ func (l *ListImpl) Selected() AdapterItem {
 
 func (l *ListImpl) Select(item AdapterItem) bool {
 	if l.selectedItem != item {
-		if !l.outer.ContainsItem(item) {
+		if !l.parent.ContainsItem(item) {
 			return false
 		}
 		l.selectedItem = item

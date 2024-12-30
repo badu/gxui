@@ -25,26 +25,26 @@ func (c Cell) AtRow(y int) bool {
 
 type TableLayoutImpl struct {
 	ContainerBase
-	outer   ParentBaseContainer
+	parent  BaseContainerParent
 	grid    map[Control]Cell
 	rows    int
 	columns int
 }
 
-func (l *TableLayoutImpl) Init(outer ParentBaseContainer, theme App) {
-	l.ContainerBase.Init(outer, theme)
-	l.outer = outer
+func (l *TableLayoutImpl) Init(parent BaseContainerParent, app App) {
+	l.ContainerBase.Init(parent, app)
+	l.parent = parent
 	l.grid = make(map[Control]Cell)
 }
 
 func (l *TableLayoutImpl) LayoutChildren() {
-	size := l.outer.Size().Contract(l.outer.Padding())
-	offset := l.outer.Padding().LT()
+	size := l.parent.Size().Contract(l.parent.Padding())
+	offset := l.parent.Padding().LT()
 
 	columnWidth, columnHeight := size.W/l.columns, size.H/l.rows
 
 	var childRect math.Rect
-	for _, child := range l.outer.Children() {
+	for _, child := range l.parent.Children() {
 		childMargin := child.Control.Margin()
 		cell := l.grid[child.Control]
 

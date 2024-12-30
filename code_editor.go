@@ -31,32 +31,32 @@ type CodeEditor interface {
 	HideSuggestionList()
 }
 
-type CodeEditorOuter interface {
-	ParentTextBox
+type CodeEditorParent interface {
+	TextBoxParent
 	CreateSuggestionList() List
 }
 
 type CodeEditorImpl struct {
 	TextBoxImpl
-	outer              CodeEditorOuter
+	parent             CodeEditorParent
 	layers             CodeSyntaxLayers
 	suggestionAdapter  *SuggestionAdapter
 	suggestionList     List
 	suggestionProvider CodeSuggestionProvider
 	tabWidth           int
-	theme              App
+	app                App
 }
 
-func (t *CodeEditorImpl) Init(outer CodeEditorOuter, driver Driver, theme App, font Font) {
-	t.outer = outer
+func (t *CodeEditorImpl) Init(parent CodeEditorParent, driver Driver, app App, font Font) {
+	t.parent = parent
 	t.tabWidth = 2
-	t.theme = theme
+	t.app = app
 
 	t.suggestionAdapter = &SuggestionAdapter{}
-	t.suggestionList = t.outer.CreateSuggestionList()
+	t.suggestionList = t.parent.CreateSuggestionList()
 	t.suggestionList.SetAdapter(t.suggestionAdapter)
 
-	t.TextBoxImpl.Init(outer, driver, theme, font)
+	t.TextBoxImpl.Init(parent, driver, app, font)
 	t.controller.OnTextChanged(t.updateSpans)
 }
 
@@ -65,7 +65,7 @@ func (t *CodeEditorImpl) ItemSize(theme App) math.Size {
 }
 
 func (t *CodeEditorImpl) CreateSuggestionList() List {
-	list := t.theme.CreateList()
+	list := t.app.CreateList()
 	list.SetBackgroundBrush(DefaultBrush)
 	list.SetBorderPen(DefaultPen)
 	return list
@@ -102,7 +102,7 @@ func (t *CodeEditorImpl) SetSuggestionProvider(provider CodeSuggestionProvider) 
 }
 
 func (t *CodeEditorImpl) IsSuggestionListShowing() bool {
-	return t.outer.Children().Find(t.suggestionList) != nil
+	return t.parent.Children().Find(t.suggestionList) != nil
 }
 
 func (t *CodeEditorImpl) SortSuggestionList() {
@@ -134,7 +134,7 @@ func (t *CodeEditorImpl) ShowSuggestionList() {
 	// TODO: What if the last caret is not visible?
 	bounds := t.Size().Rect().Contract(t.Padding())
 	line := t.Line(lineIdx)
-	lineOffset := ChildToParent(math.ZeroPoint, line, t.outer)
+	lineOffset := ChildToParent(math.ZeroPoint, line, t.parent)
 	target := line.PositionAt(caret).Add(lineOffset)
 	cs := t.suggestionList.DesiredSize(math.ZeroSize, bounds.Size())
 	t.suggestionList.Select(t.suggestionList.Adapter().ItemAt(0))

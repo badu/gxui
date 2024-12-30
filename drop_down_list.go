@@ -28,8 +28,8 @@ type DropDownListImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
 	FocusablePart
-	outer       ParentBaseContainer
-	theme       App
+	parent      BaseContainerParent
+	app         App
 	list        List
 	listShowing bool
 	itemSize    math.Size
@@ -39,20 +39,20 @@ type DropDownListImpl struct {
 	onHideList  Event
 }
 
-func (l *DropDownListImpl) Init(outer ParentBaseContainer, theme App) {
-	l.outer = outer
-	l.ContainerBase.Init(outer, theme)
-	l.BackgroundBorderPainter.Init(outer)
+func (l *DropDownListImpl) Init(parent BaseContainerParent, app App) {
+	l.parent = parent
+	l.ContainerBase.Init(parent, app)
+	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
 
-	l.theme = theme
-	l.list = theme.CreateList()
+	l.app = app
+	l.list = app.CreateList()
 	l.list.OnSelectionChanged(
 		func(item AdapterItem) {
-			l.outer.RemoveAll()
+			l.parent.RemoveAll()
 			adapter := l.list.Adapter()
 			if item != nil && adapter != nil {
-				l.selected = l.AddChild(adapter.Create(l.theme, adapter.ItemIndex(item)))
+				l.selected = l.AddChild(adapter.Create(l.app, adapter.ItemIndex(item)))
 			} else {
 				l.selected = nil
 			}
@@ -61,13 +61,13 @@ func (l *DropDownListImpl) Init(outer ParentBaseContainer, theme App) {
 	)
 
 	l.list.OnItemClicked(
-		func(MouseEvent, AdapterItem) {
+		func(event MouseEvent, item AdapterItem) {
 			l.HideList()
 		},
 	)
 	l.list.OnKeyPress(
-		func(ev KeyboardEvent) {
-			switch ev.Key {
+		func(event KeyboardEvent) {
+			switch event.Key {
 			case KeyEnter, KeyEscape:
 				l.HideList()
 			}
@@ -87,7 +87,7 @@ func (l *DropDownListImpl) LayoutChildren() {
 	}
 
 	if l.selected != nil {
-		size := l.outer.Size().Contract(l.Padding()).Max(math.ZeroSize)
+		size := l.parent.Size().Contract(l.Padding()).Max(math.ZeroSize)
 		offset := l.Padding().LT()
 		l.selected.Layout(size.Rect().Offset(offset))
 	}
@@ -95,17 +95,17 @@ func (l *DropDownListImpl) LayoutChildren() {
 
 func (l *DropDownListImpl) DesiredSize(min, max math.Size) math.Size {
 	if l.selected != nil {
-		return l.selected.Control.DesiredSize(min, max).Expand(l.outer.Padding()).Clamp(min, max)
+		return l.selected.Control.DesiredSize(min, max).Expand(l.parent.Padding()).Clamp(min, max)
 	} else {
-		return l.itemSize.Expand(l.outer.Padding()).Clamp(min, max)
+		return l.itemSize.Expand(l.parent.Padding()).Clamp(min, max)
 	}
 }
 
 func (l *DropDownListImpl) DataReplaced() {
 	adapter := l.list.Adapter()
-	itemSize := adapter.Size(l.theme)
+	itemSize := adapter.Size(l.app)
 	l.itemSize = itemSize
-	l.outer.Relayout()
+	l.parent.Relayout()
 }
 
 func (l *DropDownListImpl) ListShowing() bool {
@@ -120,7 +120,7 @@ func (l *DropDownListImpl) ShowList() bool {
 	l.listShowing = true
 	size := l.Size()
 	at := math.Point{X: size.W / 2, Y: size.H}
-	l.overlay.Show(l.list, TransformCoordinate(at, l.outer, l.overlay))
+	l.overlay.Show(l.list, TransformCoordinate(at, l.parent, l.overlay))
 
 	SetFocus(l.list)
 
@@ -181,7 +181,7 @@ func (l *DropDownListImpl) SetAdapter(adapter ListAdapter) {
 			adapter.OnDataChanged(func(bool) { l.DataReplaced() })
 			adapter.OnDataReplaced(l.DataReplaced)
 		}
-		// TODO: Forget
+		// TODO: Event.Forget()
 		l.DataReplaced()
 	}
 }
@@ -228,7 +228,7 @@ func (l *DropDownListImpl) KeyPress(event KeyboardEvent) (consume bool) {
 
 // parts.ContainerPart overrides
 func (l *DropDownListImpl) Paint(canvas Canvas) {
-	rect := l.outer.Size().Rect()
+	rect := l.parent.Size().Rect()
 	l.PaintBackground(canvas, rect)
 	l.ContainerBase.Paint(canvas)
 	l.PaintBorder(canvas, rect)

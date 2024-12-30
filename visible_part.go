@@ -4,18 +4,18 @@
 
 package gxui
 
-type VisibleOuter interface {
+type VisibleParent interface {
 	Parent() Parent // was outer.Parenter
 	Redraw()        // was outer.Redrawer
 }
 
 type VisiblePart struct {
-	outer   VisibleOuter
+	parent  VisibleParent
 	visible bool
 }
 
-func (v *VisiblePart) Init(outer VisibleOuter) {
-	v.outer = outer
+func (v *VisiblePart) Init(parent VisibleParent) {
+	v.parent = parent
 	v.visible = true
 }
 
@@ -26,8 +26,8 @@ func (v *VisiblePart) IsVisible() bool {
 func (v *VisiblePart) SetVisible(visible bool) {
 	if v.visible != visible {
 		v.visible = visible
-		if p := v.outer.Parent(); p != nil {
-			p.Redraw()
+		if grandParent := v.parent.Parent(); grandParent != nil {
+			grandParent.Redraw()
 		}
 	}
 }

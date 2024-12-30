@@ -5,7 +5,8 @@
 package gxui
 
 type TextSelection struct {
-	start, end   int
+	start        int
+	end          int
 	caretAtStart bool
 }
 

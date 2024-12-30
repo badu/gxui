@@ -45,13 +45,13 @@ type TextBoxLine interface {
 	PositionAt(int) math.Point
 }
 
-type ParentTextBox interface {
-	ListOuter
+type TextBoxParent interface {
+	ListParent
 	CreateLine(theme App, index int) (line TextBoxLine, container Control)
 }
 
-type DefaultTextBoxLineOuter interface {
-	ControlBaseOuter
+type DefaultTextBoxLineParent interface {
+	ControlBaseParent
 	MeasureRunes(s, e int) math.Size
 	PaintText(c Canvas)
 	PaintCarets(c Canvas)
@@ -64,7 +64,7 @@ type TextBoxImpl struct {
 	ListImpl
 	AdapterBase
 	FocusablePart
-	outer             ParentTextBox
+	parent            TextBoxParent
 	driver            Driver
 	font              Font
 	textColor         Color
@@ -99,10 +99,10 @@ func (t *TextBoxImpl) lineMouseUp(line TextBoxLine, event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) Init(outer ParentTextBox, driver Driver, theme App, font Font) {
-	t.ListImpl.Init(outer, theme)
+func (t *TextBoxImpl) Init(parent TextBoxParent, driver Driver, app App, font Font) {
+	t.ListImpl.Init(parent, app)
 	t.FocusablePart.Init()
-	t.outer = outer
+	t.parent = parent
 	t.driver = driver
 	t.font = font
 	t.onRedrawLines = CreateEvent(func() {})
@@ -124,11 +124,11 @@ func (t *TextBoxImpl) Init(outer ParentTextBox, driver Driver, theme App, font F
 }
 
 func (t *TextBoxImpl) textRect() math.Rect {
-	return t.outer.Size().Rect().Contract(t.Padding())
+	return t.parent.Size().Rect().Contract(t.Padding())
 }
 
 func (t *TextBoxImpl) pageLines() int {
-	return (t.outer.Size().H - t.outer.Padding().H()) / t.MajorAxisItemSize()
+	return (t.parent.Size().H - t.parent.Padding().H()) / t.MajorAxisItemSize()
 }
 
 func (t *TextBoxImpl) OnRedrawLines(callback func()) EventSubscription {
@@ -153,7 +153,7 @@ func (t *TextBoxImpl) Text() string {
 
 func (t *TextBoxImpl) SetText(text string) {
 	t.controller.SetText(text)
-	t.outer.Relayout()
+	t.parent.Relayout()
 }
 
 func (t *TextBoxImpl) TextColor() Color {
@@ -184,7 +184,7 @@ func (t *TextBoxImpl) SetMultiline(multiline bool) {
 	if t.multiline != multiline {
 		t.multiline = multiline
 		t.SetScrollBarEnabled(multiline)
-		t.outer.Relayout()
+		t.parent.Relayout()
 	}
 }
 
@@ -224,7 +224,7 @@ func (t *TextBoxImpl) RuneIndexAt(point math.Point) (int, bool) {
 			continue
 		}
 
-		point = ParentToChild(point, t.outer, line)
+		point = ParentToChild(point, t.parent, line)
 		return line.RuneIndexAt(point), true
 	}
 	return -1, false
@@ -513,7 +513,7 @@ func (t *TextBoxAdapter) Size(theme App) math.Size {
 }
 
 func (t *TextBoxAdapter) Create(theme App, index int) Control {
-	line, container := t.TextBox.outer.CreateLine(theme, index)
+	line, container := t.TextBox.parent.CreateLine(theme, index)
 	line.OnMouseDown(func(ev MouseEvent) {
 		t.TextBox.lineMouseDown(line, ev)
 	})

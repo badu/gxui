@@ -9,8 +9,8 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type CodeEditorLineOuter interface {
-	DefaultTextBoxLineOuter
+type CodeEditorLineParent interface {
+	DefaultTextBoxLineParent
 	PaintBackgroundSpans(c Canvas, info CodeEditorLinePaintInfo)
 	PaintGlyphs(c Canvas, info CodeEditorLinePaintInfo)
 	PaintBorders(c Canvas, info CodeEditorLinePaintInfo)
@@ -28,14 +28,14 @@ type CodeEditorLinePaintInfo struct {
 // CodeEditorLine
 type CodeEditorLine struct {
 	DefaultTextBoxLine
-	outer  CodeEditorLineOuter
+	parent CodeEditorLineParent
 	editor *CodeEditorImpl
 }
 
-func (l *CodeEditorLine) Init(outer CodeEditorLineOuter, theme App, ce *CodeEditorImpl, lineIndex int) {
-	l.DefaultTextBoxLine.Init(outer, theme, &ce.TextBoxImpl, lineIndex)
-	l.outer = outer
-	l.editor = ce
+func (l *CodeEditorLine) Init(parent CodeEditorLineParent, app App, editor *CodeEditorImpl, lineIndex int) {
+	l.DefaultTextBoxLine.Init(parent, app, &editor.TextBoxImpl, lineIndex)
+	l.parent = parent
+	l.editor = editor
 }
 
 func (t *CodeEditorLine) PaintBackgroundSpans(canvas Canvas, info CodeEditorLinePaintInfo) {
@@ -128,22 +128,22 @@ func (t *CodeEditorLine) Paint(canvas Canvas) {
 		}
 
 		// Background
-		t.outer.PaintBackgroundSpans(canvas, info)
+		t.parent.PaintBackgroundSpans(canvas, info)
 
 		// Selections
 		if t.textbox.HasFocus() {
-			t.outer.PaintSelections(canvas)
+			t.parent.PaintSelections(canvas)
 		}
 
 		// Glyphs
-		t.outer.PaintGlyphs(canvas, info)
+		t.parent.PaintGlyphs(canvas, info)
 
 		// Borders
-		t.outer.PaintBorders(canvas, info)
+		t.parent.PaintBorders(canvas, info)
 	}
 
 	// Carets
 	if t.textbox.HasFocus() {
-		t.outer.PaintCarets(canvas)
+		t.parent.PaintCarets(canvas)
 	}
 }

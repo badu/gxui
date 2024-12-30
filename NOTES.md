@@ -30,3 +30,10 @@ monitor.
 [x] Moved `mixins` into main package, because I am planning to reduce the number of returned interfaces.
 
 [x] Promoted `theme` as `DefaultApp`, trying to break the interface dependency into a direct dependency.
+
+[ ] `CreateBubbleOverlay`, `CreateButton`, `CreateCodeEditor`, `CreateDropDownList`, `CreateImage`, `CreateLabel`,
+`CreateLinearLayout`, `CreateList`, `CreatePanelHolder`, `CreateProgressBar`, `CreateScrollBar`, `CreateScrollLayout`,
+`CreateSplitterLayout`, `CreateTableLayout`, `CreateTextBox`, `CreateTree`, `CreateWindow` should NOT depend on the
+application itself, but on the `Driver` interface and a `StyleManager` (which currently doesn't exist). 
+
+The first thing that an application is building is a `Window`, which holds focus, keyboard and mouse managers.

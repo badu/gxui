@@ -17,34 +17,34 @@ type SplitterLayout interface {
 	SetOrientation(Orientation)
 }
 
-type SplitterLayoutOuter interface {
-	ParentBaseContainer
+type SplitterLayoutParent interface {
+	BaseContainerParent
 	CreateSplitterBar() Control
 }
 
 type SplitterLayoutImpl struct {
 	ContainerBase
-	outer         SplitterLayoutOuter
-	theme         App
+	parent        SplitterLayoutParent
+	app           App
 	orientation   Orientation
 	splitterWidth int
 	weights       map[Control]float32
 }
 
-func (l *SplitterLayoutImpl) Init(outer SplitterLayoutOuter, theme App) {
-	l.ContainerBase.Init(outer, theme)
-	l.outer = outer
-	l.theme = theme
+func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, app App) {
+	l.ContainerBase.Init(parent, app)
+	l.parent = parent
+	l.app = app
 	l.weights = make(map[Control]float32)
 	l.splitterWidth = 4
 	l.SetMouseEventTarget(true)
 }
 
 func (l *SplitterLayoutImpl) LayoutChildren() {
-	size := l.outer.Size().Contract(l.Padding())
+	size := l.parent.Size().Contract(l.Padding())
 	offset := l.Padding().LT()
 
-	children := l.outer.Children()
+	children := l.parent.Children()
 
 	splitterCount := len(children) / 2
 
@@ -117,14 +117,14 @@ func (l *SplitterLayoutImpl) SetOrientation(o Orientation) {
 
 func (l *SplitterLayoutImpl) CreateSplitterBar() Control {
 	b := &SplitterBar{}
-	b.Init(b, l.theme)
+	b.Init(b, l.app)
 	b.OnSplitterDragged(func(wndPnt math.Point) { l.SplitterDragged(b, wndPnt) })
 	return b
 }
 
 func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, wndPnt math.Point) {
 	o := l.orientation
-	p := WindowToChild(wndPnt, l.outer)
+	p := WindowToChild(wndPnt, l.parent)
 	children := l.ContainerBase.Children()
 	splitterIndex := children.IndexOf(splitter)
 	childA, childB := children[splitterIndex-1], children[splitterIndex+1]
@@ -143,7 +143,7 @@ func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, wndPnt math.Point
 func (l *SplitterLayoutImpl) AddChildAt(index int, control Control) *Child {
 	l.weights[control] = 1.0
 	if len(l.ContainerBase.Children()) > 0 {
-		l.ContainerBase.AddChildAt(index, l.outer.CreateSplitterBar())
+		l.ContainerBase.AddChildAt(index, l.parent.CreateSplitterBar())
 		index++
 	}
 	return l.ContainerBase.AddChildAt(index, control)

@@ -14,13 +14,13 @@ type LayoutChildren interface {
 	LayoutChildren()
 }
 
-type LayoutableOuter interface {
+type LayoutableParent interface {
 	Parent() Parent // was outer.Parenter
 	Redraw()        // was outer.Redrawer
 }
 
 type LayoutablePart struct {
-	outer             LayoutableOuter
+	parent            LayoutableParent
 	driver            Driver
 	margin            math.Spacing
 	size              math.Size
@@ -28,14 +28,14 @@ type LayoutablePart struct {
 	inLayoutChildren  bool // True when calling LayoutChildren
 }
 
-func (l *LayoutablePart) Init(outer LayoutableOuter, theme App) {
-	l.outer = outer
-	l.driver = theme.Driver()
+func (l *LayoutablePart) Init(parent LayoutableParent, app App) {
+	l.parent = parent
+	l.driver = app.Driver()
 }
 
 func (l *LayoutablePart) SetMargin(margin math.Spacing) {
 	l.margin = margin
-	if p := l.outer.Parent(); p != nil {
+	if p := l.parent.Parent(); p != nil {
 		p.Relayout()
 	}
 }
@@ -62,13 +62,13 @@ func (l *LayoutablePart) SetSize(newSize math.Size) {
 		l.relayoutRequested = false
 		l.inLayoutChildren = true
 
-		impl, ok := l.outer.(LayoutChildren)
+		impl, ok := l.parent.(LayoutChildren)
 		if ok {
 			impl.LayoutChildren()
 		}
 
 		l.inLayoutChildren = false
-		l.outer.Redraw()
+		l.parent.Redraw()
 	}
 }
 
@@ -79,7 +79,7 @@ func (l *LayoutablePart) Relayout() {
 	}
 
 	if !l.relayoutRequested {
-		if p := l.outer.Parent(); p != nil {
+		if p := l.parent.Parent(); p != nil {
 			l.relayoutRequested = true
 			p.Relayout()
 		}

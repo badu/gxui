@@ -89,7 +89,7 @@ type Window interface {
 	OnKeyStroke(func(KeyStrokeEvent)) EventSubscription
 }
 
-type WindowOuter interface {
+type WindowParent interface {
 	Window
 	Attached() bool                                  // was outer.Attachable
 	Attach()                                         // was outer.Attachable
@@ -112,7 +112,7 @@ type WindowImpl struct {
 	PaddablePart
 	PaintChildrenPart
 	driver                Driver
-	outer                 WindowOuter
+	parent                WindowParent
 	viewport              Viewport
 	windowedSize          math.Size
 	mouseController       *MouseController
@@ -153,25 +153,28 @@ func (w *WindowImpl) update() {
 		w.drawPending = false
 		return
 	}
+
 	w.updatePending = false
 	if w.layoutPending {
 		w.layoutPending = false
 		w.drawPending = true
-		w.outer.LayoutChildren()
+		w.parent.LayoutChildren()
 	}
+
 	if w.drawPending {
 		w.drawPending = false
 		w.Draw()
 	}
 }
 
-func (w *WindowImpl) Init(outer WindowOuter, driver Driver, width, height int, title string) {
+func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int, title string) {
 	w.AttachablePart.Init()
-	w.BackgroundBorderPainter.Init(outer)
-	w.ContainerPart.Init(outer)
-	w.PaddablePart.Init(outer)
-	w.PaintChildrenPart.Init(outer)
-	w.outer = outer
+	w.BackgroundBorderPainter.Init(parent)
+	w.ContainerPart.Init(parent)
+	w.PaddablePart.Init(parent)
+	w.PaintChildrenPart.Init(parent)
+
+	w.parent = parent
 	w.driver = driver
 
 	w.onClose = CreateEvent(func() {})
@@ -190,30 +193,33 @@ func (w *WindowImpl) Init(outer WindowOuter, driver Driver, width, height int, t
 	w.onClick = CreateEvent(func(MouseEvent) {})
 	w.onDoubleClick = CreateEvent(func(MouseEvent) {})
 
-	w.focusController = CreateFocusController(outer)
-	w.mouseController = CreateMouseController(outer, w.focusController)
-	w.keyboardController = CreateKeyboardController(outer)
+	w.focusController = CreateFocusController(parent)
+	w.mouseController = CreateMouseController(parent, w.focusController)
+	w.keyboardController = CreateKeyboardController(parent)
 
-	w.onResize.Listen(func() {
-		w.outer.LayoutChildren()
-		w.Draw()
-	})
+	w.onResize.Listen(
+		func() {
+			w.parent.LayoutChildren()
+			w.Draw()
+		},
+	)
 
 	w.SetBorderPen(TransparentPen)
 
 	w.setViewport(driver.CreateWindowedViewport(width, height, title))
 
+	// TODO : @Badu - maybe this is not a good idea (window should show upon demand, since we might have loading to do)
 	// WindowImpl starts shown
 	w.Attach()
 }
 
 func (w *WindowImpl) Draw() Canvas {
-	if s := w.viewport.SizeDips(); s != math.ZeroSize {
-		c := w.driver.CreateCanvas(s)
-		w.outer.Paint(c)
-		c.Complete()
-		w.viewport.SetCanvas(c)
-		return c
+	if size := w.viewport.SizeDips(); size != math.ZeroSize {
+		canvas := w.driver.CreateCanvas(size)
+		w.parent.Paint(canvas)
+		canvas.Complete()
+		w.viewport.SetCanvas(canvas)
+		return canvas
 	} else {
 		return nil
 	}
@@ -228,7 +234,7 @@ func (w *WindowImpl) Paint(canvas Canvas) {
 func (w *WindowImpl) LayoutChildren() {
 	size := w.Size().Contract(w.Padding()).Max(math.ZeroSize)
 	offset := w.Padding().LT()
-	for _, child := range w.outer.Children() {
+	for _, child := range w.parent.Children() {
 		child.Layout(child.Control.DesiredSize(math.ZeroSize, size).Rect().Offset(offset))
 	}
 }

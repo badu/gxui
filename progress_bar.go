@@ -17,32 +17,32 @@ type ProgressBar interface {
 	Target() int
 }
 
-type ProgressBarOuter interface {
-	ControlBaseOuter
+type ProgressBarParent interface {
+	ControlBaseParent
 	PaintProgress(Canvas, math.Rect, float32)
 }
 
 type ProgressBarImpl struct {
 	ControlBase
 	BackgroundBorderPainter
-	outer            ProgressBarOuter
+	parent           ProgressBarParent
 	desiredSize      math.Size
 	progress, target int
 }
 
-func (b *ProgressBarImpl) Init(outer ProgressBarOuter, theme App) {
-	b.outer = outer
-	b.ControlBase.Init(outer, theme)
-	b.BackgroundBorderPainter.Init(outer)
+func (b *ProgressBarImpl) Init(parent ProgressBarParent, app App) {
+	b.parent = parent
+	b.ControlBase.Init(parent, app)
+	b.BackgroundBorderPainter.Init(parent)
 	b.desiredSize = math.MaxSize
 	b.target = 100
 }
 
 func (b *ProgressBarImpl) Paint(canvas Canvas) {
 	fraction := math.Saturate(float32(b.progress) / float32(b.target))
-	rect := b.outer.Size().Rect()
+	rect := b.parent.Size().Rect()
 	b.PaintBackground(canvas, rect)
-	b.outer.PaintProgress(canvas, rect, fraction)
+	b.parent.PaintProgress(canvas, rect, fraction)
 	b.PaintBorder(canvas, rect)
 }
 

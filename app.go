@@ -12,9 +12,9 @@ import (
 type App interface {
 	Driver() Driver
 	DefaultFont() Font
-	SetDefaultFont(Font)
+	SetDefaultFont(font Font)
 	DefaultMonospaceFont() Font
-	SetDefaultMonospaceFont(Font)
+	SetDefaultMonospaceFont(font Font)
 	CreateBubbleOverlay() BubbleOverlay
 	CreateButton() Button
 	CreateCodeEditor() CodeEditor
@@ -44,29 +44,39 @@ type DefaultApp struct {
 
 	WindowBackground Color
 
-	BubbleOverlayStyle        Style
-	ButtonDefaultStyle        Style
-	ButtonOverStyle           Style
-	ButtonPressedStyle        Style
-	CodeSuggestionListStyle   Style
-	DropDownListDefaultStyle  Style
-	DropDownListOverStyle     Style
-	FocusedStyle              Style
-	HighlightStyle            Style
-	LabelStyle                Style
-	PanelBackgroundStyle      Style
+	BubbleOverlayStyle Style
+
+	ButtonDefaultStyle Style
+	ButtonOverStyle    Style
+	ButtonPressedStyle Style
+
+	CodeSuggestionListStyle Style
+
+	DropDownListDefaultStyle Style
+	DropDownListOverStyle    Style
+
+	FocusedStyle   Style
+	HighlightStyle Style
+
+	LabelStyle Style
+
+	PanelBackgroundStyle Style
+
 	ScrollBarBarDefaultStyle  Style
 	ScrollBarBarOverStyle     Style
 	ScrollBarRailDefaultStyle Style
 	ScrollBarRailOverStyle    Style
-	SplitterBarDefaultStyle   Style
-	SplitterBarOverStyle      Style
-	TabActiveHighlightStyle   Style
-	TabDefaultStyle           Style
-	TabOverStyle              Style
-	TabPressedStyle           Style
-	TextBoxDefaultStyle       Style
-	TextBoxOverStyle          Style
+
+	SplitterBarDefaultStyle Style
+	SplitterBarOverStyle    Style
+
+	TabActiveHighlightStyle Style
+	TabDefaultStyle         Style
+	TabOverStyle            Style
+	TabPressedStyle         Style
+
+	TextBoxDefaultStyle Style
+	TextBoxOverStyle    Style
 
 	ScreenWidth  int
 	ScreenHeight int

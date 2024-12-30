@@ -12,15 +12,15 @@ import (
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
 	ControlBase
-	outer      DefaultTextBoxLineOuter
+	parent     DefaultTextBoxLineParent
 	textbox    *TextBoxImpl
 	lineIndex  int
 	caretWidth int
 }
 
-func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme App, textbox *TextBoxImpl, lineIndex int) {
-	t.ControlBase.Init(outer, theme)
-	t.outer = outer
+func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, app App, textbox *TextBoxImpl, lineIndex int) {
+	t.ControlBase.Init(parent, app)
+	t.parent = parent
 	t.textbox = textbox
 	t.lineIndex = lineIndex
 	t.SetCaretWidth(2)
@@ -42,13 +42,13 @@ func (t *DefaultTextBoxLine) DesiredSize(min, max math.Size) math.Size {
 
 func (t *DefaultTextBoxLine) Paint(canvas Canvas) {
 	if t.textbox.HasFocus() {
-		t.outer.PaintSelections(canvas)
+		t.parent.PaintSelections(canvas)
 	}
 
-	t.outer.PaintText(canvas)
+	t.parent.PaintText(canvas)
 
 	if t.textbox.HasFocus() {
-		t.outer.PaintCarets(canvas)
+		t.parent.PaintCarets(canvas)
 	}
 }
 
@@ -78,10 +78,10 @@ func (t *DefaultTextBoxLine) PaintCarets(canvas Canvas) {
 		lineIndex := controller.LineIndex(caretEnd)
 		if lineIndex == t.lineIndex {
 			start := controller.LineStart(lineIndex)
-			measuredRunes := t.outer.MeasureRunes(start, caretEnd)
+			measuredRunes := t.parent.MeasureRunes(start, caretEnd)
 			top := math.Point{X: t.caretWidth + measuredRunes.W, Y: 0}
 			bottom := top.Add(math.Point{X: 0, Y: t.Size().H})
-			t.outer.PaintCaret(canvas, top, bottom)
+			t.parent.PaintCaret(canvas, top, bottom)
 		}
 	}
 }
@@ -101,11 +101,11 @@ func (t *DefaultTextBoxLine) PaintSelections(canvas Canvas) {
 		CreateTextSelection(lineStart, lineEnd, false),
 		func(s, e uint64, _ int) {
 			if s < e {
-				x := t.outer.MeasureRunes(lineStart, int(s)).W
-				m := t.outer.MeasureRunes(int(s), int(e))
+				x := t.parent.MeasureRunes(lineStart, int(s)).W
+				m := t.parent.MeasureRunes(int(s), int(e))
 				top := math.Point{X: t.caretWidth + x, Y: 0}
 				bottom := top.Add(m.Point())
-				t.outer.PaintSelection(canvas, top, bottom)
+				t.parent.PaintSelection(canvas, top, bottom)
 			}
 		},
 	)

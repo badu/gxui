@@ -22,27 +22,29 @@ type ScrollLayout interface {
 type ScrollLayoutImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
-	outer                  ParentBaseContainer
-	theme                  App
-	scrollOffset           math.Point
-	canScrollX, canScrollY bool
-	scrollBarX, scrollBarY *Child
-	child                  *Child
-	innerSize              math.Size
+	parent       BaseContainerParent
+	app          App
+	scrollOffset math.Point
+	canScrollX   bool
+	canScrollY   bool
+	scrollBarX   *Child
+	scrollBarY   *Child
+	child        *Child
+	innerSize    math.Size
 }
 
-func (l *ScrollLayoutImpl) Init(outer ParentBaseContainer, theme App) {
-	l.ContainerBase.Init(outer, theme)
-	l.BackgroundBorderPainter.Init(outer)
+func (l *ScrollLayoutImpl) Init(parent BaseContainerParent, app App) {
+	l.ContainerBase.Init(parent, app)
+	l.BackgroundBorderPainter.Init(parent)
 
-	l.outer = outer
-	l.theme = theme
+	l.parent = parent
+	l.app = app
 	l.canScrollX = true
 	l.canScrollY = true
-	scrollBarX := theme.CreateScrollBar()
+	scrollBarX := app.CreateScrollBar()
 	scrollBarX.SetOrientation(Horizontal)
 	scrollBarX.OnScroll(func(from, to int) { l.SetScrollOffset(math.Point{X: from, Y: l.scrollOffset.Y}) })
-	scrollBarY := theme.CreateScrollBar()
+	scrollBarY := app.CreateScrollBar()
 	scrollBarY.SetOrientation(Vertical)
 	scrollBarY.OnScroll(func(from, to int) { l.SetScrollOffset(math.Point{X: l.scrollOffset.X, Y: from}) })
 	l.scrollBarX = l.AddChild(scrollBarX)
@@ -51,7 +53,7 @@ func (l *ScrollLayoutImpl) Init(outer ParentBaseContainer, theme App) {
 }
 
 func (l *ScrollLayoutImpl) LayoutChildren() {
-	size := l.outer.Size().Contract(l.Padding())
+	size := l.parent.Size().Contract(l.Padding())
 	offset := l.Padding().LT()
 
 	var sxs, sys math.Size

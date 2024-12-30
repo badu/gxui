@@ -26,6 +26,7 @@ func (m *InputEventHandlerPart) getOnClick() Event {
 	if m.onClick == nil {
 		m.onClick = CreateEvent(m.Click)
 	}
+
 	return m.onClick
 }
 
@@ -33,6 +34,7 @@ func (m *InputEventHandlerPart) getOnDoubleClick() Event {
 	if m.onDoubleClick == nil {
 		m.onDoubleClick = CreateEvent(m.DoubleClick)
 	}
+
 	return m.onDoubleClick
 }
 
@@ -40,6 +42,7 @@ func (m *InputEventHandlerPart) getOnKeyPress() Event {
 	if m.onKeyPress == nil {
 		m.onKeyPress = CreateEvent(m.KeyPress)
 	}
+
 	return m.onKeyPress
 }
 
@@ -47,6 +50,7 @@ func (m *InputEventHandlerPart) getOnKeyStroke() Event {
 	if m.onKeyStroke == nil {
 		m.onKeyStroke = CreateEvent(m.KeyStroke)
 	}
+
 	return m.onKeyStroke
 }
 
@@ -54,6 +58,7 @@ func (m *InputEventHandlerPart) getOnMouseMove() Event {
 	if m.onMouseMove == nil {
 		m.onMouseMove = CreateEvent(m.MouseMove)
 	}
+
 	return m.onMouseMove
 }
 
@@ -61,6 +66,7 @@ func (m *InputEventHandlerPart) getOnMouseEnter() Event {
 	if m.onMouseEnter == nil {
 		m.onMouseEnter = CreateEvent(m.MouseEnter)
 	}
+
 	return m.onMouseEnter
 }
 
@@ -68,6 +74,7 @@ func (m *InputEventHandlerPart) getOnMouseExit() Event {
 	if m.onMouseExit == nil {
 		m.onMouseExit = CreateEvent(m.MouseExit)
 	}
+
 	return m.onMouseExit
 }
 
@@ -75,6 +82,7 @@ func (m *InputEventHandlerPart) getOnMouseDown() Event {
 	if m.onMouseDown == nil {
 		m.onMouseDown = CreateEvent(m.MouseDown)
 	}
+
 	return m.onMouseDown
 }
 
@@ -82,6 +90,7 @@ func (m *InputEventHandlerPart) getOnMouseUp() Event {
 	if m.onMouseUp == nil {
 		m.onMouseUp = CreateEvent(m.MouseUp)
 	}
+
 	return m.onMouseUp
 }
 
@@ -89,6 +98,7 @@ func (m *InputEventHandlerPart) getOnMouseScroll() Event {
 	if m.onMouseScroll == nil {
 		m.onMouseScroll = CreateEvent(m.MouseScroll)
 	}
+
 	return m.onMouseScroll
 }
 
@@ -96,6 +106,7 @@ func (m *InputEventHandlerPart) getOnKeyDown() Event {
 	if m.onKeyDown == nil {
 		m.onKeyDown = CreateEvent(m.KeyDown)
 	}
+
 	return m.onKeyDown
 }
 
@@ -103,6 +114,7 @@ func (m *InputEventHandlerPart) getOnKeyUp() Event {
 	if m.onKeyUp == nil {
 		m.onKeyUp = CreateEvent(m.KeyUp)
 	}
+
 	return m.onKeyUp
 }
 
@@ -110,6 +122,7 @@ func (m *InputEventHandlerPart) getOnKeyRepeat() Event {
 	if m.onKeyRepeat == nil {
 		m.onKeyRepeat = CreateEvent(m.KeyRepeat)
 	}
+
 	return m.onKeyRepeat
 }
 
@@ -117,27 +130,27 @@ func (m *InputEventHandlerPart) Init() {
 	m.isMouseDown = make(map[MouseButton]bool)
 }
 
-func (m *InputEventHandlerPart) Click(ev MouseEvent) (consume bool) {
+func (m *InputEventHandlerPart) Click(ev MouseEvent) bool {
 	m.getOnClick().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandlerPart) DoubleClick(ev MouseEvent) (consume bool) {
+func (m *InputEventHandlerPart) DoubleClick(ev MouseEvent) bool {
 	m.getOnDoubleClick().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandlerPart) KeyPress(ev KeyboardEvent) (consume bool) {
+func (m *InputEventHandlerPart) KeyPress(ev KeyboardEvent) bool {
 	m.getOnKeyPress().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandlerPart) KeyStroke(ev KeyStrokeEvent) (consume bool) {
+func (m *InputEventHandlerPart) KeyStroke(ev KeyStrokeEvent) bool {
 	m.getOnKeyStroke().Fire(ev)
 	return false
 }
 
-func (m *InputEventHandlerPart) MouseScroll(ev MouseEvent) (consume bool) {
+func (m *InputEventHandlerPart) MouseScroll(ev MouseEvent) bool {
 	m.getOnMouseScroll().Fire(ev)
 	return false
 }

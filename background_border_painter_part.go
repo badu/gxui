@@ -8,18 +8,18 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type BackgroundBorderPainterOuter interface {
+type BackgroundBorderParent interface {
 	Redraw() // was outer.Redrawer
 }
 
 type BackgroundBorderPainter struct {
-	outer BackgroundBorderPainterOuter
-	brush Brush
-	pen   Pen
+	parent BackgroundBorderParent
+	brush  Brush
+	pen    Pen
 }
 
-func (b *BackgroundBorderPainter) Init(outer BackgroundBorderPainterOuter) {
-	b.outer = outer
+func (b *BackgroundBorderPainter) Init(parent BackgroundBorderParent) {
+	b.parent = parent
 	b.brush = DefaultBrush
 	b.pen = DefaultPen
 }
@@ -50,7 +50,7 @@ func (b *BackgroundBorderPainter) SetBackgroundBrush(brush Brush) {
 	}
 
 	b.brush = brush
-	b.outer.Redraw()
+	b.parent.Redraw()
 }
 
 func (b *BackgroundBorderPainter) BorderPen() Pen {
@@ -63,5 +63,5 @@ func (b *BackgroundBorderPainter) SetBorderPen(pen Pen) {
 	}
 
 	b.pen = pen
-	b.outer.Redraw()
+	b.parent.Redraw()
 }

@@ -27,7 +27,7 @@ type Label interface {
 
 type LabelImpl struct {
 	ControlBase
-	outer               ControlBaseOuter
+	parent              ControlBaseParent
 	font                Font
 	color               Color
 	horizontalAlignment HorizontalAlignment
@@ -36,12 +36,12 @@ type LabelImpl struct {
 	text                string
 }
 
-func (l *LabelImpl) Init(outer ControlBaseOuter, theme App, font Font, color Color) {
+func (l *LabelImpl) Init(parent ControlBaseParent, app App, font Font, color Color) {
 	if font == nil {
 		panic("Cannot create a label with a nil font")
 	}
-	l.ControlBase.Init(outer, theme)
-	l.outer = outer
+	l.ControlBase.Init(parent, app)
+	l.parent = parent
 	l.font = font
 	l.color = color
 	l.horizontalAlignment = AlignLeft
@@ -55,7 +55,7 @@ func (l *LabelImpl) Text() string {
 func (l *LabelImpl) SetText(text string) {
 	if l.text != text {
 		l.text = text
-		l.outer.Relayout()
+		l.parent.Relayout()
 	}
 }
 
@@ -77,7 +77,7 @@ func (l *LabelImpl) Color() Color {
 func (l *LabelImpl) SetColor(color Color) {
 	if l.color != color {
 		l.color = color
-		l.outer.Redraw()
+		l.parent.Redraw()
 	}
 }
 
@@ -88,7 +88,7 @@ func (l *LabelImpl) Multiline() bool {
 func (l *LabelImpl) SetMultiline(multiline bool) {
 	if l.multiline != multiline {
 		l.multiline = multiline
-		l.outer.Relayout()
+		l.parent.Relayout()
 	}
 }
 
@@ -125,7 +125,7 @@ func (l *LabelImpl) VerticalAlignment() VerticalAlignment {
 
 // parts.DrawPaintPart overrides
 func (l *LabelImpl) Paint(canvas Canvas) {
-	rect := l.outer.Size().Rect()
+	rect := l.parent.Size().Rect()
 	text := l.text
 	if !l.multiline {
 		text = strings.Replace(text, "\n", " ", -1)

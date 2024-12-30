@@ -21,7 +21,7 @@ type ScrollBar interface {
 
 type ScrollBarImpl struct {
 	ControlBase
-	outer               ControlBaseOuter
+	parent              ControlBaseParent
 	orientation         Orientation
 	thickness           int
 	minBarLength        int
@@ -74,10 +74,10 @@ func (s *ScrollBarImpl) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBarImpl) Init(outer ControlBaseOuter, theme App) {
-	s.ControlBase.Init(outer, theme)
+func (s *ScrollBarImpl) Init(parent ControlBaseParent, app App) {
+	s.ControlBase.Init(parent, app)
 
-	s.outer = outer
+	s.parent = parent
 	s.thickness = 10
 	s.minBarLength = 10
 	s.scrollPositionFrom = 0
@@ -105,7 +105,7 @@ func (s *ScrollBarImpl) DesiredSize(min, max math.Size) math.Size {
 }
 
 func (s *ScrollBarImpl) Paint(canvas Canvas) {
-	canvas.DrawRoundedRect(s.outer.Size().Rect(), 3, 3, 3, 3, s.railPen, s.railBrush)
+	canvas.DrawRoundedRect(s.parent.Size().Rect(), 3, 3, 3, 3, s.railPen, s.railBrush)
 	canvas.DrawRoundedRect(s.barRect, 3, 3, 3, 3, s.barPen, s.barBrush)
 }
 
@@ -231,7 +231,7 @@ func (s *ScrollBarImpl) MouseDown(event MouseEvent) {
 		initialOffset := event.Point.Sub(s.barRect.Min)
 		var mms, mus EventSubscription
 		mms = event.Window.OnMouseMove(func(we MouseEvent) {
-			p := WindowToChild(we.WindowPoint, s.outer)
+			p := WindowToChild(we.WindowPoint, s.parent)
 			s.SetScrollPosition(s.rangeAt(p.Sub(initialOffset)))
 		})
 		mus = event.Window.OnMouseUp(func(we MouseEvent) {

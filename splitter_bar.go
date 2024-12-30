@@ -11,8 +11,8 @@ import (
 type SplitterBar struct {
 	ControlBase
 	onDrag          func(wndPnt math.Point)
-	outer           ControlBaseOuter
-	theme           App
+	parent          ControlBaseParent
+	app             App
 	onDragStart     Event
 	onDragEnd       Event
 	backgroundColor Color
@@ -20,11 +20,11 @@ type SplitterBar struct {
 	isDragging      bool
 }
 
-func (b *SplitterBar) Init(outer ControlBaseOuter, theme App) {
-	b.ControlBase.Init(outer, theme)
+func (b *SplitterBar) Init(parent ControlBaseParent, app App) {
+	b.ControlBase.Init(parent, app)
 
-	b.outer = outer
-	b.theme = theme
+	b.parent = parent
+	b.app = app
 	b.onDragStart = CreateEvent(func(MouseEvent) {})
 	b.onDragEnd = CreateEvent(func(MouseEvent) {})
 	b.backgroundColor = Red
@@ -57,7 +57,7 @@ func (b *SplitterBar) OnDragEnd(callback func(event MouseEvent)) EventSubscripti
 
 // parts.DrawPaintPart overrides
 func (b *SplitterBar) Paint(canvas Canvas) {
-	rect := b.outer.Size().Rect()
+	rect := b.parent.Size().Rect()
 	canvas.DrawRect(rect, CreateBrush(b.backgroundColor))
 	if b.foregroundColor != b.backgroundColor {
 		canvas.DrawRect(rect.ContractI(1), CreateBrush(b.foregroundColor))

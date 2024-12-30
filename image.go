@@ -45,7 +45,7 @@ type Image interface {
 type ImageImpl struct {
 	ControlBase
 	BackgroundBorderPainter
-	outer        ControlBaseOuter
+	parent       ControlBaseParent
 	texture      Texture
 	canvas       Canvas
 	scalingMode  ScalingMode
@@ -54,7 +54,7 @@ type ImageImpl struct {
 }
 
 func (i *ImageImpl) calculateDrawRect() math.Rect {
-	rect := i.outer.Size().Rect()
+	rect := i.parent.Size().Rect()
 	texW, texH := i.texture.Size().WH()
 	aspectSrc := float32(texH) / float32(texW)
 	aspectDst := float32(rect.H()) / float32(rect.W())
@@ -73,10 +73,10 @@ func (i *ImageImpl) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *ImageImpl) Init(outer ControlBaseOuter, theme App) {
-	i.outer = outer
-	i.ControlBase.Init(outer, theme)
-	i.BackgroundBorderPainter.Init(outer)
+func (i *ImageImpl) Init(parent ControlBaseParent, app App) {
+	i.parent = parent
+	i.ControlBase.Init(parent, app)
+	i.BackgroundBorderPainter.Init(parent)
 	i.SetBorderPen(TransparentPen)
 	i.SetBackgroundBrush(TransparentBrush)
 }
@@ -89,7 +89,7 @@ func (i *ImageImpl) SetTexture(texture Texture) {
 	if i.texture != texture {
 		i.texture = texture
 		i.canvas = nil
-		i.outer.Relayout()
+		i.parent.Relayout()
 	}
 }
 
@@ -105,7 +105,7 @@ func (i *ImageImpl) SetCanvas(canvas Canvas) {
 	if i.canvas != canvas {
 		i.canvas = canvas
 		i.texture = nil
-		i.outer.Relayout()
+		i.parent.Relayout()
 	}
 }
 
@@ -116,7 +116,7 @@ func (i *ImageImpl) ScalingMode() ScalingMode {
 func (i *ImageImpl) SetScalingMode(mode ScalingMode) {
 	if i.scalingMode != mode {
 		i.scalingMode = mode
-		i.outer.Relayout()
+		i.parent.Relayout()
 	}
 }
 
@@ -127,14 +127,14 @@ func (i *ImageImpl) AspectMode() AspectMode {
 func (i *ImageImpl) SetAspectMode(mode AspectMode) {
 	if i.aspectMode != mode {
 		i.aspectMode = mode
-		i.outer.Redraw()
+		i.parent.Redraw()
 	}
 }
 
 func (i *ImageImpl) SetExplicitSize(explicitSize math.Size) {
 	if i.explicitSize != explicitSize {
 		i.explicitSize = explicitSize
-		i.outer.Relayout()
+		i.parent.Relayout()
 	}
 	i.SetScalingMode(ScalingExplicitSize)
 }
@@ -170,7 +170,7 @@ func (i *ImageImpl) DesiredSize(min, max math.Size) math.Size {
 }
 
 func (i *ImageImpl) Paint(canvas Canvas) {
-	rect := i.outer.Size().Rect()
+	rect := i.parent.Size().Rect()
 	i.PaintBackground(canvas, rect)
 	switch {
 	case i.texture != nil:

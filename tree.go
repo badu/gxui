@@ -92,24 +92,24 @@ type TreeAdapter interface {
 	OnDataReplaced(f func()) EventSubscription
 }
 
-type TreeOuter interface {
-	ListOuter
+type TreeParent interface {
+	ListParent
 	PaintUnexpandedSelection(c Canvas, r math.Rect)
 }
 
 type TreeImpl struct {
 	ListImpl
 	FocusablePart
-	outer       TreeOuter
+	parent      TreeParent
 	treeAdapter TreeAdapter
 	listAdapter *TreeToListAdapter
 	creator     TreeControlCreator
 }
 
-func (t *TreeImpl) Init(outer TreeOuter, theme App) {
-	t.ListImpl.Init(outer, theme)
+func (t *TreeImpl) Init(parent TreeParent, app App) {
+	t.ListImpl.Init(parent, app)
 	t.FocusablePart.Init()
-	t.outer = outer
+	t.parent = parent
 	t.creator = defaultTreeControlCreator{}
 }
 
@@ -174,7 +174,7 @@ func (t *TreeImpl) PaintChild(canvas Canvas, child *Child, idx int) {
 				if details, found := t.details[item]; found {
 					if child == details.child {
 						b := child.Bounds().Expand(child.Control.Margin())
-						t.outer.PaintUnexpandedSelection(canvas, b)
+						t.parent.PaintUnexpandedSelection(canvas, b)
 					}
 				}
 			}

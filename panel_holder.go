@@ -31,7 +31,7 @@ type PanelTabCreator interface {
 	CreatePanelTab() PanelTab
 }
 
-type PanelHolderOuter interface {
+type PanelHolderParent interface {
 	ContainerBaseNoControlOuter
 	PanelHolder
 	PanelTabCreator
@@ -39,8 +39,8 @@ type PanelHolderOuter interface {
 
 type PanelHolderImpl struct {
 	ContainerBase
-	outer     PanelHolderOuter
-	theme     App
+	parent    PanelHolderParent
+	app       App
 	tabLayout LinearLayout
 	entries   []PanelEntry
 	selected  PanelEntry
@@ -96,13 +96,13 @@ func beginTabDragging(holder PanelHolder, panel Control, name string, window Win
 	)
 }
 
-func (p *PanelHolderImpl) Init(outer PanelHolderOuter, theme App) {
-	p.ContainerBase.Init(outer, theme)
+func (p *PanelHolderImpl) Init(parent PanelHolderParent, app App) {
+	p.ContainerBase.Init(parent, app)
 
-	p.outer = outer
-	p.theme = theme
+	p.parent = parent
+	p.app = app
 
-	p.tabLayout = theme.CreateLinearLayout()
+	p.tabLayout = app.CreateLinearLayout()
 	p.tabLayout.SetDirection(LeftToRight)
 	p.ContainerBase.AddChild(p.tabLayout)
 	p.SetMargin(math.Spacing{L: 1, T: 2, R: 1, B: 1})
@@ -144,12 +144,12 @@ func (p *PanelHolderImpl) AddPanelAt(panel Control, name string, index int) {
 	if index < 0 || index > p.PanelCount() {
 		panic(fmt.Errorf("index %d is out of bounds. Acceptable range: [%d - %d]", index, 0, p.PanelCount()))
 	}
-	tab := p.outer.CreatePanelTab()
+	tab := p.parent.CreatePanelTab()
 	tab.SetText(name)
 	mds := tab.OnMouseDown(
 		func(ev MouseEvent) {
 			p.Select(p.PanelIndex(panel))
-			beginTabDragging(p.outer, panel, name, ev.Window)
+			beginTabDragging(p.parent, panel, name, ev.Window)
 		},
 	)
 

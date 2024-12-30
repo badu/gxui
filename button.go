@@ -23,8 +23,8 @@ type Button interface {
 	SetChecked(bool)
 }
 
-type ButtonOuter interface {
-	ParentBaseContainer
+type ButtonParent interface {
+	BaseContainerParent
 	IsChecked() bool
 	SetChecked(bool)
 }
@@ -32,20 +32,20 @@ type ButtonOuter interface {
 type ButtonImpl struct {
 	LinearLayoutImpl
 	FocusablePart
-	outer      ButtonOuter
-	theme      App
+	parent     ButtonParent
+	app        App
 	label      Label
 	buttonType ButtonType
 	checked    bool
 }
 
-func (b *ButtonImpl) Init(outer ButtonOuter, theme App) {
-	b.LinearLayoutImpl.Init(outer, theme)
+func (b *ButtonImpl) Init(parent ButtonParent, app App) {
+	b.LinearLayoutImpl.Init(parent, app)
 	b.FocusablePart.Init()
 
 	b.buttonType = PushButton
-	b.theme = theme
-	b.outer = outer
+	b.app = app
+	b.parent = parent
 }
 
 func (b *ButtonImpl) Label() Label {
@@ -53,17 +53,18 @@ func (b *ButtonImpl) Label() Label {
 }
 
 func (b *ButtonImpl) Text() string {
-	if b.label != nil {
-		return b.label.Text()
-	} else {
+	if b.label == nil {
 		return ""
 	}
+
+	return b.label.Text()
 }
 
 func (b *ButtonImpl) SetText(text string) {
 	if b.Text() == text {
 		return
 	}
+
 	if text == "" {
 		if b.label != nil {
 			b.RemoveChild(b.label)
@@ -71,7 +72,7 @@ func (b *ButtonImpl) SetText(text string) {
 		}
 	} else {
 		if b.label == nil {
-			b.label = b.theme.CreateLabel()
+			b.label = b.app.CreateLabel()
 			b.label.SetMargin(math.ZeroSpacing)
 			b.AddChild(b.label)
 		}
@@ -86,7 +87,7 @@ func (b *ButtonImpl) Type() ButtonType {
 func (b *ButtonImpl) SetType(buttonType ButtonType) {
 	if buttonType != b.buttonType {
 		b.buttonType = buttonType
-		b.outer.Redraw()
+		b.parent.Redraw()
 	}
 }
 
@@ -97,7 +98,7 @@ func (b *ButtonImpl) IsChecked() bool {
 func (b *ButtonImpl) SetChecked(checked bool) {
 	if checked != b.checked {
 		b.checked = checked
-		b.outer.Redraw()
+		b.parent.Redraw()
 	}
 }
 
@@ -105,7 +106,7 @@ func (b *ButtonImpl) SetChecked(checked bool) {
 func (b *ButtonImpl) Click(event MouseEvent) (consume bool) {
 	if event.Button == MouseButtonLeft {
 		if b.buttonType == ToggleButton {
-			b.outer.SetChecked(!b.outer.IsChecked())
+			b.parent.SetChecked(!b.parent.IsChecked())
 		}
 		b.LinearLayoutImpl.Click(event)
 		return true

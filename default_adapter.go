@@ -24,7 +24,7 @@ type DefaultAdapter struct {
 	items       reflect.Value
 	itemToIndex map[AdapterItem]int
 	size        math.Size
-	styleLabel  func(App, Label)
+	styleLabel  func(app App, label Label)
 }
 
 func CreateDefaultAdapter() *DefaultAdapter {
@@ -56,7 +56,7 @@ func (a *DefaultAdapter) SetSizeAsLargest(theme App) {
 	a.SetSize(s)
 }
 
-func (a *DefaultAdapter) SetStyleLabel(providerFn func(App, Label)) {
+func (a *DefaultAdapter) SetStyleLabel(providerFn func(app App, label Label)) {
 	a.styleLabel = providerFn
 	a.DataChanged(true)
 }
