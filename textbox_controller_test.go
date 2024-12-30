@@ -6,7 +6,7 @@ package gxui
 
 import (
 	"fmt"
-	test "github.com/badu/gxui/testing"
+	"github.com/badu/gxui/test_helper"
 	"testing"
 )
 
@@ -48,37 +48,37 @@ func parseTBC(markup string) *TextBoxController {
 
 func assertTBCTextAndSelectionsEqual(t *testing.T, markup string, c *TextBoxController) {
 	expected := parseTBC(markup)
-	test.AssertEquals(t, expected.Text(), c.Text())
-	test.AssertEquals(t, expected.selections, c.selections)
+	test_helper.AssertEquals(t, expected.Text(), c.Text())
+	test_helper.AssertEquals(t, expected.selections, c.selections)
 }
 
 func TestTBCLineIndent(t *testing.T) {
 	c := parseTBC("  ÀÁ\n    BB\nĆ\n      D\n   EE")
-	test.AssertEquals(t, 2, c.LineIndent(0))
-	test.AssertEquals(t, 4, c.LineIndent(1))
-	test.AssertEquals(t, 0, c.LineIndent(2))
-	test.AssertEquals(t, 6, c.LineIndent(3))
-	test.AssertEquals(t, 3, c.LineIndent(4))
+	test_helper.AssertEquals(t, 2, c.LineIndent(0))
+	test_helper.AssertEquals(t, 4, c.LineIndent(1))
+	test_helper.AssertEquals(t, 0, c.LineIndent(2))
+	test_helper.AssertEquals(t, 6, c.LineIndent(3))
+	test_helper.AssertEquals(t, 3, c.LineIndent(4))
 }
 
 func TestParseTBCCarets(t *testing.T) {
 	c := parseTBC("he|llo\n|wor|ld")
-	test.AssertEquals(t, "hello\nworld", c.Text())
-	test.AssertEquals(t, 2, c.LineCount())
-	test.AssertEquals(t, 3, c.SelectionCount())
-	test.AssertEquals(t, 2, c.Caret(0))
-	test.AssertEquals(t, 6, c.Caret(1))
-	test.AssertEquals(t, 9, c.Caret(2))
+	test_helper.AssertEquals(t, "hello\nworld", c.Text())
+	test_helper.AssertEquals(t, 2, c.LineCount())
+	test_helper.AssertEquals(t, 3, c.SelectionCount())
+	test_helper.AssertEquals(t, 2, c.Caret(0))
+	test_helper.AssertEquals(t, 6, c.Caret(1))
+	test_helper.AssertEquals(t, 9, c.Caret(2))
 }
 
 func TestParseTBCSelections(t *testing.T) {
 	c := parseTBC("he[llo}\n|wor{ld]")
-	test.AssertEquals(t, "hello\nworld", c.Text())
-	test.AssertEquals(t, 2, c.LineCount())
-	test.AssertEquals(t, 3, c.SelectionCount())
-	test.AssertEquals(t, TextSelection{2, 5, true}, c.Selection(0))
-	test.AssertEquals(t, TextSelection{6, 6, false}, c.Selection(1))
-	test.AssertEquals(t, TextSelection{9, 11, false}, c.Selection(2))
+	test_helper.AssertEquals(t, "hello\nworld", c.Text())
+	test_helper.AssertEquals(t, 2, c.LineCount())
+	test_helper.AssertEquals(t, 3, c.SelectionCount())
+	test_helper.AssertEquals(t, TextSelection{2, 5, true}, c.Selection(0))
+	test_helper.AssertEquals(t, TextSelection{6, 6, false}, c.Selection(1))
+	test_helper.AssertEquals(t, TextSelection{9, 11, false}, c.Selection(2))
 }
 
 func TestTBCWordAt(t *testing.T) {

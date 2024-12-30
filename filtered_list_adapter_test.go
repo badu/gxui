@@ -4,8 +4,8 @@
 
 package gxui
 
-import test "github.com/badu/gxui/testing"
 import (
+	"github.com/badu/gxui/test_helper"
 	"strings"
 	"testing"
 )
@@ -15,5 +15,5 @@ func calcScore(str, partial string) int {
 }
 
 func TestFilteredListAdapterScore(t *testing.T) {
-	test.AssertEquals(t, (3*3)+(2*2+1)+(3*3+1), calcScore("a_Mix_Of_Words", "mixOfrds"))
+	test_helper.AssertEquals(t, (3*3)+(2*2+1)+(3*3+1), calcScore("a_Mix_Of_Words", "mixOfrds"))
 }
