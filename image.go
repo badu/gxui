@@ -73,9 +73,9 @@ func (i *ImageImpl) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *ImageImpl) Init(parent ControlBaseParent, app App) {
+func (i *ImageImpl) Init(parent ControlBaseParent, driver Driver) {
 	i.parent = parent
-	i.ControlBase.Init(parent, app)
+	i.ControlBase.Init(parent, driver)
 	i.BackgroundBorderPainter.Init(parent)
 	i.SetBorderPen(TransparentPen)
 	i.SetBackgroundBrush(TransparentBrush)

@@ -68,10 +68,10 @@ func (a *filesAdapter) ItemIndex(item gxui.AdapterItem) int {
 	return -1 // Not found
 }
 
-func (a *filesAdapter) Create(theme gxui.App, index int) gxui.Control {
+func (a *filesAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index int) gxui.Control {
 	path := a.files[index]
 	_, name := filepath.Split(path)
-	label := theme.CreateLabel()
+	label := gxui.CreateLabel(driver, styles)
 	label.SetText(name)
 	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
 		label.SetColor(directoryColor)
@@ -81,8 +81,8 @@ func (a *filesAdapter) Create(theme gxui.App, index int) gxui.Control {
 	return label
 }
 
-func (a *filesAdapter) Size(theme gxui.App) math.Size {
-	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
+func (a *filesAdapter) Size(styles *gxui.StyleDefs) math.Size {
+	return math.Size{W: math.MaxSize.W, H: styles.FontSize + 4}
 }
 
 // directory implements the gxui.TreeNode interface to represent a directory
@@ -139,12 +139,12 @@ func (d directory) Item() gxui.AdapterItem {
 }
 
 // Create implements gxui.TreeNode.
-func (d directory) Create(theme gxui.App) gxui.Control {
+func (d directory) Create(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
 	_, name := filepath.Split(d.path)
 	if name == "" {
 		name = d.path
 	}
-	l := theme.CreateLabel()
+	l := gxui.CreateLabel(driver, styles)
 	l.SetText(name)
 	l.SetColor(directoryColor)
 	return l
@@ -157,33 +157,33 @@ type directoryAdapter struct {
 	directory
 }
 
-func (a directoryAdapter) Size(theme gxui.App) math.Size {
-	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
+func (a directoryAdapter) Size(styles *gxui.StyleDefs) math.Size {
+	return math.Size{W: math.MaxSize.W, H: styles.FontSize + 4}
 }
 
 // Override directory.Create so that the full root is shown, unaltered.
-func (a directoryAdapter) Create(theme gxui.App, index int) gxui.Control {
-	l := theme.CreateLabel()
+func (a directoryAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index int) gxui.Control {
+	l := gxui.CreateLabel(driver, styles)
 	l.SetText(a.subdirs[index])
 	l.SetColor(directoryColor)
 	return l
 }
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Open file...")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Open file...")
 	window.SetScale(flags.DefaultScaleFactor)
 
 	// fullpath is the textbox at the top of the window holding the current
 	// selection's absolute file path.
-	fullpath := theme.CreateTextBox()
+	fullpath := gxui.CreateTextBox(driver, styles)
 	fullpath.SetDesiredWidth(math.MaxSize.W)
 
 	// directories is the TreeImpl of directories on the left of the window.
 	// It uses the directoryAdapter to show the entire system's directory
 	// hierarchy.
-	directories := theme.CreateTree()
+	directories := gxui.CreateTree(driver, styles)
 	directories.SetAdapter(
 		&directoryAdapter{
 			directory: directory{
@@ -199,10 +199,10 @@ func appMain(driver gxui.Driver) {
 
 	// files is the ListImpl of files in the selected directory to the right of the
 	// window.
-	files := theme.CreateList()
+	files := gxui.CreateList(driver, styles)
 	files.SetAdapter(adapter)
 
-	open := theme.CreateButton()
+	open := gxui.CreateButton(driver, styles)
 	open.SetText("Open...")
 	open.OnClick(func(gxui.MouseEvent) {
 		fmt.Printf("File '%s' selected!\n", files.Selected())
@@ -254,17 +254,17 @@ func appMain(driver gxui.Driver) {
 		}
 	}
 
-	splitter := theme.CreateSplitterLayout()
+	splitter := gxui.CreateSplitterLayout(driver, styles)
 	splitter.SetOrientation(gxui.Horizontal)
 	splitter.AddChild(directories)
 	splitter.AddChild(files)
 
-	topLayout := theme.CreateLinearLayout()
+	topLayout := gxui.CreateLinearLayout(driver, styles)
 	topLayout.SetDirection(gxui.TopToBottom)
 	topLayout.AddChild(fullpath)
 	topLayout.AddChild(splitter)
 
-	btmLayout := theme.CreateLinearLayout()
+	btmLayout := gxui.CreateLinearLayout(driver, styles)
 	btmLayout.SetDirection(gxui.BottomToTop)
 	btmLayout.SetHorizontalAlignment(gxui.AlignRight)
 	btmLayout.AddChild(open)

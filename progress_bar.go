@@ -30,9 +30,9 @@ type ProgressBarImpl struct {
 	progress, target int
 }
 
-func (b *ProgressBarImpl) Init(parent ProgressBarParent, app App) {
+func (b *ProgressBarImpl) Init(parent ProgressBarParent, driver Driver, styles *StyleDefs) {
 	b.parent = parent
-	b.ControlBase.Init(parent, app)
+	b.ControlBase.Init(parent, driver)
 	b.BackgroundBorderPainter.Init(parent)
 	b.desiredSize = math.MaxSize
 	b.target = 100

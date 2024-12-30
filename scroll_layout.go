@@ -23,7 +23,6 @@ type ScrollLayoutImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
 	parent       BaseContainerParent
-	app          App
 	scrollOffset math.Point
 	canScrollX   bool
 	canScrollY   bool
@@ -33,18 +32,17 @@ type ScrollLayoutImpl struct {
 	innerSize    math.Size
 }
 
-func (l *ScrollLayoutImpl) Init(parent BaseContainerParent, app App) {
-	l.ContainerBase.Init(parent, app)
+func (l *ScrollLayoutImpl) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
+	l.ContainerBase.Init(parent, driver)
 	l.BackgroundBorderPainter.Init(parent)
 
 	l.parent = parent
-	l.app = app
 	l.canScrollX = true
 	l.canScrollY = true
-	scrollBarX := app.CreateScrollBar()
+	scrollBarX := CreateScrollBar(driver, styles)
 	scrollBarX.SetOrientation(Horizontal)
 	scrollBarX.OnScroll(func(from, to int) { l.SetScrollOffset(math.Point{X: from, Y: l.scrollOffset.Y}) })
-	scrollBarY := app.CreateScrollBar()
+	scrollBarY := CreateScrollBar(driver, styles)
 	scrollBarY.SetOrientation(Vertical)
 	scrollBarY.OnScroll(func(from, to int) { l.SetScrollOffset(math.Point{X: l.scrollOffset.X, Y: from}) })
 	l.scrollBarX = l.AddChild(scrollBarX)

@@ -31,14 +31,14 @@ func init() {
 
 // CreateTheme creates and returns the theme specified on the command line.
 // The default theme is dark.
-func CreateTheme(driver gxui.Driver) gxui.App {
+func CreateTheme(driver gxui.Driver) *gxui.StyleDefs {
 	if FlagTheme == "light" {
 		return CreateLightTheme(driver, FontSize)
 	}
 	return CreateDarkTheme(driver, FontSize)
 }
 
-func CreateLightTheme(driver gxui.Driver, fontSize int) gxui.App {
+func CreateLightTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 	defaultFont, err := driver.CreateFont(gxfont.Default, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
@@ -69,11 +69,10 @@ func CreateLightTheme(driver gxui.Driver, fontSize int) gxui.App {
 		w, h = vm.Width, vm.Height
 	}
 
-	return &gxui.DefaultApp{
-		DriverInfo:               driver,
-		DefaultFontInfo:          defaultFont,
-		DefaultMonospaceFontInfo: defaultMonospaceFont,
-		WindowBackground:         gxui.White,
+	return &gxui.StyleDefs{
+		DefaultFont:          defaultFont,
+		DefaultMonospaceFont: defaultMonospaceFont,
+		WindowBackground:     gxui.White,
 
 		//                                   fontColor    brushColor   penColor
 		BubbleOverlayStyle:        gxui.CreateStyle(gxui.Gray40, gxui.Gray20, gxui.Gray40, 1.0),
@@ -106,7 +105,7 @@ func CreateLightTheme(driver gxui.Driver, fontSize int) gxui.App {
 	}
 }
 
-func CreateDarkTheme(driver gxui.Driver, fontSize int) gxui.App {
+func CreateDarkTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 	defaultFont, err := driver.CreateFont(gxfont.Default, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
@@ -137,11 +136,10 @@ func CreateDarkTheme(driver gxui.Driver, fontSize int) gxui.App {
 		w, h = vm.Width, vm.Height
 	}
 
-	return &gxui.DefaultApp{
-		DriverInfo:               driver,
-		DefaultFontInfo:          defaultFont,
-		DefaultMonospaceFontInfo: defaultMonospaceFont,
-		WindowBackground:         gxui.Black,
+	return &gxui.StyleDefs{
+		DefaultFont:          defaultFont,
+		DefaultMonospaceFont: defaultMonospaceFont,
+		WindowBackground:     gxui.Black,
 
 		//                                   fontColor    brushColor   penColor
 		BubbleOverlayStyle:        gxui.CreateStyle(gxui.Gray80, gxui.Gray20, gxui.Gray40, 1.0),

@@ -21,18 +21,20 @@ type ScrollBar interface {
 
 type ScrollBarImpl struct {
 	ControlBase
-	parent              ControlBaseParent
-	orientation         Orientation
-	thickness           int
-	minBarLength        int
-	scrollPositionFrom  int
-	scrollPositionTo    int
-	scrollLimit         int
-	railBrush, barBrush Brush
-	railPen, barPen     Pen
-	barRect             math.Rect
-	onScroll            Event
-	autoHide            bool
+	parent             ControlBaseParent
+	orientation        Orientation
+	thickness          int
+	minBarLength       int
+	scrollPositionFrom int
+	scrollPositionTo   int
+	scrollLimit        int
+	railBrush          Brush
+	barBrush           Brush
+	railPen            Pen
+	barPen             Pen
+	barRect            math.Rect
+	onScroll           Event
+	autoHide           bool
 }
 
 func (s *ScrollBarImpl) positionAt(p math.Point) int {
@@ -74,8 +76,8 @@ func (s *ScrollBarImpl) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBarImpl) Init(parent ControlBaseParent, app App) {
-	s.ControlBase.Init(parent, app)
+func (s *ScrollBarImpl) Init(parent ControlBaseParent, driver Driver) {
+	s.ControlBase.Init(parent, driver)
 
 	s.parent = parent
 	s.thickness = 10

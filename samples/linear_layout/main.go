@@ -12,8 +12,8 @@ import (
 )
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
-	layout := theme.CreateLinearLayout()
+	styles := flags.CreateTheme(driver)
+	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.SetSizeMode(gxui.Fill)
 
 	buttonState := map[gxui.Button]func() bool{}
@@ -24,7 +24,7 @@ func appMain(driver gxui.Driver) {
 	}
 
 	button := func(name string, action func(), isSelected func() bool) gxui.Button {
-		b := theme.CreateButton()
+		b := gxui.CreateButton(driver, styles)
 		b.SetText(name)
 		b.OnClick(func(gxui.MouseEvent) { action(); update() })
 		layout.AddChild(b)
@@ -77,7 +77,7 @@ func appMain(driver gxui.Driver) {
 
 	update()
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Linear layout")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Linear layout")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)

@@ -67,7 +67,7 @@ type TreeNode interface {
 	Item() AdapterItem
 
 	// Create returns a Control visualizing this node.
-	Create(theme App) Control
+	Create(driver Driver, styles *StyleDefs) Control
 }
 
 // TreeAdapter is an interface used to visualize a set of hierarchical items.
@@ -78,7 +78,7 @@ type TreeAdapter interface {
 
 	// Size returns the size that each of the item's controls will be displayed
 	// at for the given theme.
-	Size(App) math.Size
+	Size(styles *StyleDefs) math.Size
 
 	// OnDataChanged registers f to be called when there is a partial change in
 	// the items of the adapter. Scroll positions and selections should be
@@ -106,8 +106,8 @@ type TreeImpl struct {
 	creator     TreeControlCreator
 }
 
-func (t *TreeImpl) Init(parent TreeParent, app App) {
-	t.ListImpl.Init(parent, app)
+func (t *TreeImpl) Init(parent TreeParent, driver Driver, styles *StyleDefs) {
+	t.ListImpl.Init(parent, driver, styles)
 	t.FocusablePart.Init()
 	t.parent = parent
 	t.creator = defaultTreeControlCreator{}
@@ -210,11 +210,11 @@ func (t *TreeImpl) KeyPress(event KeyboardEvent) bool {
 
 type defaultTreeControlCreator struct{}
 
-func (defaultTreeControlCreator) Create(theme App, control Control, node *TreeToListNode) Control {
-	ll := theme.CreateLinearLayout()
+func (defaultTreeControlCreator) Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control {
+	ll := CreateLinearLayout(driver, styles)
 	ll.SetDirection(LeftToRight)
 
-	btn := theme.CreateButton()
+	btn := CreateButton(driver, styles)
 	btn.SetBackgroundBrush(TransparentBrush)
 	btn.SetBorderPen(CreatePen(1, Gray30))
 	btn.SetMargin(math.Spacing{L: 2, R: 2, T: 1, B: 1})
@@ -242,6 +242,6 @@ func (defaultTreeControlCreator) Create(theme App, control Control, node *TreeTo
 	return ll
 }
 
-func (defaultTreeControlCreator) Size(theme App, treeControlSize math.Size) math.Size {
+func (defaultTreeControlCreator) Size(styles *StyleDefs, treeControlSize math.Size) math.Size {
 	return treeControlSize
 }

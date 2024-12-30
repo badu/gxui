@@ -40,11 +40,11 @@ func appMain(driver gxui.Driver) {
 		os.Exit(1)
 	}
 
-	theme := flags.CreateTheme(driver)
-	img := theme.CreateImage()
+	styles := flags.CreateTheme(driver)
+	img := gxui.CreateImage(driver, styles)
 
 	mx := source.Bounds().Max
-	window := theme.CreateWindow(mx.X, mx.Y, "Image viewer")
+	window := gxui.CreateWindow(driver, styles, mx.X, mx.Y, "Image viewer")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(img)
 

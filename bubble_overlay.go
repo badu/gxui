@@ -24,8 +24,8 @@ type BubbleOverlayImpl struct {
 	pen         Pen
 }
 
-func (o *BubbleOverlayImpl) Init(parent BaseContainerParent, app App) {
-	o.ContainerBase.Init(parent, app)
+func (o *BubbleOverlayImpl) Init(parent BaseContainerParent, driver Driver) {
+	o.ContainerBase.Init(parent, driver)
 	o.parent = parent
 	o.arrowLength = 20
 	o.arrowWidth = 15

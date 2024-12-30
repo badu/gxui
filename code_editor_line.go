@@ -32,8 +32,8 @@ type CodeEditorLine struct {
 	editor *CodeEditorImpl
 }
 
-func (l *CodeEditorLine) Init(parent CodeEditorLineParent, app App, editor *CodeEditorImpl, lineIndex int) {
-	l.DefaultTextBoxLine.Init(parent, app, &editor.TextBoxImpl, lineIndex)
+func (l *CodeEditorLine) Init(parent CodeEditorLineParent, editor *CodeEditorImpl, lineIndex int) {
+	l.DefaultTextBoxLine.Init(parent, &editor.TextBoxImpl, lineIndex)
 	l.parent = parent
 	l.editor = editor
 }

@@ -29,7 +29,8 @@ type DropDownListImpl struct {
 	BackgroundBorderPainter
 	FocusablePart
 	parent      BaseContainerParent
-	app         App
+	driver      Driver
+	styles      *StyleDefs
 	list        List
 	listShowing bool
 	itemSize    math.Size
@@ -39,20 +40,21 @@ type DropDownListImpl struct {
 	onHideList  Event
 }
 
-func (l *DropDownListImpl) Init(parent BaseContainerParent, app App) {
+func (l *DropDownListImpl) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
-	l.ContainerBase.Init(parent, app)
+	l.ContainerBase.Init(parent, driver)
 	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
+	l.driver = driver
+	l.styles = styles
 
-	l.app = app
-	l.list = app.CreateList()
+	l.list = CreateList(driver, styles)
 	l.list.OnSelectionChanged(
 		func(item AdapterItem) {
 			l.parent.RemoveAll()
 			adapter := l.list.Adapter()
 			if item != nil && adapter != nil {
-				l.selected = l.AddChild(adapter.Create(l.app, adapter.ItemIndex(item)))
+				l.selected = l.AddChild(adapter.Create(driver, styles, adapter.ItemIndex(item)))
 			} else {
 				l.selected = nil
 			}
@@ -103,7 +105,7 @@ func (l *DropDownListImpl) DesiredSize(min, max math.Size) math.Size {
 
 func (l *DropDownListImpl) DataReplaced() {
 	adapter := l.list.Adapter()
-	itemSize := adapter.Size(l.app)
+	itemSize := adapter.Size(l.styles)
 	l.itemSize = itemSize
 	l.parent.Relayout()
 }

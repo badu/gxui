@@ -38,9 +38,9 @@ func verifyDetach(parent DrawPaintParent) {
 	}
 }
 
-func (d *DrawPaintPart) Init(parent DrawPaintParent, app App) {
+func (d *DrawPaintPart) Init(parent DrawPaintParent, driver Driver) {
 	d.parent = parent
-	d.driver = app.Driver()
+	d.driver = driver
 
 	if debugVerifyDetachOnGC {
 		runtime.SetFinalizer(d.parent, verifyDetach)

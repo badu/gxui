@@ -57,11 +57,11 @@ type ListAdapter interface {
 	ItemIndex(item AdapterItem) int
 
 	// Create returns a Control visualizing the item at the specified index.
-	Create(theme App, index int) Control
+	Create(driver Driver, styles *StyleDefs, index int) Control
 
 	// Size returns the size that each of the item's controls will be displayed
 	// at for the given theme.
-	Size(app App) math.Size
+	Size(styles *StyleDefs) math.Size
 
 	// OnDataChanged registers f to be called when there is a partial change in
 	// the items of the adapter. Scroll positions and selections should be
@@ -87,7 +87,8 @@ type ListImpl struct {
 	BackgroundBorderPainter
 	FocusablePart
 	parent                   ListParent
-	app                      App
+	driver                   Driver
+	styles                   *StyleDefs
 	adapter                  ListAdapter
 	scrollBar                ScrollBar
 	scrollBarChild           *Child
@@ -107,14 +108,14 @@ type ListImpl struct {
 	dataReplacedSubscription EventSubscription
 }
 
-func (l *ListImpl) Init(parent ListParent, app App) {
+func (l *ListImpl) Init(parent ListParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
-	l.ContainerBase.Init(parent, app)
+	l.ContainerBase.Init(parent, driver)
 	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
-
-	l.app = app
-	l.scrollBar = app.CreateScrollBar()
+	l.driver = driver
+	l.styles = styles
+	l.scrollBar = CreateScrollBar(driver, styles)
 	l.scrollBarChild = l.AddChild(l.scrollBar)
 	l.scrollBarEnabled = true
 	l.scrollBar.OnScroll(func(from, to int) { l.SetScrollOffset(from) })
@@ -185,7 +186,7 @@ func (l *ListImpl) LayoutChildren() {
 				panic(fmt.Errorf("adapter for control '%s' returned duplicate item (%v) for indices %v and %v", Path(l.parent), item, details.index, idx))
 			}
 		} else {
-			control := l.adapter.Create(l.app, idx)
+			control := l.adapter.Create(l.driver, l.styles, idx)
 			details.onClickSubscription = control.OnClick(
 				func(ev MouseEvent) {
 					l.ItemClicked(ev, item)
@@ -341,7 +342,7 @@ func (l *ListImpl) VisibleItemRange(includePartiallyVisible bool) (int, int) {
 }
 
 func (l *ListImpl) SizeChanged() {
-	l.itemSize = l.adapter.Size(l.app)
+	l.itemSize = l.adapter.Size(l.styles)
 	l.scrollBar.SetScrollLimit(l.itemCount * l.MajorAxisItemSize())
 	l.SetScrollOffset(l.scrollOffset)
 	l.parent.Relayout()

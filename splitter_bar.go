@@ -12,19 +12,18 @@ type SplitterBar struct {
 	ControlBase
 	onDrag          func(wndPnt math.Point)
 	parent          ControlBaseParent
-	app             App
 	onDragStart     Event
 	onDragEnd       Event
 	backgroundColor Color
 	foregroundColor Color
+	styles          *StyleDefs
 	isDragging      bool
 }
 
-func (b *SplitterBar) Init(parent ControlBaseParent, app App) {
-	b.ControlBase.Init(parent, app)
-
+func (b *SplitterBar) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs) {
+	b.ControlBase.Init(parent, driver)
+	b.styles = styles
 	b.parent = parent
-	b.app = app
 	b.onDragStart = CreateEvent(func(MouseEvent) {})
 	b.onDragEnd = CreateEvent(func(MouseEvent) {})
 	b.backgroundColor = Red

@@ -15,10 +15,10 @@ type testTreeNode struct {
 	children []*testTreeNode
 }
 
-func (n *testTreeNode) Count() int                { return len(n.children) }
-func (n *testTreeNode) NodeAt(index int) TreeNode { return n.children[index] }
-func (n *testTreeNode) Item() AdapterItem         { return n.item }
-func (n *testTreeNode) Create(theme App) Control  { return nil }
+func (n *testTreeNode) Count() int                                      { return len(n.children) }
+func (n *testTreeNode) NodeAt(index int) TreeNode                       { return n.children[index] }
+func (n *testTreeNode) Item() AdapterItem                               { return n.item }
+func (n *testTreeNode) Create(driver Driver, styles *StyleDefs) Control { return nil }
 
 func (n *testTreeNode) ItemIndex(item AdapterItem) int {
 	for i, c := range n.children {
@@ -37,7 +37,7 @@ type testTreeAdapter struct {
 	testTreeNode
 }
 
-func (n *testTreeNode) Size(theme App) math.Size { return math.ZeroSize }
+func (n *testTreeNode) Size(styles *StyleDefs) math.Size { return math.ZeroSize }
 
 // n creates and returns a testTreeNode with the item i and children c.
 func n(i AdapterItem, c ...*testTreeNode) *testTreeNode {
@@ -53,19 +53,16 @@ func a(c ...*testTreeNode) (list_adapter *TreeToListAdapter, tree_adapter *testT
 
 func test(t *testing.T, name string, adapter *TreeToListAdapter, expected ...AdapterItem) {
 	if len(expected) != adapter.Count() {
-		t.Errorf("%s: Count was not as expected.\nExpected: %v\nGot:      %v",
-			name, len(expected), adapter.Count())
+		t.Errorf("%s: Count was not as expected.\nExpected: %v\nGot:      %v", name, len(expected), adapter.Count())
 	}
 	for expected_index, expected_item := range expected {
 		got_item := adapter.ItemAt(expected_index)
 		got_index := adapter.ItemIndex(expected_item)
 		if expected_item != got_item {
-			t.Errorf("%s: Item at index %v was not as expected.\nExpected: %v\nGot:      %v",
-				name, expected_index, expected_item, got_item)
+			t.Errorf("%s: Item at index %v was not as expected.\nExpected: %v\nGot:      %v", name, expected_index, expected_item, got_item)
 		}
 		if expected_index != got_index {
-			t.Errorf("%s: Index of item %v was not as expected.\nExpected: %v\nGot:      %v",
-				name, expected_item, expected_item, got_item)
+			t.Errorf("%s: Index of item %v was not as expected.\nExpected: %v\nGot:      %v", name, expected_item, expected_item, got_item)
 		}
 	}
 }

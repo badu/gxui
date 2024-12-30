@@ -18,8 +18,8 @@ type DefaultTextBoxLine struct {
 	caretWidth int
 }
 
-func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, app App, textbox *TextBoxImpl, lineIndex int) {
-	t.ControlBase.Init(parent, app)
+func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, textbox *TextBoxImpl, lineIndex int) {
+	t.ControlBase.Init(parent, textbox.driver)
 	t.parent = parent
 	t.textbox = textbox
 	t.lineIndex = lineIndex

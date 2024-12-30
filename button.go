@@ -33,18 +33,20 @@ type ButtonImpl struct {
 	LinearLayoutImpl
 	FocusablePart
 	parent     ButtonParent
-	app        App
+	driver     Driver
+	styles     *StyleDefs
 	label      Label
 	buttonType ButtonType
 	checked    bool
 }
 
-func (b *ButtonImpl) Init(parent ButtonParent, app App) {
-	b.LinearLayoutImpl.Init(parent, app)
+func (b *ButtonImpl) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
+	b.LinearLayoutImpl.Init(parent, driver)
 	b.FocusablePart.Init()
 
 	b.buttonType = PushButton
-	b.app = app
+	b.driver = driver
+	b.styles = styles
 	b.parent = parent
 }
 
@@ -72,7 +74,7 @@ func (b *ButtonImpl) SetText(text string) {
 		}
 	} else {
 		if b.label == nil {
-			b.label = b.app.CreateLabel()
+			b.label = CreateLabel(b.driver, b.styles)
 			b.label.SetMargin(math.ZeroSpacing)
 			b.AddChild(b.label)
 		}

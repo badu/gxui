@@ -36,14 +36,11 @@ type LabelImpl struct {
 	text                string
 }
 
-func (l *LabelImpl) Init(parent ControlBaseParent, app App, font Font, color Color) {
-	if font == nil {
-		panic("Cannot create a label with a nil font")
-	}
-	l.ControlBase.Init(parent, app)
+func (l *LabelImpl) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs) {
+	l.ControlBase.Init(parent, driver)
 	l.parent = parent
-	l.font = font
-	l.color = color
+	l.font = styles.DefaultFont
+	l.color = styles.LabelStyle.FontColor
 	l.horizontalAlignment = AlignLeft
 	l.verticalAlignment = AlignMiddle
 }

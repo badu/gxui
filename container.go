@@ -256,12 +256,12 @@ type ContainerBase struct {
 	VisiblePart
 }
 
-func (c *ContainerBase) Init(parent BaseContainerParent, app App) {
+func (c *ContainerBase) Init(parent BaseContainerParent, driver Driver) {
 	c.AttachablePart.Init()
 	c.ContainerPart.Init(parent)
-	c.DrawPaintPart.Init(parent, app)
+	c.DrawPaintPart.Init(parent, driver)
 	c.InputEventHandlerPart.Init()
-	c.LayoutablePart.Init(parent, app)
+	c.LayoutablePart.Init(parent, driver)
 	c.PaddablePart.Init(parent)
 	c.PaintChildrenPart.Init(parent)
 	c.ParentablePart.Init()

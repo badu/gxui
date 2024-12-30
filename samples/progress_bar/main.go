@@ -14,21 +14,21 @@ import (
 )
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
-	label := theme.CreateLabel()
+	label := gxui.CreateLabel(driver, styles)
 	label.SetText("This is a progress bar:")
 
-	progressBar := theme.CreateProgressBar()
-	progressBar.SetDesiredSize(math.Size{W: 400, H: theme.DefaultFontSize() + 4})
+	progressBar := gxui.CreateProgressBar(driver, styles)
+	progressBar.SetDesiredSize(math.Size{W: 400, H: styles.FontSize + 4})
 	progressBar.SetTarget(100)
 
-	layout := theme.CreateLinearLayout()
+	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.AddChild(label)
 	layout.AddChild(progressBar)
 	layout.SetHorizontalAlignment(gxui.AlignCenter)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Progress bar")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Progress bar")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)

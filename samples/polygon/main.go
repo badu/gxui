@@ -58,8 +58,8 @@ func drawMoon(canvas gxui.Canvas, center math.Point, radius float32) {
 }
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Polygon")
+	styles := flags.CreateTheme(driver)
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Polygon")
 	window.SetScale(flags.DefaultScaleFactor)
 
 	canvas := driver.CreateCanvas(math.Size{W: 1000, H: 1000})
@@ -72,7 +72,7 @@ func appMain(driver gxui.Driver) {
 	drawMoon(canvas, math.Point{X: 400, Y: 300}, 200)
 	canvas.Complete()
 
-	image := theme.CreateImage()
+	image := gxui.CreateImage(driver, styles)
 	image.SetCanvas(canvas)
 	window.AddChild(image)
 

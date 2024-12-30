@@ -233,8 +233,8 @@ type LinearLayoutImpl struct {
 	BackgroundBorderPainter
 }
 
-func (l *LinearLayoutImpl) Init(parent BaseContainerParent, theme App) {
-	l.ContainerBase.Init(parent, theme)
+func (l *LinearLayoutImpl) Init(parent BaseContainerParent, driver Driver) {
+	l.ContainerBase.Init(parent, driver)
 	l.LinearLayoutPart.Init(parent)
 	l.BackgroundBorderPainter.Init(parent)
 	l.SetMouseEventTarget(true)

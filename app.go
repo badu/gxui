@@ -9,38 +9,9 @@ import (
 	"time"
 )
 
-type App interface {
-	Driver() Driver
-	DefaultFont() Font
-	SetDefaultFont(font Font)
-	DefaultMonospaceFont() Font
-	SetDefaultMonospaceFont(font Font)
-	CreateBubbleOverlay() BubbleOverlay
-	CreateButton() Button
-	CreateCodeEditor() CodeEditor
-	CreateDropDownList() DropDownList
-	CreateImage() Image
-	CreateLabel() Label
-	CreateLinearLayout() LinearLayout
-	CreateList() List
-	CreatePanelHolder() PanelHolder
-	CreateProgressBar() ProgressBar
-	CreateScrollBar() ScrollBar
-	CreateScrollLayout() ScrollLayout
-	CreateSplitterLayout() SplitterLayout
-	CreateTableLayout() TableLayout
-	CreateTextBox() TextBox
-	CreateTree() Tree
-	CreateWindow(width, height int, title string) Window
-	DisplayWidth() int
-	DisplayHeight() int
-	DefaultFontSize() int
-}
-
-type DefaultApp struct {
-	DriverInfo               Driver
-	DefaultFontInfo          Font
-	DefaultMonospaceFontInfo Font
+type StyleDefs struct {
+	DefaultFont          Font
+	DefaultMonospaceFont Font
 
 	WindowBackground Color
 
@@ -83,45 +54,23 @@ type DefaultApp struct {
 	FontSize     int
 }
 
-// gxui.App compliance
-func (a *DefaultApp) Driver() Driver {
-	return a.DriverInfo
-}
-
-func (a *DefaultApp) DefaultFont() Font {
-	return a.DefaultFontInfo
-}
-
-func (a *DefaultApp) SetDefaultFont(f Font) {
-	a.DefaultFontInfo = f
-}
-
-func (a *DefaultApp) DefaultMonospaceFont() Font {
-	return a.DefaultMonospaceFontInfo
-}
-
-func (a *DefaultApp) SetDefaultMonospaceFont(font Font) {
-	a.DefaultMonospaceFontInfo = font
-}
-
-func (a *DefaultApp) CreateBubbleOverlay() BubbleOverlay {
+func CreateBubbleOverlay(driver Driver, styles *StyleDefs) BubbleOverlay {
 	result := &BubbleOverlayImpl{}
-	result.Init(result, a)
+	result.Init(result, driver)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetPadding(math.Spacing{L: 5, T: 5, R: 5, B: 5})
-	result.SetPen(a.BubbleOverlayStyle.Pen)
-	result.SetBrush(a.BubbleOverlayStyle.Brush)
+	result.SetPen(styles.BubbleOverlayStyle.Pen)
+	result.SetBrush(styles.BubbleOverlayStyle.Brush)
 	return result
 }
 
-func (a *DefaultApp) CreateButton() Button {
+func CreateButton(driver Driver, styles *StyleDefs) Button {
 	result := &AppButton{}
-	result.Init(result, a)
-	result.app = a
+	result.Init(result, driver, styles)
 	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetBackgroundBrush(result.app.ButtonDefaultStyle.Brush)
-	result.SetBorderPen(result.app.ButtonDefaultStyle.Pen)
+	result.SetBackgroundBrush(styles.ButtonDefaultStyle.Brush)
+	result.SetBorderPen(styles.ButtonDefaultStyle.Pen)
 	result.OnMouseEnter(func(event MouseEvent) { result.Redraw() })
 	result.OnMouseExit(func(event MouseEvent) { result.Redraw() })
 	result.OnMouseDown(func(event MouseEvent) { result.Redraw() })
@@ -131,88 +80,83 @@ func (a *DefaultApp) CreateButton() Button {
 	return result
 }
 
-func (a *DefaultApp) CreateCodeEditor() CodeEditor {
+func CreateCodeEditor(driver Driver, styles *StyleDefs) CodeEditor {
 	result := &AppCodeEditor{}
-	result.app = a
-	result.Init(result, a.Driver(), a, a.DefaultMonospaceFont())
-	result.SetTextColor(a.TextBoxDefaultStyle.FontColor)
+	result.Init(result, driver, styles)
+	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetBorderPen(TransparentPen)
 	return result
 }
 
-func (a *DefaultApp) CreateDropDownList() DropDownList {
+func CreateDropDownList(driver Driver, styles *StyleDefs) DropDownList {
 	result := &AppDropDownList{}
-	result.Init(result, a)
+	result.Init(result, driver, styles)
 	result.OnGainedFocus(result.Redraw)
 	result.OnLostFocus(result.Redraw)
 	result.List().OnAttach(result.Redraw)
 	result.List().OnDetach(result.Redraw)
 	result.OnMouseEnter(
 		func(event MouseEvent) {
-			result.SetBorderPen(a.DropDownListOverStyle.Pen)
+			result.SetBorderPen(styles.DropDownListOverStyle.Pen)
 		},
 	)
 	result.OnMouseExit(
 		func(event MouseEvent) {
-			result.SetBorderPen(a.DropDownListDefaultStyle.Pen)
+			result.SetBorderPen(styles.DropDownListDefaultStyle.Pen)
 		},
 	)
 	result.SetPadding(math.CreateSpacing(2))
-	result.SetBorderPen(a.DropDownListDefaultStyle.Pen)
-	result.SetBackgroundBrush(a.DropDownListDefaultStyle.Brush)
-	result.app = a
+	result.SetBorderPen(styles.DropDownListDefaultStyle.Pen)
+	result.SetBackgroundBrush(styles.DropDownListDefaultStyle.Brush)
 	return result
 }
 
-func (a *DefaultApp) CreateImage() Image {
+func CreateImage(driver Driver, styles *StyleDefs) Image {
 	result := &ImageImpl{}
-	result.Init(result, a)
+	result.Init(result, driver)
 	return result
 }
 
-func (a *DefaultApp) CreateLabel() Label {
+func CreateLabel(driver Driver, styles *StyleDefs) Label {
 	result := &LabelImpl{}
-	result.Init(result, a, a.DefaultFont(), a.LabelStyle.FontColor)
+	result.Init(result, driver, styles)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	return result
 }
 
-func (a *DefaultApp) CreateLinearLayout() LinearLayout {
+func CreateLinearLayout(driver Driver, styles *StyleDefs) LinearLayout {
 	result := &LinearLayoutImpl{}
-	result.Init(result, a)
+	result.Init(result, driver)
 	return result
 }
 
-func (a *DefaultApp) CreateList() List {
+func CreateList(driver Driver, styles *StyleDefs) List {
 	result := &AppList{}
-	result.Init(result, a)
+	result.Init(result, driver, styles)
 	result.OnGainedFocus(result.Redraw)
 	result.OnLostFocus(result.Redraw)
 	result.SetPadding(math.CreateSpacing(2))
 	result.SetBorderPen(TransparentPen)
-	result.app = a
 	return result
 }
 
-func (a *DefaultApp) CreatePanelHolder() PanelHolder {
+func CreatePanelHolder(driver Driver, styles *StyleDefs) PanelHolder {
 	result := &AppPanelHolder{}
-	result.PanelHolderImpl.Init(result, a)
-	result.app = a
+	result.PanelHolderImpl.Init(result, driver, styles)
 	result.SetMargin(math.Spacing{L: 0, T: 2, R: 0, B: 0})
 	return result
 }
 
-func (a *DefaultApp) CreateProgressBar() ProgressBar {
+func CreateProgressBar(driver Driver, styles *StyleDefs) ProgressBar {
 	result := &AppProgressBar{}
-	result.Init(result, a)
-	result.app = a
+	result.Init(result, driver, styles)
 	result.chevronWidth = 10
 
 	result.OnAttach(
 		func() {
-			driver := a.Driver()
+
 			result.ticker = time.NewTicker(time.Millisecond * 50)
 			go func() {
 				for _ = range result.ticker.C {
@@ -239,25 +183,25 @@ func (a *DefaultApp) CreateProgressBar() ProgressBar {
 	return result
 }
 
-func (a *DefaultApp) CreateScrollBar() ScrollBar {
+func CreateScrollBar(driver Driver, styles *StyleDefs) ScrollBar {
 	result := &ScrollBarImpl{}
-	result.Init(result, a)
-	result.SetBarBrush(a.ScrollBarBarDefaultStyle.Brush)
-	result.SetBarPen(a.ScrollBarBarDefaultStyle.Pen)
-	result.SetRailBrush(a.ScrollBarRailDefaultStyle.Brush)
-	result.SetRailPen(a.ScrollBarRailDefaultStyle.Pen)
+	result.Init(result, driver)
+	result.SetBarBrush(styles.ScrollBarBarDefaultStyle.Brush)
+	result.SetBarPen(styles.ScrollBarBarDefaultStyle.Pen)
+	result.SetRailBrush(styles.ScrollBarRailDefaultStyle.Brush)
+	result.SetRailPen(styles.ScrollBarRailDefaultStyle.Pen)
 	updateColors := func() {
 		switch {
 		case result.IsMouseOver():
-			result.SetBarBrush(a.ScrollBarBarOverStyle.Brush)
-			result.SetBarPen(a.ScrollBarBarOverStyle.Pen)
-			result.SetRailBrush(a.ScrollBarRailOverStyle.Brush)
-			result.SetRailPen(a.ScrollBarRailOverStyle.Pen)
+			result.SetBarBrush(styles.ScrollBarBarOverStyle.Brush)
+			result.SetBarPen(styles.ScrollBarBarOverStyle.Pen)
+			result.SetRailBrush(styles.ScrollBarRailOverStyle.Brush)
+			result.SetRailPen(styles.ScrollBarRailOverStyle.Pen)
 		default:
-			result.SetBarBrush(a.ScrollBarBarDefaultStyle.Brush)
-			result.SetBarPen(a.ScrollBarBarDefaultStyle.Pen)
-			result.SetRailBrush(a.ScrollBarRailDefaultStyle.Brush)
-			result.SetRailPen(a.ScrollBarRailDefaultStyle.Pen)
+			result.SetBarBrush(styles.ScrollBarBarDefaultStyle.Brush)
+			result.SetBarPen(styles.ScrollBarBarDefaultStyle.Pen)
+			result.SetRailBrush(styles.ScrollBarRailDefaultStyle.Brush)
+			result.SetRailPen(styles.ScrollBarRailDefaultStyle.Pen)
 		}
 		result.Redraw()
 	}
@@ -266,80 +210,63 @@ func (a *DefaultApp) CreateScrollBar() ScrollBar {
 	return result
 }
 
-func (a *DefaultApp) CreateScrollLayout() ScrollLayout {
+func CreateScrollLayout(driver Driver, styles *StyleDefs) ScrollLayout {
 	result := &ScrollLayoutImpl{}
-	result.Init(result, a)
+	result.Init(result, driver, styles)
 	return result
 }
 
-func (a *DefaultApp) CreateSplitterLayout() SplitterLayout {
+func CreateSplitterLayout(driver Driver, styles *StyleDefs) SplitterLayout {
 	result := &AppSplitterLayout{}
-	result.app = a
-	result.Init(result, a)
+	result.Init(result, driver, styles)
 	return result
 }
 
-func (a *DefaultApp) CreateTableLayout() TableLayout {
+func CreateTableLayout(driver Driver, styles *StyleDefs) TableLayout {
 	result := &TableLayoutImpl{}
-	result.Init(result, a)
+	result.Init(result, driver)
 	return result
 }
 
-func (a *DefaultApp) CreateTextBox() TextBox {
+func CreateTextBox(driver Driver, styles *StyleDefs) TextBox {
 	result := &AppTextBox{}
-	result.Init(result, a.Driver(), a, a.DefaultFont())
-	result.SetTextColor(a.TextBoxDefaultStyle.FontColor)
+	result.Init(result, driver, styles, styles.DefaultFont)
+	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetBackgroundBrush(a.TextBoxDefaultStyle.Brush)
-	result.SetBorderPen(a.TextBoxDefaultStyle.Pen)
+	result.SetBackgroundBrush(styles.TextBoxDefaultStyle.Brush)
+	result.SetBorderPen(styles.TextBoxDefaultStyle.Pen)
 
 	result.OnMouseEnter(
 		func(event MouseEvent) {
-			result.SetBackgroundBrush(a.TextBoxOverStyle.Brush)
-			result.SetBorderPen(a.TextBoxOverStyle.Pen)
+			result.SetBackgroundBrush(styles.TextBoxOverStyle.Brush)
+			result.SetBorderPen(styles.TextBoxOverStyle.Pen)
 		},
 	)
 
 	result.OnMouseExit(
 		func(event MouseEvent) {
-			result.SetBackgroundBrush(a.TextBoxDefaultStyle.Brush)
-			result.SetBorderPen(a.TextBoxDefaultStyle.Pen)
+			result.SetBackgroundBrush(styles.TextBoxDefaultStyle.Brush)
+			result.SetBorderPen(styles.TextBoxDefaultStyle.Pen)
 		},
 	)
-
-	result.app = a
-
 	return result
 }
 
-func (a *DefaultApp) CreateTree() Tree {
+func CreateTree(driver Driver, styles *StyleDefs) Tree {
 	result := &AppTree{}
-	result.Init(result, a)
+	result.Init(result, driver, styles)
 	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetBorderPen(TransparentPen)
-	result.app = a
 	result.SetControlCreator(treeControlCreator{})
 	return result
 }
 
-func (a *DefaultApp) CreateWindow(width, height int, title string) Window {
+func CreateWindow(driver Driver, styles *StyleDefs, width, height int, title string) Window {
 	result := &WindowImpl{}
-	result.Init(result, a.Driver(), width, height, title)
-	result.SetBackgroundBrush(CreateBrush(a.WindowBackground))
+	result.Init(result, driver, width, height, title)
+	result.SetBackgroundBrush(CreateBrush(styles.WindowBackground))
 	return result
-}
-
-func (a *DefaultApp) DisplayWidth() int {
-	return a.ScreenWidth
-}
-
-func (a *DefaultApp) DisplayHeight() int {
-	return a.ScreenHeight
-}
-
-func (a *DefaultApp) DefaultFontSize() int {
-	return a.FontSize
 }
 
 type Style struct {
@@ -358,24 +285,23 @@ func CreateStyle(fontColor, brushColor, penColor Color, penWidth float32) Style 
 
 type AppButton struct {
 	ButtonImpl
-	app *DefaultApp
 }
 
 // Button internal overrides
 func (b *AppButton) Paint(canvas Canvas) {
 	pen := b.ButtonImpl.BorderPen()
 	brush := b.ButtonImpl.BackgroundBrush()
-	fontColor := b.app.ButtonDefaultStyle.FontColor
+	fontColor := b.styles.ButtonDefaultStyle.FontColor
 
 	switch {
 	case b.IsMouseDown(MouseButtonLeft) && b.IsMouseOver():
-		pen = b.app.ButtonPressedStyle.Pen
-		brush = b.app.ButtonPressedStyle.Brush
-		fontColor = b.app.ButtonPressedStyle.FontColor
+		pen = b.styles.ButtonPressedStyle.Pen
+		brush = b.styles.ButtonPressedStyle.Brush
+		fontColor = b.styles.ButtonPressedStyle.FontColor
 	case b.IsMouseOver():
-		pen = b.app.ButtonOverStyle.Pen
-		brush = b.app.ButtonOverStyle.Brush
-		fontColor = b.app.ButtonOverStyle.FontColor
+		pen = b.styles.ButtonOverStyle.Pen
+		brush = b.styles.ButtonOverStyle.Brush
+		fontColor = b.styles.ButtonOverStyle.FontColor
 	}
 
 	if label := b.Label(); label != nil {
@@ -391,21 +317,20 @@ func (b *AppButton) Paint(canvas Canvas) {
 	canvas.DrawRoundedRect(rect, 2, 2, 2, 2, pen, TransparentBrush)
 
 	if b.IsChecked() {
-		pen = b.app.HighlightStyle.Pen
-		brush = b.app.HighlightStyle.Brush
+		pen = b.styles.HighlightStyle.Pen
+		brush = b.styles.HighlightStyle.Brush
 		canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, pen, brush)
 	}
 
 	if b.HasFocus() {
-		pen = b.app.FocusedStyle.Pen
-		brush = b.app.FocusedStyle.Brush
+		pen = b.styles.FocusedStyle.Pen
+		brush = b.styles.FocusedStyle.Brush
 		canvas.DrawRoundedRect(rect.ContractI(int(pen.Width)), 3.0, 3.0, 3.0, 3.0, pen, brush)
 	}
 }
 
 type AppCodeEditor struct {
 	CodeEditorImpl
-	app *DefaultApp
 }
 
 // mixins.CodeEditorImpl overrides
@@ -414,20 +339,19 @@ func (t *AppCodeEditor) Paint(canvas Canvas) {
 
 	if t.HasFocus() {
 		rect := t.Size().Rect()
-		canvas.DrawRoundedRect(rect, 3, 3, 3, 3, t.app.FocusedStyle.Pen, t.app.FocusedStyle.Brush)
+		canvas.DrawRoundedRect(rect, 3, 3, 3, 3, t.styles.FocusedStyle.Pen, t.styles.FocusedStyle.Brush)
 	}
 }
 
 func (t *AppCodeEditor) CreateSuggestionList() List {
-	result := t.app.CreateList()
-	result.SetBackgroundBrush(t.app.CodeSuggestionListStyle.Brush)
-	result.SetBorderPen(t.app.CodeSuggestionListStyle.Pen)
+	result := CreateList(t.driver, t.styles)
+	result.SetBackgroundBrush(t.styles.CodeSuggestionListStyle.Brush)
+	result.SetBorderPen(t.styles.CodeSuggestionListStyle.Pen)
 	return result
 }
 
 type AppDropDownList struct {
 	DropDownListImpl
-	app *DefaultApp
 }
 
 // mixin.ListImpl overrides
@@ -435,17 +359,16 @@ func (l *AppDropDownList) Paint(canvas Canvas) {
 	l.DropDownListImpl.Paint(canvas)
 	if l.HasFocus() || l.ListShowing() {
 		r := l.Size().Rect().ContractI(1)
-		canvas.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.app.FocusedStyle.Pen, l.app.FocusedStyle.Brush)
+		canvas.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
 	}
 }
 
 func (l *AppDropDownList) DrawSelection(c Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.app.HighlightStyle.Pen, l.app.HighlightStyle.Brush)
+	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
 }
 
 type AppList struct {
 	ListImpl
-	app *DefaultApp
 }
 
 // mixin.ListImpl overrides
@@ -453,12 +376,12 @@ func (l *AppList) Paint(canvas Canvas) {
 	l.ListImpl.Paint(canvas)
 	if l.HasFocus() {
 		rect := l.Size().Rect().ContractI(1)
-		canvas.DrawRoundedRect(rect, 3.0, 3.0, 3.0, 3.0, l.app.FocusedStyle.Pen, l.app.FocusedStyle.Brush)
+		canvas.DrawRoundedRect(rect, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
 	}
 }
 
 func (l *AppList) PaintSelection(c Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.app.HighlightStyle.Pen, l.app.HighlightStyle.Brush)
+	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
 }
 
 func (l *AppList) PaintMouseOverBackground(c Canvas, r math.Rect) {
@@ -467,13 +390,11 @@ func (l *AppList) PaintMouseOverBackground(c Canvas, r math.Rect) {
 
 type AppPanelHolder struct {
 	PanelHolderImpl
-	app *DefaultApp
 }
 
 func (p *AppPanelHolder) CreatePanelTab() PanelTab {
 	result := &AppPanelTab{}
-	result.ButtonImpl.Init(result, p.app)
-	result.app = p.app
+	result.ButtonImpl.Init(result, p.driver, p.styles)
 	result.SetPadding(math.Spacing{L: 5, T: 3, R: 5, B: 3})
 	result.OnMouseEnter(func(MouseEvent) { result.Redraw() })
 	result.OnMouseExit(func(MouseEvent) { result.Redraw() })
@@ -488,14 +409,13 @@ func (p *AppPanelHolder) Paint(c Canvas) {
 	panel := p.SelectedPanel()
 	if panel != nil {
 		bounds := p.Children().Find(panel).Bounds()
-		c.DrawRoundedRect(bounds, 0.0, 0.0, 3.0, 3.0, p.app.PanelBackgroundStyle.Pen, p.app.PanelBackgroundStyle.Brush)
+		c.DrawRoundedRect(bounds, 0.0, 0.0, 3.0, 3.0, p.styles.PanelBackgroundStyle.Pen, p.styles.PanelBackgroundStyle.Brush)
 	}
 	p.PanelHolderImpl.Paint(c)
 }
 
 type AppPanelTab struct {
 	ButtonImpl
-	app    *DefaultApp
 	active bool
 }
 
@@ -509,11 +429,11 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 	var style Style
 	switch {
 	case t.IsMouseDown(MouseButtonLeft) && t.IsMouseOver():
-		style = t.app.TabPressedStyle
+		style = t.styles.TabPressedStyle
 	case t.IsMouseOver():
-		style = t.app.TabOverStyle
+		style = t.styles.TabOverStyle
 	default:
-		style = t.app.TabDefaultStyle
+		style = t.styles.TabDefaultStyle
 	}
 	if l := t.Label(); l != nil {
 		l.SetColor(style.FontColor)
@@ -522,13 +442,13 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 	canvas.DrawRoundedRect(size.Rect(), 5.0, 5.0, 0.0, 0.0, style.Pen, style.Brush)
 
 	if t.HasFocus() {
-		style = t.app.FocusedStyle
+		style = t.styles.FocusedStyle
 		r := math.CreateRect(1, 1, size.W-1, size.H-1)
 		canvas.DrawRoundedRect(r, 4.0, 4.0, 0.0, 0.0, style.Pen, style.Brush)
 	}
 
 	if t.active {
-		style = t.app.TabActiveHighlightStyle
+		style = t.styles.TabActiveHighlightStyle
 		r := math.CreateRect(1, size.H-1, size.W-1, size.H)
 		canvas.DrawRect(r, style.Brush)
 	}
@@ -538,7 +458,6 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 
 type AppProgressBar struct {
 	ProgressBarImpl
-	app          *DefaultApp
 	ticker       *time.Ticker
 	chevrons     Canvas
 	chevronWidth int
@@ -557,7 +476,7 @@ func (b *AppProgressBar) SetSize(size math.Size) {
 
 	b.chevrons = nil
 	if size.Area() > 0 {
-		b.chevrons = b.app.Driver().CreateCanvas(size)
+		b.chevrons = b.ControlBase.DrawPaintPart.driver.CreateCanvas(size)
 		b.chevronWidth = size.H / 2
 		cw := b.chevronWidth
 		for x := -cw * 2; x < size.W; x += cw * 2 {
@@ -599,24 +518,23 @@ func (b *AppProgressBar) PaintProgress(canvas Canvas, rect math.Rect, frac float
 
 type AppSplitterLayout struct {
 	SplitterLayoutImpl
-	app *DefaultApp
 }
 
 // mixins.SplitterLayoutImpl overrides
 func (l *AppSplitterLayout) CreateSplitterBar() Control {
 	result := &SplitterBar{}
-	result.Init(result, l.app)
-	result.SetBackgroundColor(l.app.SplitterBarDefaultStyle.Brush.Color)
-	result.SetForegroundColor(l.app.SplitterBarDefaultStyle.Pen.Color)
+	result.Init(result, l.driver, l.styles)
+	result.SetBackgroundColor(l.styles.SplitterBarDefaultStyle.Brush.Color)
+	result.SetForegroundColor(l.styles.SplitterBarDefaultStyle.Pen.Color)
 	result.OnSplitterDragged(func(wndPnt math.Point) { l.SplitterDragged(result, wndPnt) })
 	updateForegroundColor := func() {
 		switch {
 		case result.IsDragging():
-			result.SetForegroundColor(l.app.HighlightStyle.Pen.Color)
+			result.SetForegroundColor(l.styles.HighlightStyle.Pen.Color)
 		case result.IsMouseOver():
-			result.SetForegroundColor(l.app.SplitterBarOverStyle.Pen.Color)
+			result.SetForegroundColor(l.styles.SplitterBarOverStyle.Pen.Color)
 		default:
-			result.SetForegroundColor(l.app.SplitterBarDefaultStyle.Pen.Color)
+			result.SetForegroundColor(l.styles.SplitterBarDefaultStyle.Pen.Color)
 		}
 		result.Redraw()
 	}
@@ -630,7 +548,6 @@ func (l *AppSplitterLayout) CreateSplitterBar() Control {
 
 type AppTextBox struct {
 	TextBoxImpl
-	app *DefaultApp
 }
 
 // mixins.TextBoxImpl overrides
@@ -639,26 +556,13 @@ func (t *AppTextBox) Paint(canvas Canvas) {
 
 	if t.HasFocus() {
 		rect := t.Size().Rect()
-		style := t.app.FocusedStyle
+		style := t.styles.FocusedStyle
 		canvas.DrawRoundedRect(rect, 3, 3, 3, 3, style.Pen, style.Brush)
 	}
 }
 
 type AppTree struct {
 	TreeImpl
-	app *DefaultApp
-}
-
-var expandedPoly = Polygon{
-	PolygonVertex{Position: math.Point{X: 2, Y: 3}},
-	PolygonVertex{Position: math.Point{X: 8, Y: 3}},
-	PolygonVertex{Position: math.Point{X: 5, Y: 8}},
-}
-
-var collapsedPoly = Polygon{
-	PolygonVertex{Position: math.Point{X: 3, Y: 2}},
-	PolygonVertex{Position: math.Point{X: 8, Y: 5}},
-	PolygonVertex{Position: math.Point{X: 3, Y: 8}},
 }
 
 // mixins.TreeImpl overrides
@@ -668,7 +572,7 @@ func (t *AppTree) Paint(canvas Canvas) {
 	t.TreeImpl.Paint(canvas)
 
 	if t.HasFocus() {
-		style := t.app.FocusedStyle
+		style := t.styles.FocusedStyle
 		canvas.DrawRoundedRect(rect, 3, 3, 3, 3, style.Pen, style.Brush)
 	}
 }
@@ -679,20 +583,20 @@ func (t *AppTree) PaintMouseOverBackground(canvas Canvas, rect math.Rect) {
 
 // mixins.ListImpl overrides
 func (t *AppTree) PaintSelection(canvas Canvas, rect math.Rect) {
-	style := t.app.HighlightStyle
+	style := t.styles.HighlightStyle
 	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, style.Pen, style.Brush)
 }
 
 type treeControlCreator struct{}
 
-func (treeControlCreator) Create(app App, control Control, node *TreeToListNode) Control {
-	img := app.CreateImage()
+func (treeControlCreator) Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control {
+	img := CreateImage(driver, styles)
 	imgSize := math.Size{W: 10, H: 10}
 
-	layout := app.CreateLinearLayout()
+	layout := CreateLinearLayout(driver, styles)
 	layout.SetDirection(LeftToRight)
 
-	btn := app.CreateButton()
+	btn := CreateButton(driver, styles)
 	btn.SetBackgroundBrush(TransparentBrush)
 	btn.SetBorderPen(CreatePen(1, Gray30))
 	btn.SetMargin(math.Spacing{L: 1, R: 1, T: 1, B: 1})
@@ -703,9 +607,20 @@ func (treeControlCreator) Create(app App, control Control, node *TreeToListNode)
 	})
 	btn.AddChild(img)
 
+	var expandedPoly = Polygon{
+		PolygonVertex{Position: math.Point{X: 2, Y: 3}},
+		PolygonVertex{Position: math.Point{X: 8, Y: 3}},
+		PolygonVertex{Position: math.Point{X: 5, Y: 8}},
+	}
+
+	var collapsedPoly = Polygon{
+		PolygonVertex{Position: math.Point{X: 3, Y: 2}},
+		PolygonVertex{Position: math.Point{X: 8, Y: 5}},
+		PolygonVertex{Position: math.Point{X: 3, Y: 8}},
+	}
 	update := func() {
 		expanded := node.IsExpanded()
-		canvas := app.Driver().CreateCanvas(imgSize)
+		canvas := driver.CreateCanvas(imgSize)
 		btn.SetVisible(!node.IsLeaf())
 		switch {
 		case !btn.IsMouseDown(MouseButtonLeft) && expanded:
@@ -732,6 +647,6 @@ func (treeControlCreator) Create(app App, control Control, node *TreeToListNode)
 	return layout
 }
 
-func (treeControlCreator) Size(app App, treeControlSize math.Size) math.Size {
+func (treeControlCreator) Size(styles *StyleDefs, treeControlSize math.Size) math.Size {
 	return treeControlSize
 }

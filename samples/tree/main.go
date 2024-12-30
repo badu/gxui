@@ -64,19 +64,19 @@ func (n *node) Item() gxui.AdapterItem {
 }
 
 // Create implements gxui.TreeNode.
-func (n *node) Create(theme gxui.App) gxui.Control {
-	layout := theme.CreateLinearLayout()
+func (n *node) Create(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
+	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.SetDirection(gxui.LeftToRight)
 
-	label := theme.CreateLabel()
+	label := gxui.CreateLabel(driver, styles)
 	label.SetText(n.name)
 
-	textbox := theme.CreateTextBox()
+	textbox := gxui.CreateTextBox(driver, styles)
 	textbox.SetText(n.name)
 	textbox.SetPadding(math.ZeroSpacing)
 	textbox.SetMargin(math.ZeroSpacing)
 
-	addButton := theme.CreateButton()
+	addButton := gxui.CreateButton(driver, styles)
 	addButton.SetText("+")
 	addButton.OnClick(func(gxui.MouseEvent) { n.add("<new>") })
 
@@ -113,8 +113,8 @@ type adapter struct {
 }
 
 // Size implements gxui.TreeAdapter.
-func (a *adapter) Size(theme gxui.App) math.Size {
-	return math.Size{W: math.MaxSize.W, H: theme.DefaultFontSize() + 4}
+func (a *adapter) Size(styles *gxui.StyleDefs) math.Size {
+	return math.Size{W: math.MaxSize.W, H: styles.FontSize + 4}
 }
 
 // addSpecies adds the list of species to animals.
@@ -162,9 +162,9 @@ func addSpecies(animals *node) map[string]item {
 }
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
-	layout := theme.CreateLinearLayout()
+	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.SetDirection(gxui.TopToBottom)
 
 	customAdapter := &adapter{}
@@ -175,28 +175,28 @@ func appMain(driver gxui.Driver) {
 	// add all the species to the 'Animals' root node.
 	items := addSpecies(customAdapter.add("Animals"))
 
-	tree := theme.CreateTree()
+	tree := gxui.CreateTree(driver, styles)
 	tree.SetAdapter(customAdapter)
 	tree.Select(items["Doves"])
 	tree.Show(tree.Selected())
 
 	layout.AddChild(tree)
 
-	row := theme.CreateLinearLayout()
+	row := gxui.CreateLinearLayout(driver, styles)
 	row.SetDirection(gxui.LeftToRight)
 	layout.AddChild(row)
 
-	expandAll := theme.CreateButton()
+	expandAll := gxui.CreateButton(driver, styles)
 	expandAll.SetText("Expand All")
 	expandAll.OnClick(func(gxui.MouseEvent) { tree.ExpandAll() })
 	row.AddChild(expandAll)
 
-	collapseAll := theme.CreateButton()
+	collapseAll := gxui.CreateButton(driver, styles)
 	collapseAll.SetText("Collapse All")
 	collapseAll.OnClick(func(gxui.MouseEvent) { tree.CollapseAll() })
 	row.AddChild(collapseAll)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "TreeImpl view")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "TreeImpl view")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)

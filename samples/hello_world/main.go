@@ -15,17 +15,17 @@ import (
 )
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
 	font, err := driver.CreateFont(gxfont.Default, 75)
 	if err != nil {
 		panic(err)
 	}
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Hi")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Hi")
 	window.SetBackgroundBrush(gxui.CreateBrush(gxui.Gray50))
 
-	label := theme.CreateLabel()
+	label := gxui.CreateLabel(driver, styles)
 	label.SetFont(font)
 	label.SetText("Hello world")
 

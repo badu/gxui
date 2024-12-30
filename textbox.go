@@ -47,7 +47,7 @@ type TextBoxLine interface {
 
 type TextBoxParent interface {
 	ListParent
-	CreateLine(theme App, index int) (line TextBoxLine, container Control)
+	CreateLine(driver Driver, styles *StyleDefs, index int) (line TextBoxLine, container Control)
 }
 
 type DefaultTextBoxLineParent interface {
@@ -99,12 +99,16 @@ func (t *TextBoxImpl) lineMouseUp(line TextBoxLine, event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) Init(parent TextBoxParent, driver Driver, app App, font Font) {
-	t.ListImpl.Init(parent, app)
+func (t *TextBoxImpl) Init(parent TextBoxParent, driver Driver, styles *StyleDefs, font Font) {
+	t.ListImpl.Init(parent, driver, styles)
 	t.FocusablePart.Init()
 	t.parent = parent
 	t.driver = driver
-	t.font = font
+	if font == nil {
+		t.font = styles.DefaultFont
+	} else {
+		t.font = font
+	}
 	t.onRedrawLines = CreateEvent(func() {})
 	t.controller = CreateTextBoxController()
 	t.adapter = &TextBoxAdapter{TextBox: t}
@@ -478,9 +482,9 @@ func (t *TextBoxImpl) MouseMove(event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) CreateLine(theme App, index int) (TextBoxLine, Control) {
+func (t *TextBoxImpl) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
 	l := &DefaultTextBoxLine{}
-	l.Init(l, theme, t, index)
+	l.Init(l, t, index)
 	return l, l
 }
 
@@ -507,18 +511,22 @@ func (t *TextBoxAdapter) ItemIndex(item AdapterItem) int {
 	return item.(int)
 }
 
-func (t *TextBoxAdapter) Size(theme App) math.Size {
+func (t *TextBoxAdapter) Size(styles *StyleDefs) math.Size {
 	tb := t.TextBox
 	return math.Size{W: tb.desiredWidth, H: tb.font.GlyphMaxSize().H}
 }
 
-func (t *TextBoxAdapter) Create(theme App, index int) Control {
-	line, container := t.TextBox.parent.CreateLine(theme, index)
-	line.OnMouseDown(func(ev MouseEvent) {
-		t.TextBox.lineMouseDown(line, ev)
-	})
-	line.OnMouseUp(func(ev MouseEvent) {
-		t.TextBox.lineMouseUp(line, ev)
-	})
+func (t *TextBoxAdapter) Create(driver Driver, styles *StyleDefs, index int) Control {
+	line, container := t.TextBox.parent.CreateLine(driver, styles, index)
+	line.OnMouseDown(
+		func(ev MouseEvent) {
+			t.TextBox.lineMouseDown(line, ev)
+		},
+	)
+	line.OnMouseUp(
+		func(ev MouseEvent) {
+			t.TextBox.lineMouseUp(line, ev)
+		},
+	)
 	return container
 }

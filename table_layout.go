@@ -31,8 +31,8 @@ type TableLayoutImpl struct {
 	columns int
 }
 
-func (l *TableLayoutImpl) Init(parent BaseContainerParent, app App) {
-	l.ContainerBase.Init(parent, app)
+func (l *TableLayoutImpl) Init(parent BaseContainerParent, driver Driver) {
+	l.ContainerBase.Init(parent, driver)
 	l.parent = parent
 	l.grid = make(map[Control]Cell)
 }

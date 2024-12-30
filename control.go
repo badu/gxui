@@ -207,10 +207,10 @@ type ControlBase struct {
 	VisiblePart
 }
 
-func (c *ControlBase) Init(parent ControlBaseParent, app App) {
+func (c *ControlBase) Init(parent ControlBaseParent, driver Driver) {
 	c.AttachablePart.Init()
-	c.DrawPaintPart.Init(parent, app)
-	c.LayoutablePart.Init(parent, app)
+	c.DrawPaintPart.Init(parent, driver)
+	c.LayoutablePart.Init(parent, driver)
 	c.InputEventHandlerPart.Init()
 	c.ParentablePart.Init()
 	c.VisiblePart.Init(parent)

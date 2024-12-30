@@ -11,14 +11,14 @@ import (
 )
 
 // Create a PanelHolderImpl with a 3 panels
-func panelHolder(name string, theme gxui.App) gxui.PanelHolder {
+func panelHolder(name string, driver gxui.Driver, styles *gxui.StyleDefs) gxui.PanelHolder {
 	label := func(text string) gxui.Label {
-		label := theme.CreateLabel()
+		label := gxui.CreateLabel(driver, styles)
 		label.SetText(text)
 		return label
 	}
 
-	holder := theme.CreatePanelHolder()
+	holder := gxui.CreatePanelHolder(driver, styles)
 	holder.AddPanel(label(name+" 0 content"), name+" 0 panel")
 	holder.AddPanel(label(name+" 1 content"), name+" 1 panel")
 	holder.AddPanel(label(name+" 2 content"), name+" 2 panel")
@@ -26,7 +26,7 @@ func panelHolder(name string, theme gxui.App) gxui.PanelHolder {
 }
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
 	// ┌───────┐║┌───────┐
 	// │       │║│       │
@@ -40,22 +40,22 @@ func appMain(driver gxui.Driver) {
 	// │       │║│       │
 	// └───────┘║└───────┘
 
-	splitterAB := theme.CreateSplitterLayout()
+	splitterAB := gxui.CreateSplitterLayout(driver, styles)
 	splitterAB.SetOrientation(gxui.Horizontal)
-	splitterAB.AddChild(panelHolder("A", theme))
-	splitterAB.AddChild(panelHolder("B", theme))
+	splitterAB.AddChild(panelHolder("A", driver, styles))
+	splitterAB.AddChild(panelHolder("B", driver, styles))
 
-	splitterCD := theme.CreateSplitterLayout()
+	splitterCD := gxui.CreateSplitterLayout(driver, styles)
 	splitterCD.SetOrientation(gxui.Horizontal)
-	splitterCD.AddChild(panelHolder("C", theme))
-	splitterCD.AddChild(panelHolder("D", theme))
+	splitterCD.AddChild(panelHolder("C", driver, styles))
+	splitterCD.AddChild(panelHolder("D", driver, styles))
 
-	vSplitter := theme.CreateSplitterLayout()
+	vSplitter := gxui.CreateSplitterLayout(driver, styles)
 	vSplitter.SetOrientation(gxui.Vertical)
 	vSplitter.AddChild(splitterAB)
 	vSplitter.AddChild(splitterCD)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Panels")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Panels")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(vSplitter)
 	window.OnClose(driver.Terminate)

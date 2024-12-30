@@ -14,7 +14,7 @@ import (
 )
 
 // Number picker uses the gxui.DefaultAdapter for driving a list
-func numberPicker(theme gxui.App, overlay gxui.BubbleOverlay) gxui.Control {
+func numberPicker(driver gxui.Driver, styles *gxui.StyleDefs, overlay gxui.BubbleOverlay) gxui.Control {
 	items := []string{
 		"zero", "one", "two", "three", "four", "five",
 		"six", "seven", "eight", "nine", "ten",
@@ -25,29 +25,29 @@ func numberPicker(theme gxui.App, overlay gxui.BubbleOverlay) gxui.Control {
 	adapter := gxui.CreateDefaultAdapter()
 	adapter.SetItems(items)
 
-	layout := theme.CreateLinearLayout()
+	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.SetDirection(gxui.TopToBottom)
 
-	label0 := theme.CreateLabel()
+	label0 := gxui.CreateLabel(driver, styles)
 	label0.SetText("Numbers:")
 	layout.AddChild(label0)
 
-	dropList := theme.CreateDropDownList()
+	dropList := gxui.CreateDropDownList(driver, styles)
 	dropList.SetAdapter(adapter)
 	dropList.SetBubbleOverlay(overlay)
 	layout.AddChild(dropList)
 
-	list := theme.CreateList()
+	list := gxui.CreateList(driver, styles)
 	list.SetAdapter(adapter)
 	list.SetOrientation(gxui.Vertical)
 	layout.AddChild(list)
 
-	label1 := theme.CreateLabel()
+	label1 := gxui.CreateLabel(driver, styles)
 	label1.SetMargin(math.Spacing{T: 30})
 	label1.SetText("Selected number:")
 	layout.AddChild(label1)
 
-	selected := theme.CreateLabel()
+	selected := gxui.CreateLabel(driver, styles)
 	layout.AddChild(selected)
 
 	dropList.OnSelectionChanged(func(item gxui.AdapterItem) {
@@ -82,11 +82,11 @@ func (a *customAdapter) ItemIndex(item gxui.AdapterItem) int {
 	return item.(int) // Inverse of ItemAt()
 }
 
-func (a *customAdapter) Size(theme gxui.App) math.Size {
+func (a *customAdapter) Size(styles *gxui.StyleDefs) math.Size {
 	return math.Size{W: 100, H: 100}
 }
 
-func (a *customAdapter) Create(theme gxui.App, index int) gxui.Control {
+func (a *customAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index int) gxui.Control {
 	phase := float32(index) / 1000
 	c := gxui.Color{
 		R: 0.5 + 0.5*math.Sinf(math.TwoPi*(phase+0.000)),
@@ -94,7 +94,7 @@ func (a *customAdapter) Create(theme gxui.App, index int) gxui.Control {
 		B: 0.5 + 0.5*math.Sinf(math.TwoPi*(phase+0.666)),
 		A: 1.0,
 	}
-	i := theme.CreateImage()
+	i := gxui.CreateImage(driver, styles)
 	i.SetBackgroundBrush(gxui.CreateBrush(c))
 	i.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	i.OnMouseEnter(func(ev gxui.MouseEvent) {
@@ -113,28 +113,28 @@ func (a *customAdapter) Create(theme gxui.App, index int) gxui.Control {
 }
 
 // Color picker uses the customAdapter for driving a list
-func colorPicker(theme gxui.App) gxui.Control {
-	layout := theme.CreateLinearLayout()
+func colorPicker(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
+	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.SetDirection(gxui.TopToBottom)
 
-	label0 := theme.CreateLabel()
+	label0 := gxui.CreateLabel(driver, styles)
 	label0.SetText("Color palette:")
 	layout.AddChild(label0)
 
 	adapter := &customAdapter{}
 
-	list := theme.CreateList()
+	list := gxui.CreateList(driver, styles)
 	list.SetAdapter(adapter)
 	list.SetOrientation(gxui.Horizontal)
 	layout.AddChild(list)
 
-	label1 := theme.CreateLabel()
+	label1 := gxui.CreateLabel(driver, styles)
 	label1.SetMargin(math.Spacing{T: 30})
 	label1.SetText("Selected color:")
 	layout.AddChild(label1)
 
-	selected := theme.CreateImage()
-	selected.SetExplicitSize(math.Size{W: 32, H: theme.DefaultFontSize() + 8})
+	selected := gxui.CreateImage(driver, styles)
+	selected.SetExplicitSize(math.Size{W: 32, H: styles.FontSize + 8})
 	layout.AddChild(selected)
 
 	list.OnSelectionChanged(func(item gxui.AdapterItem) {
@@ -148,15 +148,15 @@ func colorPicker(theme gxui.App) gxui.Control {
 }
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
-	overlay := theme.CreateBubbleOverlay()
+	overlay := gxui.CreateBubbleOverlay(driver, styles)
 
-	holder := theme.CreatePanelHolder()
-	holder.AddPanel(numberPicker(theme, overlay), "Default adapter")
-	holder.AddPanel(colorPicker(theme), "Custom adapter")
+	holder := gxui.CreatePanelHolder(driver, styles)
+	holder.AddPanel(numberPicker(driver, styles, overlay), "Default adapter")
+	holder.AddPanel(colorPicker(driver, styles), "Custom adapter")
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Lists")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Lists")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(holder)
 	window.AddChild(overlay)

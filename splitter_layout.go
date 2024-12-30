@@ -25,16 +25,18 @@ type SplitterLayoutParent interface {
 type SplitterLayoutImpl struct {
 	ContainerBase
 	parent        SplitterLayoutParent
-	app           App
+	driver        Driver
+	styles        *StyleDefs
 	orientation   Orientation
 	splitterWidth int
 	weights       map[Control]float32
 }
 
-func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, app App) {
-	l.ContainerBase.Init(parent, app)
+func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, driver Driver, styles *StyleDefs) {
+	l.ContainerBase.Init(parent, driver)
 	l.parent = parent
-	l.app = app
+	l.driver = driver
+	l.styles = styles
 	l.weights = make(map[Control]float32)
 	l.splitterWidth = 4
 	l.SetMouseEventTarget(true)
@@ -117,7 +119,7 @@ func (l *SplitterLayoutImpl) SetOrientation(o Orientation) {
 
 func (l *SplitterLayoutImpl) CreateSplitterBar() Control {
 	b := &SplitterBar{}
-	b.Init(b, l.app)
+	b.Init(b, l.driver, l.styles)
 	b.OnSplitterDragged(func(wndPnt math.Point) { l.SplitterDragged(b, wndPnt) })
 	return b
 }

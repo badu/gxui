@@ -12,7 +12,7 @@ import (
 )
 
 type Viewer interface {
-	View(theme App) Control
+	View(styles *StyleDefs) Control
 }
 
 type Stringer interface {
@@ -24,7 +24,7 @@ type DefaultAdapter struct {
 	items       reflect.Value
 	itemToIndex map[AdapterItem]int
 	size        math.Size
-	styleLabel  func(app App, label Label)
+	styleLabel  func(styles *StyleDefs, label Label)
 }
 
 func CreateDefaultAdapter() *DefaultAdapter {
@@ -34,13 +34,13 @@ func CreateDefaultAdapter() *DefaultAdapter {
 	return l
 }
 
-func (a *DefaultAdapter) SetSizeAsLargest(theme App) {
+func (a *DefaultAdapter) SetSizeAsLargest(styles *StyleDefs) {
 	s := math.Size{}
-	font := theme.DefaultFont()
+	font := styles.DefaultFont
 	for i := 0; i < a.Count(); i++ {
 		switch t := a.ItemAt(i).(type) {
 		case Viewer:
-			s = s.Max(t.View(theme).DesiredSize(math.ZeroSize, math.MaxSize))
+			s = s.Max(t.View(styles).DesiredSize(math.ZeroSize, math.MaxSize))
 
 		case Stringer:
 			s = s.Max(font.Measure(&TextBlock{
@@ -56,7 +56,7 @@ func (a *DefaultAdapter) SetSizeAsLargest(theme App) {
 	a.SetSize(s)
 }
 
-func (a *DefaultAdapter) SetStyleLabel(providerFn func(app App, label Label)) {
+func (a *DefaultAdapter) SetStyleLabel(providerFn func(styles *StyleDefs, label Label)) {
 	a.styleLabel = providerFn
 	a.DataChanged(true)
 }
@@ -96,7 +96,7 @@ func (a *DefaultAdapter) ItemIndex(item AdapterItem) int {
 	return a.itemToIndex[item]
 }
 
-func (a *DefaultAdapter) Size(theme App) math.Size {
+func (a *DefaultAdapter) Size(styles *StyleDefs) math.Size {
 	return a.size
 }
 
@@ -105,28 +105,28 @@ func (a *DefaultAdapter) SetSize(s math.Size) {
 	a.DataChanged(true)
 }
 
-func (a *DefaultAdapter) Create(theme App, index int) Control {
+func (a *DefaultAdapter) Create(driver Driver, styles *StyleDefs, index int) Control {
 	switch t := a.ItemAt(index).(type) {
 	case Viewer:
-		return t.View(theme)
+		return t.View(styles)
 
 	case Stringer:
-		l := theme.CreateLabel()
+		l := CreateLabel(driver, styles)
 		l.SetMargin(math.ZeroSpacing)
 		l.SetMultiline(false)
 		l.SetText(t.String())
 		if a.styleLabel != nil {
-			a.styleLabel(theme, l)
+			a.styleLabel(styles, l)
 		}
 		return l
 
 	default:
-		l := theme.CreateLabel()
+		l := CreateLabel(driver, styles)
 		l.SetMargin(math.ZeroSpacing)
 		l.SetMultiline(false)
 		l.SetText(fmt.Sprintf("%+v", t))
 		if a.styleLabel != nil {
-			a.styleLabel(theme, l)
+			a.styleLabel(styles, l)
 		}
 		return l
 	}

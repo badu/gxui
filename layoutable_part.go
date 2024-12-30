@@ -28,9 +28,9 @@ type LayoutablePart struct {
 	inLayoutChildren  bool // True when calling LayoutChildren
 }
 
-func (l *LayoutablePart) Init(parent LayoutableParent, app App) {
+func (l *LayoutablePart) Init(parent LayoutableParent, driver Driver) {
 	l.parent = parent
-	l.driver = app.Driver()
+	l.driver = driver
 }
 
 func (l *LayoutablePart) SetMargin(margin math.Spacing) {

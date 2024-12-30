@@ -12,13 +12,13 @@ import (
 )
 
 func appMain(driver gxui.Driver) {
-	theme := flags.CreateTheme(driver)
+	styles := flags.CreateTheme(driver)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "WindowImpl")
+	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "WindowImpl")
 	window.OnClose(driver.Terminate)
 	window.SetScale(flags.DefaultScaleFactor)
 	window.SetPadding(math.Spacing{L: 10, R: 10, T: 10, B: 10})
-	button := theme.CreateButton()
+	button := gxui.CreateButton(driver, styles)
 	button.SetHorizontalAlignment(gxui.AlignCenter)
 	button.SetSizeMode(gxui.Fill)
 	toggle := func() {

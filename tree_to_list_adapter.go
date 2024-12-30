@@ -12,12 +12,12 @@ import (
 type TreeControlCreator interface {
 	// Create returns a Control that contains control (returned by the backing
 	// TreeNode) and visualizes the expanded state of node.
-	Create(theme App, control Control, node *TreeToListNode) Control
+	Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control
 
 	// Size returns the size that each of the controls returned by Create will
 	// be displayed at for the given theme.
 	// treeControlSize is the size returned the backing TreeNode.
-	Size(theme App, treeControlSize math.Size) math.Size
+	Size(styles *StyleDefs, treeControlSize math.Size) math.Size
 }
 
 // TreeToListAdapter converts a TreeAdapter to a ListAdapter so that the
@@ -75,16 +75,16 @@ func (a *TreeToListAdapter) Count() int {
 
 // Create returns a Control visualizing the item at the specified index in the
 // list of all the expanded nodes treated as as a flattened list.
-func (a *TreeToListAdapter) Create(theme App, index int) Control {
+func (a *TreeToListAdapter) Create(driver Driver, styles *StyleDefs, index int) Control {
 	n := a.node.NodeAt(index)
-	c := n.container.(TreeNode).Create(theme)
-	return a.creator.Create(theme, c, n)
+	c := n.container.(TreeNode).Create(driver, styles)
+	return a.creator.Create(driver, styles, c, n)
 }
 
 // Size returns the size that each of the item's controls will be displayed
 // at for the given theme.
-func (a *TreeToListAdapter) Size(theme App) math.Size {
-	return a.creator.Size(theme, a.adapter.Size(theme))
+func (a *TreeToListAdapter) Size(styles *StyleDefs) math.Size {
+	return a.creator.Size(styles, a.adapter.Size(styles))
 }
 
 // DeepestNode returns the deepest expanded node to represent item.

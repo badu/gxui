@@ -40,7 +40,8 @@ type PanelHolderParent interface {
 type PanelHolderImpl struct {
 	ContainerBase
 	parent    PanelHolderParent
-	app       App
+	driver    Driver
+	styles    *StyleDefs
 	tabLayout LinearLayout
 	entries   []PanelEntry
 	selected  PanelEntry
@@ -96,13 +97,14 @@ func beginTabDragging(holder PanelHolder, panel Control, name string, window Win
 	)
 }
 
-func (p *PanelHolderImpl) Init(parent PanelHolderParent, app App) {
-	p.ContainerBase.Init(parent, app)
+func (p *PanelHolderImpl) Init(parent PanelHolderParent, driver Driver, styles *StyleDefs) {
+	p.ContainerBase.Init(parent, driver)
 
 	p.parent = parent
-	p.app = app
+	p.driver = driver
+	p.styles = styles
 
-	p.tabLayout = app.CreateLinearLayout()
+	p.tabLayout = CreateLinearLayout(driver, styles)
 	p.tabLayout.SetDirection(LeftToRight)
 	p.ContainerBase.AddChild(p.tabLayout)
 	p.SetMargin(math.Spacing{L: 1, T: 2, R: 1, B: 1})

@@ -44,28 +44,30 @@ type CodeEditorImpl struct {
 	suggestionList     List
 	suggestionProvider CodeSuggestionProvider
 	tabWidth           int
-	app                App
+	driver             Driver
+	styles             *StyleDefs
 }
 
-func (t *CodeEditorImpl) Init(parent CodeEditorParent, driver Driver, app App, font Font) {
+func (t *CodeEditorImpl) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
 	t.parent = parent
 	t.tabWidth = 2
-	t.app = app
+	t.driver = driver
+	t.styles = styles
 
 	t.suggestionAdapter = &SuggestionAdapter{}
 	t.suggestionList = t.parent.CreateSuggestionList()
 	t.suggestionList.SetAdapter(t.suggestionAdapter)
 
-	t.TextBoxImpl.Init(parent, driver, app, font)
+	t.TextBoxImpl.Init(parent, driver, styles, styles.DefaultMonospaceFont)
 	t.controller.OnTextChanged(t.updateSpans)
 }
 
-func (t *CodeEditorImpl) ItemSize(theme App) math.Size {
+func (t *CodeEditorImpl) ItemSize(styles *StyleDefs) math.Size {
 	return math.Size{W: math.MaxSize.W, H: t.font.GlyphMaxSize().H}
 }
 
 func (t *CodeEditorImpl) CreateSuggestionList() List {
-	list := t.app.CreateList()
+	list := CreateList(t.driver, t.styles)
 	list.SetBackgroundBrush(DefaultBrush)
 	list.SetBorderPen(DefaultPen)
 	return list
@@ -240,14 +242,14 @@ func (t *CodeEditorImpl) KeyStroke(event KeyStrokeEvent) bool {
 }
 
 // mixins.TextBoxImpl overrides
-func (t *CodeEditorImpl) CreateLine(theme App, index int) (TextBoxLine, Control) {
-	lineNumber := theme.CreateLabel()
+func (t *CodeEditorImpl) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
+	lineNumber := CreateLabel(driver, styles)
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 
 	line := &CodeEditorLine{}
-	line.Init(line, theme, t, index)
+	line.Init(line, t, index)
 
-	layout := theme.CreateLinearLayout()
+	layout := CreateLinearLayout(driver, styles)
 	layout.SetDirection(LeftToRight)
 	layout.AddChild(lineNumber)
 	layout.AddChild(line)
