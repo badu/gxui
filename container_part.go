@@ -2,39 +2,38 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
 	"fmt"
 
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 )
 
 type ContainerPartOuter interface {
-	gxui.Container
-	Attached() bool                         // was outer.Attachable
-	Attach()                                // was outer.Attachable
-	Detach()                                // was outer.Attachable
-	OnAttach(func()) gxui.EventSubscription // was outer.Attachable
-	OnDetach(func()) gxui.EventSubscription // was outer.Attachable
-	IsVisible() bool                        // was outer.IsVisibler
-	LayoutChildren()                        // was outer.LayoutChildren
-	Parent() gxui.Parent                    // was outer.Parenter
-	Size() math.Size                        // was outer.Sized
-	SetSize(newSize math.Size)              // was outer.Sized
+	Container
+	Attached() bool                    // was outer.Attachable
+	Attach()                           // was outer.Attachable
+	Detach()                           // was outer.Attachable
+	OnAttach(func()) EventSubscription // was outer.Attachable
+	OnDetach(func()) EventSubscription // was outer.Attachable
+	IsVisible() bool                   // was outer.IsVisibler
+	LayoutChildren()                   // was outer.LayoutChildren
+	Parent() Parent                    // was outer.Parenter
+	Size() math.Size                   // was outer.Sized
+	SetSize(newSize math.Size)         // was outer.Sized
 }
 
 type ContainerPart struct {
 	outer              ContainerPartOuter
-	children           gxui.Children
+	children           Children
 	isMouseEventTarget bool
 	relayoutSuspended  bool
 }
 
 func (c *ContainerPart) Init(outer ContainerPartOuter) {
 	c.outer = outer
-	c.children = gxui.Children{}
+	c.children = Children{}
 	outer.OnAttach(
 		func() {
 			for _, v := range c.children {
@@ -73,16 +72,16 @@ func (c *ContainerPart) SetRelayoutSuspended(enable bool) {
 }
 
 // gxui.Parent compliance
-func (c *ContainerPart) Children() gxui.Children {
+func (c *ContainerPart) Children() Children {
 	return c.children
 }
 
 // gxui.Container compliance
-func (c *ContainerPart) AddChild(control gxui.Control) *gxui.Child {
+func (c *ContainerPart) AddChild(control Control) *Child {
 	return c.outer.AddChildAt(len(c.children), control)
 }
 
-func (c *ContainerPart) AddChildAt(index int, control gxui.Control) *gxui.Child {
+func (c *ContainerPart) AddChildAt(index int, control Control) *Child {
 	if control.Parent() != nil {
 		panic("child already has a parent")
 	}
@@ -90,7 +89,7 @@ func (c *ContainerPart) AddChildAt(index int, control gxui.Control) *gxui.Child 
 		panic(fmt.Errorf("index %d is out of bounds. Acceptable range: [%d - %d]", index, 0, len(c.children)))
 	}
 
-	child := &gxui.Child{Control: control}
+	child := &Child{Control: control}
 
 	c.children = append(c.children, nil)
 	copy(c.children[index+1:], c.children[index:])
@@ -108,7 +107,7 @@ func (c *ContainerPart) AddChildAt(index int, control gxui.Control) *gxui.Child 
 	return child
 }
 
-func (c *ContainerPart) RemoveChild(control gxui.Control) {
+func (c *ContainerPart) RemoveChild(control Control) {
 	for i := range c.children {
 		if c.children[i].Control == control {
 			c.outer.RemoveChildAt(i)

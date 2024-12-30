@@ -2,15 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
-
-import (
-	"github.com/badu/gxui"
-)
+package gxui
 
 type VisibleOuter interface {
-	Parent() gxui.Parent // was outer.Parenter
-	Redraw()             // was outer.Redrawer
+	Parent() Parent // was outer.Parenter
+	Redraw()        // was outer.Redrawer
 }
 
 type VisiblePart struct {

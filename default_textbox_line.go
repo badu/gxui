@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/interval"
 	"github.com/badu/gxui/math"
 )
@@ -13,13 +12,13 @@ import (
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
 	ControlBase
-	outer      gxui.DefaultTextBoxLineOuter
-	textbox    *TextBox
+	outer      DefaultTextBoxLineOuter
+	textbox    *TextBoxImpl
 	lineIndex  int
 	caretWidth int
 }
 
-func (t *DefaultTextBoxLine) Init(outer gxui.DefaultTextBoxLineOuter, theme gxui.Theme, textbox *TextBox, lineIndex int) {
+func (t *DefaultTextBoxLine) Init(outer DefaultTextBoxLineOuter, theme Theme, textbox *TextBoxImpl, lineIndex int) {
 	t.ControlBase.Init(outer, theme)
 	t.outer = outer
 	t.textbox = textbox
@@ -41,7 +40,7 @@ func (t *DefaultTextBoxLine) DesiredSize(min, max math.Size) math.Size {
 	return max
 }
 
-func (t *DefaultTextBoxLine) Paint(canvas gxui.Canvas) {
+func (t *DefaultTextBoxLine) Paint(canvas Canvas) {
 	if t.textbox.HasFocus() {
 		t.outer.PaintSelections(canvas)
 	}
@@ -55,24 +54,24 @@ func (t *DefaultTextBoxLine) Paint(canvas gxui.Canvas) {
 
 func (t *DefaultTextBoxLine) MeasureRunes(start, end int) math.Size {
 	controller := t.textbox.controller
-	return t.textbox.font.Measure(&gxui.TextBlock{
+	return t.textbox.font.Measure(&TextBlock{
 		Runes: controller.TextRunes()[start:end],
 	})
 }
 
-func (t *DefaultTextBoxLine) PaintText(canvas gxui.Canvas) {
+func (t *DefaultTextBoxLine) PaintText(canvas Canvas) {
 	runes := []rune(t.textbox.controller.Line(t.lineIndex))
 	textFont := t.textbox.font
-	offsets := textFont.Layout(&gxui.TextBlock{
+	offsets := textFont.Layout(&TextBlock{
 		Runes:     runes,
 		AlignRect: t.Size().Rect().OffsetX(t.caretWidth),
-		H:         gxui.AlignLeft,
-		V:         gxui.AlignBottom,
+		H:         AlignLeft,
+		V:         AlignBottom,
 	})
 	canvas.DrawRunes(textFont, runes, offsets, t.textbox.textColor)
 }
 
-func (t *DefaultTextBoxLine) PaintCarets(canvas gxui.Canvas) {
+func (t *DefaultTextBoxLine) PaintCarets(canvas Canvas) {
 	controller := t.textbox.controller
 	for i, cnt := 0, controller.SelectionCount(); i < cnt; i++ {
 		caretEnd := controller.Caret(i)
@@ -87,7 +86,7 @@ func (t *DefaultTextBoxLine) PaintCarets(canvas gxui.Canvas) {
 	}
 }
 
-func (t *DefaultTextBoxLine) PaintSelections(canvas gxui.Canvas) {
+func (t *DefaultTextBoxLine) PaintSelections(canvas Canvas) {
 	controller := t.textbox.controller
 
 	lineStart, lineEnd := controller.LineStart(t.lineIndex), controller.LineEnd(t.lineIndex)
@@ -99,7 +98,7 @@ func (t *DefaultTextBoxLine) PaintSelections(canvas gxui.Canvas) {
 
 	interval.Visit(
 		&selections,
-		gxui.CreateTextSelection(lineStart, lineEnd, false),
+		CreateTextSelection(lineStart, lineEnd, false),
 		func(s, e uint64, _ int) {
 			if s < e {
 				x := t.outer.MeasureRunes(lineStart, int(s)).W
@@ -112,14 +111,14 @@ func (t *DefaultTextBoxLine) PaintSelections(canvas gxui.Canvas) {
 	)
 }
 
-func (t *DefaultTextBoxLine) PaintCaret(canvas gxui.Canvas, top, bottom math.Point) {
+func (t *DefaultTextBoxLine) PaintCaret(canvas Canvas, top, bottom math.Point) {
 	rect := math.Rect{Min: top, Max: bottom}.ExpandI(t.caretWidth / 2)
-	canvas.DrawRoundedRect(rect, 1, 1, 1, 1, gxui.CreatePen(0.5, gxui.Gray70), gxui.WhiteBrush)
+	canvas.DrawRoundedRect(rect, 1, 1, 1, 1, CreatePen(0.5, Gray70), WhiteBrush)
 }
 
-func (t *DefaultTextBoxLine) PaintSelection(canvas gxui.Canvas, top, bottom math.Point) {
+func (t *DefaultTextBoxLine) PaintSelection(canvas Canvas, top, bottom math.Point) {
 	rect := math.Rect{Min: top, Max: bottom}.ExpandI(t.caretWidth / 2)
-	canvas.DrawRoundedRect(rect, 1, 1, 1, 1, gxui.TransparentPen, gxui.Brush{Color: gxui.Gray40})
+	canvas.DrawRoundedRect(rect, 1, 1, 1, 1, TransparentPen, Brush{Color: Gray40})
 }
 
 // TextBoxLine compliance
@@ -130,7 +129,7 @@ func (t *DefaultTextBoxLine) RuneIndexAt(point math.Point) int {
 	x := point.X
 	line := controller.Line(t.lineIndex)
 	i := 0
-	for ; i < len(line) && x > font.Measure(&gxui.TextBlock{Runes: []rune(line[:i+1])}).W; i++ {
+	for ; i < len(line) && x > font.Measure(&TextBlock{Runes: []rune(line[:i+1])}).W; i++ {
 	}
 
 	return controller.LineStart(t.lineIndex) + i
@@ -142,5 +141,5 @@ func (t *DefaultTextBoxLine) PositionAt(runeIndex int) math.Point {
 
 	x := runeIndex - controller.LineStart(t.lineIndex)
 	line := controller.Line(t.lineIndex)
-	return font.Measure(&gxui.TextBlock{Runes: []rune(line[:x])}).Point()
+	return font.Measure(&TextBlock{Runes: []rune(line[:x])}).Point()
 }

@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type List struct {
-	mixins.List
+	gxui.ListImpl
 	theme *Theme
 }
 
@@ -26,9 +25,9 @@ func CreateList(theme *Theme) gxui.List {
 	return l
 }
 
-// mixin.List overrides
+// mixin.ListImpl overrides
 func (l *List) Paint(c gxui.Canvas) {
-	l.List.Paint(c)
+	l.ListImpl.Paint(c)
 	if l.HasFocus() {
 		r := l.Size().Rect().ContractI(1)
 		c.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.theme.FocusedStyle.Pen, l.theme.FocusedStyle.Brush)

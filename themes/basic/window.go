@@ -6,16 +6,15 @@ package basic
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins"
 )
 
 type Window struct {
-	mixins.Window
+	gxui.WindowImpl
 }
 
 func CreateWindow(theme *Theme, width, height int, title string) gxui.Window {
 	w := &Window{}
-	w.Window.Init(w, theme.Driver(), width, height, title)
+	w.WindowImpl.Init(w, theme.Driver(), width, height, title)
 	w.SetBackgroundBrush(gxui.CreateBrush(theme.WindowBackground))
 	return w
 }

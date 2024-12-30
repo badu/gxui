@@ -7,17 +7,16 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type PanelHolder struct {
-	mixins.PanelHolder
+	gxui.PanelHolderImpl
 	theme *Theme
 }
 
 func CreatePanelHolder(theme *Theme) gxui.PanelHolder {
 	p := &PanelHolder{}
-	p.PanelHolder.Init(p, theme)
+	p.PanelHolderImpl.Init(p, theme)
 	p.theme = theme
 	p.SetMargin(math.Spacing{L: 0, T: 2, R: 0, B: 0})
 	return p
@@ -33,5 +32,5 @@ func (p *PanelHolder) Paint(c gxui.Canvas) {
 		bounds := p.Children().Find(panel).Bounds()
 		c.DrawRoundedRect(bounds, 0.0, 0.0, 3.0, 3.0, p.theme.PanelBackgroundStyle.Pen, p.theme.PanelBackgroundStyle.Brush)
 	}
-	p.PanelHolder.Paint(c)
+	p.PanelHolderImpl.Paint(c)
 }

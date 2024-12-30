@@ -6,16 +6,15 @@ package basic
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins"
 )
 
 type ScrollBar struct {
-	mixins.ScrollBar
+	gxui.ScrollBarImpl
 }
 
 func CreateScrollBar(theme *Theme) gxui.ScrollBar {
 	s := &ScrollBar{}
-	s.ScrollBar.Init(s, theme)
+	s.ScrollBarImpl.Init(s, theme)
 	s.SetBarBrush(theme.ScrollBarBarDefaultStyle.Brush)
 	s.SetBarPen(theme.ScrollBarBarDefaultStyle.Pen)
 	s.SetRailBrush(theme.ScrollBarRailDefaultStyle.Brush)

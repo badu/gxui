@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type DropDownList struct {
-	mixins.DropDownList
+	gxui.DropDownListImpl
 	theme *Theme
 }
 
@@ -35,9 +34,9 @@ func CreateDropDownList(theme *Theme) gxui.DropDownList {
 	return l
 }
 
-// mixin.List overrides
+// mixin.ListImpl overrides
 func (l *DropDownList) Paint(c gxui.Canvas) {
-	l.DropDownList.Paint(c)
+	l.DropDownListImpl.Paint(c)
 	if l.HasFocus() || l.ListShowing() {
 		r := l.Size().Rect().ContractI(1)
 		c.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.theme.FocusedStyle.Pen, l.theme.FocusedStyle.Brush)

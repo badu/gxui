@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type CodeEditor struct {
-	mixins.CodeEditor
+	gxui.CodeEditorImpl
 	theme *Theme
 }
 
@@ -27,9 +26,9 @@ func CreateCodeEditor(theme *Theme) gxui.CodeEditor {
 	return t
 }
 
-// mixins.CodeEditor overrides
+// mixins.CodeEditorImpl overrides
 func (t *CodeEditor) Paint(c gxui.Canvas) {
-	t.CodeEditor.Paint(c)
+	t.CodeEditorImpl.Paint(c)
 
 	if t.HasFocus() {
 		r := t.Size().Rect()

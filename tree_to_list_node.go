@@ -2,12 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
 	"fmt"
-
-	"github.com/badu/gxui"
 )
 
 type treeToListNodeParent interface {
@@ -15,13 +13,13 @@ type treeToListNodeParent interface {
 }
 
 type TreeToListNode struct {
-	item        gxui.AdapterItem       // The wrapped AdapterItem.
-	container   gxui.TreeNodeContainer // The wrapped TreeNode.
-	descendants int                    // Total number of descendants.
-	children    []*TreeToListNode      // The child nodes if expanded, or nil if collapsed.
-	parent      treeToListNodeParent   // The parent of this node.
-	depth       int                    // The depth of this node.
-	onChange    gxui.Event             // event()
+	item        AdapterItem          // The wrapped AdapterItem.
+	container   TreeNodeContainer    // The wrapped TreeNode.
+	descendants int                  // Total number of descendants.
+	children    []*TreeToListNode    // The child nodes if expanded, or nil if collapsed.
+	parent      treeToListNodeParent // The parent of this node.
+	depth       int                  // The depth of this node.
+	onChange    Event                // event()
 }
 
 func (n *TreeToListNode) adjustDescendants(delta int) {
@@ -32,7 +30,7 @@ func (n *TreeToListNode) adjustDescendants(delta int) {
 func (n *TreeToListNode) update(parent treeToListNodeParent) {
 	if n.IsExpanded() {
 		// Build a map of item -> child for the current state.
-		childrenMap := make(map[gxui.AdapterItem]*TreeToListNode, len(n.children))
+		childrenMap := make(map[AdapterItem]*TreeToListNode, len(n.children))
 		for _, child := range n.children {
 			childrenMap[child.item] = child
 		}
@@ -61,7 +59,7 @@ func (n *TreeToListNode) update(parent treeToListNodeParent) {
 }
 
 // Item returns the AdapterItem this node represents.
-func (n *TreeToListNode) Item() gxui.AdapterItem {
+func (n *TreeToListNode) Item() AdapterItem {
 	return n.item
 }
 
@@ -153,9 +151,9 @@ func (n *TreeToListNode) CollapseAll() {
 
 // OnChange registers f to be called when the node is expanded, collapsed or has
 // a change in the number of children.
-func (n *TreeToListNode) OnChange(callback func()) gxui.EventSubscription {
+func (n *TreeToListNode) OnChange(callback func()) EventSubscription {
 	if n.onChange == nil {
-		n.onChange = gxui.CreateEvent(callback)
+		n.onChange = CreateEvent(callback)
 	}
 	return n.onChange.Listen(callback)
 }
@@ -198,7 +196,7 @@ func (n *TreeToListNode) NodeAt(index int) *TreeToListNode {
 // flattened list.
 // Index 0 represents the first child of n, index 1 may represent the the second
 // child of n or the first grandchild of n, and so on.
-func (n *TreeToListNode) ItemAt(index int) gxui.AdapterItem {
+func (n *TreeToListNode) ItemAt(index int) AdapterItem {
 	return n.NodeAt(index).item
 }
 
@@ -206,7 +204,7 @@ func (n *TreeToListNode) ItemAt(index int) gxui.AdapterItem {
 // treated as a flattened list.
 // Index 0 represents the first child of n, index 1 may represent the the second
 // child of n or the first grandchild of n, and so on.
-func (n *TreeToListNode) ItemIndex(item gxui.AdapterItem) int {
+func (n *TreeToListNode) ItemIndex(item AdapterItem) int {
 	c := n.DirectItemIndex(item)
 	if c < 0 {
 		return c
@@ -224,7 +222,7 @@ func (n *TreeToListNode) ItemIndex(item gxui.AdapterItem) int {
 
 // DirectItemIndex returns the immediate child index that wraps or indirectly
 // contains item. If no children contain item, the function returns -1.
-func (n *TreeToListNode) DirectItemIndex(item gxui.AdapterItem) int {
+func (n *TreeToListNode) DirectItemIndex(item AdapterItem) int {
 	if !n.IsExpanded() {
 		return -1
 	}

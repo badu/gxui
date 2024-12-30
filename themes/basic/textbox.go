@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type TextBox struct {
-	mixins.TextBox
+	gxui.TextBoxImpl
 	theme *Theme
 }
 
@@ -37,9 +36,9 @@ func CreateTextBox(theme *Theme) gxui.TextBox {
 	return t
 }
 
-// mixins.TextBox overrides
+// mixins.TextBoxImpl overrides
 func (t *TextBox) Paint(c gxui.Canvas) {
-	t.TextBox.Paint(c)
+	t.TextBoxImpl.Paint(c)
 
 	if t.HasFocus() {
 		r := t.Size().Rect()

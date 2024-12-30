@@ -6,11 +6,10 @@ package basic
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins"
 )
 
 func CreateImage(theme *Theme) gxui.Image {
-	i := &mixins.Image{}
+	i := &gxui.ImageImpl{}
 	i.Init(i, theme)
 	return i
 }

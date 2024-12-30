@@ -96,3 +96,152 @@ type TreeOuter interface {
 	ListOuter
 	PaintUnexpandedSelection(c Canvas, r math.Rect)
 }
+
+type TreeImpl struct {
+	ListImpl
+	FocusablePart
+	outer       TreeOuter
+	treeAdapter TreeAdapter
+	listAdapter *TreeToListAdapter
+	creator     TreeControlCreator
+}
+
+func (t *TreeImpl) Init(outer TreeOuter, theme Theme) {
+	t.ListImpl.Init(outer, theme)
+	t.FocusablePart.Init()
+	t.outer = outer
+	t.creator = defaultTreeControlCreator{}
+}
+
+func (t *TreeImpl) SetControlCreator(control TreeControlCreator) {
+	t.creator = control
+	if t.treeAdapter != nil {
+		t.listAdapter = CreateTreeToListAdapter(t.treeAdapter, t.creator)
+		t.DataReplaced()
+	}
+}
+
+// gxui.Tree complaince
+func (t *TreeImpl) SetAdapter(adapter TreeAdapter) {
+	if t.treeAdapter == adapter {
+		return
+	}
+
+	if adapter != nil {
+		t.treeAdapter = adapter
+		t.listAdapter = CreateTreeToListAdapter(adapter, t.creator)
+		t.ListImpl.SetAdapter(t.listAdapter)
+	} else {
+		t.listAdapter = nil
+		t.treeAdapter = nil
+		t.ListImpl.SetAdapter(nil)
+	}
+}
+
+func (t *TreeImpl) Adapter() TreeAdapter {
+	return t.treeAdapter
+}
+
+func (t *TreeImpl) Show(item AdapterItem) {
+	t.listAdapter.ExpandItem(item)
+	t.ListImpl.ScrollTo(item)
+}
+
+func (t *TreeImpl) ContainsItem(item AdapterItem) bool {
+	return t.listAdapter != nil && t.listAdapter.Contains(item)
+}
+
+func (t *TreeImpl) ExpandAll() {
+	t.listAdapter.ExpandAll()
+}
+
+func (t *TreeImpl) CollapseAll() {
+	t.listAdapter.CollapseAll()
+}
+
+func (t *TreeImpl) PaintUnexpandedSelection(canvas Canvas, rect math.Rect) {
+	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, CreatePen(1, Gray50), TransparentBrush)
+}
+
+// ListImpl override
+func (t *TreeImpl) PaintChild(canvas Canvas, child *Child, idx int) {
+	t.ListImpl.PaintChild(canvas, child, idx)
+	if t.selectedItem != nil {
+		if deepest := t.listAdapter.DeepestNode(t.selectedItem); deepest != nil {
+			if item := deepest.Item(); item != t.selectedItem {
+				// The selected item is hidden by an unexpanded node.
+				// Highlight the deepest visible node instead.
+				if details, found := t.details[item]; found {
+					if child == details.child {
+						b := child.Bounds().Expand(child.Control.Margin())
+						t.outer.PaintUnexpandedSelection(canvas, b)
+					}
+				}
+			}
+		}
+	}
+}
+
+// InputEventHandlerPart override
+func (t *TreeImpl) KeyPress(event KeyboardEvent) bool {
+	switch event.Key {
+	case KeyLeft:
+		if item := t.Selected(); item != nil {
+			node := t.listAdapter.DeepestNode(item)
+			if node.Collapse() {
+				return true
+			}
+			if p := node.Parent(); p != nil {
+				return t.Select(p.Item())
+			}
+		}
+
+	case KeyRight:
+		if item := t.Selected(); item != nil {
+			node := t.listAdapter.DeepestNode(item)
+			if node.Expand() {
+				return true
+			}
+		}
+	}
+
+	return t.ListImpl.KeyPress(event)
+}
+
+type defaultTreeControlCreator struct{}
+
+func (defaultTreeControlCreator) Create(theme Theme, control Control, node *TreeToListNode) Control {
+	ll := theme.CreateLinearLayout()
+	ll.SetDirection(LeftToRight)
+
+	btn := theme.CreateButton()
+	btn.SetBackgroundBrush(TransparentBrush)
+	btn.SetBorderPen(CreatePen(1, Gray30))
+	btn.SetMargin(math.Spacing{L: 2, R: 2, T: 1, B: 1})
+	btn.OnClick(func(ev MouseEvent) {
+		if ev.Button == MouseButtonLeft {
+			node.ToggleExpanded()
+		}
+	})
+
+	update := func() {
+		btn.SetVisible(!node.IsLeaf())
+		if node.IsExpanded() {
+			btn.SetText("-")
+		} else {
+			btn.SetText("+")
+		}
+	}
+	update()
+
+	WhileAttached(btn, node.OnChange, update)
+
+	ll.AddChild(btn)
+	ll.AddChild(control)
+	ll.SetPadding(math.Spacing{L: 16 * node.Depth()})
+	return ll
+}
+
+func (defaultTreeControlCreator) Size(theme Theme, treeControlSize math.Size) math.Size {
+	return treeControlSize
+}

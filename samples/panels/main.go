@@ -10,7 +10,7 @@ import (
 	"github.com/badu/gxui/samples/flags"
 )
 
-// Create a PanelHolder with a 3 panels
+// Create a PanelHolderImpl with a 3 panels
 func panelHolder(name string, theme gxui.Theme) gxui.PanelHolder {
 	label := func(text string) gxui.Label {
 		label := theme.CreateLabel()

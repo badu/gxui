@@ -21,3 +21,64 @@ type ProgressBarOuter interface {
 	ControlBaseOuter
 	PaintProgress(Canvas, math.Rect, float32)
 }
+
+type ProgressBarImpl struct {
+	ControlBase
+	BackgroundBorderPainter
+	outer            ProgressBarOuter
+	desiredSize      math.Size
+	progress, target int
+}
+
+func (b *ProgressBarImpl) Init(outer ProgressBarOuter, theme Theme) {
+	b.outer = outer
+	b.ControlBase.Init(outer, theme)
+	b.BackgroundBorderPainter.Init(outer)
+	b.desiredSize = math.MaxSize
+	b.target = 100
+}
+
+func (b *ProgressBarImpl) Paint(canvas Canvas) {
+	fraction := math.Saturate(float32(b.progress) / float32(b.target))
+	rect := b.outer.Size().Rect()
+	b.PaintBackground(canvas, rect)
+	b.outer.PaintProgress(canvas, rect, fraction)
+	b.PaintBorder(canvas, rect)
+}
+
+func (b *ProgressBarImpl) PaintProgress(canvas Canvas, rect math.Rect, fraction float32) {
+	rect.Max.X = math.Lerp(rect.Min.X, rect.Max.X, fraction)
+	canvas.DrawRect(rect, CreateBrush(Gray50))
+}
+
+func (b *ProgressBarImpl) DesiredSize(min, max math.Size) math.Size {
+	return b.desiredSize.Clamp(min, max)
+}
+
+// gxui.ProgressBar compliance
+func (b *ProgressBarImpl) SetDesiredSize(size math.Size) {
+	b.desiredSize = size
+	b.Relayout()
+}
+
+func (b *ProgressBarImpl) SetProgress(progress int) {
+	if b.progress != progress {
+		b.progress = progress
+		b.Redraw()
+	}
+}
+
+func (b *ProgressBarImpl) Progress() int {
+	return b.progress
+}
+
+func (b *ProgressBarImpl) SetTarget(target int) {
+	if b.target != target {
+		b.target = target
+		b.Redraw()
+	}
+}
+
+func (b *ProgressBarImpl) Target() int {
+	return b.target
+}

@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type BubbleOverlay struct {
-	mixins.BubbleOverlay
+	gxui.BubbleOverlayImpl
 	theme *Theme
 }
 

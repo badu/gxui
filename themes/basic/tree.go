@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type Tree struct {
-	mixins.Tree
+	gxui.TreeImpl
 	theme *Theme
 }
 
@@ -38,11 +37,11 @@ func CreateTree(theme *Theme) gxui.Tree {
 	return t
 }
 
-// mixins.Tree overrides
+// mixins.TreeImpl overrides
 func (t *Tree) Paint(c gxui.Canvas) {
 	r := t.Size().Rect()
 
-	t.Tree.Paint(c)
+	t.TreeImpl.Paint(c)
 
 	if t.HasFocus() {
 		s := t.theme.FocusedStyle
@@ -54,7 +53,7 @@ func (t *Tree) PaintMouseOverBackground(c gxui.Canvas, r math.Rect) {
 	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, gxui.TransparentPen, gxui.CreateBrush(gxui.Gray15))
 }
 
-// mixins.List overrides
+// mixins.ListImpl overrides
 func (l *Tree) PaintSelection(c gxui.Canvas, r math.Rect) {
 	s := l.theme.HighlightStyle
 	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, s.Pen, s.Brush)
@@ -62,7 +61,7 @@ func (l *Tree) PaintSelection(c gxui.Canvas, r math.Rect) {
 
 type treeControlCreator struct{}
 
-func (treeControlCreator) Create(theme gxui.Theme, control gxui.Control, node *mixins.TreeToListNode) gxui.Control {
+func (treeControlCreator) Create(theme gxui.Theme, control gxui.Control, node *gxui.TreeToListNode) gxui.Control {
 	img := theme.CreateImage()
 	imgSize := math.Size{W: 10, H: 10}
 

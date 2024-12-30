@@ -196,7 +196,7 @@ func appMain(driver gxui.Driver) {
 	collapseAll.OnClick(func(gxui.MouseEvent) { tree.CollapseAll() })
 	row.AddChild(collapseAll)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Tree view")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "TreeImpl view")
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)

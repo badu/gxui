@@ -180,7 +180,7 @@ func appMain(driver gxui.Driver) {
 	fullpath := theme.CreateTextBox()
 	fullpath.SetDesiredWidth(math.MaxSize.W)
 
-	// directories is the Tree of directories on the left of the window.
+	// directories is the TreeImpl of directories on the left of the window.
 	// It uses the directoryAdapter to show the entire system's directory
 	// hierarchy.
 	directories := theme.CreateTree()
@@ -195,7 +195,7 @@ func appMain(driver gxui.Driver) {
 	// changes.
 	adapter := &filesAdapter{}
 
-	// files is the List of files in the selected directory to the right of the
+	// files is the ListImpl of files in the selected directory to the right of the
 	// window.
 	files := theme.CreateList()
 	files.SetAdapter(adapter)

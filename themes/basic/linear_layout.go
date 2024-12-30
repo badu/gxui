@@ -6,11 +6,10 @@ package basic
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins"
 )
 
 func CreateLinearLayout(theme *Theme) gxui.LinearLayout {
-	l := &mixins.LinearLayout{}
+	l := &gxui.LinearLayoutImpl{}
 	l.Init(l, theme)
 	return l
 }

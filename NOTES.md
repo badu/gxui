@@ -23,3 +23,8 @@ be accessed by descendants of `AdapterBase`.
 monitor.
 
 [x] Increasing readability : renaming parameters, properties, returns and eliminate named returns
+
+30.12.2024
+---
+
+[x] Moved `mixins` into main package, because I am planning to reduce the number of returned interfaces.

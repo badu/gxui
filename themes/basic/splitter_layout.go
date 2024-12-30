@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type SplitterLayout struct {
-	mixins.SplitterLayout
+	gxui.SplitterLayoutImpl
 	theme *Theme
 }
 
@@ -22,9 +21,9 @@ func CreateSplitterLayout(theme *Theme) gxui.SplitterLayout {
 	return l
 }
 
-// mixins.SplitterLayout overrides
+// mixins.SplitterLayoutImpl overrides
 func (l *SplitterLayout) CreateSplitterBar() gxui.Control {
-	b := &mixins.SplitterBar{}
+	b := &gxui.SplitterBar{}
 	b.Init(b, l.theme)
 	b.SetBackgroundColor(l.theme.SplitterBarDefaultStyle.Brush.Color)
 	b.SetForegroundColor(l.theme.SplitterBarDefaultStyle.Pen.Color)

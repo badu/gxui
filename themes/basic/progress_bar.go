@@ -9,11 +9,10 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type ProgressBar struct {
-	mixins.ProgressBar
+	gxui.ProgressBarImpl
 	theme        *Theme
 	ticker       *time.Ticker
 	chevrons     gxui.Canvas
@@ -59,7 +58,7 @@ func (b *ProgressBar) animationTick() {
 }
 
 func (b *ProgressBar) SetSize(size math.Size) {
-	b.ProgressBar.SetSize(size)
+	b.ProgressBarImpl.SetSize(size)
 
 	b.chevrons = nil
 	if size.Area() > 0 {

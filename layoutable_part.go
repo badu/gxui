@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
 	"fmt"
 
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 )
 
@@ -16,20 +15,20 @@ type LayoutChildren interface {
 }
 
 type LayoutableOuter interface {
-	Parent() gxui.Parent // was outer.Parenter
-	Redraw()             // was outer.Redrawer
+	Parent() Parent // was outer.Parenter
+	Redraw()        // was outer.Redrawer
 }
 
 type LayoutablePart struct {
 	outer             LayoutableOuter
-	driver            gxui.Driver
+	driver            Driver
 	margin            math.Spacing
 	size              math.Size
 	relayoutRequested bool
 	inLayoutChildren  bool // True when calling LayoutChildren
 }
 
-func (l *LayoutablePart) Init(outer LayoutableOuter, theme gxui.Theme) {
+func (l *LayoutablePart) Init(outer LayoutableOuter, theme Theme) {
 	l.outer = outer
 	l.driver = theme.Driver()
 }

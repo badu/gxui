@@ -2,22 +2,18 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
-
-import (
-	"github.com/badu/gxui"
-)
+package gxui
 
 type ParentablePart struct {
-	parent gxui.Parent
+	parent Parent
 }
 
 func (p *ParentablePart) Init() {}
 
-func (p *ParentablePart) Parent() gxui.Parent {
+func (p *ParentablePart) Parent() Parent {
 	return p.parent
 }
 
-func (p *ParentablePart) SetParent(parent gxui.Parent) {
+func (p *ParentablePart) SetParent(parent Parent) {
 	p.parent = parent
 }

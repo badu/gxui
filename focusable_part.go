@@ -2,17 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
-
-import (
-	"github.com/badu/gxui"
-)
+package gxui
 
 type FocusablePart struct {
 	focusable     bool
 	hasFocus      bool
-	onGainedFocus gxui.Event
-	onLostFocus   gxui.Event
+	onGainedFocus Event
+	onLostFocus   Event
 }
 
 func (f *FocusablePart) Init() {
@@ -33,16 +29,16 @@ func (f *FocusablePart) SetFocusable(bool) {
 	f.focusable = true
 }
 
-func (f *FocusablePart) OnGainedFocus(callback func()) gxui.EventSubscription {
+func (f *FocusablePart) OnGainedFocus(callback func()) EventSubscription {
 	if f.onGainedFocus == nil {
-		f.onGainedFocus = gxui.CreateEvent(f.GainedFocus)
+		f.onGainedFocus = CreateEvent(f.GainedFocus)
 	}
 	return f.onGainedFocus.Listen(callback)
 }
 
-func (f *FocusablePart) OnLostFocus(callback func()) gxui.EventSubscription {
+func (f *FocusablePart) OnLostFocus(callback func()) EventSubscription {
 	if f.onLostFocus == nil {
-		f.onLostFocus = gxui.CreateEvent(f.LostFocus)
+		f.onLostFocus = CreateEvent(f.LostFocus)
 	}
 	return f.onLostFocus.Listen(callback)
 }

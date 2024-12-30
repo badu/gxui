@@ -73,3 +73,25 @@ type LinearLayoutOuter interface {
 	Size() math.Size           // was outer.Sized
 	SetSize(newSize math.Size) // was outer.Sized
 }
+
+type LinearLayoutImpl struct {
+	ContainerBase
+	LinearLayoutPart
+	BackgroundBorderPainter
+}
+
+func (l *LinearLayoutImpl) Init(outer ContainerBaseOuter, theme Theme) {
+	l.ContainerBase.Init(outer, theme)
+	l.LinearLayoutPart.Init(outer)
+	l.BackgroundBorderPainter.Init(outer)
+	l.SetMouseEventTarget(true)
+	l.SetBackgroundBrush(TransparentBrush)
+	l.SetBorderPen(TransparentPen)
+}
+
+func (l *LinearLayoutImpl) Paint(canvas Canvas) {
+	rect := l.Size().Rect()
+	l.BackgroundBorderPainter.PaintBackground(canvas, rect)
+	l.PaintChildrenPart.Paint(canvas)
+	l.BackgroundBorderPainter.PaintBorder(canvas, rect)
+}

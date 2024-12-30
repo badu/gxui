@@ -2,15 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
-
-import (
-	"github.com/badu/gxui"
-)
+package gxui
 
 type AttachablePart struct {
-	onAttach gxui.Event
-	onDetach gxui.Event
+	onAttach Event
+	onDetach Event
 	attached bool
 }
 
@@ -40,16 +36,16 @@ func (a *AttachablePart) Detach() {
 	}
 }
 
-func (a *AttachablePart) OnAttach(callback func()) gxui.EventSubscription {
+func (a *AttachablePart) OnAttach(callback func()) EventSubscription {
 	if a.onAttach == nil {
-		a.onAttach = gxui.CreateEvent(func() {})
+		a.onAttach = CreateEvent(func() {})
 	}
 	return a.onAttach.Listen(callback)
 }
 
-func (a *AttachablePart) OnDetach(callback func()) gxui.EventSubscription {
+func (a *AttachablePart) OnDetach(callback func()) EventSubscription {
 	if a.onDetach == nil {
-		a.onDetach = gxui.CreateEvent(func() {})
+		a.onDetach = CreateEvent(func() {})
 	}
 	return a.onDetach.Listen(callback)
 }

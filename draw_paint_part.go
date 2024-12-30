@@ -2,34 +2,32 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
 	"fmt"
 	"github.com/badu/gxui/math"
 	"runtime"
-
-	"github.com/badu/gxui"
 )
 
 const debugVerifyDetachOnGC = false
 
 type DrawPaintOuter interface {
-	Attached() bool                                  // was outer.Attachable
-	Attach()                                         // was outer.Attachable
-	Detach()                                         // was outer.Attachable
-	OnAttach(callback func()) gxui.EventSubscription // was outer.Attachable
-	OnDetach(callback func()) gxui.EventSubscription // was outer.Attachable
-	Paint(canvas gxui.Canvas)                        // was outer.Painter
-	Parent() gxui.Parent                             // was outer.Parenter
-	Size() math.Size                                 // was outer.Sized
-	SetSize(newSize math.Size)                       // was outer.Sized
+	Attached() bool                             // was outer.Attachable
+	Attach()                                    // was outer.Attachable
+	Detach()                                    // was outer.Attachable
+	OnAttach(callback func()) EventSubscription // was outer.Attachable
+	OnDetach(callback func()) EventSubscription // was outer.Attachable
+	Paint(canvas Canvas)                        // was outer.Painter
+	Parent() Parent                             // was outer.Parenter
+	Size() math.Size                            // was outer.Sized
+	SetSize(newSize math.Size)                  // was outer.Sized
 }
 
 type DrawPaintPart struct {
 	outer           DrawPaintOuter
-	driver          gxui.Driver
-	canvas          gxui.Canvas
+	driver          Driver
+	canvas          Canvas
 	dirty           bool
 	redrawRequested bool
 }
@@ -40,7 +38,7 @@ func verifyDetach(outer DrawPaintOuter) {
 	}
 }
 
-func (d *DrawPaintPart) Init(outer DrawPaintOuter, theme gxui.Theme) {
+func (d *DrawPaintPart) Init(outer DrawPaintOuter, theme Theme) {
 	d.outer = outer
 	d.driver = theme.Driver()
 
@@ -60,7 +58,7 @@ func (d *DrawPaintPart) Redraw() {
 	}
 }
 
-func (d *DrawPaintPart) Draw() gxui.Canvas {
+func (d *DrawPaintPart) Draw() Canvas {
 	if !d.outer.Attached() {
 		panic(fmt.Errorf("attempting to draw a non-attached control %T", d.outer))
 	}

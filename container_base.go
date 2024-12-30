@@ -2,11 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
-
-import (
-	"github.com/badu/gxui"
-)
+package gxui
 
 type ContainerBase struct {
 	AttachablePart
@@ -20,7 +16,7 @@ type ContainerBase struct {
 	VisiblePart
 }
 
-func (c *ContainerBase) Init(outer gxui.ContainerBaseOuter, theme gxui.Theme) {
+func (c *ContainerBase) Init(outer ContainerBaseOuter, theme Theme) {
 	c.AttachablePart.Init()
 	c.ContainerPart.Init(outer)
 	c.DrawPaintPart.Init(outer, theme)

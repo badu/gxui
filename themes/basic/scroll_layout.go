@@ -6,11 +6,10 @@ package basic
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/mixins"
 )
 
 func CreateScrollLayout(theme *Theme) gxui.ScrollLayout {
-	l := &mixins.ScrollLayout{}
+	l := &gxui.ScrollLayoutImpl{}
 	l.Init(l, theme)
 	return l
 }

@@ -7,18 +7,17 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type PanelTab struct {
-	mixins.Button
+	gxui.ButtonImpl
 	theme  *Theme
 	active bool
 }
 
 func CreatePanelTab(theme *Theme) gxui.PanelTab {
 	t := &PanelTab{}
-	t.Button.Init(t, theme)
+	t.ButtonImpl.Init(t, theme)
 	t.theme = theme
 	t.SetPadding(math.Spacing{L: 5, T: 3, R: 5, B: 3})
 	t.OnMouseEnter(func(gxui.MouseEvent) { t.Redraw() })
@@ -64,5 +63,5 @@ func (t *PanelTab) Paint(c gxui.Canvas) {
 		c.DrawRect(r, style.Brush)
 	}
 
-	t.Button.Paint(c)
+	t.ButtonImpl.Paint(c)
 }

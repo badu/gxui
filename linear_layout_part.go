@@ -2,22 +2,21 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 )
 
 type LinearLayoutPart struct {
-	outer               gxui.LinearLayoutOuter
-	direction           gxui.Direction
-	sizeMode            gxui.SizeMode
-	horizontalAlignment gxui.HorizontalAlignment
-	verticalAlignment   gxui.VerticalAlignment
+	outer               LinearLayoutOuter
+	direction           Direction
+	sizeMode            SizeMode
+	horizontalAlignment HorizontalAlignment
+	verticalAlignment   VerticalAlignment
 }
 
-func (l *LinearLayoutPart) Init(outer gxui.LinearLayoutOuter) {
+func (l *LinearLayoutPart) Init(outer LinearLayoutOuter) {
 	l.outer = outer
 }
 
@@ -43,47 +42,47 @@ func (l *LinearLayoutPart) LayoutChildren() {
 		// Calculate minor-axis alignment
 		var minor int
 		switch l.direction.Orientation() {
-		case gxui.Horizontal:
+		case Horizontal:
 			switch l.verticalAlignment {
-			case gxui.AlignTop:
+			case AlignTop:
 				minor = cm.T
-			case gxui.AlignMiddle:
+			case AlignMiddle:
 				minor = (s.H - cs.H) / 2
-			case gxui.AlignBottom:
+			case AlignBottom:
 				minor = s.H - cs.H
 			}
-		case gxui.Vertical:
+		case Vertical:
 			switch l.horizontalAlignment {
-			case gxui.AlignLeft:
+			case AlignLeft:
 				minor = cm.L
-			case gxui.AlignCenter:
+			case AlignCenter:
 				minor = (s.W - cs.W) / 2
-			case gxui.AlignRight:
+			case AlignRight:
 				minor = s.W - cs.W
 			}
 		}
 
 		// Peform layout
 		switch l.direction {
-		case gxui.LeftToRight:
+		case LeftToRight:
 			major += cm.L
 			child.Offset = math.Point{X: major, Y: minor}.Add(o)
 			major += cs.W
 			major += cm.R
 			s.W -= cs.W + cm.W()
-		case gxui.RightToLeft:
+		case RightToLeft:
 			major -= cm.R
 			child.Offset = math.Point{X: major - cs.W, Y: minor}.Add(o)
 			major -= cs.W
 			major -= cm.L
 			s.W -= cs.W + cm.W()
-		case gxui.TopToBottom:
+		case TopToBottom:
 			major += cm.T
 			child.Offset = math.Point{X: minor, Y: major}.Add(o)
 			major += cs.H
 			major += cm.B
 			s.H -= cs.H + cm.H()
-		case gxui.BottomToTop:
+		case BottomToTop:
 			major -= cm.B
 			child.Offset = math.Point{X: minor, Y: major - cs.H}.Add(o)
 			major -= cs.H
@@ -118,44 +117,44 @@ func (l *LinearLayoutPart) DesiredSize(min, max math.Size) math.Size {
 	return bounds.Size().Expand(l.outer.Padding()).Clamp(min, max)
 }
 
-func (l *LinearLayoutPart) Direction() gxui.Direction {
+func (l *LinearLayoutPart) Direction() Direction {
 	return l.direction
 }
 
-func (l *LinearLayoutPart) SetDirection(d gxui.Direction) {
+func (l *LinearLayoutPart) SetDirection(d Direction) {
 	if l.direction != d {
 		l.direction = d
 		l.outer.Relayout()
 	}
 }
 
-func (l *LinearLayoutPart) SizeMode() gxui.SizeMode {
+func (l *LinearLayoutPart) SizeMode() SizeMode {
 	return l.sizeMode
 }
 
-func (l *LinearLayoutPart) SetSizeMode(mode gxui.SizeMode) {
+func (l *LinearLayoutPart) SetSizeMode(mode SizeMode) {
 	if l.sizeMode != mode {
 		l.sizeMode = mode
 		l.outer.Relayout()
 	}
 }
 
-func (l *LinearLayoutPart) HorizontalAlignment() gxui.HorizontalAlignment {
+func (l *LinearLayoutPart) HorizontalAlignment() HorizontalAlignment {
 	return l.horizontalAlignment
 }
 
-func (l *LinearLayoutPart) SetHorizontalAlignment(alignment gxui.HorizontalAlignment) {
+func (l *LinearLayoutPart) SetHorizontalAlignment(alignment HorizontalAlignment) {
 	if l.horizontalAlignment != alignment {
 		l.horizontalAlignment = alignment
 		l.outer.Relayout()
 	}
 }
 
-func (l *LinearLayoutPart) VerticalAlignment() gxui.VerticalAlignment {
+func (l *LinearLayoutPart) VerticalAlignment() VerticalAlignment {
 	return l.verticalAlignment
 }
 
-func (l *LinearLayoutPart) SetVerticalAlignment(alignment gxui.VerticalAlignment) {
+func (l *LinearLayoutPart) SetVerticalAlignment(alignment VerticalAlignment) {
 	if l.verticalAlignment != alignment {
 		l.verticalAlignment = alignment
 		l.outer.Relayout()

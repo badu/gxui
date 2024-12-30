@@ -14,7 +14,7 @@ import (
 func appMain(driver gxui.Driver) {
 	theme := flags.CreateTheme(driver)
 
-	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "Window")
+	window := theme.CreateWindow(theme.DisplayWidth()/2, theme.DisplayHeight(), "WindowImpl")
 	window.OnClose(driver.Terminate)
 	window.SetScale(flags.DefaultScaleFactor)
 	window.SetPadding(math.Spacing{L: 10, R: 10, T: 10, B: 10})

@@ -2,18 +2,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 )
 
 type PaintChildrenOuter interface {
-	gxui.Container
-	PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) // was outer.PaintChilder
-	Size() math.Size                                           // was outer.Sized
-	SetSize(newSize math.Size)                                 // was outer.Sized
+	Container
+	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
+	Size() math.Size                                 // was outer.Sized
+	SetSize(newSize math.Size)                       // was outer.Sized
 }
 
 type PaintChildrenPart struct {
@@ -24,7 +23,7 @@ func (p *PaintChildrenPart) Init(outer PaintChildrenOuter) {
 	p.outer = outer
 }
 
-func (p *PaintChildrenPart) Paint(canvas gxui.Canvas) {
+func (p *PaintChildrenPart) Paint(canvas Canvas) {
 	for i, v := range p.outer.Children() {
 		if v.Control.IsVisible() {
 			canvas.Push()
@@ -35,7 +34,7 @@ func (p *PaintChildrenPart) Paint(canvas gxui.Canvas) {
 	}
 }
 
-func (p *PaintChildrenPart) PaintChild(canvas gxui.Canvas, child *gxui.Child, idx int) {
+func (p *PaintChildrenPart) PaintChild(canvas Canvas, child *Child, idx int) {
 	if childCanvas := child.Control.Draw(); childCanvas != nil {
 		canvas.DrawCanvas(childCanvas, child.Offset)
 	}

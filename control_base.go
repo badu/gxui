@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
 )
 
@@ -18,7 +17,7 @@ type ControlBase struct {
 	VisiblePart
 }
 
-func (c *ControlBase) Init(outer gxui.ControlBaseOuter, theme gxui.Theme) {
+func (c *ControlBase) Init(outer ControlBaseOuter, theme Theme) {
 	c.AttachablePart.Init()
 	c.DrawPaintPart.Init(outer, theme)
 	c.LayoutablePart.Init(outer, theme)

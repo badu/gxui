@@ -2,19 +2,18 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package mixins
+package gxui
 
 import (
-	"github.com/badu/gxui"
 	"github.com/badu/gxui/interval"
 	"github.com/badu/gxui/math"
 )
 
 type CodeEditorLineOuter interface {
-	gxui.DefaultTextBoxLineOuter
-	PaintBackgroundSpans(c gxui.Canvas, info CodeEditorLinePaintInfo)
-	PaintGlyphs(c gxui.Canvas, info CodeEditorLinePaintInfo)
-	PaintBorders(c gxui.Canvas, info CodeEditorLinePaintInfo)
+	DefaultTextBoxLineOuter
+	PaintBackgroundSpans(c Canvas, info CodeEditorLinePaintInfo)
+	PaintGlyphs(c Canvas, info CodeEditorLinePaintInfo)
+	PaintBorders(c Canvas, info CodeEditorLinePaintInfo)
 }
 
 type CodeEditorLinePaintInfo struct {
@@ -23,23 +22,23 @@ type CodeEditorLinePaintInfo struct {
 	GlyphOffsets []math.Point
 	GlyphWidth   int
 	LineHeight   int
-	Font         gxui.Font
+	Font         Font
 }
 
 // CodeEditorLine
 type CodeEditorLine struct {
 	DefaultTextBoxLine
 	outer  CodeEditorLineOuter
-	editor *CodeEditor
+	editor *CodeEditorImpl
 }
 
-func (l *CodeEditorLine) Init(outer CodeEditorLineOuter, theme gxui.Theme, ce *CodeEditor, lineIndex int) {
-	l.DefaultTextBoxLine.Init(outer, theme, &ce.TextBox, lineIndex)
+func (l *CodeEditorLine) Init(outer CodeEditorLineOuter, theme Theme, ce *CodeEditorImpl, lineIndex int) {
+	l.DefaultTextBoxLine.Init(outer, theme, &ce.TextBoxImpl, lineIndex)
 	l.outer = outer
 	l.editor = ce
 }
 
-func (t *CodeEditorLine) PaintBackgroundSpans(canvas gxui.Canvas, info CodeEditorLinePaintInfo) {
+func (t *CodeEditorLine) PaintBackgroundSpans(canvas Canvas, info CodeEditorLinePaintInfo) {
 	start, _ := info.LineSpan.Span()
 	offsets := info.GlyphOffsets
 	remaining := interval.IntDataList{info.LineSpan}
@@ -50,7 +49,7 @@ func (t *CodeEditorLine) PaintBackgroundSpans(canvas gxui.Canvas, info CodeEdito
 				interval.Visit(&remaining, span, func(vs, ve uint64, _ int) {
 					s, e := vs-start, ve-start
 					r := math.CreateRect(offsets[s].X, 0, offsets[e-1].X+info.GlyphWidth, info.LineHeight)
-					canvas.DrawRoundedRect(r, 3, 3, 3, 3, gxui.TransparentPen, gxui.Brush{Color: color})
+					canvas.DrawRoundedRect(r, 3, 3, 3, 3, TransparentPen, Brush{Color: color})
 				})
 				interval.Remove(&remaining, span)
 			}
@@ -58,7 +57,7 @@ func (t *CodeEditorLine) PaintBackgroundSpans(canvas gxui.Canvas, info CodeEdito
 	}
 }
 
-func (t *CodeEditorLine) PaintGlyphs(canvas gxui.Canvas, info CodeEditorLinePaintInfo) {
+func (t *CodeEditorLine) PaintGlyphs(canvas Canvas, info CodeEditorLinePaintInfo) {
 	start, _ := info.LineSpan.Span()
 	runes, offsets, font := info.Runes, info.GlyphOffsets, info.Font
 	remaining := interval.IntDataList{info.LineSpan}
@@ -81,7 +80,7 @@ func (t *CodeEditorLine) PaintGlyphs(canvas gxui.Canvas, info CodeEditorLinePain
 	}
 }
 
-func (t *CodeEditorLine) PaintBorders(canvas gxui.Canvas, info CodeEditorLinePaintInfo) {
+func (t *CodeEditorLine) PaintBorders(canvas Canvas, info CodeEditorLinePaintInfo) {
 	start, _ := info.LineSpan.Span()
 	offsets := info.GlyphOffsets
 	for _, layer := range t.editor.layers {
@@ -90,14 +89,14 @@ func (t *CodeEditorLine) PaintBorders(canvas gxui.Canvas, info CodeEditorLinePai
 			interval.Visit(layer.Spans(), info.LineSpan, func(vs, ve uint64, _ int) {
 				s, e := vs-start, ve-start
 				r := math.CreateRect(offsets[s].X, 0, offsets[e-1].X+info.GlyphWidth, info.LineHeight)
-				canvas.DrawRoundedRect(r, 3, 3, 3, 3, gxui.CreatePen(0.5, color), gxui.TransparentBrush)
+				canvas.DrawRoundedRect(r, 3, 3, 3, 3, CreatePen(0.5, color), TransparentBrush)
 			})
 		}
 	}
 }
 
 // DefaultTextBoxLine overrides
-func (t *CodeEditorLine) Paint(canvas gxui.Canvas) {
+func (t *CodeEditorLine) Paint(canvas Canvas) {
 	font := t.editor.font
 	rect := t.Size().Rect().OffsetX(t.caretWidth)
 	controller := t.editor.controller
@@ -111,11 +110,11 @@ func (t *CodeEditorLine) Paint(canvas gxui.Canvas) {
 		lineHeight := t.Size().H
 		glyphWidth := font.GlyphMaxSize().W
 		offsets := font.Layout(
-			&gxui.TextBlock{
+			&TextBlock{
 				Runes:     runes,
 				AlignRect: rect,
-				H:         gxui.AlignLeft,
-				V:         gxui.AlignMiddle,
+				H:         AlignLeft,
+				V:         AlignMiddle,
 			},
 		)
 

@@ -1,0 +1,239 @@
+// Copyright 2015 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package gxui
+
+type InputEventHandlerPart struct {
+	isMouseOver   bool
+	isMouseDown   map[MouseButton]bool
+	onClick       Event
+	onDoubleClick Event
+	onKeyPress    Event
+	onKeyStroke   Event
+	onMouseMove   Event
+	onMouseEnter  Event
+	onMouseExit   Event
+	onMouseDown   Event
+	onMouseUp     Event
+	onMouseScroll Event
+	onKeyDown     Event
+	onKeyUp       Event
+	onKeyRepeat   Event
+}
+
+func (m *InputEventHandlerPart) getOnClick() Event {
+	if m.onClick == nil {
+		m.onClick = CreateEvent(m.Click)
+	}
+	return m.onClick
+}
+
+func (m *InputEventHandlerPart) getOnDoubleClick() Event {
+	if m.onDoubleClick == nil {
+		m.onDoubleClick = CreateEvent(m.DoubleClick)
+	}
+	return m.onDoubleClick
+}
+
+func (m *InputEventHandlerPart) getOnKeyPress() Event {
+	if m.onKeyPress == nil {
+		m.onKeyPress = CreateEvent(m.KeyPress)
+	}
+	return m.onKeyPress
+}
+
+func (m *InputEventHandlerPart) getOnKeyStroke() Event {
+	if m.onKeyStroke == nil {
+		m.onKeyStroke = CreateEvent(m.KeyStroke)
+	}
+	return m.onKeyStroke
+}
+
+func (m *InputEventHandlerPart) getOnMouseMove() Event {
+	if m.onMouseMove == nil {
+		m.onMouseMove = CreateEvent(m.MouseMove)
+	}
+	return m.onMouseMove
+}
+
+func (m *InputEventHandlerPart) getOnMouseEnter() Event {
+	if m.onMouseEnter == nil {
+		m.onMouseEnter = CreateEvent(m.MouseEnter)
+	}
+	return m.onMouseEnter
+}
+
+func (m *InputEventHandlerPart) getOnMouseExit() Event {
+	if m.onMouseExit == nil {
+		m.onMouseExit = CreateEvent(m.MouseExit)
+	}
+	return m.onMouseExit
+}
+
+func (m *InputEventHandlerPart) getOnMouseDown() Event {
+	if m.onMouseDown == nil {
+		m.onMouseDown = CreateEvent(m.MouseDown)
+	}
+	return m.onMouseDown
+}
+
+func (m *InputEventHandlerPart) getOnMouseUp() Event {
+	if m.onMouseUp == nil {
+		m.onMouseUp = CreateEvent(m.MouseUp)
+	}
+	return m.onMouseUp
+}
+
+func (m *InputEventHandlerPart) getOnMouseScroll() Event {
+	if m.onMouseScroll == nil {
+		m.onMouseScroll = CreateEvent(m.MouseScroll)
+	}
+	return m.onMouseScroll
+}
+
+func (m *InputEventHandlerPart) getOnKeyDown() Event {
+	if m.onKeyDown == nil {
+		m.onKeyDown = CreateEvent(m.KeyDown)
+	}
+	return m.onKeyDown
+}
+
+func (m *InputEventHandlerPart) getOnKeyUp() Event {
+	if m.onKeyUp == nil {
+		m.onKeyUp = CreateEvent(m.KeyUp)
+	}
+	return m.onKeyUp
+}
+
+func (m *InputEventHandlerPart) getOnKeyRepeat() Event {
+	if m.onKeyRepeat == nil {
+		m.onKeyRepeat = CreateEvent(m.KeyRepeat)
+	}
+	return m.onKeyRepeat
+}
+
+func (m *InputEventHandlerPart) Init() {
+	m.isMouseDown = make(map[MouseButton]bool)
+}
+
+func (m *InputEventHandlerPart) Click(ev MouseEvent) (consume bool) {
+	m.getOnClick().Fire(ev)
+	return false
+}
+
+func (m *InputEventHandlerPart) DoubleClick(ev MouseEvent) (consume bool) {
+	m.getOnDoubleClick().Fire(ev)
+	return false
+}
+
+func (m *InputEventHandlerPart) KeyPress(ev KeyboardEvent) (consume bool) {
+	m.getOnKeyPress().Fire(ev)
+	return false
+}
+
+func (m *InputEventHandlerPart) KeyStroke(ev KeyStrokeEvent) (consume bool) {
+	m.getOnKeyStroke().Fire(ev)
+	return false
+}
+
+func (m *InputEventHandlerPart) MouseScroll(ev MouseEvent) (consume bool) {
+	m.getOnMouseScroll().Fire(ev)
+	return false
+}
+
+func (m *InputEventHandlerPart) MouseMove(ev MouseEvent) {
+	m.getOnMouseMove().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) MouseEnter(ev MouseEvent) {
+	m.isMouseOver = true
+	m.getOnMouseEnter().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) MouseExit(ev MouseEvent) {
+	m.isMouseOver = false
+	m.getOnMouseExit().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) MouseDown(ev MouseEvent) {
+	m.isMouseDown[ev.Button] = true
+	m.getOnMouseDown().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) MouseUp(ev MouseEvent) {
+	m.isMouseDown[ev.Button] = false
+	m.getOnMouseUp().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) KeyDown(ev KeyboardEvent) {
+	m.getOnKeyDown().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) KeyUp(ev KeyboardEvent) {
+	m.getOnKeyUp().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) KeyRepeat(ev KeyboardEvent) {
+	m.getOnKeyRepeat().Fire(ev)
+}
+
+func (m *InputEventHandlerPart) OnClick(callback func(MouseEvent)) EventSubscription {
+	return m.getOnClick().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnDoubleClick(callback func(MouseEvent)) EventSubscription {
+	return m.getOnDoubleClick().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnKeyPress(callback func(KeyboardEvent)) EventSubscription {
+	return m.getOnKeyPress().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnKeyStroke(callback func(KeyStrokeEvent)) EventSubscription {
+	return m.getOnKeyStroke().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnMouseMove(callback func(MouseEvent)) EventSubscription {
+	return m.getOnMouseMove().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnMouseEnter(callback func(MouseEvent)) EventSubscription {
+	return m.getOnMouseEnter().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnMouseExit(callback func(MouseEvent)) EventSubscription {
+	return m.getOnMouseExit().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnMouseDown(callback func(MouseEvent)) EventSubscription {
+	return m.getOnMouseDown().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnMouseUp(callback func(MouseEvent)) EventSubscription {
+	return m.getOnMouseUp().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnMouseScroll(callback func(MouseEvent)) EventSubscription {
+	return m.getOnMouseScroll().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnKeyDown(callback func(KeyboardEvent)) EventSubscription {
+	return m.getOnKeyDown().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnKeyUp(callback func(KeyboardEvent)) EventSubscription {
+	return m.getOnKeyUp().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription {
+	return m.getOnKeyRepeat().Listen(callback)
+}
+
+func (m *InputEventHandlerPart) IsMouseOver() bool {
+	return m.isMouseOver
+}
+
+func (m *InputEventHandlerPart) IsMouseDown(button MouseButton) bool {
+	return m.isMouseDown[button]
+}

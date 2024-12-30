@@ -7,11 +7,10 @@ package basic
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/math"
-	"github.com/badu/gxui/mixins"
 )
 
 type Button struct {
-	mixins.Button
+	gxui.ButtonImpl
 	theme *Theme
 }
 
@@ -34,8 +33,8 @@ func CreateButton(theme *Theme) gxui.Button {
 
 // Button internal overrides
 func (b *Button) Paint(c gxui.Canvas) {
-	pen := b.Button.BorderPen()
-	brush := b.Button.BackgroundBrush()
+	pen := b.ButtonImpl.BorderPen()
+	brush := b.ButtonImpl.BackgroundBrush()
 	fontColor := b.theme.ButtonDefaultStyle.FontColor
 
 	switch {
