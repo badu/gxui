@@ -24,13 +24,13 @@ func (s MouseState) IsDown(b MouseButton) bool {
 }
 
 type MouseEvent struct {
+	Window           Window
 	Button           MouseButton
 	State            MouseState
+	Modifier         KeyboardModifier
 	Point            math.Point // Local to the event receiver
 	WindowPoint      math.Point
-	Window           Window
 	ScrollX, ScrollY int
-	Modifier         KeyboardModifier
 }
 
 var doubleClickTime = time.Millisecond * 300

@@ -19,10 +19,10 @@ type Label interface {
 	SetColor(color Color)
 	Multiline() bool
 	SetMultiline(bool)
-	SetHorizontalAlignment(HorizontalAlignment)
-	HorizontalAlignment() HorizontalAlignment
-	SetVerticalAlignment(VerticalAlignment)
-	VerticalAlignment() VerticalAlignment
+	SetHorizontalAlignment(HAlign)
+	HorizontalAlignment() HAlign
+	SetVerticalAlignment(VAlign)
+	VerticalAlignment() VAlign
 }
 
 type LabelImpl struct {
@@ -30,10 +30,10 @@ type LabelImpl struct {
 	parent              ControlBaseParent
 	font                Font
 	color               Color
-	horizontalAlignment HorizontalAlignment
-	verticalAlignment   VerticalAlignment
-	multiline           bool
+	horizontalAlignment HAlign
+	verticalAlignment   VAlign
 	text                string
+	multiline           bool
 }
 
 func (l *LabelImpl) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs) {
@@ -41,8 +41,8 @@ func (l *LabelImpl) Init(parent ControlBaseParent, driver Driver, styles *StyleD
 	l.parent = parent
 	l.font = styles.DefaultFont
 	l.color = styles.LabelStyle.FontColor
-	l.horizontalAlignment = AlignLeft
-	l.verticalAlignment = AlignMiddle
+	l.horizontalAlignment = styles.LabelStyle.HAlign
+	l.verticalAlignment = styles.LabelStyle.VAlign
 }
 
 func (l *LabelImpl) Text() string {
@@ -50,10 +50,12 @@ func (l *LabelImpl) Text() string {
 }
 
 func (l *LabelImpl) SetText(text string) {
-	if l.text != text {
-		l.text = text
-		l.parent.Relayout()
+	if l.text == text {
+		return
 	}
+
+	l.text = text
+	l.parent.ReLayout()
 }
 
 func (l *LabelImpl) Font() Font {
@@ -61,10 +63,12 @@ func (l *LabelImpl) Font() Font {
 }
 
 func (l *LabelImpl) SetFont(font Font) {
-	if l.font != font {
-		l.font = font
-		l.Relayout()
+	if l.font == font {
+		return
 	}
+
+	l.font = font
+	l.ReLayout()
 }
 
 func (l *LabelImpl) Color() Color {
@@ -72,10 +76,12 @@ func (l *LabelImpl) Color() Color {
 }
 
 func (l *LabelImpl) SetColor(color Color) {
-	if l.color != color {
-		l.color = color
-		l.parent.Redraw()
+	if l.color == color {
+		return
 	}
+
+	l.color = color
+	l.parent.Redraw()
 }
 
 func (l *LabelImpl) Multiline() bool {
@@ -83,10 +89,12 @@ func (l *LabelImpl) Multiline() bool {
 }
 
 func (l *LabelImpl) SetMultiline(multiline bool) {
-	if l.multiline != multiline {
-		l.multiline = multiline
-		l.parent.Relayout()
+	if l.multiline == multiline {
+		return
 	}
+
+	l.multiline = multiline
+	l.parent.ReLayout()
 }
 
 func (l *LabelImpl) DesiredSize(min, max math.Size) math.Size {
@@ -98,25 +106,28 @@ func (l *LabelImpl) DesiredSize(min, max math.Size) math.Size {
 	return size.Clamp(min, max)
 }
 
-func (l *LabelImpl) SetHorizontalAlignment(horizontalAlignment HorizontalAlignment) {
-	if l.horizontalAlignment != horizontalAlignment {
-		l.horizontalAlignment = horizontalAlignment
-		l.Redraw()
+func (l *LabelImpl) SetHorizontalAlignment(horizontalAlignment HAlign) {
+	if l.horizontalAlignment == horizontalAlignment {
+		return
 	}
+
+	l.horizontalAlignment = horizontalAlignment
+	l.Redraw()
 }
 
-func (l *LabelImpl) HorizontalAlignment() HorizontalAlignment {
+func (l *LabelImpl) HorizontalAlignment() HAlign {
 	return l.horizontalAlignment
 }
 
-func (l *LabelImpl) SetVerticalAlignment(verticalAlignment VerticalAlignment) {
+func (l *LabelImpl) SetVerticalAlignment(verticalAlignment VAlign) {
 	if l.verticalAlignment != verticalAlignment {
-		l.verticalAlignment = verticalAlignment
-		l.Redraw()
+		return
 	}
+	l.verticalAlignment = verticalAlignment
+	l.Redraw()
 }
 
-func (l *LabelImpl) VerticalAlignment() VerticalAlignment {
+func (l *LabelImpl) VerticalAlignment() VAlign {
 	return l.verticalAlignment
 }
 
@@ -129,11 +140,8 @@ func (l *LabelImpl) Paint(canvas Canvas) {
 	}
 
 	runes := []rune(text)
-	offsets := l.font.Layout(&TextBlock{
-		Runes:     runes,
-		AlignRect: rect,
-		H:         l.horizontalAlignment,
-		V:         l.verticalAlignment,
-	})
+	offsets := l.font.Layout(
+		&TextBlock{Runes: runes, AlignRect: rect, H: l.horizontalAlignment, V: l.verticalAlignment},
+	)
 	canvas.DrawRunes(l.font, runes, offsets, l.color)
 }

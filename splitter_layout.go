@@ -124,16 +124,16 @@ func (l *SplitterLayoutImpl) CreateSplitterBar() Control {
 	return b
 }
 
-func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, wndPnt math.Point) {
+func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, windowPoint math.Point) {
 	o := l.orientation
-	p := WindowToChild(wndPnt, l.parent)
+	point := WindowToChild(windowPoint, l.parent)
 	children := l.ContainerBase.Children()
 	splitterIndex := children.IndexOf(splitter)
 	childA, childB := children[splitterIndex-1], children[splitterIndex+1]
 	boundsA, boundsB := childA.Bounds(), childB.Bounds()
 
 	min, max := o.Major(boundsA.Min.XY()), o.Major(boundsB.Max.XY())
-	frac := math.RampSat(float32(o.Major(p.XY())), float32(min), float32(max))
+	frac := math.RampSat(float32(o.Major(point.XY())), float32(min), float32(max))
 
 	netWeight := l.weights[childA.Control] + l.weights[childB.Control]
 	l.weights[childA.Control] = netWeight * frac

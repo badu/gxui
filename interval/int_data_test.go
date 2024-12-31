@@ -4,9 +4,10 @@
 
 package interval
 
-import test "github.com/badu/gxui/testing"
-
-import "testing"
+import (
+	"github.com/badu/gxui/test_helper"
+	"testing"
+)
 
 func TestIntDataListReplace(t *testing.T) {
 	l := &IntDataList{
@@ -17,7 +18,7 @@ func TestIntDataListReplace(t *testing.T) {
 	Replace(l, CreateIntData(25, 45, 4))
 	Replace(l, CreateIntData(55, 65, 5))
 	Replace(l, CreateIntData(75, 90, 6))
-	test.AssertEquals(t, &IntDataList{
+	test_helper.AssertEquals(t, &IntDataList{
 		CreateIntData(00, 15, 3),
 		CreateIntData(15, 25, 1),
 		CreateIntData(25, 45, 4),
@@ -37,7 +38,7 @@ func TestIntDataListMerge(t *testing.T) {
 	Merge(l, CreateIntData(25, 45, 4))
 	Merge(l, CreateIntData(55, 65, 5))
 	Merge(l, CreateIntData(75, 90, 6))
-	test.AssertEquals(t, &IntDataList{
+	test_helper.AssertEquals(t, &IntDataList{
 		CreateIntData(00, 90, 6),
 	}, l)
 }

@@ -69,40 +69,44 @@ func CreateLightTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 		w, h = vm.Width, vm.Height
 	}
 
-	return &gxui.StyleDefs{
+	styles := gxui.StyleDefs{
 		DefaultFont:          defaultFont,
 		DefaultMonospaceFont: defaultMonospaceFont,
 		WindowBackground:     gxui.White,
 
 		//                                   fontColor    brushColor   penColor
-		BubbleOverlayStyle:        gxui.CreateStyle(gxui.Gray40, gxui.Gray20, gxui.Gray40, 1.0),
-		ButtonDefaultStyle:        gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray40, 1.0),
-		ButtonOverStyle:           gxui.CreateStyle(gxui.Gray40, gxui.Gray90, gxui.Gray40, 1.0),
-		ButtonPressedStyle:        gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0),
-		CodeSuggestionListStyle:   gxui.CreateStyle(gxui.Gray40, gxui.Gray20, gxui.Gray10, 1.0),
-		DropDownListDefaultStyle:  gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray20, 1.0),
-		DropDownListOverStyle:     gxui.CreateStyle(gxui.Gray40, gxui.Gray90, gxui.Gray50, 1.0),
-		FocusedStyle:              gxui.CreateStyle(gxui.Gray20, gxui.Transparent, focus, 1.0),
-		HighlightStyle:            gxui.CreateStyle(gxui.Gray40, gxui.Transparent, neonBlue, 2.0),
-		LabelStyle:                gxui.CreateStyle(gxui.Gray40, gxui.Transparent, gxui.Transparent, 0.0),
-		PanelBackgroundStyle:      gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray15, 1.0),
-		ScrollBarBarDefaultStyle:  gxui.CreateStyle(gxui.Gray40, gxui.Gray30, gxui.Gray40, 1.0),
-		ScrollBarBarOverStyle:     gxui.CreateStyle(gxui.Gray40, gxui.Gray50, gxui.Gray60, 1.0),
-		ScrollBarRailDefaultStyle: gxui.CreateStyle(gxui.Gray40, scrollBarRailDefaultBg, gxui.Transparent, 1.0),
-		ScrollBarRailOverStyle:    gxui.CreateStyle(gxui.Gray40, scrollBarRailOverBg, gxui.Gray20, 1.0),
-		SplitterBarDefaultStyle:   gxui.CreateStyle(gxui.Gray40, gxui.Gray80, gxui.Gray40, 1.0),
-		SplitterBarOverStyle:      gxui.CreateStyle(gxui.Gray40, gxui.Gray80, gxui.Gray50, 1.0),
-		TabActiveHighlightStyle:   gxui.CreateStyle(gxui.Gray30, neonBlue, neonBlue, 0.0),
-		TabDefaultStyle:           gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray40, 1.0),
-		TabOverStyle:              gxui.CreateStyle(gxui.Gray30, gxui.Gray90, gxui.Gray50, 1.0),
-		TabPressedStyle:           gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0),
-		TextBoxDefaultStyle:       gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray20, 1.0),
-		TextBoxOverStyle:          gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray50, 1.0),
+		BubbleOverlayStyle:        gxui.CreateStyle(gxui.Gray40, gxui.Gray20, gxui.Gray40, 1.0, nil),
+		ButtonDefaultStyle:        gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray40, 1.0, nil),
+		ButtonOverStyle:           gxui.CreateStyle(gxui.Gray40, gxui.Gray90, gxui.Gray40, 1.0, nil),
+		ButtonPressedStyle:        gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0, nil),
+		CodeSuggestionListStyle:   gxui.CreateStyle(gxui.Gray40, gxui.Gray20, gxui.Gray10, 1.0, nil),
+		CodeEditorStyle:           gxui.CreateStyle(gxui.Gray40, gxui.Gray20, gxui.Gray10, 2.0, defaultMonospaceFont),
+		DropDownListDefaultStyle:  gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray20, 1.0, nil),
+		DropDownListOverStyle:     gxui.CreateStyle(gxui.Gray40, gxui.Gray90, gxui.Gray50, 1.0, nil),
+		FocusedStyle:              gxui.CreateStyle(gxui.Gray20, gxui.Transparent, focus, 1.0, nil),
+		HighlightStyle:            gxui.CreateStyle(gxui.Gray40, gxui.Transparent, neonBlue, 2.0, nil),
+		LabelStyle:                gxui.CreateStyle(gxui.Gray40, gxui.Transparent, gxui.Transparent, 0.0, nil),
+		PanelBackgroundStyle:      gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray15, 1.0, nil),
+		ScrollBarBarDefaultStyle:  gxui.CreateStyle(gxui.Gray40, gxui.Gray30, gxui.Gray40, 1.0, nil),
+		ScrollBarBarOverStyle:     gxui.CreateStyle(gxui.Gray40, gxui.Gray50, gxui.Gray60, 1.0, nil),
+		ScrollBarRailDefaultStyle: gxui.CreateStyle(gxui.Gray40, scrollBarRailDefaultBg, gxui.Transparent, 1.0, nil),
+		ScrollBarRailOverStyle:    gxui.CreateStyle(gxui.Gray40, scrollBarRailOverBg, gxui.Gray20, 1.0, nil),
+		SplitterBarDefaultStyle:   gxui.CreateStyle(gxui.Gray40, gxui.Gray80, gxui.Gray40, 1.0, nil),
+		SplitterBarOverStyle:      gxui.CreateStyle(gxui.Gray40, gxui.Gray80, gxui.Gray50, 1.0, nil),
+		TabActiveHighlightStyle:   gxui.CreateStyle(gxui.Gray30, neonBlue, neonBlue, 0.0, nil),
+		TabDefaultStyle:           gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray40, 1.0, nil),
+		TabOverStyle:              gxui.CreateStyle(gxui.Gray30, gxui.Gray90, gxui.Gray50, 1.0, nil),
+		TabPressedStyle:           gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0, nil),
+		TextBoxDefaultStyle:       gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray20, 1.0, nil),
+		TextBoxOverStyle:          gxui.CreateStyle(gxui.Gray40, gxui.White, gxui.Gray50, 1.0, nil),
 
 		ScreenWidth:  w,
 		ScreenHeight: h,
 		FontSize:     fontSize,
 	}
+	styles.LabelStyle.HAlign = gxui.AlignLeft
+	styles.LabelStyle.VAlign = gxui.AlignMiddle
+	return &styles
 }
 
 func CreateDarkTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
@@ -136,38 +140,44 @@ func CreateDarkTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 		w, h = vm.Width, vm.Height
 	}
 
-	return &gxui.StyleDefs{
+	styles := gxui.StyleDefs{
 		DefaultFont:          defaultFont,
 		DefaultMonospaceFont: defaultMonospaceFont,
 		WindowBackground:     gxui.Black,
 
 		//                                   fontColor    brushColor   penColor
-		BubbleOverlayStyle:        gxui.CreateStyle(gxui.Gray80, gxui.Gray20, gxui.Gray40, 1.0),
-		ButtonDefaultStyle:        gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray20, 1.0),
-		ButtonOverStyle:           gxui.CreateStyle(gxui.Gray90, gxui.Gray15, gxui.Gray50, 1.0),
-		ButtonPressedStyle:        gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0),
-		CodeSuggestionListStyle:   gxui.CreateStyle(gxui.Gray80, gxui.Gray20, gxui.Gray10, 1.0),
-		DropDownListDefaultStyle:  gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray20, 1.0),
-		DropDownListOverStyle:     gxui.CreateStyle(gxui.Gray80, gxui.Gray15, gxui.Gray50, 1.0),
-		FocusedStyle:              gxui.CreateStyle(gxui.Gray80, gxui.Transparent, focus, 1.0),
-		HighlightStyle:            gxui.CreateStyle(gxui.Gray80, gxui.Transparent, neonBlue, 2.0),
-		LabelStyle:                gxui.CreateStyle(gxui.Gray80, gxui.Transparent, gxui.Transparent, 0.0),
-		PanelBackgroundStyle:      gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray15, 1.0),
-		ScrollBarBarDefaultStyle:  gxui.CreateStyle(gxui.Gray80, gxui.Gray30, gxui.Gray40, 1.0),
-		ScrollBarBarOverStyle:     gxui.CreateStyle(gxui.Gray80, gxui.Gray50, gxui.Gray60, 1.0),
-		ScrollBarRailDefaultStyle: gxui.CreateStyle(gxui.Gray80, scrollBarRailDefaultBg, gxui.Transparent, 1.0),
-		ScrollBarRailOverStyle:    gxui.CreateStyle(gxui.Gray80, scrollBarRailOverBg, gxui.Gray20, 1.0),
-		SplitterBarDefaultStyle:   gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray10, 1.0),
-		SplitterBarOverStyle:      gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray50, 1.0),
-		TabActiveHighlightStyle:   gxui.CreateStyle(gxui.Gray90, neonBlue, neonBlue, 0.0),
-		TabDefaultStyle:           gxui.CreateStyle(gxui.Gray80, gxui.Gray30, gxui.Gray40, 1.0),
-		TabOverStyle:              gxui.CreateStyle(gxui.Gray90, gxui.Gray30, gxui.Gray50, 1.0),
-		TabPressedStyle:           gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0),
-		TextBoxDefaultStyle:       gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray20, 1.0),
-		TextBoxOverStyle:          gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray50, 1.0),
+		BubbleOverlayStyle:        gxui.CreateStyle(gxui.Gray80, gxui.Gray20, gxui.Gray40, 1.0, nil),
+		ButtonDefaultStyle:        gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray20, 1.0, nil),
+		ButtonOverStyle:           gxui.CreateStyle(gxui.Gray90, gxui.Gray15, gxui.Gray50, 1.0, nil),
+		ButtonPressedStyle:        gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0, nil),
+		CodeSuggestionListStyle:   gxui.CreateStyle(gxui.Gray80, gxui.Gray20, gxui.Gray10, 1.0, nil),
+		CodeEditorStyle:           gxui.CreateStyle(gxui.Gray80, gxui.Gray20, gxui.Gray10, 2.0, defaultMonospaceFont),
+		DropDownListDefaultStyle:  gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray20, 1.0, nil),
+		DropDownListOverStyle:     gxui.CreateStyle(gxui.Gray80, gxui.Gray15, gxui.Gray50, 1.0, nil),
+		FocusedStyle:              gxui.CreateStyle(gxui.Gray80, gxui.Transparent, focus, 1.0, nil),
+		HighlightStyle:            gxui.CreateStyle(gxui.Gray80, gxui.Transparent, neonBlue, 2.0, nil),
+		LabelStyle:                gxui.CreateStyle(gxui.Gray80, gxui.Transparent, gxui.Transparent, 0.0, nil),
+		PanelBackgroundStyle:      gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray15, 1.0, nil),
+		ScrollBarBarDefaultStyle:  gxui.CreateStyle(gxui.Gray80, gxui.Gray30, gxui.Gray40, 1.0, nil),
+		ScrollBarBarOverStyle:     gxui.CreateStyle(gxui.Gray80, gxui.Gray50, gxui.Gray60, 1.0, nil),
+		ScrollBarRailDefaultStyle: gxui.CreateStyle(gxui.Gray80, scrollBarRailDefaultBg, gxui.Transparent, 1.0, nil),
+		ScrollBarRailOverStyle:    gxui.CreateStyle(gxui.Gray80, scrollBarRailOverBg, gxui.Gray20, 1.0, nil),
+		SplitterBarDefaultStyle:   gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray10, 1.0, nil),
+		SplitterBarOverStyle:      gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray50, 1.0, nil),
+		TabActiveHighlightStyle:   gxui.CreateStyle(gxui.Gray90, neonBlue, neonBlue, 0.0, nil),
+		TabDefaultStyle:           gxui.CreateStyle(gxui.Gray80, gxui.Gray30, gxui.Gray40, 1.0, nil),
+		TabOverStyle:              gxui.CreateStyle(gxui.Gray90, gxui.Gray30, gxui.Gray50, 1.0, nil),
+		TabPressedStyle:           gxui.CreateStyle(gxui.Gray20, gxui.Gray70, gxui.Gray30, 1.0, nil),
+		TextBoxDefaultStyle:       gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray20, 1.0, nil),
+		TextBoxOverStyle:          gxui.CreateStyle(gxui.Gray80, gxui.Gray10, gxui.Gray50, 1.0, nil),
 
 		ScreenWidth:  w,
 		ScreenHeight: h,
 		FontSize:     fontSize,
 	}
+
+	styles.LabelStyle.HAlign = gxui.AlignLeft
+	styles.LabelStyle.VAlign = gxui.AlignMiddle
+
+	return &styles
 }

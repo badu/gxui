@@ -14,7 +14,7 @@ func (a *AdapterBase) DataChanged(recreateControls bool) {
 		return
 	}
 
-	a.onDataChanged.Fire(recreateControls)
+	a.onDataChanged.Emit(recreateControls)
 }
 
 func (a *AdapterBase) DataReplaced() {
@@ -22,7 +22,7 @@ func (a *AdapterBase) DataReplaced() {
 		return
 	}
 
-	a.onDataReplaced.Fire()
+	a.onDataReplaced.Emit()
 }
 
 func (a *AdapterBase) OnDataChanged(callback func(recreateControls bool)) EventSubscription {

@@ -11,8 +11,8 @@ import (
 
 type TextBox interface {
 	Focusable
-	OnSelectionChanged(func()) EventSubscription
-	OnTextChanged(func([]TextBoxEdit)) EventSubscription
+	OnSelectionChanged(callback func()) EventSubscription
+	OnTextChanged(callback func([]TextBoxEdit)) EventSubscription
 	Padding() math.Spacing
 	SetPadding(math.Spacing)
 	Runes() []rune
@@ -114,14 +114,14 @@ func (t *TextBoxImpl) Init(parent TextBoxParent, driver Driver, styles *StyleDef
 	t.adapter = &TextBoxAdapter{TextBox: t}
 	t.desiredWidth = 100
 	t.SetScrollBarEnabled(false) // Defaults to single line
-	t.OnGainedFocus(func() { t.onRedrawLines.Fire() })
-	t.OnLostFocus(func() { t.onRedrawLines.Fire() })
+	t.OnGainedFocus(func() { t.onRedrawLines.Emit() })
+	t.OnLostFocus(func() { t.onRedrawLines.Emit() })
 	t.controller.OnTextChanged(func([]TextBoxEdit) {
-		t.onRedrawLines.Fire()
+		t.onRedrawLines.Emit()
 		t.ListImpl.DataChanged(false)
 	})
 	t.controller.OnSelectionChanged(func() {
-		t.onRedrawLines.Fire()
+		t.onRedrawLines.Emit()
 	})
 
 	t.ListImpl.SetAdapter(t.adapter)
@@ -157,7 +157,7 @@ func (t *TextBoxImpl) Text() string {
 
 func (t *TextBoxImpl) SetText(text string) {
 	t.controller.SetText(text)
-	t.parent.Relayout()
+	t.parent.ReLayout()
 }
 
 func (t *TextBoxImpl) TextColor() Color {
@@ -166,7 +166,7 @@ func (t *TextBoxImpl) TextColor() Color {
 
 func (t *TextBoxImpl) SetTextColor(color Color) {
 	t.textColor = color
-	t.Relayout()
+	t.ReLayout()
 }
 
 func (t *TextBoxImpl) Font() Font {
@@ -176,7 +176,7 @@ func (t *TextBoxImpl) Font() Font {
 func (t *TextBoxImpl) SetFont(font Font) {
 	if t.font != font {
 		t.font = font
-		t.Relayout()
+		t.ReLayout()
 	}
 }
 
@@ -188,7 +188,7 @@ func (t *TextBoxImpl) SetMultiline(multiline bool) {
 	if t.multiline != multiline {
 		t.multiline = multiline
 		t.SetScrollBarEnabled(multiline)
-		t.parent.Relayout()
+		t.parent.ReLayout()
 	}
 }
 
@@ -477,7 +477,7 @@ func (t *TextBoxImpl) MouseMove(event MouseEvent) {
 		if point, ok := t.RuneIndexAt(event.Point); ok {
 			t.selectionDrag = CreateTextSelection(t.selectionDrag.From(), point, false)
 			t.selectionDragging = true
-			t.onRedrawLines.Fire()
+			t.onRedrawLines.Emit()
 		}
 	}
 }

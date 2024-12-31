@@ -132,28 +132,29 @@ func WindowToChild(coord math.Point, to Control) math.Point {
 }
 
 func ChildToParent(coord math.Point, from Control, to Parent) math.Point {
-	c := from
+	control := from
 	for {
-		p := c.Parent()
+		p := control.Parent()
 		if p == nil {
-			panic(fmt.Errorf("Control detached: %s", Path(c)))
+			panic(fmt.Errorf("Control detached: %s", Path(control)))
 		}
-		child := p.Children().Find(c)
+
+		child := p.Children().Find(control)
 		if child == nil {
 			Dump(p)
-			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &p, p, &c, c))
+			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &p, p, &control, control))
 		}
+
 		coord = coord.Add(child.Offset)
 		if p == to {
 			return coord
 		}
 
-		if control, ok := p.(Control); ok {
-			c = control
-		} else {
+		var ok bool
+		control, ok = p.(Control)
+		if !ok {
 			Dump(p)
-			panic(fmt.Errorf("ChildToParent (%p %T) -> (%p %T) reached non-control parent (%p %T).",
-				&from, from, &to, to, &p, p))
+			panic(fmt.Errorf("ChildToParent (%p %T) -> (%p %T) reached non-control parent (%p %T).", &from, from, &to, to, &p, p))
 		}
 	}
 }
@@ -169,22 +170,23 @@ func TransformCoordinate(coord math.Point, from, to Control) math.Point {
 
 	ancestor := CommonAncestor(from, to)
 	if ancestor == nil {
-		panic(fmt.Errorf("No common ancestor between %s and %s", Path(from), Path(to)))
+		panic(fmt.Errorf("no common ancestor between %s and %s", Path(from), Path(to)))
 	}
 
 	if parent, ok := ancestor.(Control); !ok || parent != from {
 		coord = ChildToParent(coord, from, ancestor)
 	}
+
 	if parent, ok := ancestor.(Control); !ok || parent != to {
 		coord = ParentToChild(coord, ancestor, to)
 	}
+
 	return coord
 }
 
-// FindControl performs a depth-first search of the controls starting from root,
-// calling test with each visited control. If test returns true then the search
-// is stopped and FindControl returns the Control passed to test. If no call to
-// test returns true then FindControl returns nil.
+// FindControl performs a depth-first search of the controls starting from root, calling test with each visited control.
+// If test returns true then the search is stopped and FindControl returns the Control passed to test.
+// If no call to test returns true then FindControl returns nil.
 func FindControl(root Parent, test func(Control) (found bool)) Control {
 	if c, ok := root.(Control); ok && test(c) {
 		return c
@@ -194,6 +196,7 @@ func FindControl(root Parent, test func(Control) (found bool)) Control {
 		if test(child.Control) {
 			return child.Control
 		}
+
 		if parent, ok := child.Control.(Parent); ok {
 			if c := FindControl(parent, test); c != nil {
 				return c
@@ -203,16 +206,18 @@ func FindControl(root Parent, test func(Control) (found bool)) Control {
 	return nil
 }
 
-func WindowContaining(c Control) Window {
+func WindowContaining(control Control) Window {
 	for {
-		p := c.Parent()
-		if p == nil {
+		parent := control.Parent()
+		if parent == nil {
 			panic("Control's parent was nil")
 		}
-		if window, ok := p.(Window); ok {
+
+		if window, ok := parent.(Window); ok {
 			return window
 		}
-		c = p.(Control)
+
+		control = parent.(Control)
 	}
 }
 

@@ -159,9 +159,7 @@ type KeyboardController struct {
 }
 
 func CreateKeyboardController(window Window) *KeyboardController {
-	result := &KeyboardController{
-		window: window,
-	}
+	result := &KeyboardController{window: window}
 	window.OnKeyDown(result.keyDown)
 	window.OnKeyUp(result.keyUp)
 	window.OnKeyRepeat(result.keyPress)

@@ -9,6 +9,26 @@ import (
 	"reflect"
 )
 
+type EventSubscription interface {
+	Forget()
+}
+
+type Event interface {
+	Emit(args ...interface{})
+	Listen(event interface{}) EventSubscription
+	ParameterTypes() []reflect.Type
+}
+
+type SimpleEvent struct {
+	EventBase
+}
+
+func CreateEvent(signature interface{}) Event {
+	result := &SimpleEvent{}
+	result.init(signature)
+	return result
+}
+
 type EventListener struct {
 	Id       int
 	Function reflect.Value
@@ -64,7 +84,6 @@ func (e *EventBase) String() string {
 			s += ", "
 		}
 		if e.isVariadic && i == len(e.paramTypes)-1 {
-
 			s += "..."
 		}
 		s += t.String()
@@ -84,39 +103,35 @@ func assignable(to, from reflect.Type) bool {
 }
 
 func (e *EventBase) VerifySignature(argTys []reflect.Type, isVariadic bool) {
-	paramTypes := e.paramTypes
-
-	if isVariadic {
-		if len(argTys) < len(paramTypes)-1 {
-			panic(fmt.Errorf("%v.Fire(%v) Too few arguments. Must have at least %v, but got %v",
-				e.String(), argTys, len(paramTypes), len(argTys)))
+	if !isVariadic {
+		if len(e.paramTypes) != len(argTys) {
+			panic(fmt.Errorf("%v.Emit(%v) Argument count mismatch. Expected %d, got %d", e.String(), argTys, len(e.paramTypes), len(argTys)))
 		}
 		for i, argTy := range argTys {
-			varIdx := len(paramTypes) - 1
-			if i >= varIdx {
-				paramTy := paramTypes[varIdx].Elem()
-				if !assignable(paramTy, argTy) {
-					panic(fmt.Errorf("%v.Fire(%v) Variadic argument %v for was of the wrong type. Got: %v, Expected: %v",
-						e.String(), argTys, i-varIdx, argTy, paramTy))
-				}
-			} else {
-				paramTy := paramTypes[i]
-				if !assignable(paramTy, argTy) {
-					panic(fmt.Errorf("%v.Fire(%v) Argument %v for was of the wrong type. Got: %v, Expected: %v",
-						e.String(), argTys, i, argTy, paramTy))
-				}
+			paramTy := e.paramTypes[i]
+			if !assignable(paramTy, argTy) {
+				panic(fmt.Errorf("%v.Emit(%v) Argument %v for was of the wrong type. Got: %v, Expected: %v", e.String(), argTys, i, argTy, paramTy))
 			}
 		}
-	} else {
-		if len(paramTypes) != len(argTys) {
-			panic(fmt.Errorf("%v.Fire(%v) Argument count mismatch. Expected %d, got %d",
-				e.String(), argTys, len(paramTypes), len(argTys)))
-		}
-		for i, argTy := range argTys {
-			paramTy := paramTypes[i]
+		return
+	}
+
+	// variadic
+	if len(argTys) < len(e.paramTypes)-1 {
+		panic(fmt.Errorf("%v.Emit(%v) Too few arguments. Must have at least %v, but got %v", e.String(), argTys, len(e.paramTypes), len(argTys)))
+	}
+
+	varIdx := len(e.paramTypes) - 1
+	for index, argTy := range argTys {
+		if index >= varIdx {
+			paramTy := e.paramTypes[varIdx].Elem()
 			if !assignable(paramTy, argTy) {
-				panic(fmt.Errorf("%v.Fire(%v) Argument %v for was of the wrong type. Got: %v, Expected: %v",
-					e.String(), argTys, i, argTy, paramTy))
+				panic(fmt.Errorf("%v.Emit(%v) Variadic argument %v for was of the wrong type. Got: %v, Expected: %v", e.String(), argTys, index-varIdx, argTy, paramTy))
+			}
+		} else {
+			paramTy := e.paramTypes[index]
+			if !assignable(paramTy, argTy) {
+				panic(fmt.Errorf("%v.Emit(%v) Argument %v for was of the wrong type. Got: %v, Expected: %v", e.String(), argTys, index, argTy, paramTy))
 			}
 		}
 	}
@@ -140,8 +155,8 @@ func (e *EventBase) InvokeListeners(args []interface{}) {
 		}
 	}
 
-	for _, l := range e.listeners {
-		l.Function.Call(argVals)
+	for _, listener := range e.listeners {
+		listener.Function.Call(argVals)
 	}
 }
 
@@ -161,7 +176,7 @@ func (e *EventBase) Listen(listener interface{}) EventSubscription {
 		switch ty := listener.(type) {
 		case Event:
 			paramTypes = ty.ParameterTypes()
-			function = reflect.ValueOf(listener).MethodByName("Fire")
+			function = reflect.ValueOf(listener).MethodByName("Emit")
 		default:
 			panic(fmt.Errorf("listener cannot be of type %v", reflectTy.String()))
 		}
@@ -185,7 +200,7 @@ func (e *EventBase) Listen(listener interface{}) EventSubscription {
 	return &eventBaseSubscription{e, id}
 }
 
-func (e *EventBase) Fire(args ...interface{}) {
+func (e *EventBase) Emit(args ...interface{}) {
 	e.VerifyArguments(args)
 	e.InvokeListeners(args)
 }

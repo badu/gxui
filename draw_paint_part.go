@@ -48,6 +48,7 @@ func (d *DrawPaintPart) Init(parent DrawPaintParent, driver Driver) {
 }
 
 func (d *DrawPaintPart) Redraw() {
+	// TODO : @Badu - on desktop, why?
 	d.driver.AssertUIGoroutine()
 
 	if !d.redrawRequested {

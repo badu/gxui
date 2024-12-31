@@ -11,12 +11,12 @@ import (
 	"github.com/badu/gxui/math"
 )
 
+// AdapterItem is a user defined type that can be used to uniquely identify a
+// single item in an adapter. The type must support equality and be hashable.
+type AdapterItem interface{}
+
 type Viewer interface {
 	View(styles *StyleDefs) Control
-}
-
-type Stringer interface {
-	String() string
 }
 
 type DefaultAdapter struct {
@@ -27,33 +27,26 @@ type DefaultAdapter struct {
 	styleLabel  func(styles *StyleDefs, label Label)
 }
 
-func CreateDefaultAdapter() *DefaultAdapter {
-	l := &DefaultAdapter{
-		size: math.Size{W: 200, H: 16},
-	}
-	return l
+func CreateDefaultAdapter(width, height int) *DefaultAdapter {
+	return &DefaultAdapter{size: math.Size{W: width, H: height}}
 }
 
 func (a *DefaultAdapter) SetSizeAsLargest(styles *StyleDefs) {
-	s := math.Size{}
+	size := math.Size{}
 	font := styles.DefaultFont
-	for i := 0; i < a.Count(); i++ {
-		switch t := a.ItemAt(i).(type) {
+	for index := 0; index < a.Count(); index++ {
+		switch t := a.ItemAt(index).(type) {
 		case Viewer:
-			s = s.Max(t.View(styles).DesiredSize(math.ZeroSize, math.MaxSize))
+			size = size.Max(t.View(styles).DesiredSize(math.ZeroSize, math.MaxSize))
 
-		case Stringer:
-			s = s.Max(font.Measure(&TextBlock{
-				Runes: []rune(t.String()),
-			}))
+		case fmt.Stringer:
+			size = size.Max(font.Measure(&TextBlock{Runes: []rune(t.String())}))
 
 		default:
-			s = s.Max(font.Measure(&TextBlock{
-				Runes: []rune(fmt.Sprintf("%+v", t)),
-			}))
+			size = size.Max(font.Measure(&TextBlock{Runes: []rune(fmt.Sprintf("%+v", t))}))
 		}
 	}
-	a.SetSize(s)
+	a.SetSize(size)
 }
 
 func (a *DefaultAdapter) SetStyleLabel(providerFn func(styles *StyleDefs, label Label)) {
@@ -78,8 +71,7 @@ func (a *DefaultAdapter) Count() int {
 func (a *DefaultAdapter) ItemAt(index int) AdapterItem {
 	count := a.Count()
 	if index < 0 || index >= count {
-		panic(fmt.Errorf("ItemAt index %d is out of bounds [%d, %d]",
-			index, 0, count-1))
+		panic(fmt.Errorf("ItemAt index %d is out of bounds [%d, %d]", index, 0, count-1))
 	}
 
 	switch a.items.Kind() {
@@ -100,8 +92,8 @@ func (a *DefaultAdapter) Size(styles *StyleDefs) math.Size {
 	return a.size
 }
 
-func (a *DefaultAdapter) SetSize(s math.Size) {
-	a.size = s
+func (a *DefaultAdapter) SetSize(size math.Size) {
+	a.size = size
 	a.DataChanged(true)
 }
 
@@ -110,25 +102,25 @@ func (a *DefaultAdapter) Create(driver Driver, styles *StyleDefs, index int) Con
 	case Viewer:
 		return t.View(styles)
 
-	case Stringer:
-		l := CreateLabel(driver, styles)
-		l.SetMargin(math.ZeroSpacing)
-		l.SetMultiline(false)
-		l.SetText(t.String())
+	case fmt.Stringer:
+		label := CreateLabel(driver, styles)
+		label.SetMargin(math.ZeroSpacing)
+		label.SetMultiline(false)
+		label.SetText(t.String())
 		if a.styleLabel != nil {
-			a.styleLabel(styles, l)
+			a.styleLabel(styles, label)
 		}
-		return l
+		return label
 
 	default:
-		l := CreateLabel(driver, styles)
-		l.SetMargin(math.ZeroSpacing)
-		l.SetMultiline(false)
-		l.SetText(fmt.Sprintf("%+v", t))
+		label := CreateLabel(driver, styles)
+		label.SetMargin(math.ZeroSpacing)
+		label.SetMultiline(false)
+		label.SetText(fmt.Sprintf("%+v", t))
 		if a.styleLabel != nil {
-			a.styleLabel(styles, l)
+			a.styleLabel(styles, label)
 		}
-		return l
+		return label
 	}
 }
 

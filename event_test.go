@@ -16,7 +16,7 @@ func TestEventNoArgs(t *testing.T) {
 	e.Listen(func() { fired = true })
 	test_helper.AssertEquals(t, false, fired)
 
-	e.Fire()
+	e.Emit()
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -37,7 +37,7 @@ func TestEventExactArgs(t *testing.T) {
 	})
 	test_helper.AssertEquals(t, false, fired)
 
-	e.Fire(1, "hello", false, 2, 3, true)
+	e.Emit(1, "hello", false, 2, 3, true)
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -56,7 +56,7 @@ func TestEventNilArgs(t *testing.T) {
 	})
 	test_helper.AssertEquals(t, false, fired)
 
-	e.Fire(nil, nil, nil, nil, nil, nil)
+	e.Emit(nil, nil, nil, nil, nil, nil)
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -74,7 +74,7 @@ func TestEventMixedVariadic(t *testing.T) {
 		test_helper.AssertEquals(t, 4, cde[2])
 		fired = true
 	})
-	e.Fire(0, 1, 2, 3, 4)
+	e.Emit(0, 1, 2, 3, 4)
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -90,7 +90,7 @@ func TestEventSingleVariadic(t *testing.T) {
 		test_helper.AssertEquals(t, 4, va[2])
 		fired = true
 	})
-	e.Fire(2, 3, 4)
+	e.Emit(2, 3, 4)
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -102,7 +102,7 @@ func TestEventEmptyVariadic(t *testing.T) {
 		test_helper.AssertEquals(t, 0, len(va))
 		fired = true
 	})
-	e.Fire()
+	e.Emit()
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -124,7 +124,7 @@ func TestEventChaining(t *testing.T) {
 	})
 	test_helper.AssertEquals(t, false, fired)
 
-	e1.Fire(1, "hello", false, 2, 3, true)
+	e1.Emit(1, "hello", false, 2, 3, true)
 	test_helper.AssertEquals(t, true, fired)
 }
 
@@ -147,28 +147,28 @@ func TestEventUnlisten(t *testing.T) {
 	test_helper.AssertEquals(t, 0, j)
 	test_helper.AssertEquals(t, 0, k)
 
-	e.Fire()
+	e.Emit()
 	test_helper.AssertEquals(t, 1, i)
 	test_helper.AssertEquals(t, 1, j)
 	test_helper.AssertEquals(t, 1, k)
 
 	subJ.Forget()
 
-	e.Fire()
+	e.Emit()
 	test_helper.AssertEquals(t, 2, i)
 	test_helper.AssertEquals(t, 1, j)
 	test_helper.AssertEquals(t, 2, k)
 
 	subK.Forget()
 
-	e.Fire()
+	e.Emit()
 	test_helper.AssertEquals(t, 3, i)
 	test_helper.AssertEquals(t, 1, j)
 	test_helper.AssertEquals(t, 2, k)
 
 	subI.Forget()
 
-	e.Fire()
+	e.Emit()
 	test_helper.AssertEquals(t, 3, i)
 	test_helper.AssertEquals(t, 1, j)
 	test_helper.AssertEquals(t, 2, k)

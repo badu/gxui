@@ -25,8 +25,8 @@ type List interface {
 	ItemControl(AdapterItem) Control
 	Selected() AdapterItem
 	Select(AdapterItem) bool
-	OnSelectionChanged(func(AdapterItem)) EventSubscription
-	OnItemClicked(func(MouseEvent, AdapterItem)) EventSubscription
+	OnSelectionChanged(callback func(AdapterItem)) EventSubscription
+	OnItemClicked(callback func(MouseEvent, AdapterItem)) EventSubscription
 }
 
 type ListParent interface {
@@ -45,34 +45,27 @@ type ListAdapter interface {
 	// Count returns the total number of items.
 	Count() int
 
-	// ItemAt returns the AdapterItem for the item at index i. It is important
-	// for the Adapter to return consistent AdapterItems for the same data, so
-	// that selections can be persisted, or re-ordering animations can be played
-	// when the dataset changes.
+	// ItemAt returns the AdapterItem for the item at index i.
+	// It is important for the Adapter to return consistent AdapterItems for the same data, so that selections can be persisted, or re-ordering animations can be played when the dataset changes.
 	// The AdapterItem returned must be equality-unique across all indices.
 	ItemAt(index int) AdapterItem
 
-	// ItemIndex returns the index of item, or -1 if the adapter does not contain
-	// item.
+	// ItemIndex returns the index of item, or -1 if the adapter does not contain item.
 	ItemIndex(item AdapterItem) int
 
 	// Create returns a Control visualizing the item at the specified index.
 	Create(driver Driver, styles *StyleDefs, index int) Control
 
-	// Size returns the size that each of the item's controls will be displayed
-	// at for the given theme.
+	// Size returns the size that each of the item's controls will be displayed at for the given theme.
 	Size(styles *StyleDefs) math.Size
 
-	// OnDataChanged registers f to be called when there is a partial change in
-	// the items of the adapter. Scroll positions and selections should be
-	// preserved if possible.
-	// If recreateControls is true then each of the visible controls should be
-	// recreated by re-calling Create().
-	OnDataChanged(f func(recreateControls bool)) EventSubscription
+	// OnDataChanged registers f to be called when there is a partial change in the items of the adapter.
+	// Scroll positions and selections should be preserved if possible.
+	// If recreateControls is true then each of the visible controls should be recreated by re-calling Create().
+	OnDataChanged(callback func(recreateControls bool)) EventSubscription
 
-	// OnDataReplaced registers f to be called when there is a complete
-	// replacement of items in the adapter.
-	OnDataReplaced(f func()) EventSubscription
+	// OnDataReplaced registers f to be called when there is a complete replacement of items in the adapter.
+	OnDataReplaced(callback func()) EventSubscription
 }
 
 type itemDetails struct {
@@ -88,33 +81,35 @@ type ListImpl struct {
 	FocusablePart
 	parent                   ListParent
 	driver                   Driver
-	styles                   *StyleDefs
 	adapter                  ListAdapter
-	scrollBar                ScrollBar
-	scrollBarChild           *Child
-	scrollBarEnabled         bool
-	selectedItem             AdapterItem
-	onSelectionChanged       Event
-	details                  map[AdapterItem]itemDetails
 	orientation              Orientation
-	scrollOffset             int
-	itemSize                 math.Size
-	itemCount                int // Count number of items in the adapter
-	layoutMark               int
-	mousePosition            math.Point
-	itemMouseOver            *Child
+	scrollBar                ScrollBar
+	onSelectionChanged       Event
 	onItemClicked            Event
 	dataChangedSubscription  EventSubscription
 	dataReplacedSubscription EventSubscription
+	selectedItem             AdapterItem
+	styles                   *StyleDefs
+	scrollBarChild           *Child
+	itemMouseOver            *Child
+	details                  map[AdapterItem]itemDetails
+	scrollOffset             int
+	itemCount                int // Count number of items in the adapter
+	layoutMark               int
+	itemSize                 math.Size
+	mousePosition            math.Point
+	scrollBarEnabled         bool
 }
 
 func (l *ListImpl) Init(parent ListParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
+	l.driver = driver
+	l.styles = styles
+
 	l.ContainerBase.Init(parent, driver)
 	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
-	l.driver = driver
-	l.styles = styles
+
 	l.scrollBar = CreateScrollBar(driver, styles)
 	l.scrollBarChild = l.AddChild(l.scrollBar)
 	l.scrollBarEnabled = true
@@ -154,7 +149,7 @@ func (l *ListImpl) LayoutChildren() {
 	}
 
 	if !l.RelayoutSuspended() {
-		// Disable relayout on AddChild / RemoveChild as we're performing layout here.
+		// Disable reLayout on AddChild / RemoveChild as we're performing layout here.
 		l.SetRelayoutSuspended(true)
 		defer l.SetRelayoutSuspended(false)
 	}
@@ -223,11 +218,11 @@ func (l *ListImpl) LayoutChildren() {
 	}
 
 	if l.scrollBarEnabled {
-		ss := l.scrollBar.DesiredSize(math.ZeroSize, size)
+		scrollSize := l.scrollBar.DesiredSize(math.ZeroSize, size)
 		if l.Orientation().Horizontal() {
-			l.scrollBarChild.Layout(math.CreateRect(0, size.H-ss.H, size.W, size.H).Canon().Offset(offset))
+			l.scrollBarChild.Layout(math.CreateRect(0, size.H-scrollSize.H, size.W, size.H).Canon().Offset(offset))
 		} else {
-			l.scrollBarChild.Layout(math.CreateRect(size.W-ss.W, 0, size.W, size.H).Canon().Offset(offset))
+			l.scrollBarChild.Layout(math.CreateRect(size.W-scrollSize.W, 0, size.W, size.H).Canon().Offset(offset))
 		}
 
 		// Only show the scroll bar if needed
@@ -274,10 +269,12 @@ func (l *ListImpl) ScrollBarEnabled(bool) bool {
 }
 
 func (l *ListImpl) SetScrollBarEnabled(enabled bool) {
-	if l.scrollBarEnabled != enabled {
-		l.scrollBarEnabled = enabled
-		l.Relayout()
+	if l.scrollBarEnabled == enabled {
+		return
 	}
+
+	l.scrollBarEnabled = enabled
+	l.ReLayout()
 }
 
 func (l *ListImpl) SetScrollOffset(scrollOffset int) {
@@ -345,7 +342,7 @@ func (l *ListImpl) SizeChanged() {
 	l.itemSize = l.adapter.Size(l.styles)
 	l.scrollBar.SetScrollLimit(l.itemCount * l.MajorAxisItemSize())
 	l.SetScrollOffset(l.scrollOffset)
-	l.parent.Relayout()
+	l.parent.ReLayout()
 }
 
 func (l *ListImpl) DataChanged(recreateControls bool) {
@@ -414,14 +411,14 @@ func (l *ListImpl) RemoveAll() {
 // PaintChildrenPart overrides
 func (l *ListImpl) PaintChild(canvas Canvas, child *Child, idx int) {
 	if child == l.itemMouseOver {
-		b := child.Bounds().Expand(child.Control.Margin())
-		l.parent.PaintMouseOverBackground(canvas, b)
+		bounds := child.Bounds().Expand(child.Control.Margin())
+		l.parent.PaintMouseOverBackground(canvas, bounds)
 	}
 	l.PaintChildrenPart.PaintChild(canvas, child, idx)
 	if selected, found := l.details[l.selectedItem]; found {
 		if child == selected.child {
-			b := child.Bounds().Expand(child.Control.Margin())
-			l.parent.PaintSelection(canvas, b)
+			bounds := child.Bounds().Expand(child.Control.Margin())
+			l.parent.PaintSelection(canvas, bounds)
 		}
 	}
 }
@@ -462,12 +459,15 @@ func (l *ListImpl) KeyPress(event KeyboardEvent) bool {
 			case KeyLeft:
 				l.SelectPrevious()
 				return true
+
 			case KeyRight:
 				l.SelectNext()
 				return true
+
 			case KeyPageUp:
 				l.SetScrollOffset(l.scrollOffset - l.Size().W)
 				return true
+
 			case KeyPageDown:
 				l.SetScrollOffset(l.scrollOffset + l.Size().W)
 				return true
@@ -477,15 +477,19 @@ func (l *ListImpl) KeyPress(event KeyboardEvent) bool {
 			case KeyUp:
 				l.SelectPrevious()
 				return true
+
 			case KeyDown:
 				l.SelectNext()
 				return true
+
 			case KeyPageUp:
 				l.SetScrollOffset(l.scrollOffset - l.Size().H)
 				return true
+
 			case KeyPageDown:
 				l.SetScrollOffset(l.scrollOffset + l.Size().H)
 				return true
+
 			}
 		}
 	}
@@ -498,18 +502,20 @@ func (l *ListImpl) Adapter() ListAdapter {
 }
 
 func (l *ListImpl) SetAdapter(adapter ListAdapter) {
-	if l.adapter != adapter {
-		if l.adapter != nil {
-			l.dataChangedSubscription.Forget()
-			l.dataReplacedSubscription.Forget()
-		}
-		l.adapter = adapter
-		if l.adapter != nil {
-			l.dataChangedSubscription = l.adapter.OnDataChanged(l.DataChanged)
-			l.dataReplacedSubscription = l.adapter.OnDataReplaced(l.DataReplaced)
-		}
-		l.DataReplaced()
+	if l.adapter == adapter {
+		return
 	}
+
+	if l.adapter != nil {
+		l.dataChangedSubscription.Forget()
+		l.dataReplacedSubscription.Forget()
+	}
+	l.adapter = adapter
+	if l.adapter != nil {
+		l.dataChangedSubscription = l.adapter.OnDataChanged(l.DataChanged)
+		l.dataReplacedSubscription = l.adapter.OnDataReplaced(l.DataReplaced)
+	}
+	l.DataReplaced()
 }
 
 func (l *ListImpl) Orientation() Orientation {
@@ -518,10 +524,12 @@ func (l *ListImpl) Orientation() Orientation {
 
 func (l *ListImpl) SetOrientation(o Orientation) {
 	l.scrollBar.SetOrientation(o)
-	if l.orientation != o {
-		l.orientation = o
-		l.Relayout()
+	if l.orientation == o {
+		return
 	}
+
+	l.orientation = o
+	l.ReLayout()
 }
 
 func (l *ListImpl) ScrollTo(item AdapterItem) {
@@ -549,24 +557,25 @@ func (l *ListImpl) IsItemVisible(item AdapterItem) bool {
 }
 
 func (l *ListImpl) ItemControl(item AdapterItem) Control {
-	if item, found := l.details[item]; found {
-		return item.child.Control
+	if control, found := l.details[item]; found {
+		return control.child.Control
 	}
 	return nil
 }
 
-func (l *ListImpl) ItemClicked(ev MouseEvent, item AdapterItem) {
+func (l *ListImpl) ItemClicked(event MouseEvent, item AdapterItem) {
 	if l.onItemClicked != nil {
-		l.onItemClicked.Fire(ev, item)
+		l.onItemClicked.Emit(event, item)
 	}
 	l.Select(item)
 }
 
-func (l *ListImpl) OnItemClicked(f func(MouseEvent, AdapterItem)) EventSubscription {
+func (l *ListImpl) OnItemClicked(callback func(event MouseEvent, item AdapterItem)) EventSubscription {
 	if l.onItemClicked == nil {
-		l.onItemClicked = CreateEvent(f)
+		l.onItemClicked = CreateEvent(callback)
 	}
-	return l.onItemClicked.Listen(f)
+
+	return l.onItemClicked.Listen(callback)
 }
 
 func (l *ListImpl) Selected() AdapterItem {
@@ -578,19 +587,23 @@ func (l *ListImpl) Select(item AdapterItem) bool {
 		if !l.parent.ContainsItem(item) {
 			return false
 		}
+
 		l.selectedItem = item
 		if l.onSelectionChanged != nil {
-			l.onSelectionChanged.Fire(item)
+			l.onSelectionChanged.Emit(item)
 		}
+
 		l.Redraw()
 	}
+
 	l.ScrollTo(item)
 	return true
 }
 
-func (l *ListImpl) OnSelectionChanged(f func(AdapterItem)) EventSubscription {
+func (l *ListImpl) OnSelectionChanged(callback func(item AdapterItem)) EventSubscription {
 	if l.onItemClicked == nil {
-		l.onSelectionChanged = CreateEvent(f)
+		l.onSelectionChanged = CreateEvent(callback)
 	}
-	return l.onSelectionChanged.Listen(f)
+
+	return l.onSelectionChanged.Listen(callback)
 }

@@ -24,9 +24,9 @@ type CodeEditor interface {
 	SyntaxLayers() CodeSyntaxLayers
 	SetSyntaxLayers(CodeSyntaxLayers)
 	TabWidth() int
-	SetTabWidth(int)
+	SetTabWidth(newWidth int)
 	SuggestionProvider() CodeSuggestionProvider
-	SetSuggestionProvider(CodeSuggestionProvider)
+	SetSuggestionProvider(provider CodeSuggestionProvider)
 	ShowSuggestionList()
 	HideSuggestionList()
 }
@@ -39,26 +39,27 @@ type CodeEditorParent interface {
 type CodeEditorImpl struct {
 	TextBoxImpl
 	parent             CodeEditorParent
+	driver             Driver
 	layers             CodeSyntaxLayers
-	suggestionAdapter  *SuggestionAdapter
 	suggestionList     List
 	suggestionProvider CodeSuggestionProvider
-	tabWidth           int
-	driver             Driver
 	styles             *StyleDefs
+	suggestionAdapter  *SuggestionAdapter
+	tabWidth           int
 }
 
 func (t *CodeEditorImpl) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
 	t.parent = parent
-	t.tabWidth = 2
 	t.driver = driver
 	t.styles = styles
+
+	t.tabWidth = int(styles.CodeEditorStyle.Pen.Width)
 
 	t.suggestionAdapter = &SuggestionAdapter{}
 	t.suggestionList = t.parent.CreateSuggestionList()
 	t.suggestionList.SetAdapter(t.suggestionAdapter)
 
-	t.TextBoxImpl.Init(parent, driver, styles, styles.DefaultMonospaceFont)
+	t.TextBoxImpl.Init(parent, driver, styles, styles.CodeEditorStyle.Font)
 	t.controller.OnTextChanged(t.updateSpans)
 }
 
@@ -79,7 +80,7 @@ func (t *CodeEditorImpl) SyntaxLayers() CodeSyntaxLayers {
 
 func (t *CodeEditorImpl) SetSyntaxLayers(layers CodeSyntaxLayers) {
 	t.layers = layers
-	t.onRedrawLines.Fire()
+	t.onRedrawLines.Emit()
 }
 
 func (t *CodeEditorImpl) TabWidth() int {
@@ -145,9 +146,11 @@ func (t *CodeEditorImpl) ShowSuggestionList() {
 }
 
 func (t *CodeEditorImpl) HideSuggestionList() {
-	if t.IsSuggestionListShowing() {
-		t.RemoveChild(t.suggestionList)
+	if !t.IsSuggestionListShowing() {
+		return
 	}
+
+	t.RemoveChild(t.suggestionList)
 }
 
 func (t *CodeEditorImpl) Line(idx int) TextBoxLine {
@@ -177,6 +180,7 @@ func (t *CodeEditorImpl) KeyPress(event KeyboardEvent) bool {
 				break
 			}
 		}
+
 		switch {
 		case replace:
 			t.controller.ReplaceAll(strings.Repeat(" ", t.tabWidth))
@@ -186,6 +190,7 @@ func (t *CodeEditorImpl) KeyPress(event KeyboardEvent) bool {
 		default:
 			t.controller.IndentSelection(t.tabWidth)
 		}
+
 		return true
 
 	case KeySpace:
@@ -220,6 +225,7 @@ func (t *CodeEditorImpl) KeyPress(event KeyboardEvent) bool {
 		} else {
 			t.controller.ReplaceWithNewlineKeepIndent()
 		}
+
 		return true
 
 	case KeyEscape:
@@ -244,6 +250,7 @@ func (t *CodeEditorImpl) KeyStroke(event KeyStrokeEvent) bool {
 // mixins.TextBoxImpl overrides
 func (t *CodeEditorImpl) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
 	lineNumber := CreateLabel(driver, styles)
+
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 
 	line := &CodeEditorLine{}

@@ -4,23 +4,25 @@
 
 package math
 
-import test "github.com/badu/gxui/testing"
-import "testing"
+import (
+	"github.com/badu/gxui/test_helper"
+	"testing"
+)
 
 func TestRectConstrainWithin(t *testing.T) {
 	r1 := CreateRect(0, 0, 100, 100)
 	r2 := CreateRect(40, 40, 60, 60)
-	test.AssertEquals(t, r2, r2.Constrain(r1))
+	test_helper.AssertEquals(t, r2, r2.Constrain(r1))
 }
 
 func TestRectConstrainOutMin(t *testing.T) {
 	r1 := CreateRect(0, 0, 100, 100)
 	r2 := CreateRect(-20, -20, 20, 20)
-	test.AssertEquals(t, CreateRect(0, 0, 40, 40), r2.Constrain(r1))
+	test_helper.AssertEquals(t, CreateRect(0, 0, 40, 40), r2.Constrain(r1))
 }
 
 func TestRectConstrainOutMax(t *testing.T) {
 	r1 := CreateRect(0, 0, 100, 100)
 	r2 := CreateRect(80, 80, 120, 120)
-	test.AssertEquals(t, CreateRect(60, 60, 100, 100), r2.Constrain(r1))
+	test_helper.AssertEquals(t, CreateRect(60, 60, 100, 100), r2.Constrain(r1))
 }

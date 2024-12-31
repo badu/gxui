@@ -4,9 +4,9 @@
 
 package gl
 
-import test "github.com/badu/gxui/testing"
 import (
 	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/test_helper"
 	"testing"
 )
 
@@ -23,12 +23,12 @@ func TestIsConcave(t *testing.T) {
 	B := v(0, 0)
 	C := v(1, 1)
 	edges := []math.Vec2{A, B, C}
-	test.AssertEquals(t, false, isConcave(edges, 0, 1, 2))
-	test.AssertEquals(t, false, isConcave(edges, 1, 2, 0))
-	test.AssertEquals(t, false, isConcave(edges, 2, 0, 1))
-	test.AssertEquals(t, true, isConcave(edges, 2, 1, 0))
-	test.AssertEquals(t, true, isConcave(edges, 0, 2, 1))
-	test.AssertEquals(t, true, isConcave(edges, 1, 0, 2))
+	test_helper.AssertEquals(t, false, isConcave(edges, 0, 1, 2))
+	test_helper.AssertEquals(t, false, isConcave(edges, 1, 2, 0))
+	test_helper.AssertEquals(t, false, isConcave(edges, 2, 0, 1))
+	test_helper.AssertEquals(t, true, isConcave(edges, 2, 1, 0))
+	test_helper.AssertEquals(t, true, isConcave(edges, 0, 2, 1))
+	test_helper.AssertEquals(t, true, isConcave(edges, 1, 0, 2))
 }
 
 func TestTriangluate3Verts(t *testing.T) {
@@ -40,7 +40,7 @@ func TestTriangluate3Verts(t *testing.T) {
 	B := v(0, 0)
 	C := v(1, 1)
 	edges := []math.Vec2{A, B, C}
-	test.AssertEquals(t, edges, triangulate(edges))
+	test_helper.AssertEquals(t, edges, triangulate(edges))
 }
 
 func TestTriangluateQuad(t *testing.T) {
@@ -57,7 +57,7 @@ func TestTriangluateQuad(t *testing.T) {
 		A, B, C,
 		A, C, D,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 
 func TestTriangluateDupeVertex(t *testing.T) {
@@ -74,7 +74,7 @@ func TestTriangluateDupeVertex(t *testing.T) {
 		A, B, C,
 		A, C, D,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 func TestTriangluateConcave(t *testing.T) {
 	/*
@@ -103,7 +103,7 @@ func TestTriangluateConcave(t *testing.T) {
 		A, F, G,
 		A, G, H,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 
 func TestTriangluateConvex(t *testing.T) {
@@ -132,7 +132,7 @@ func TestTriangluateConvex(t *testing.T) {
 		G, A, C,
 		G, C, E,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 
 func TestTriangluateConvex2(t *testing.T) {
@@ -159,7 +159,7 @@ func TestTriangluateConvex2(t *testing.T) {
 		E, F, A,
 		E, A, C,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 
 func TestTriangluateConvex3(t *testing.T) {
@@ -194,7 +194,7 @@ func TestTriangluateConvex3(t *testing.T) {
 		A, D, F,
 		A, F, G,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 
 func TestTriangluateConvex4(t *testing.T) {
@@ -229,7 +229,7 @@ func TestTriangluateConvex4(t *testing.T) {
 		J, A, D,
 		J, D, E,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }
 
 func TestTriangulateChevron(t *testing.T) {
@@ -254,5 +254,5 @@ func TestTriangulateChevron(t *testing.T) {
 		C, E, F,
 		C, F, A,
 	}
-	test.AssertEquals(t, tris, triangulate(edges))
+	test_helper.AssertEquals(t, tris, triangulate(edges))
 }

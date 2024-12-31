@@ -20,12 +20,12 @@ type LayoutableParent interface {
 }
 
 type LayoutablePart struct {
-	parent            LayoutableParent
-	driver            Driver
-	margin            math.Spacing
-	size              math.Size
-	relayoutRequested bool
-	inLayoutChildren  bool // True when calling LayoutChildren
+	parent           LayoutableParent
+	driver           Driver
+	margin           math.Spacing
+	size             math.Size
+	reLayoutNeeded   bool
+	inLayoutChildren bool // True when calling LayoutChildren
 }
 
 func (l *LayoutablePart) Init(parent LayoutableParent, driver Driver) {
@@ -36,7 +36,7 @@ func (l *LayoutablePart) Init(parent LayoutableParent, driver Driver) {
 func (l *LayoutablePart) SetMargin(margin math.Spacing) {
 	l.margin = margin
 	if p := l.parent.Parent(); p != nil {
-		p.Relayout()
+		p.ReLayout()
 	}
 }
 
@@ -58,8 +58,8 @@ func (l *LayoutablePart) SetSize(newSize math.Size) {
 
 	sizeChanged := l.size != newSize
 	l.size = newSize
-	if l.relayoutRequested || sizeChanged {
-		l.relayoutRequested = false
+	if l.reLayoutNeeded || sizeChanged {
+		l.reLayoutNeeded = false
 		l.inLayoutChildren = true
 
 		impl, ok := l.parent.(LayoutChildren)
@@ -72,16 +72,18 @@ func (l *LayoutablePart) SetSize(newSize math.Size) {
 	}
 }
 
-func (l *LayoutablePart) Relayout() {
+func (l *LayoutablePart) ReLayout() {
+	// TODO : @Badu - on desktop, why?
 	l.driver.AssertUIGoroutine()
+
 	if l.inLayoutChildren {
-		panic("cannot call Relayout() while in LayoutChildren")
+		panic("cannot call ReLayout() while in LayoutChildren")
 	}
 
-	if !l.relayoutRequested {
+	if !l.reLayoutNeeded {
 		if p := l.parent.Parent(); p != nil {
-			l.relayoutRequested = true
-			p.Relayout()
+			l.reLayoutNeeded = true
+			p.ReLayout()
 		}
 	}
 }

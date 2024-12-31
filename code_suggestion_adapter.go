@@ -10,9 +10,9 @@ type SuggestionAdapter struct {
 
 func (a *SuggestionAdapter) SetSuggestions(suggestions []CodeSuggestion) {
 	items := make([]FilteredListItem, len(suggestions))
-	for i, s := range suggestions {
-		items[i].Name = s.Name()
-		items[i].Data = s
+	for index, suggestion := range suggestions {
+		items[index].Name = suggestion.Name()
+		items[index].Data = suggestion
 	}
 	a.SetItems(items)
 }

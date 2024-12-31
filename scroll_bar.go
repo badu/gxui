@@ -8,7 +8,7 @@ import "github.com/badu/gxui/math"
 
 type ScrollBar interface {
 	Control
-	OnScroll(func(from, to int)) EventSubscription
+	OnScroll(callback func(from, to int)) EventSubscription
 	ScrollPosition() (from, to int)
 	SetScrollPosition(from, to int)
 	ScrollLimit() int
@@ -164,7 +164,7 @@ func (s *ScrollBarImpl) SetScrollPosition(from, to int) {
 		s.scrollPositionFrom, s.scrollPositionTo = from, to
 		s.updateBarRect()
 		s.Redraw()
-		s.onScroll.Fire(from, to)
+		s.onScroll.Emit(from, to)
 	}
 }
 
@@ -232,14 +232,18 @@ func (s *ScrollBarImpl) MouseDown(event MouseEvent) {
 	if s.barRect.Contains(event.Point) {
 		initialOffset := event.Point.Sub(s.barRect.Min)
 		var mms, mus EventSubscription
-		mms = event.Window.OnMouseMove(func(we MouseEvent) {
-			p := WindowToChild(we.WindowPoint, s.parent)
-			s.SetScrollPosition(s.rangeAt(p.Sub(initialOffset)))
-		})
-		mus = event.Window.OnMouseUp(func(we MouseEvent) {
-			mms.Forget()
-			mus.Forget()
-		})
+		mms = event.Window.OnMouseMove(
+			func(event MouseEvent) {
+				p := WindowToChild(event.WindowPoint, s.parent)
+				s.SetScrollPosition(s.rangeAt(p.Sub(initialOffset)))
+			},
+		)
+		mus = event.Window.OnMouseUp(
+			func(event MouseEvent) {
+				mms.Forget()
+				mus.Forget()
+			},
+		)
 	}
 	s.InputEventHandlerPart.MouseDown(event)
 }

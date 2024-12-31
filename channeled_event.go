@@ -16,20 +16,18 @@ type ChanneledEvent struct {
 }
 
 func CreateChanneledEvent(signature interface{}, channel chan func()) Event {
-	e := &ChanneledEvent{
-		channel: channel,
-	}
-	e.base.init(signature)
-	baseUnlisten := e.base.unlisten
-	e.base.unlisten = func(id int) {
-		e.RLock()
+	result := &ChanneledEvent{channel: channel}
+	result.base.init(signature)
+	baseUnlisten := result.base.unlisten
+	result.base.unlisten = func(id int) {
+		result.RLock()
 		baseUnlisten(id)
-		e.RUnlock()
+		result.RUnlock()
 	}
-	return e
+	return result
 }
 
-func (e *ChanneledEvent) Fire(args ...interface{}) {
+func (e *ChanneledEvent) Emit(args ...interface{}) {
 	e.base.VerifyArguments(args)
 	e.channel <- func() {
 		e.RLock()

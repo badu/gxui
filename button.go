@@ -4,7 +4,9 @@
 
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/math"
+)
 
 type ButtonType int
 
@@ -72,14 +74,15 @@ func (b *ButtonImpl) SetText(text string) {
 			b.RemoveChild(b.label)
 			b.label = nil
 		}
-	} else {
-		if b.label == nil {
-			b.label = CreateLabel(b.driver, b.styles)
-			b.label.SetMargin(math.ZeroSpacing)
-			b.AddChild(b.label)
-		}
-		b.label.SetText(text)
+		return
 	}
+
+	if b.label == nil {
+		b.label = CreateLabel(b.driver, b.styles)
+		b.label.SetMargin(math.ZeroSpacing)
+		b.AddChild(b.label)
+	}
+	b.label.SetText(text)
 }
 
 func (b *ButtonImpl) Type() ButtonType {
@@ -87,10 +90,12 @@ func (b *ButtonImpl) Type() ButtonType {
 }
 
 func (b *ButtonImpl) SetType(buttonType ButtonType) {
-	if buttonType != b.buttonType {
-		b.buttonType = buttonType
-		b.parent.Redraw()
+	if buttonType == b.buttonType {
+		return
 	}
+
+	b.buttonType = buttonType
+	b.parent.Redraw()
 }
 
 func (b *ButtonImpl) IsChecked() bool {
@@ -98,14 +103,16 @@ func (b *ButtonImpl) IsChecked() bool {
 }
 
 func (b *ButtonImpl) SetChecked(checked bool) {
-	if checked != b.checked {
-		b.checked = checked
-		b.parent.Redraw()
+	if checked == b.checked {
+		return
 	}
+
+	b.checked = checked
+	b.parent.Redraw()
 }
 
 // InputEventHandlerPart override
-func (b *ButtonImpl) Click(event MouseEvent) (consume bool) {
+func (b *ButtonImpl) Click(event MouseEvent) bool {
 	if event.Button == MouseButtonLeft {
 		if b.buttonType == ToggleButton {
 			b.parent.SetChecked(!b.parent.IsChecked())
@@ -113,16 +120,14 @@ func (b *ButtonImpl) Click(event MouseEvent) (consume bool) {
 		b.LinearLayoutImpl.Click(event)
 		return true
 	}
+
 	return b.LinearLayoutImpl.Click(event)
 }
 
-func (b *ButtonImpl) KeyPress(event KeyboardEvent) (consume bool) {
-	consume = b.LinearLayoutImpl.KeyPress(event)
+func (b *ButtonImpl) KeyPress(event KeyboardEvent) bool {
+	consume := b.LinearLayoutImpl.KeyPress(event)
 	if event.Key == KeySpace || event.Key == KeyEnter {
-		me := MouseEvent{
-			Button: MouseButtonLeft,
-		}
-		return b.Click(me)
+		return b.Click(MouseEvent{Button: MouseButtonLeft})
 	}
-	return
+	return consume
 }

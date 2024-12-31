@@ -54,7 +54,7 @@ func (n *TreeToListNode) update(parent treeToListNodeParent) {
 		}
 	}
 	if n.onChange != nil {
-		n.onChange.Fire()
+		n.onChange.Emit()
 	}
 }
 
@@ -100,7 +100,7 @@ func (n *TreeToListNode) Expand() bool {
 
 	n.parent.adjustDescendants(n.descendants)
 	if n.onChange != nil {
-		n.onChange.Fire()
+		n.onChange.Emit()
 	}
 	return true
 }
@@ -118,7 +118,7 @@ func (n *TreeToListNode) Collapse() bool {
 	n.descendants = 0
 	n.children = nil
 	if n.onChange != nil {
-		n.onChange.Fire()
+		n.onChange.Emit()
 	}
 	return true
 }
@@ -155,6 +155,7 @@ func (n *TreeToListNode) OnChange(callback func()) EventSubscription {
 	if n.onChange == nil {
 		n.onChange = CreateEvent(callback)
 	}
+
 	return n.onChange.Listen(callback)
 }
 

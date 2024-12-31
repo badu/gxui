@@ -131,64 +131,64 @@ func (m *InputEventHandlerPart) Init() {
 }
 
 func (m *InputEventHandlerPart) Click(ev MouseEvent) bool {
-	m.getOnClick().Fire(ev)
+	m.getOnClick().Emit(ev)
 	return false
 }
 
 func (m *InputEventHandlerPart) DoubleClick(ev MouseEvent) bool {
-	m.getOnDoubleClick().Fire(ev)
+	m.getOnDoubleClick().Emit(ev)
 	return false
 }
 
 func (m *InputEventHandlerPart) KeyPress(ev KeyboardEvent) bool {
-	m.getOnKeyPress().Fire(ev)
+	m.getOnKeyPress().Emit(ev)
 	return false
 }
 
 func (m *InputEventHandlerPart) KeyStroke(ev KeyStrokeEvent) bool {
-	m.getOnKeyStroke().Fire(ev)
+	m.getOnKeyStroke().Emit(ev)
 	return false
 }
 
 func (m *InputEventHandlerPart) MouseScroll(ev MouseEvent) bool {
-	m.getOnMouseScroll().Fire(ev)
+	m.getOnMouseScroll().Emit(ev)
 	return false
 }
 
 func (m *InputEventHandlerPart) MouseMove(ev MouseEvent) {
-	m.getOnMouseMove().Fire(ev)
+	m.getOnMouseMove().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) MouseEnter(ev MouseEvent) {
 	m.isMouseOver = true
-	m.getOnMouseEnter().Fire(ev)
+	m.getOnMouseEnter().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) MouseExit(ev MouseEvent) {
 	m.isMouseOver = false
-	m.getOnMouseExit().Fire(ev)
+	m.getOnMouseExit().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) MouseDown(ev MouseEvent) {
 	m.isMouseDown[ev.Button] = true
-	m.getOnMouseDown().Fire(ev)
+	m.getOnMouseDown().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) MouseUp(ev MouseEvent) {
 	m.isMouseDown[ev.Button] = false
-	m.getOnMouseUp().Fire(ev)
+	m.getOnMouseUp().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) KeyDown(ev KeyboardEvent) {
-	m.getOnKeyDown().Fire(ev)
+	m.getOnKeyDown().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) KeyUp(ev KeyboardEvent) {
-	m.getOnKeyUp().Fire(ev)
+	m.getOnKeyUp().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) KeyRepeat(ev KeyboardEvent) {
-	m.getOnKeyRepeat().Fire(ev)
+	m.getOnKeyRepeat().Emit(ev)
 }
 
 func (m *InputEventHandlerPart) OnClick(callback func(MouseEvent)) EventSubscription {

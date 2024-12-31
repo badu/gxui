@@ -61,10 +61,12 @@ func (o *BubbleOverlayImpl) Brush() Brush {
 }
 
 func (o *BubbleOverlayImpl) SetBrush(brush Brush) {
-	if o.brush != brush {
-		o.brush = brush
-		o.Redraw()
+	if o.brush == brush {
+		return
 	}
+
+	o.brush = brush
+	o.Redraw()
 }
 
 func (o *BubbleOverlayImpl) Pen() Pen {
@@ -72,10 +74,12 @@ func (o *BubbleOverlayImpl) Pen() Pen {
 }
 
 func (o *BubbleOverlayImpl) SetPen(pen Pen) {
-	if o.pen != pen {
-		o.pen = pen
-		o.Redraw()
+	if o.pen == pen {
+		return
 	}
+
+	o.pen = pen
+	o.Redraw()
 }
 
 func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
@@ -107,7 +111,6 @@ func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
 				/*F*/ {Position: targetPoint, RoundedRadius: 0},
 				/*G*/ {Position: math.Point{X: expandedBounds.Min.X, Y: math.Clamp(targetPoint.Y-halfWidth, expandedBounds.Min.Y, expandedBounds.Max.Y-halfWidth)}, RoundedRadius: 0},
 			}
-			// fmt.Printf("A: %+v\n", polygon)
 		case targetPoint.X > expandedBounds.Max.X:
 			/*
 			   A-----------------B
@@ -125,7 +128,6 @@ func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
 				/*F*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
 				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
 			}
-			// fmt.Printf("B: %+v\n", polygon)
 		case targetPoint.Y < expandedBounds.Min.Y:
 			/*
 			                 C
@@ -144,7 +146,6 @@ func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
 				/*F*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
 				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
 			}
-			// fmt.Printf("C: %+v\n", polygon)
 		default:
 			/*
 			   A-----------------B
@@ -163,7 +164,6 @@ func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
 				/*F*/ {Position: math.Point{X: math.Clamp(targetPoint.X-halfWidth, expandedBounds.Min.X, expandedBounds.Max.X-halfWidth), Y: expandedBounds.Max.Y}, RoundedRadius: 0},
 				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
 			}
-			// fmt.Printf("D: %+v\n", polygon)
 		}
 		canvas.DrawPolygon(polygon, o.pen, o.brush)
 	}

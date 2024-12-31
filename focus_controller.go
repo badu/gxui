@@ -7,8 +7,8 @@ package gxui
 type FocusController struct {
 	window             Window
 	focus              Focusable
-	setFocusCount      int
 	detachSubscription EventSubscription
+	setFocusCount      int
 }
 
 func CreateFocusController(window Window) *FocusController {

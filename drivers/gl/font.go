@@ -80,7 +80,7 @@ func (f *font) glyphTable(resolution resolution) *glyphTable {
 	return result
 }
 
-func (f *font) align(rect math.Rect, size math.Size, ascent int, horizontalAlignment gxui.HorizontalAlignment, verticalAlignment gxui.VerticalAlignment) math.Point {
+func (f *font) align(rect math.Rect, size math.Size, ascent int, horizontalAlignment gxui.HAlign, verticalAlignment gxui.VAlign) math.Point {
 	var origin math.Point
 
 	switch horizontalAlignment {

@@ -68,17 +68,17 @@ func (l *ScrollLayoutImpl) LayoutChildren() {
 	l.innerSize = size.Contract(math.Spacing{R: sys.W, B: sxs.H})
 
 	if l.child != nil {
-		max := l.innerSize
+		maxSize := l.innerSize
 		if l.canScrollX {
-			max.W = math.MaxSize.W
+			maxSize.W = math.MaxSize.W
 		}
 		if l.canScrollY {
-			max.H = math.MaxSize.H
+			maxSize.H = math.MaxSize.H
 		}
-		cs := l.child.Control.DesiredSize(math.ZeroSize, max)
-		l.child.Layout(cs.Rect().Offset(l.scrollOffset.Neg()).Offset(offset))
-		l.scrollBarX.Control.(ScrollBar).SetScrollLimit(cs.W)
-		l.scrollBarY.Control.(ScrollBar).SetScrollLimit(cs.H)
+		childSize := l.child.Control.DesiredSize(math.ZeroSize, maxSize)
+		l.child.Layout(childSize.Rect().Offset(l.scrollOffset.Neg()).Offset(offset))
+		l.scrollBarX.Control.(ScrollBar).SetScrollLimit(childSize.W)
+		l.scrollBarY.Control.(ScrollBar).SetScrollLimit(childSize.H)
 	}
 
 	l.SetScrollOffset(l.scrollOffset)
@@ -104,7 +104,7 @@ func (l *ScrollLayoutImpl) SetScrollOffset(scrollOffset math.Point) bool {
 
 	if l.scrollOffset != scrollOffset {
 		l.scrollOffset = scrollOffset
-		l.Relayout()
+		l.ReLayout()
 		return true
 	}
 
@@ -146,7 +146,7 @@ func (l *ScrollLayoutImpl) SetScrollAxis(horizontal, vertical bool) {
 		l.canScrollX, l.canScrollY = horizontal, vertical
 		l.scrollBarX.Control.SetVisible(horizontal)
 		l.scrollBarY.Control.SetVisible(vertical)
-		l.Relayout()
+		l.ReLayout()
 	}
 }
 

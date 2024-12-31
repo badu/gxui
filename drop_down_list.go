@@ -19,9 +19,9 @@ type DropDownList interface {
 	SetBackgroundBrush(Brush)
 	Selected() AdapterItem
 	Select(AdapterItem)
-	OnSelectionChanged(func(AdapterItem)) EventSubscription
-	OnShowList(func()) EventSubscription
-	OnHideList(func()) EventSubscription
+	OnSelectionChanged(callback func(AdapterItem)) EventSubscription
+	OnShowList(callback func()) EventSubscription
+	OnHideList(callback func()) EventSubscription
 }
 
 type DropDownListImpl struct {
@@ -29,7 +29,6 @@ type DropDownListImpl struct {
 	BackgroundBorderPainter
 	FocusablePart
 	parent      BaseContainerParent
-	driver      Driver
 	styles      *StyleDefs
 	list        List
 	listShowing bool
@@ -42,11 +41,10 @@ type DropDownListImpl struct {
 
 func (l *DropDownListImpl) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
+	l.styles = styles
 	l.ContainerBase.Init(parent, driver)
 	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
-	l.driver = driver
-	l.styles = styles
 
 	l.list = CreateList(driver, styles)
 	l.list.OnSelectionChanged(
@@ -58,7 +56,7 @@ func (l *DropDownListImpl) Init(parent BaseContainerParent, driver Driver, style
 			} else {
 				l.selected = nil
 			}
-			l.Relayout()
+			l.ReLayout()
 		},
 	)
 
@@ -67,6 +65,7 @@ func (l *DropDownListImpl) Init(parent BaseContainerParent, driver Driver, style
 			l.HideList()
 		},
 	)
+
 	l.list.OnKeyPress(
 		func(event KeyboardEvent) {
 			switch event.Key {
@@ -107,7 +106,7 @@ func (l *DropDownListImpl) DataReplaced() {
 	adapter := l.list.Adapter()
 	itemSize := adapter.Size(l.styles)
 	l.itemSize = itemSize
-	l.parent.Relayout()
+	l.parent.ReLayout()
 }
 
 func (l *DropDownListImpl) ListShowing() bool {
@@ -127,24 +126,26 @@ func (l *DropDownListImpl) ShowList() bool {
 	SetFocus(l.list)
 
 	if l.onShowList != nil {
-		l.onShowList.Fire()
+		l.onShowList.Emit()
 	}
 
 	return true
 }
 
 func (l *DropDownListImpl) HideList() {
-	if l.listShowing {
-		l.listShowing = false
-		l.overlay.Hide()
+	if !l.listShowing {
+		return
+	}
 
-		if l.Attached() {
-			SetFocus(l)
-		}
+	l.listShowing = false
+	l.overlay.Hide()
 
-		if l.onHideList != nil {
-			l.onHideList.Fire()
-		}
+	if l.Attached() {
+		SetFocus(l)
+	}
+
+	if l.onHideList != nil {
+		l.onHideList.Emit()
 	}
 }
 
@@ -177,15 +178,16 @@ func (l *DropDownListImpl) Adapter() ListAdapter {
 }
 
 func (l *DropDownListImpl) SetAdapter(adapter ListAdapter) {
-	if l.list.Adapter() != adapter {
-		l.list.SetAdapter(adapter)
-		if adapter != nil {
-			adapter.OnDataChanged(func(bool) { l.DataReplaced() })
-			adapter.OnDataReplaced(l.DataReplaced)
-		}
-		// TODO: Event.Forget()
-		l.DataReplaced()
+	if l.list.Adapter() == adapter {
+		return
 	}
+	l.list.SetAdapter(adapter)
+	if adapter != nil {
+		adapter.OnDataChanged(func(bool) { l.DataReplaced() })
+		adapter.OnDataReplaced(l.DataReplaced)
+	}
+	// TODO: Event.Forget()
+	l.DataReplaced()
 }
 
 func (l *DropDownListImpl) Selected() AdapterItem {
@@ -193,10 +195,11 @@ func (l *DropDownListImpl) Selected() AdapterItem {
 }
 
 func (l *DropDownListImpl) Select(item AdapterItem) {
-	if l.list.Selected() != item {
-		l.list.Select(item)
-		l.LayoutChildren()
+	if l.list.Selected() == item {
+		return
 	}
+	l.list.Select(item)
+	l.LayoutChildren()
 }
 
 func (l *DropDownListImpl) OnSelectionChanged(callback func(AdapterItem)) EventSubscription {
@@ -207,6 +210,7 @@ func (l *DropDownListImpl) OnShowList(callback func()) EventSubscription {
 	if l.onShowList == nil {
 		l.onShowList = CreateEvent(callback)
 	}
+
 	return l.onShowList.Listen(callback)
 }
 
@@ -214,6 +218,7 @@ func (l *DropDownListImpl) OnHideList(callback func()) EventSubscription {
 	if l.onHideList == nil {
 		l.onHideList = CreateEvent(callback)
 	}
+
 	return l.onHideList.Listen(callback)
 }
 
@@ -225,6 +230,7 @@ func (l *DropDownListImpl) KeyPress(event KeyboardEvent) (consume bool) {
 		}
 		return l.Click(mouseEvent)
 	}
+
 	return l.InputEventHandlerPart.KeyPress(event)
 }
 

@@ -73,10 +73,11 @@ func (t *CodeEditorLine) PaintGlyphs(canvas Canvas, info CodeEditorLinePaintInfo
 			}
 		}
 	}
+
 	for _, span := range remaining {
-		s, e := span.Span()
-		s, e = s-start, e-start
-		canvas.DrawRunes(font, runes[s:e], offsets[s:e], t.editor.textColor)
+		spanStart, spanEnd := span.Span()
+		spanStart, spanEnd = spanStart-start, spanEnd-start
+		canvas.DrawRunes(font, runes[spanStart:spanEnd], offsets[spanStart:spanEnd], t.editor.textColor)
 	}
 }
 
@@ -110,12 +111,7 @@ func (t *CodeEditorLine) Paint(canvas Canvas) {
 		lineHeight := t.Size().H
 		glyphWidth := font.GlyphMaxSize().W
 		offsets := font.Layout(
-			&TextBlock{
-				Runes:     runes,
-				AlignRect: rect,
-				H:         AlignLeft,
-				V:         AlignMiddle,
-			},
+			&TextBlock{Runes: runes, AlignRect: rect, H: AlignLeft, V: AlignMiddle},
 		)
 
 		info := CodeEditorLinePaintInfo{

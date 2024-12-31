@@ -38,7 +38,7 @@ type Tree interface {
 
 	// OnSelectionChanged registers the function f to be called when the selection
 	// changes.
-	OnSelectionChanged(f func(AdapterItem)) EventSubscription
+	OnSelectionChanged(callback func(AdapterItem)) EventSubscription
 }
 
 // TreeNodeContainer is the interface used by nodes that can hold sub-nodes in the tree.
@@ -85,11 +85,11 @@ type TreeAdapter interface {
 	// preserved if possible.
 	// If recreateControls is true then each of the visible controls should be
 	// recreated by re-calling Create().
-	OnDataChanged(f func(recreateControls bool)) EventSubscription
+	OnDataChanged(callback func(recreateControls bool)) EventSubscription
 
 	// OnDataReplaced registers f to be called when there is a complete
 	// replacement of items in the adapter.
-	OnDataReplaced(f func()) EventSubscription
+	OnDataReplaced(callback func()) EventSubscription
 }
 
 type TreeParent interface {

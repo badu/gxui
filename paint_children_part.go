@@ -25,17 +25,21 @@ func (p *PaintChildrenPart) Init(parent PaintChildrenParent) {
 
 func (p *PaintChildrenPart) Paint(canvas Canvas) {
 	for i, v := range p.parent.Children() {
-		if v.Control.IsVisible() {
-			canvas.Push()
-			canvas.AddClip(v.Control.Size().Rect().Offset(v.Offset))
-			p.parent.PaintChild(canvas, v, i)
-			canvas.Pop()
+		if !v.Control.IsVisible() {
+			continue
 		}
+
+		canvas.Push()
+		canvas.AddClip(v.Control.Size().Rect().Offset(v.Offset))
+		p.parent.PaintChild(canvas, v, i)
+		canvas.Pop()
 	}
 }
 
 func (p *PaintChildrenPart) PaintChild(canvas Canvas, child *Child, idx int) {
-	if childCanvas := child.Control.Draw(); childCanvas != nil {
+	childCanvas := child.Control.Draw()
+
+	if childCanvas != nil {
 		canvas.DrawCanvas(childCanvas, child.Offset)
 	}
 }

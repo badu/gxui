@@ -33,25 +33,21 @@ type LinearLayout interface {
 	// SetSizeMode sets the desired size behaviour for this LinearLayout.
 	SetSizeMode(SizeMode)
 
-	// HorizontalAlignment returns the alignment of the child Controls when laying
-	// out TopToBottom or BottomToTop. It has no effect when the layout direction
-	// is LeftToRight or RightToLeft.
-	HorizontalAlignment() HorizontalAlignment
+	// HAlign returns the alignment of the child Controls when laying out TopToBottom or BottomToTop.
+	// It has no effect when the layout direction is LeftToRight or RightToLeft.
+	HorizontalAlignment() HAlign
 
-	// SetHorizontalAlignment sets the alignment of the child Controls when laying
-	// out TopToBottom or BottomToTop. It has no effect when the layout direction
-	// is LeftToRight or RightToLeft.
-	SetHorizontalAlignment(HorizontalAlignment)
+	// SetHorizontalAlignment sets the alignment of the child Controls when laying out TopToBottom or BottomToTop.
+	// It has no effect when the layout direction is LeftToRight or RightToLeft.
+	SetHorizontalAlignment(HAlign)
 
-	// VerticalAlignment returns the alignment of the child Controls when laying
-	// out LeftToRight or RightToLeft. It has no effect when the layout direction
-	// is TopToBottom or BottomToTop.
-	VerticalAlignment() VerticalAlignment
+	// VAlign returns the alignment of the child Controls when laying out LeftToRight or RightToLeft.
+	// It has no effect when the layout direction is TopToBottom or BottomToTop.
+	VerticalAlignment() VAlign
 
-	// SetVerticalAlignment returns the alignment of the child Controls when
-	// laying out LeftToRight or RightToLeft. It has no effect when the layout
-	// direction is TopToBottom or BottomToTop.
-	SetVerticalAlignment(VerticalAlignment)
+	// SetVerticalAlignment returns the alignment of the child Controls when laying out LeftToRight or RightToLeft.
+	// It has no effect when the layout direction is TopToBottom or BottomToTop.
+	SetVerticalAlignment(VAlign)
 
 	// BorderPen returns the Pen used to draw the LinearLayout's border.
 	BorderPen() Pen
@@ -59,12 +55,10 @@ type LinearLayout interface {
 	// SetBorderPen sets the Pen used to draw the LinearLayout's border.
 	SetBorderPen(Pen)
 
-	// BackgroundBrush returns the Brush used to fill the LinearLayout's
-	// background.
+	// BackgroundBrush returns the Brush used to fill the LinearLayout's background.
 	BackgroundBrush() Brush
 
-	// SetBackgroundBrush sets the Brush used to fill the LinearLayout's
-	// background.
+	// SetBackgroundBrush sets the Brush used to fill the LinearLayout's background.
 	SetBackgroundBrush(Brush)
 }
 
@@ -76,10 +70,10 @@ type LinearLayoutParent interface {
 
 type LinearLayoutPart struct {
 	parent              LinearLayoutParent
-	direction           Direction
 	sizeMode            SizeMode
-	horizontalAlignment HorizontalAlignment
-	verticalAlignment   VerticalAlignment
+	direction           Direction
+	horizontalAlignment HAlign
+	verticalAlignment   VAlign
 }
 
 func (l *LinearLayoutPart) Init(parent LinearLayoutParent) {
@@ -87,23 +81,23 @@ func (l *LinearLayoutPart) Init(parent LinearLayoutParent) {
 }
 
 func (l *LinearLayoutPart) LayoutChildren() {
-	s := l.parent.Size().Contract(l.parent.Padding())
-	o := l.parent.Padding().LT()
+	size := l.parent.Size().Contract(l.parent.Padding())
+	offset := l.parent.Padding().LT()
 	children := l.parent.Children()
 	major := 0
 
 	if l.direction.RightToLeft() || l.direction.BottomToTop() {
 		if l.direction.RightToLeft() {
-			major = s.W
+			major = size.W
 		} else {
-			major = s.H
+			major = size.H
 		}
 	}
 
 	for _, child := range children {
-		cm := child.Control.Margin()
-		cs := child.Control.DesiredSize(math.ZeroSize, s.Contract(cm).Max(math.ZeroSize))
-		child.Control.SetSize(cs)
+		childMargin := child.Control.Margin()
+		childSize := child.Control.DesiredSize(math.ZeroSize, size.Contract(childMargin).Max(math.ZeroSize))
+		child.Control.SetSize(childSize)
 
 		// Calculate minor-axis alignment
 		var minor int
@@ -111,49 +105,49 @@ func (l *LinearLayoutPart) LayoutChildren() {
 		case Horizontal:
 			switch l.verticalAlignment {
 			case AlignTop:
-				minor = cm.T
+				minor = childMargin.T
 			case AlignMiddle:
-				minor = (s.H - cs.H) / 2
+				minor = (size.H - childSize.H) / 2
 			case AlignBottom:
-				minor = s.H - cs.H
+				minor = size.H - childSize.H
 			}
 		case Vertical:
 			switch l.horizontalAlignment {
 			case AlignLeft:
-				minor = cm.L
+				minor = childMargin.L
 			case AlignCenter:
-				minor = (s.W - cs.W) / 2
+				minor = (size.W - childSize.W) / 2
 			case AlignRight:
-				minor = s.W - cs.W
+				minor = size.W - childSize.W
 			}
 		}
 
-		// Peform layout
+		// Perform layout
 		switch l.direction {
 		case LeftToRight:
-			major += cm.L
-			child.Offset = math.Point{X: major, Y: minor}.Add(o)
-			major += cs.W
-			major += cm.R
-			s.W -= cs.W + cm.W()
+			major += childMargin.L
+			child.Offset = math.Point{X: major, Y: minor}.Add(offset)
+			major += childSize.W
+			major += childMargin.R
+			size.W -= childSize.W + childMargin.W()
 		case RightToLeft:
-			major -= cm.R
-			child.Offset = math.Point{X: major - cs.W, Y: minor}.Add(o)
-			major -= cs.W
-			major -= cm.L
-			s.W -= cs.W + cm.W()
+			major -= childMargin.R
+			child.Offset = math.Point{X: major - childSize.W, Y: minor}.Add(offset)
+			major -= childSize.W
+			major -= childMargin.L
+			size.W -= childSize.W + childMargin.W()
 		case TopToBottom:
-			major += cm.T
-			child.Offset = math.Point{X: minor, Y: major}.Add(o)
-			major += cs.H
-			major += cm.B
-			s.H -= cs.H + cm.H()
+			major += childMargin.T
+			child.Offset = math.Point{X: minor, Y: major}.Add(offset)
+			major += childSize.H
+			major += childMargin.B
+			size.H -= childSize.H + childMargin.H()
 		case BottomToTop:
-			major -= cm.B
-			child.Offset = math.Point{X: minor, Y: major - cs.H}.Add(o)
-			major -= cs.H
-			major -= cm.T
-			s.H -= cs.H + cm.H()
+			major -= childMargin.B
+			child.Offset = math.Point{X: minor, Y: major - childSize.H}.Add(offset)
+			major -= childSize.H
+			major -= childMargin.T
+			size.H -= childSize.H + childMargin.H()
 		}
 	}
 }
@@ -169,15 +163,15 @@ func (l *LinearLayoutPart) DesiredSize(min, max math.Size) math.Size {
 	horizontal := l.direction.Orientation().Horizontal()
 	offset := math.Point{X: 0, Y: 0}
 	for _, child := range children {
-		cs := child.Control.DesiredSize(math.ZeroSize, max)
-		cm := child.Control.Margin()
-		cb := cs.Expand(cm).Rect().Offset(offset)
+		childSize := child.Control.DesiredSize(math.ZeroSize, max)
+		childMargin := child.Control.Margin()
+		childBounds := childSize.Expand(childMargin).Rect().Offset(offset)
 		if horizontal {
-			offset.X += cb.W()
+			offset.X += childBounds.W()
 		} else {
-			offset.Y += cb.H()
+			offset.Y += childBounds.H()
 		}
-		bounds = bounds.Union(cb)
+		bounds = bounds.Union(childBounds)
 	}
 
 	return bounds.Size().Expand(l.parent.Padding()).Clamp(min, max)
@@ -188,10 +182,12 @@ func (l *LinearLayoutPart) Direction() Direction {
 }
 
 func (l *LinearLayoutPart) SetDirection(d Direction) {
-	if l.direction != d {
-		l.direction = d
-		l.parent.Relayout()
+	if l.direction == d {
+		return
 	}
+
+	l.direction = d
+	l.parent.ReLayout()
 }
 
 func (l *LinearLayoutPart) SizeMode() SizeMode {
@@ -199,32 +195,37 @@ func (l *LinearLayoutPart) SizeMode() SizeMode {
 }
 
 func (l *LinearLayoutPart) SetSizeMode(mode SizeMode) {
-	if l.sizeMode != mode {
-		l.sizeMode = mode
-		l.parent.Relayout()
+	if l.sizeMode == mode {
+		return
 	}
+
+	l.sizeMode = mode
+	l.parent.ReLayout()
 }
 
-func (l *LinearLayoutPart) HorizontalAlignment() HorizontalAlignment {
+func (l *LinearLayoutPart) HorizontalAlignment() HAlign {
 	return l.horizontalAlignment
 }
 
-func (l *LinearLayoutPart) SetHorizontalAlignment(alignment HorizontalAlignment) {
-	if l.horizontalAlignment != alignment {
-		l.horizontalAlignment = alignment
-		l.parent.Relayout()
+func (l *LinearLayoutPart) SetHorizontalAlignment(alignment HAlign) {
+	if l.horizontalAlignment == alignment {
+		return
 	}
+	l.horizontalAlignment = alignment
+	l.parent.ReLayout()
 }
 
-func (l *LinearLayoutPart) VerticalAlignment() VerticalAlignment {
+func (l *LinearLayoutPart) VerticalAlignment() VAlign {
 	return l.verticalAlignment
 }
 
-func (l *LinearLayoutPart) SetVerticalAlignment(alignment VerticalAlignment) {
-	if l.verticalAlignment != alignment {
-		l.verticalAlignment = alignment
-		l.parent.Relayout()
+func (l *LinearLayoutPart) SetVerticalAlignment(alignment VAlign) {
+	if l.verticalAlignment == alignment {
+		return
 	}
+
+	l.verticalAlignment = alignment
+	l.parent.ReLayout()
 }
 
 type LinearLayoutImpl struct {

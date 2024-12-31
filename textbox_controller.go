@@ -40,7 +40,7 @@ func CreateTextBoxController() *TextBoxController {
 
 func (t *TextBoxController) textEdited(edits []TextBoxEdit) {
 	t.updateSelectionsForEdits(edits)
-	t.onTextChanged.Fire(edits)
+	t.onTextChanged.Emit(edits)
 }
 
 func (t *TextBoxController) updateSelectionsForEdits(edits []TextBoxEdit) {
@@ -337,13 +337,13 @@ func (t *TextBoxController) AddCaret(index int) {
 func (t *TextBoxController) AddSelection(selection TextSelection) {
 	t.storeCaretLocationsNextEdit = true
 	interval.Merge(&t.selections, selection)
-	t.onSelectionChanged.Fire()
+	t.onSelectionChanged.Emit()
 }
 
 func (t *TextBoxController) SetSelection(selection TextSelection) {
 	t.storeCaretLocationsNextEdit = true
 	t.selections = []TextSelection{selection}
-	t.onSelectionChanged.Fire()
+	t.onSelectionChanged.Emit()
 }
 
 func (t *TextBoxController) SetSelections(list TextSelectionList) {
@@ -352,7 +352,7 @@ func (t *TextBoxController) SetSelections(list TextSelectionList) {
 	if len(list) == 0 {
 		t.AddCaret(0)
 	} else {
-		t.onSelectionChanged.Fire()
+		t.onSelectionChanged.Emit()
 	}
 }
 
@@ -374,7 +374,7 @@ func (t *TextBoxController) RestorePreviousSelections() {
 		for i, l := range locations {
 			t.selections[i] = TextSelection{l, l, false}
 		}
-		t.onSelectionChanged.Fire()
+		t.onSelectionChanged.Emit()
 	}
 }
 
@@ -386,7 +386,7 @@ func (t *TextBoxController) RestoreNextSelections() {
 		for i, l := range locations {
 			t.selections[i] = TextSelection{l, l, false}
 		}
-		t.onSelectionChanged.Fire()
+		t.onSelectionChanged.Emit()
 	}
 }
 
@@ -396,19 +396,19 @@ func (t *TextBoxController) AddCarets(transform SelectionTransform) {
 	for _, s := range up {
 		interval.Merge(&t.selections, s)
 	}
-	t.onSelectionChanged.Fire()
+	t.onSelectionChanged.Emit()
 }
 
 func (t *TextBoxController) GrowSelections(transform SelectionTransform) {
 	t.storeCaretLocationsNextEdit = true
 	t.selections = t.selections.TransformCarets(0, transform)
-	t.onSelectionChanged.Fire()
+	t.onSelectionChanged.Emit()
 }
 
 func (t *TextBoxController) MoveSelections(transform SelectionTransform) {
 	t.storeCaretLocationsNextEdit = true
 	t.selections = t.selections.Transform(0, transform)
-	t.onSelectionChanged.Fire()
+	t.onSelectionChanged.Emit()
 }
 
 func (t *TextBoxController) AddCaretsUp()       { t.AddCarets(t.IndexUp) }
@@ -607,9 +607,9 @@ func (t *TextBoxController) RuneInWord(theRune rune) bool {
 	}
 }
 
-func (t *TextBoxController) WordAt(index int) (int, int) {
+func (t *TextBoxController) WordAt(caret int) (int, int) {
 	text := t.text
-	start, end := index, index
+	start, end := caret, caret
 	for start > 0 && t.RuneInWord(text[start-1]) {
 		start--
 	}
@@ -634,7 +634,7 @@ func (t *TextBoxController) Deselect(moveCaretToStart bool) bool {
 		t.selections[index] = selection
 	}
 	if deselected {
-		t.onSelectionChanged.Fire()
+		t.onSelectionChanged.Emit()
 	}
 	return deselected
 }

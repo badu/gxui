@@ -18,7 +18,7 @@ type Child struct {
 
 type Parent interface {
 	Children() Children
-	Relayout()
+	ReLayout()
 	Redraw()
 }
 
@@ -101,16 +101,16 @@ func (c Children) Find(control Control) *Child {
 
 type ContainerPartParent interface {
 	Container
-	Attached() bool                    // was outer.Attachable
-	Attach()                           // was outer.Attachable
-	Detach()                           // was outer.Attachable
-	OnAttach(func()) EventSubscription // was outer.Attachable
-	OnDetach(func()) EventSubscription // was outer.Attachable
-	IsVisible() bool                   // was outer.IsVisibler
-	LayoutChildren()                   // was outer.LayoutChildren
-	Parent() Parent                    // was outer.Parenter
-	Size() math.Size                   // was outer.Sized
-	SetSize(newSize math.Size)         // was outer.Sized
+	Attached() bool                             // was outer.Attachable
+	Attach()                                    // was outer.Attachable
+	Detach()                                    // was outer.Attachable
+	OnAttach(callback func()) EventSubscription // was outer.Attachable
+	OnDetach(callback func()) EventSubscription // was outer.Attachable
+	IsVisible() bool                            // was outer.IsVisibler
+	LayoutChildren()                            // was outer.LayoutChildren
+	Parent() Parent                             // was outer.Parenter
+	Size() math.Size                            // was outer.Sized
+	SetSize(newSize math.Size)                  // was outer.Sized
 }
 
 type ContainerPart struct {
@@ -190,7 +190,7 @@ func (c *ContainerPart) AddChildAt(index int, control Control) *Child {
 	}
 
 	if !c.relayoutSuspended {
-		c.parent.Relayout()
+		c.parent.ReLayout()
 	}
 
 	return child
@@ -216,7 +216,7 @@ func (c *ContainerPart) RemoveChildAt(index int) {
 	}
 
 	if !c.relayoutSuspended {
-		c.parent.Relayout()
+		c.parent.ReLayout()
 	}
 }
 
@@ -257,7 +257,6 @@ type ContainerBase struct {
 }
 
 func (c *ContainerBase) Init(parent BaseContainerParent, driver Driver) {
-	c.AttachablePart.Init()
 	c.ContainerPart.Init(parent)
 	c.DrawPaintPart.Init(parent, driver)
 	c.InputEventHandlerPart.Init()

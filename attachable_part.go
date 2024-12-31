@@ -10,8 +10,6 @@ type AttachablePart struct {
 	attached bool
 }
 
-func (a *AttachablePart) Init() {}
-
 func (a *AttachablePart) Attached() bool {
 	return a.attached
 }
@@ -23,7 +21,7 @@ func (a *AttachablePart) Attach() {
 
 	a.attached = true
 	if a.onAttach != nil {
-		a.onAttach.Fire()
+		a.onAttach.Emit()
 	}
 }
 
@@ -34,7 +32,7 @@ func (a *AttachablePart) Detach() {
 
 	a.attached = false
 	if a.onDetach != nil {
-		a.onDetach.Fire()
+		a.onDetach.Emit()
 	}
 }
 

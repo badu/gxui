@@ -27,18 +27,18 @@ const (
 type Image interface {
 	Control
 	Texture() Texture
-	SetTexture(Texture)
+	SetTexture(texture Texture)
 	Canvas() Canvas
-	SetCanvas(Canvas)
+	SetCanvas(canvas Canvas)
 	BorderPen() Pen
-	SetBorderPen(Pen)
+	SetBorderPen(pen Pen)
 	BackgroundBrush() Brush
-	SetBackgroundBrush(Brush)
+	SetBackgroundBrush(brush Brush)
 	ScalingMode() ScalingMode
-	SetScalingMode(ScalingMode)
+	SetScalingMode(mode ScalingMode)
 	SetExplicitSize(size math.Size)
 	AspectMode() AspectMode
-	SetAspectMode(AspectMode)
+	SetAspectMode(mode AspectMode)
 	PixelAt(point math.Point) (math.Point, bool) // TODO: Remove
 }
 
@@ -86,11 +86,13 @@ func (i *ImageImpl) Texture() Texture {
 }
 
 func (i *ImageImpl) SetTexture(texture Texture) {
-	if i.texture != texture {
-		i.texture = texture
-		i.canvas = nil
-		i.parent.Relayout()
+	if i.texture == texture {
+		return
 	}
+
+	i.texture = texture
+	i.canvas = nil
+	i.parent.ReLayout()
 }
 
 func (i *ImageImpl) Canvas() Canvas {
@@ -102,11 +104,13 @@ func (i *ImageImpl) SetCanvas(canvas Canvas) {
 		panic("SetCanvas() called with an incomplete canvas")
 	}
 
-	if i.canvas != canvas {
-		i.canvas = canvas
-		i.texture = nil
-		i.parent.Relayout()
+	if i.canvas == canvas {
+		return
 	}
+
+	i.canvas = canvas
+	i.texture = nil
+	i.parent.ReLayout()
 }
 
 func (i *ImageImpl) ScalingMode() ScalingMode {
@@ -114,10 +118,12 @@ func (i *ImageImpl) ScalingMode() ScalingMode {
 }
 
 func (i *ImageImpl) SetScalingMode(mode ScalingMode) {
-	if i.scalingMode != mode {
-		i.scalingMode = mode
-		i.parent.Relayout()
+	if i.scalingMode == mode {
+		return
 	}
+
+	i.scalingMode = mode
+	i.parent.ReLayout()
 }
 
 func (i *ImageImpl) AspectMode() AspectMode {
@@ -125,16 +131,18 @@ func (i *ImageImpl) AspectMode() AspectMode {
 }
 
 func (i *ImageImpl) SetAspectMode(mode AspectMode) {
-	if i.aspectMode != mode {
-		i.aspectMode = mode
-		i.parent.Redraw()
+	if i.aspectMode == mode {
+		return
 	}
+
+	i.aspectMode = mode
+	i.parent.Redraw()
 }
 
 func (i *ImageImpl) SetExplicitSize(explicitSize math.Size) {
 	if i.explicitSize != explicitSize {
 		i.explicitSize = explicitSize
-		i.parent.Relayout()
+		i.parent.ReLayout()
 	}
 	i.SetScalingMode(ScalingExplicitSize)
 }

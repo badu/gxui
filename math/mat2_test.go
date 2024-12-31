@@ -4,17 +4,19 @@
 
 package math
 
-import test "github.com/badu/gxui/testing"
-import "testing"
+import (
+	"github.com/badu/gxui/test_helper"
+	"testing"
+)
 
 func TestMat2InvertIdent(t *testing.T) {
 	m := Mat2Ident.Invert()
-	test.AssertEquals(t, Mat2Ident, m)
+	test_helper.AssertEquals(t, Mat2Ident, m)
 }
 
 func TestMat2InvertSimple(t *testing.T) {
 	m := CreateMat2(4, 3, 3, 2)
 	a := m.Invert()
 	e := CreateMat2(-2, 3, 3, -4)
-	test.AssertEquals(t, e, a)
+	test_helper.AssertEquals(t, e, a)
 }

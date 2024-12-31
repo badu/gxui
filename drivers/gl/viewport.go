@@ -112,7 +112,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			result.sizeDipsUnscaled = math.Size{W: w, H: h}
 			result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
 			result.Unlock()
-			result.onResize.Fire()
+			result.onResize.Emit()
 		},
 	)
 
@@ -138,7 +138,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 					ev := *result.pendingMouseMoveEvent
 					result.pendingMouseMoveEvent = nil
 					result.Unlock()
-					result.onMouseMove.Fire(ev)
+					result.onMouseMove.Emit(ev)
 				})
 			}
 			result.pendingMouseMoveEvent.Point = p
@@ -155,9 +155,9 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			}
 			ev.State = getMouseState(w)
 			if entered {
-				result.onMouseEnter.Fire(ev)
+				result.onMouseEnter.Emit(ev)
 			} else {
-				result.onMouseExit.Fire(ev)
+				result.onMouseExit.Emit(ev)
 			}
 		},
 	)
@@ -177,7 +177,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 						result.scrollAccumX -= float64(ev.ScrollX)
 						result.scrollAccumY -= float64(ev.ScrollY)
 						result.Unlock()
-						result.onMouseScroll.Fire(ev)
+						result.onMouseScroll.Emit(ev)
 					} else {
 						result.Unlock()
 					}
@@ -201,9 +201,9 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			ev.Button = translateMouseButton(button)
 			ev.State = getMouseState(w)
 			if action == glfw.Press {
-				result.onMouseDown.Fire(ev)
+				result.onMouseDown.Emit(ev)
 			} else {
-				result.onMouseUp.Fire(ev)
+				result.onMouseUp.Emit(ev)
 			}
 		},
 	)
@@ -216,11 +216,11 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			}
 			switch action {
 			case glfw.Press:
-				result.onKeyDown.Fire(ev)
+				result.onKeyDown.Emit(ev)
 			case glfw.Release:
-				result.onKeyUp.Fire(ev)
+				result.onKeyUp.Emit(ev)
 			case glfw.Repeat:
-				result.onKeyRepeat.Fire(ev)
+				result.onKeyRepeat.Emit(ev)
 			}
 		},
 	)
@@ -242,7 +242,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 				Character: char,
 				Modifier:  translateKeyboardModifier(mods),
 			}
-			result.onKeyStroke.Fire(ev)
+			result.onKeyStroke.Emit(ev)
 		},
 	)
 
@@ -364,7 +364,7 @@ func (v *ViewportImpl) SetScale(newScale float32) {
 	if newScale != v.scaling {
 		v.scaling = newScale
 		v.sizeDips = v.sizeDipsUnscaled.ScaleS(1 / newScale)
-		v.onResize.Fire()
+		v.onResize.Emit()
 	}
 }
 
@@ -431,7 +431,7 @@ func (v *ViewportImpl) Hide() {
 }
 
 func (v *ViewportImpl) Close() {
-	v.onClose.Fire()
+	v.onClose.Emit()
 	v.Destroy()
 }
 
@@ -490,7 +490,7 @@ func (v *ViewportImpl) Destroy() {
 			v.canvas = nil
 			v.context.destroy()
 			v.window.Destroy()
-			v.onDestroy.Fire()
+			v.onDestroy.Emit()
 			v.destroyed = true
 		}
 	})

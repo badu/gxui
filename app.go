@@ -22,6 +22,7 @@ type StyleDefs struct {
 	ButtonPressedStyle Style
 
 	CodeSuggestionListStyle Style
+	CodeEditorStyle         Style
 
 	DropDownListDefaultStyle Style
 	DropDownListOverStyle    Style
@@ -270,16 +271,20 @@ func CreateWindow(driver Driver, styles *StyleDefs, width, height int, title str
 }
 
 type Style struct {
+	Font      Font
 	FontColor Color
 	Brush     Brush
 	Pen       Pen
+	VAlign    VAlign
+	HAlign    HAlign
 }
 
-func CreateStyle(fontColor, brushColor, penColor Color, penWidth float32) Style {
+func CreateStyle(fontColor, brushColor, penColor Color, penWidth float32, font Font) Style {
 	return Style{
 		FontColor: fontColor,
 		Pen:       CreatePen(penWidth, penColor),
 		Brush:     CreateBrush(brushColor),
+		Font:      font,
 	}
 }
 
@@ -395,6 +400,7 @@ type AppPanelHolder struct {
 func (p *AppPanelHolder) CreatePanelTab() PanelTab {
 	result := &AppPanelTab{}
 	result.ButtonImpl.Init(result, p.driver, p.styles)
+	result.ButtonImpl.SetType(ToggleButton) // TODO : @Badu - setting ToggleButton requires POST Init() call (in Init() we set it to PushButton
 	result.SetPadding(math.Spacing{L: 5, T: 3, R: 5, B: 3})
 	result.OnMouseEnter(func(MouseEvent) { result.Redraw() })
 	result.OnMouseExit(func(MouseEvent) { result.Redraw() })

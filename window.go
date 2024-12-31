@@ -168,7 +168,6 @@ func (w *WindowImpl) update() {
 }
 
 func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int, title string) {
-	w.AttachablePart.Init()
 	w.BackgroundBorderPainter.Init(parent)
 	w.ContainerPart.Init(parent)
 	w.PaddablePart.Init(parent)
@@ -177,7 +176,6 @@ func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int,
 	w.parent = parent
 	w.driver = driver
 
-	w.onClose = CreateEvent(func() {})
 	w.onResize = CreateEvent(func() {})
 	w.onMouseMove = CreateEvent(func(MouseEvent) {})
 	w.onMouseEnter = CreateEvent(func(MouseEvent) {})
@@ -214,6 +212,7 @@ func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int,
 }
 
 func (w *WindowImpl) Draw() Canvas {
+	// TODO : the DrawPaintPart has similar functionality, except setting the canvas to the viewport - embed DrawPaintPart in Window
 	if size := w.viewport.SizeDips(); size != math.ZeroSize {
 		canvas := w.driver.CreateCanvas(size)
 		w.parent.Paint(canvas)
@@ -337,6 +336,10 @@ func (w *WindowImpl) IsVisible() bool {
 }
 
 func (w *WindowImpl) OnClose(callback func()) EventSubscription {
+	if w.onClose == nil {
+		w.onClose = CreateEvent(func() {})
+	}
+
 	return w.onClose.Listen(callback)
 }
 
@@ -416,7 +419,7 @@ func (w *WindowImpl) OnKeyStroke(callback func(KeyStrokeEvent)) EventSubscriptio
 	return w.onKeyStroke.Listen(callback)
 }
 
-func (w *WindowImpl) Relayout() {
+func (w *WindowImpl) ReLayout() {
 	w.layoutPending = true
 	w.requestUpdate()
 }
@@ -427,11 +430,11 @@ func (w *WindowImpl) Redraw() {
 }
 
 func (w *WindowImpl) Click(event MouseEvent) {
-	w.onClick.Fire(event)
+	w.onClick.Emit(event)
 }
 
 func (w *WindowImpl) DoubleClick(event MouseEvent) {
-	w.onDoubleClick.Fire(event)
+	w.onDoubleClick.Emit(event)
 }
 
 func (w *WindowImpl) KeyPress(event KeyboardEvent) {
@@ -453,19 +456,25 @@ func (w *WindowImpl) setViewport(viewport Viewport) {
 	w.viewport = viewport
 
 	w.viewportSubscriptions = []EventSubscription{
-		viewport.OnClose(func() { w.onClose.Fire() }),
-		viewport.OnResize(func() { w.onResize.Fire() }),
-		viewport.OnMouseMove(func(ev MouseEvent) { w.onMouseMove.Fire(ev) }),
-		viewport.OnMouseEnter(func(ev MouseEvent) { w.onMouseEnter.Fire(ev) }),
-		viewport.OnMouseExit(func(ev MouseEvent) { w.onMouseExit.Fire(ev) }),
-		viewport.OnMouseDown(func(ev MouseEvent) { w.onMouseDown.Fire(ev) }),
-		viewport.OnMouseUp(func(ev MouseEvent) { w.onMouseUp.Fire(ev) }),
-		viewport.OnMouseScroll(func(ev MouseEvent) { w.onMouseScroll.Fire(ev) }),
-		viewport.OnKeyDown(func(ev KeyboardEvent) { w.onKeyDown.Fire(ev) }),
-		viewport.OnKeyUp(func(ev KeyboardEvent) { w.onKeyUp.Fire(ev) }),
-		viewport.OnKeyRepeat(func(ev KeyboardEvent) { w.onKeyRepeat.Fire(ev) }),
-		viewport.OnKeyStroke(func(ev KeyStrokeEvent) { w.onKeyStroke.Fire(ev) }),
+		viewport.OnClose(
+			func() {
+				if w.onClose != nil {
+					w.onClose.Emit()
+				}
+			},
+		),
+		viewport.OnResize(func() { w.onResize.Emit() }),
+		viewport.OnMouseMove(func(ev MouseEvent) { w.onMouseMove.Emit(ev) }),
+		viewport.OnMouseEnter(func(ev MouseEvent) { w.onMouseEnter.Emit(ev) }),
+		viewport.OnMouseExit(func(ev MouseEvent) { w.onMouseExit.Emit(ev) }),
+		viewport.OnMouseDown(func(ev MouseEvent) { w.onMouseDown.Emit(ev) }),
+		viewport.OnMouseUp(func(ev MouseEvent) { w.onMouseUp.Emit(ev) }),
+		viewport.OnMouseScroll(func(ev MouseEvent) { w.onMouseScroll.Emit(ev) }),
+		viewport.OnKeyDown(func(ev KeyboardEvent) { w.onKeyDown.Emit(ev) }),
+		viewport.OnKeyUp(func(ev KeyboardEvent) { w.onKeyUp.Emit(ev) }),
+		viewport.OnKeyRepeat(func(ev KeyboardEvent) { w.onKeyRepeat.Emit(ev) }),
+		viewport.OnKeyStroke(func(ev KeyStrokeEvent) { w.onKeyStroke.Emit(ev) }),
 	}
 
-	w.Relayout()
+	w.ReLayout()
 }

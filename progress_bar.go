@@ -58,7 +58,7 @@ func (b *ProgressBarImpl) DesiredSize(min, max math.Size) math.Size {
 // gxui.ProgressBar compliance
 func (b *ProgressBarImpl) SetDesiredSize(size math.Size) {
 	b.desiredSize = size
-	b.Relayout()
+	b.ReLayout()
 }
 
 func (b *ProgressBarImpl) SetProgress(progress int) {

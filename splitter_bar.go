@@ -24,8 +24,7 @@ func (b *SplitterBar) Init(parent ControlBaseParent, driver Driver, styles *Styl
 	b.ControlBase.Init(parent, driver)
 	b.styles = styles
 	b.parent = parent
-	b.onDragStart = CreateEvent(func(MouseEvent) {})
-	b.onDragEnd = CreateEvent(func(MouseEvent) {})
+
 	b.backgroundColor = Red
 	b.foregroundColor = Green
 }
@@ -47,10 +46,18 @@ func (b *SplitterBar) IsDragging() bool {
 }
 
 func (b *SplitterBar) OnDragStart(callback func(event MouseEvent)) EventSubscription {
+	if b.onDragStart == nil {
+		b.onDragStart = CreateEvent(func(MouseEvent) {})
+	}
+
 	return b.onDragStart.Listen(callback)
 }
 
 func (b *SplitterBar) OnDragEnd(callback func(event MouseEvent)) EventSubscription {
+	if b.onDragEnd == nil {
+		b.onDragEnd = CreateEvent(func(MouseEvent) {})
+	}
+
 	return b.onDragEnd.Listen(callback)
 }
 
@@ -66,7 +73,7 @@ func (b *SplitterBar) Paint(canvas Canvas) {
 // InputEventHandlerPart overrides
 func (b *SplitterBar) MouseDown(event MouseEvent) {
 	b.isDragging = true
-	b.onDragStart.Fire(event)
+	b.onDragStart.Emit(event)
 	var mms, mus EventSubscription
 	mms = event.Window.OnMouseMove(func(we MouseEvent) {
 		if b.onDrag != nil {
@@ -77,7 +84,7 @@ func (b *SplitterBar) MouseDown(event MouseEvent) {
 		mms.Forget()
 		mus.Forget()
 		b.isDragging = false
-		b.onDragEnd.Fire(we)
+		b.onDragEnd.Emit(we)
 	})
 
 	b.InputEventHandlerPart.MouseDown(event)

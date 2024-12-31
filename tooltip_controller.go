@@ -54,10 +54,12 @@ func (c *ToolTipController) showToolTipForTracker(tracker *toolTipTracker) {
 }
 
 func (c *ToolTipController) hideToolTipForTracker(tracker *toolTipTracker) {
-	if c.showing == tracker {
-		c.bubbleOverlay.Hide()
-		c.showing = nil
+	if c.showing != tracker {
+		return
 	}
+
+	c.bubbleOverlay.Hide()
+	c.showing = nil
 }
 
 func CreateToolTipController(bubbleOverlay BubbleOverlay, driver Driver) *ToolTipController {
@@ -113,5 +115,9 @@ func (c *ToolTipController) AddToolTip(control Control, delaySeconds float32, cr
 }
 
 func (c *ToolTipController) ShowToolTip(toolTip Control, at math.Point) {
+	if c.bubbleOverlay == nil {
+		return
+	}
+
 	c.bubbleOverlay.Show(toolTip, at)
 }

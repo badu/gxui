@@ -4,8 +4,8 @@
 
 package math
 
-import test "github.com/badu/gxui/testing"
 import (
+	"github.com/badu/gxui/test_helper"
 	"testing"
 )
 
@@ -14,24 +14,24 @@ func v(a, b float32) Vec2 {
 }
 
 func TestLinesIntersectCrossing(t *testing.T) {
-	test.AssertEquals(t, true, linesIntersect(v(5, 0), v(5, 10), v(0, 5), v(10, 5)))
+	test_helper.AssertEquals(t, true, linesIntersect(v(5, 0), v(5, 10), v(0, 5), v(10, 5)))
 }
 
 func TestLinesIntersectCrossingEnds(t *testing.T) {
-	test.AssertEquals(t, false, linesIntersect(v(0, 0), v(0, 5), v(0, 0), v(5, 0)))
-	test.AssertEquals(t, false, linesIntersect(v(0, 0), v(0, 5), v(0, 5), v(5, 5)))
+	test_helper.AssertEquals(t, false, linesIntersect(v(0, 0), v(0, 5), v(0, 0), v(5, 0)))
+	test_helper.AssertEquals(t, false, linesIntersect(v(0, 0), v(0, 5), v(0, 5), v(5, 5)))
 }
 func TestLinesIntersectColinearOverlap(t *testing.T) {
-	test.AssertEquals(t, true, linesIntersect(v(0, 0), v(5, 0), v(0, 0), v(5, 0)))
-	test.AssertEquals(t, true, linesIntersect(v(0, 0), v(5, 0), v(1, 0), v(4, 0)))
-	test.AssertEquals(t, true, linesIntersect(v(0, 0), v(5, 0), v(0, 0), v(7, 0)))
+	test_helper.AssertEquals(t, true, linesIntersect(v(0, 0), v(5, 0), v(0, 0), v(5, 0)))
+	test_helper.AssertEquals(t, true, linesIntersect(v(0, 0), v(5, 0), v(1, 0), v(4, 0)))
+	test_helper.AssertEquals(t, true, linesIntersect(v(0, 0), v(5, 0), v(0, 0), v(7, 0)))
 }
 
 func TestLinesIntersectParallel(t *testing.T) {
-	test.AssertEquals(t, false, linesIntersect(v(5, 0), v(5, 10), v(6, 0), v(6, 10)))
+	test_helper.AssertEquals(t, false, linesIntersect(v(5, 0), v(5, 10), v(6, 0), v(6, 10)))
 }
 
 func TestLinesIntersectColinearNonOverlap(t *testing.T) {
-	test.AssertEquals(t, false, linesIntersect(v(0, 0), v(5, 0), v(5, 0), v(10, 0)))
-	test.AssertEquals(t, false, linesIntersect(v(0, 0), v(4, 0), v(6, 0), v(10, 0)))
+	test_helper.AssertEquals(t, false, linesIntersect(v(0, 0), v(5, 0), v(5, 0), v(10, 0)))
+	test_helper.AssertEquals(t, false, linesIntersect(v(0, 0), v(4, 0), v(6, 0), v(10, 0)))
 }

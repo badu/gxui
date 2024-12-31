@@ -24,16 +24,20 @@ func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, textbox *Text
 	t.textbox = textbox
 	t.lineIndex = lineIndex
 	t.SetCaretWidth(2)
-	t.OnAttach(func() {
-		ev := t.textbox.OnRedrawLines(t.Redraw)
-		t.OnDetach(ev.Forget)
-	})
+	t.OnAttach(
+		func() {
+			ev := t.textbox.OnRedrawLines(t.Redraw)
+			t.OnDetach(ev.Forget)
+		},
+	)
 }
 
 func (t *DefaultTextBoxLine) SetCaretWidth(width int) {
-	if t.caretWidth != width {
-		t.caretWidth = width
+	if t.caretWidth == width {
+		return
 	}
+
+	t.caretWidth = width
 }
 
 func (t *DefaultTextBoxLine) DesiredSize(min, max math.Size) math.Size {
@@ -54,35 +58,40 @@ func (t *DefaultTextBoxLine) Paint(canvas Canvas) {
 
 func (t *DefaultTextBoxLine) MeasureRunes(start, end int) math.Size {
 	controller := t.textbox.controller
-	return t.textbox.font.Measure(&TextBlock{
-		Runes: controller.TextRunes()[start:end],
-	})
+	return t.textbox.font.Measure(
+		&TextBlock{Runes: controller.TextRunes()[start:end]},
+	)
 }
 
 func (t *DefaultTextBoxLine) PaintText(canvas Canvas) {
 	runes := []rune(t.textbox.controller.Line(t.lineIndex))
 	textFont := t.textbox.font
-	offsets := textFont.Layout(&TextBlock{
-		Runes:     runes,
-		AlignRect: t.Size().Rect().OffsetX(t.caretWidth),
-		H:         AlignLeft,
-		V:         AlignBottom,
-	})
+	offsets := textFont.Layout(
+		&TextBlock{
+			Runes:     runes,
+			AlignRect: t.Size().Rect().OffsetX(t.caretWidth),
+			H:         AlignLeft,
+			V:         AlignBottom,
+		},
+	)
 	canvas.DrawRunes(textFont, runes, offsets, t.textbox.textColor)
 }
 
 func (t *DefaultTextBoxLine) PaintCarets(canvas Canvas) {
 	controller := t.textbox.controller
-	for i, cnt := 0, controller.SelectionCount(); i < cnt; i++ {
-		caretEnd := controller.Caret(i)
+	for caret, count := 0, controller.SelectionCount(); caret < count; caret++ {
+		caretEnd := controller.Caret(caret)
 		lineIndex := controller.LineIndex(caretEnd)
-		if lineIndex == t.lineIndex {
-			start := controller.LineStart(lineIndex)
-			measuredRunes := t.parent.MeasureRunes(start, caretEnd)
-			top := math.Point{X: t.caretWidth + measuredRunes.W, Y: 0}
-			bottom := top.Add(math.Point{X: 0, Y: t.Size().H})
-			t.parent.PaintCaret(canvas, top, bottom)
+
+		if lineIndex != t.lineIndex {
+			continue
 		}
+
+		start := controller.LineStart(lineIndex)
+		measuredRunes := t.parent.MeasureRunes(start, caretEnd)
+		top := math.Point{X: t.caretWidth + measuredRunes.W, Y: 0}
+		bottom := top.Add(math.Point{X: 0, Y: t.Size().H})
+		t.parent.PaintCaret(canvas, top, bottom)
 	}
 }
 
@@ -129,6 +138,8 @@ func (t *DefaultTextBoxLine) RuneIndexAt(point math.Point) int {
 	x := point.X
 	line := controller.Line(t.lineIndex)
 	i := 0
+
+	// TODO : @Badu - why?
 	for ; i < len(line) && x > font.Measure(&TextBlock{Runes: []rune(line[:i+1])}).W; i++ {
 	}
 

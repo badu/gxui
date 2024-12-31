@@ -4,14 +4,12 @@
 
 package gxui
 
-// Focusable is the optional interface implmented by controls that have the
-// ability to acquire focus. A control with focus will receive keyboard input
-// first.
+// Focusable is the optional interface implmented by controls that have the ability to acquire focus.
+// A control with focus will receive keyboard input first.
 type Focusable interface {
 	Control
 
-	// IsFocusable returns true if the control is currently in a state where it
-	// can acquire focus.
+	// IsFocusable returns true if the control is currently in a state where it can acquire focus.
 	IsFocusable() bool
 
 	// HasFocus returns true when the control has focus.
@@ -26,21 +24,20 @@ type Focusable interface {
 	LostFocus()
 
 	// OnGainedFocus subscribes f to be called whenever the control gains focus.
-	OnGainedFocus(f func()) EventSubscription
+	OnGainedFocus(callback func()) EventSubscription
 
 	// OnLostFocus subscribes f to be called whenever the control loses focus.
-	OnLostFocus(f func()) EventSubscription
+	OnLostFocus(callback func()) EventSubscription
 }
 
 type FocusablePart struct {
-	focusable     bool
-	hasFocus      bool
 	onGainedFocus Event
 	onLostFocus   Event
+	hasFocus      bool
+	focusable     bool
 }
 
 func (f *FocusablePart) Init() {
-
 	f.focusable = true
 }
 
@@ -61,6 +58,7 @@ func (f *FocusablePart) OnGainedFocus(callback func()) EventSubscription {
 	if f.onGainedFocus == nil {
 		f.onGainedFocus = CreateEvent(f.GainedFocus)
 	}
+
 	return f.onGainedFocus.Listen(callback)
 }
 
@@ -68,19 +66,22 @@ func (f *FocusablePart) OnLostFocus(callback func()) EventSubscription {
 	if f.onLostFocus == nil {
 		f.onLostFocus = CreateEvent(f.LostFocus)
 	}
+
 	return f.onLostFocus.Listen(callback)
 }
 
 func (f *FocusablePart) GainedFocus() {
 	f.hasFocus = true
+
 	if f.onGainedFocus != nil {
-		f.onGainedFocus.Fire()
+		f.onGainedFocus.Emit()
 	}
 }
 
 func (f *FocusablePart) LostFocus() {
 	f.hasFocus = false
+
 	if f.onLostFocus != nil {
-		f.onLostFocus.Fire()
+		f.onLostFocus.Emit()
 	}
 }

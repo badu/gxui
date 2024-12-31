@@ -22,7 +22,7 @@ func numberPicker(driver gxui.Driver, styles *gxui.StyleDefs, overlay gxui.Bubbl
 		"sixteen", "seventeen", "eighteen", "nineteen", "twenty",
 	}
 
-	adapter := gxui.CreateDefaultAdapter()
+	adapter := gxui.CreateDefaultAdapter(400, styles.FontSize+4)
 	adapter.SetItems(items)
 
 	layout := gxui.CreateLinearLayout(driver, styles)
@@ -50,18 +50,22 @@ func numberPicker(driver gxui.Driver, styles *gxui.StyleDefs, overlay gxui.Bubbl
 	selected := gxui.CreateLabel(driver, styles)
 	layout.AddChild(selected)
 
-	dropList.OnSelectionChanged(func(item gxui.AdapterItem) {
-		if list.Selected() != item {
-			list.Select(item)
-		}
-	})
+	dropList.OnSelectionChanged(
+		func(item gxui.AdapterItem) {
+			if list.Selected() != item {
+				list.Select(item)
+			}
+		},
+	)
 
-	list.OnSelectionChanged(func(item gxui.AdapterItem) {
-		if dropList.Selected() != item {
-			dropList.Select(item)
-		}
-		selected.SetText(fmt.Sprintf("%s - %d", item, adapter.ItemIndex(item)))
-	})
+	list.OnSelectionChanged(
+		func(item gxui.AdapterItem) {
+			if dropList.Selected() != item {
+				dropList.Select(item)
+			}
+			selected.SetText(fmt.Sprintf("%s - %d", item, adapter.ItemIndex(item)))
+		},
+	)
 
 	return layout
 }
@@ -97,18 +101,26 @@ func (a *customAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index
 	i := gxui.CreateImage(driver, styles)
 	i.SetBackgroundBrush(gxui.CreateBrush(c))
 	i.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	i.OnMouseEnter(func(ev gxui.MouseEvent) {
-		i.SetBorderPen(gxui.CreatePen(2, gxui.Gray80))
-	})
-	i.OnMouseExit(func(ev gxui.MouseEvent) {
-		i.SetBorderPen(gxui.TransparentPen)
-	})
-	i.OnMouseDown(func(ev gxui.MouseEvent) {
-		i.SetBackgroundBrush(gxui.CreateBrush(c.MulRGB(0.7)))
-	})
-	i.OnMouseUp(func(ev gxui.MouseEvent) {
-		i.SetBackgroundBrush(gxui.CreateBrush(c))
-	})
+	i.OnMouseEnter(
+		func(ev gxui.MouseEvent) {
+			i.SetBorderPen(gxui.CreatePen(2, gxui.Gray80))
+		},
+	)
+	i.OnMouseExit(
+		func(ev gxui.MouseEvent) {
+			i.SetBorderPen(gxui.TransparentPen)
+		},
+	)
+	i.OnMouseDown(
+		func(ev gxui.MouseEvent) {
+			i.SetBackgroundBrush(gxui.CreateBrush(c.MulRGB(0.7)))
+		},
+	)
+	i.OnMouseUp(
+		func(ev gxui.MouseEvent) {
+			i.SetBackgroundBrush(gxui.CreateBrush(c))
+		},
+	)
 	return i
 }
 
@@ -137,12 +149,14 @@ func colorPicker(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
 	selected.SetExplicitSize(math.Size{W: 32, H: styles.FontSize + 8})
 	layout.AddChild(selected)
 
-	list.OnSelectionChanged(func(item gxui.AdapterItem) {
-		if item != nil {
-			control := list.ItemControl(item)
-			selected.SetBackgroundBrush(control.(gxui.Image).BackgroundBrush())
-		}
-	})
+	list.OnSelectionChanged(
+		func(item gxui.AdapterItem) {
+			if item != nil {
+				control := list.ItemControl(item)
+				selected.SetBackgroundBrush(control.(gxui.Image).BackgroundBrush())
+			}
+		},
+	)
 
 	return layout
 }
