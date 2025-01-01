@@ -24,13 +24,12 @@ func (l *CodeSyntaxLayer) Clear() {
 }
 
 func (l *CodeSyntaxLayer) UpdateSpans(runeCount int, edits []TextBoxEdit) {
+	if l == nil {
+		return
+	}
 	pMin := 0
 	pMax := runeCount
 	for _, edit := range edits {
-		if l == nil { // TODO : @Badu - why?
-			continue
-		}
-
 		for index, span := range l.spans {
 			at := edit.At
 			start, end := span.Range()
@@ -56,8 +55,7 @@ func (l *CodeSyntaxLayer) Add(start, count int) {
 }
 
 func (l *CodeSyntaxLayer) AddData(start, count int, data interface{}) {
-	span := interval.CreateIntData(start, start+count, data)
-	interval.Replace(&l.spans, span)
+	interval.Replace(&l.spans, interval.CreateIntData(start, start+count, data))
 }
 
 func (l *CodeSyntaxLayer) AddSpan(span interval.IntData) {
@@ -72,9 +70,8 @@ func (l *CodeSyntaxLayer) SpanAt(runeIndex int) *interval.IntData {
 	idx := interval.IndexOf(&l.spans, uint64(runeIndex))
 	if idx >= 0 {
 		return &l.spans[idx]
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (l *CodeSyntaxLayer) Color() *Color {

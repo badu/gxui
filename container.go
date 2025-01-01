@@ -100,17 +100,21 @@ func (c Children) Find(control Control) *Child {
 }
 
 type ContainerPartParent interface {
-	Container
-	Attached() bool                             // was outer.Attachable
-	Attach()                                    // was outer.Attachable
-	Detach()                                    // was outer.Attachable
+	// Container
+	Parent
+	AddChildAt(index int, child Control) *Child
+	RemoveChildAt(index int)
+
+	Attached() bool // was outer.Attachable
+	// Attach()                                    // was outer.Attachable
+	// Detach()                                    // was outer.Attachable
 	OnAttach(callback func()) EventSubscription // was outer.Attachable
 	OnDetach(callback func()) EventSubscription // was outer.Attachable
 	IsVisible() bool                            // was outer.IsVisibler
-	LayoutChildren()                            // was outer.LayoutChildren
-	Parent() Parent                             // was outer.Parenter
-	Size() math.Size                            // was outer.Sized
-	SetSize(newSize math.Size)                  // was outer.Sized
+	// LayoutChildren()                            // was outer.LayoutChildren
+	// Parent() Parent                             // was outer.Parenter
+	Size() math.Size // was outer.Sized
+	// SetSize(newSize math.Size)                  // was outer.Sized
 }
 
 type ContainerPart struct {
@@ -125,15 +129,15 @@ func (c *ContainerPart) Init(parent ContainerPartParent) {
 	c.children = Children{}
 	parent.OnAttach(
 		func() {
-			for _, v := range c.children {
-				v.Control.Attach()
+			for _, child := range c.children {
+				child.Control.Attach()
 			}
 		},
 	)
 	parent.OnDetach(
 		func() {
-			for _, v := range c.children {
-				v.Control.Detach()
+			for _, child := range c.children {
+				child.Control.Detach()
 			}
 		},
 	)

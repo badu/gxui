@@ -15,7 +15,7 @@ type Control interface {
 	// SetSize should only be called by the parent of the control during layout.
 	SetSize(newSize math.Size)
 
-	// Draw draws the control's visual apperance into the returned, new canvas.
+	// Draw draws the control's visual appearance into the returned, new canvas.
 	// Draw is typically called by the parent of the control - calling Draw will not issue a re-draw of an attached control.
 	Draw() Canvas
 

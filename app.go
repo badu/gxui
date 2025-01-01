@@ -370,6 +370,8 @@ func (t *AppCodeEditor) CreateSuggestionList() *ListImpl {
 	result := CreateList(t.driver, t.styles)
 	result.SetBackgroundBrush(t.styles.CodeSuggestionListStyle.Brush)
 	result.SetBorderPen(t.styles.CodeSuggestionListStyle.Pen)
+	result.SetPadding(math.CreateSpacing(10))
+	result.SetBorderPen(WhitePen)
 	return result
 }
 
@@ -500,17 +502,17 @@ type AppSplitterLayout struct {
 func (l *AppSplitterLayout) CreateSplitterBar() Control {
 	result := &SplitterBar{}
 	result.Init(result, l.driver, l.styles)
-	result.SetBackgroundColor(l.styles.SplitterBarDefaultStyle.Brush.Color)
-	result.SetForegroundColor(l.styles.SplitterBarDefaultStyle.Pen.Color)
+	result.BackgroundColor = l.styles.SplitterBarDefaultStyle.Brush.Color
+	result.ForegroundColor = l.styles.SplitterBarDefaultStyle.Pen.Color
 	result.OnSplitterDragged(func(wndPnt math.Point) { l.SplitterDragged(result, wndPnt) })
 	updateForegroundColor := func() {
 		switch {
-		case result.IsDragging():
-			result.SetForegroundColor(l.styles.HighlightStyle.Pen.Color)
+		case result.IsDragging:
+			result.ForegroundColor = l.styles.HighlightStyle.Pen.Color
 		case result.IsMouseOver():
-			result.SetForegroundColor(l.styles.SplitterBarOverStyle.Pen.Color)
+			result.ForegroundColor = l.styles.SplitterBarOverStyle.Pen.Color
 		default:
-			result.SetForegroundColor(l.styles.SplitterBarDefaultStyle.Pen.Color)
+			result.ForegroundColor = l.styles.SplitterBarDefaultStyle.Pen.Color
 		}
 		result.Redraw()
 	}

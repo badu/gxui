@@ -1,10 +1,6 @@
 // Copyright 2015 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
-//go:build !js
-// +build !js
-
 package gl
 
 import (
@@ -24,6 +20,7 @@ func (d *DriverImpl) discoverUIGoRoutine() {
 			return
 		}
 	}
+
 	panic("applicationLoop was not found in the callstack")
 }
 
@@ -33,5 +30,6 @@ func (d *DriverImpl) AssertUIGoroutine() {
 			return
 		}
 	}
+
 	panic("AssertUIGoroutine called on a go-routine that was not the UI go-routine")
 }

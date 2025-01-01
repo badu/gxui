@@ -10,14 +10,14 @@ import (
 
 type SplitterBar struct {
 	ControlBase
-	onDrag          func(wndPnt math.Point)
+	onDrag          func(point math.Point)
 	parent          ControlBaseParent
+	styles          *StyleDefs
 	onDragStart     Event
 	onDragEnd       Event
-	backgroundColor Color
-	foregroundColor Color
-	styles          *StyleDefs
-	isDragging      bool
+	BackgroundColor Color
+	ForegroundColor Color
+	IsDragging      bool
 }
 
 func (b *SplitterBar) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs) {
@@ -25,24 +25,12 @@ func (b *SplitterBar) Init(parent ControlBaseParent, driver Driver, styles *Styl
 	b.styles = styles
 	b.parent = parent
 
-	b.backgroundColor = Red
-	b.foregroundColor = Green
-}
-
-func (b *SplitterBar) SetBackgroundColor(color Color) {
-	b.backgroundColor = color
-}
-
-func (b *SplitterBar) SetForegroundColor(color Color) {
-	b.foregroundColor = color
+	b.BackgroundColor = Red
+	b.ForegroundColor = Green
 }
 
 func (b *SplitterBar) OnSplitterDragged(callback func(point math.Point)) {
 	b.onDrag = callback
-}
-
-func (b *SplitterBar) IsDragging() bool {
-	return b.isDragging
 }
 
 func (b *SplitterBar) OnDragStart(callback func(event MouseEvent)) EventSubscription {
@@ -64,28 +52,34 @@ func (b *SplitterBar) OnDragEnd(callback func(event MouseEvent)) EventSubscripti
 // parts.DrawPaintPart overrides
 func (b *SplitterBar) Paint(canvas Canvas) {
 	rect := b.parent.Size().Rect()
-	canvas.DrawRect(rect, CreateBrush(b.backgroundColor))
-	if b.foregroundColor != b.backgroundColor {
-		canvas.DrawRect(rect.ContractI(1), CreateBrush(b.foregroundColor))
+	canvas.DrawRect(rect, CreateBrush(b.BackgroundColor))
+	if b.ForegroundColor != b.BackgroundColor {
+		canvas.DrawRect(rect.ContractI(1), CreateBrush(b.ForegroundColor))
 	}
 }
 
 // InputEventHandlerPart overrides
 func (b *SplitterBar) MouseDown(event MouseEvent) {
-	b.isDragging = true
+	b.IsDragging = true
 	b.onDragStart.Emit(event)
 	var mms, mus EventSubscription
-	mms = event.Window.OnMouseMove(func(we MouseEvent) {
-		if b.onDrag != nil {
-			b.onDrag(we.WindowPoint)
-		}
-	})
-	mus = event.Window.OnMouseUp(func(we MouseEvent) {
-		mms.Forget()
-		mus.Forget()
-		b.isDragging = false
-		b.onDragEnd.Emit(we)
-	})
+	mms = event.Window.OnMouseMove(
+		func(windowEvent MouseEvent) {
+			if b.onDrag == nil {
+				return
+			}
+
+			b.onDrag(windowEvent.WindowPoint)
+		},
+	)
+	mus = event.Window.OnMouseUp(
+		func(windowEvent MouseEvent) {
+			mms.Forget()
+			mus.Forget()
+			b.IsDragging = false
+			b.onDragEnd.Emit(windowEvent)
+		},
+	)
 
 	b.InputEventHandlerPart.MouseDown(event)
 }

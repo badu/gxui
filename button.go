@@ -51,7 +51,7 @@ func (b *Button) Text() string {
 		return ""
 	}
 
-	return b.label.Text()
+	return b.label.Text
 }
 
 func (b *Button) SetText(text string) {

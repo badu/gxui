@@ -16,7 +16,7 @@ type Label struct {
 	color               Color
 	horizontalAlignment HAlign
 	verticalAlignment   VAlign
-	text                string
+	Text                string
 	multiline           bool
 }
 
@@ -29,16 +29,12 @@ func (l *Label) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs)
 	l.verticalAlignment = styles.LabelStyle.VAlign
 }
 
-func (l *Label) Text() string {
-	return l.text
-}
-
 func (l *Label) SetText(text string) {
-	if l.text == text {
+	if l.Text == text {
 		return
 	}
 
-	l.text = text
+	l.Text = text
 	l.parent.ReLayout()
 }
 
@@ -82,7 +78,7 @@ func (l *Label) SetMultiline(multiline bool) {
 }
 
 func (l *Label) DesiredSize(min, max math.Size) math.Size {
-	text := l.text
+	text := l.Text
 	if !l.multiline {
 		text = strings.Replace(text, "\n", " ", -1)
 	}
@@ -118,7 +114,7 @@ func (l *Label) VerticalAlignment() VAlign {
 // parts.DrawPaintPart overrides
 func (l *Label) Paint(canvas Canvas) {
 	rect := l.parent.Size().Rect()
-	text := l.text
+	text := l.Text
 	if !l.multiline {
 		text = strings.Replace(text, "\n", " ", -1)
 	}

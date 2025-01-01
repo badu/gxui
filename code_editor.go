@@ -126,10 +126,12 @@ func (t *CodeEditor) ShowSuggestionList() {
 	line := t.Line(lineIdx)
 	lineOffset := ChildToParent(math.ZeroPoint, line, t.parent)
 	target := line.PositionAt(caret).Add(lineOffset)
-	cs := t.suggestionList.DesiredSize(math.ZeroSize, bounds.Size())
+	childSize := t.suggestionList.DesiredSize(math.ZeroSize, bounds.Size())
+
 	t.suggestionList.Select(t.suggestionList.Adapter().ItemAt(0))
-	t.suggestionList.SetSize(cs)
-	child.Layout(cs.Rect().Offset(target).Intersect(bounds))
+	t.suggestionList.SetSize(childSize)
+
+	child.Layout(childSize.Rect().Offset(target).Intersect(bounds))
 }
 
 func (t *CodeEditor) HideSuggestionList() {
