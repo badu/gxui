@@ -8,15 +8,6 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type SplitterLayout interface {
-	Control
-	Container
-	ChildWeight(Control) float32
-	SetChildWeight(Control, float32)
-	Orientation() Orientation
-	SetOrientation(Orientation)
-}
-
 type SplitterLayoutParent interface {
 	BaseContainerParent
 	CreateSplitterBar() Control

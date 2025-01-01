@@ -10,9 +10,9 @@ import (
 	"github.com/badu/gxui/samples/flags"
 )
 
-// Create a PanelHolderImpl with a 3 panels
-func panelHolder(name string, driver gxui.Driver, styles *gxui.StyleDefs) gxui.PanelHolder {
-	label := func(text string) gxui.Label {
+// Create a PanelHolder with a 3 panels
+func panelHolder(name string, driver gxui.Driver, styles *gxui.StyleDefs) *gxui.AppPanelHolder {
+	label := func(text string) *gxui.Label {
 		label := gxui.CreateLabel(driver, styles)
 		label.SetText(text)
 		return label

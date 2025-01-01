@@ -29,11 +29,11 @@ type CodeEditorLinePaintInfo struct {
 type CodeEditorLine struct {
 	DefaultTextBoxLine
 	parent CodeEditorLineParent
-	editor *CodeEditorImpl
+	editor *CodeEditor
 }
 
-func (l *CodeEditorLine) Init(parent CodeEditorLineParent, editor *CodeEditorImpl, lineIndex int) {
-	l.DefaultTextBoxLine.Init(parent, &editor.TextBoxImpl, lineIndex)
+func (l *CodeEditorLine) Init(parent CodeEditorLineParent, editor *CodeEditor, lineIndex int) {
+	l.DefaultTextBoxLine.Init(parent, &editor.TextBox, lineIndex)
 	l.parent = parent
 	l.editor = editor
 }

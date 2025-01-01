@@ -9,26 +9,6 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type List interface {
-	Focusable
-	Parent
-	Adapter() ListAdapter
-	SetAdapter(ListAdapter)
-	SetOrientation(Orientation)
-	Orientation() Orientation
-	BorderPen() Pen
-	SetBorderPen(Pen)
-	BackgroundBrush() Brush
-	SetBackgroundBrush(Brush)
-	ScrollTo(AdapterItem)
-	IsItemVisible(AdapterItem) bool
-	ItemControl(AdapterItem) Control
-	Selected() AdapterItem
-	Select(AdapterItem) bool
-	OnSelectionChanged(callback func(AdapterItem)) EventSubscription
-	OnItemClicked(callback func(MouseEvent, AdapterItem)) EventSubscription
-}
-
 type ListParent interface {
 	BaseContainerParent
 	ContainsItem(AdapterItem) bool
@@ -83,7 +63,7 @@ type ListImpl struct {
 	driver                   Driver
 	adapter                  ListAdapter
 	orientation              Orientation
-	scrollBar                ScrollBar
+	scrollBar                *ScrollBarImpl
 	onSelectionChanged       Event
 	onItemClicked            Event
 	dataChangedSubscription  EventSubscription
@@ -368,10 +348,14 @@ func (l *ListImpl) Paint(canvas Canvas) {
 	l.parent.PaintBackground(canvas, rect)
 	l.ContainerBase.Paint(canvas)
 	l.parent.PaintBorder(canvas, rect)
+	if l.HasFocus() {
+		rect := l.Size().Rect().ContractI(1)
+		canvas.DrawRoundedRect(rect, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
+	}
 }
 
 func (l *ListImpl) PaintSelection(canvas Canvas, rect math.Rect) {
-	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, WhitePen, TransparentBrush)
+	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
 }
 
 func (l *ListImpl) PaintMouseOverBackground(canvas Canvas, rect math.Rect) {
@@ -496,7 +480,6 @@ func (l *ListImpl) KeyPress(event KeyboardEvent) bool {
 	return l.ContainerBase.KeyPress(event)
 }
 
-// gxui.List compliance
 func (l *ListImpl) Adapter() ListAdapter {
 	return l.adapter
 }

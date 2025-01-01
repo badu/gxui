@@ -2,15 +2,6 @@ package gxui
 
 import "github.com/badu/gxui/math"
 
-type TableLayout interface {
-	Control
-	Parent
-	SetGrid(rows, columns int)
-	// Add child at cell {x, y} with size of {w, h}
-	SetChildAt(x, y, w, h int, child Control) *Child
-	RemoveChild(child Control)
-}
-
 type Cell struct {
 	x, y, w, h int
 }

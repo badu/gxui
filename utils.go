@@ -124,9 +124,12 @@ func WindowToChild(coord math.Point, to Control) math.Point {
 			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &p, p, &c, c))
 		}
 		coord = coord.Sub(child.Offset)
-		if _, ok := p.(Window); ok {
+
+		switch p.(type) {
+		case *WindowImpl:
 			return coord
 		}
+
 		c = p.(Control)
 	}
 }
@@ -206,14 +209,15 @@ func FindControl(root Parent, test func(Control) (found bool)) Control {
 	return nil
 }
 
-func WindowContaining(control Control) Window {
+func WindowContaining(control Control) *WindowImpl {
 	for {
 		parent := control.Parent()
 		if parent == nil {
 			panic("Control's parent was nil")
 		}
 
-		if window, ok := parent.(Window); ok {
+		switch window := parent.(type) {
+		case *WindowImpl:
 			return window
 		}
 

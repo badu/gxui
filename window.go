@@ -8,7 +8,7 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type Window interface {
+type WindowParent interface {
 	Container
 
 	// Title returns the title of the window.
@@ -87,10 +87,7 @@ type Window interface {
 	OnKeyUp(func(KeyboardEvent)) EventSubscription
 	OnKeyRepeat(func(KeyboardEvent)) EventSubscription
 	OnKeyStroke(func(KeyStrokeEvent)) EventSubscription
-}
 
-type WindowParent interface {
-	Window
 	Attached() bool                                  // was outer.Attachable
 	Attach()                                         // was outer.Attachable
 	Detach()                                         // was outer.Attachable
@@ -191,9 +188,14 @@ func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int,
 	w.onClick = CreateEvent(func(MouseEvent) {})
 	w.onDoubleClick = CreateEvent(func(MouseEvent) {})
 
-	w.focusController = CreateFocusController(parent)
-	w.mouseController = CreateMouseController(parent, w.focusController)
-	w.keyboardController = CreateKeyboardController(parent)
+	switch window := parent.(type) {
+	case *WindowImpl:
+		w.focusController = CreateFocusController(window)
+		w.mouseController = CreateMouseController(window, w.focusController)
+		w.keyboardController = CreateKeyboardController(window)
+	default:
+		panic("parent should be *WindowImpl")
+	}
 
 	w.onResize.Listen(
 		func() {

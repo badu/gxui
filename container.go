@@ -117,7 +117,7 @@ type ContainerPart struct {
 	parent             ContainerPartParent
 	children           Children
 	isMouseEventTarget bool
-	relayoutSuspended  bool
+	reLayoutSuspended  bool
 }
 
 func (c *ContainerPart) Init(parent ContainerPartParent) {
@@ -151,13 +151,13 @@ func (c *ContainerPart) IsMouseEventTarget() bool {
 // ContainerPart will not trigger a relayout of this ContainerPart. The default is false
 // where any mutation will trigger a relayout.
 func (c *ContainerPart) RelayoutSuspended() bool {
-	return c.relayoutSuspended
+	return c.reLayoutSuspended
 }
 
 // SetRelayoutSuspended enables or disables relayout of the ContainerPart on
 // adding or removing a child Control to this ContainerPart.
 func (c *ContainerPart) SetRelayoutSuspended(enable bool) {
-	c.relayoutSuspended = true
+	c.reLayoutSuspended = true
 }
 
 // gxui.Parent compliance
@@ -189,7 +189,7 @@ func (c *ContainerPart) AddChildAt(index int, control Control) *Child {
 		control.Attach()
 	}
 
-	if !c.relayoutSuspended {
+	if !c.reLayoutSuspended {
 		c.parent.ReLayout()
 	}
 
@@ -215,7 +215,7 @@ func (c *ContainerPart) RemoveChildAt(index int) {
 		child.Control.Detach()
 	}
 
-	if !c.relayoutSuspended {
+	if !c.reLayoutSuspended {
 		c.parent.ReLayout()
 	}
 }

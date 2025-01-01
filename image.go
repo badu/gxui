@@ -24,25 +24,7 @@ const (
 	AspectCorrectCrop
 )
 
-type Image interface {
-	Control
-	Texture() Texture
-	SetTexture(texture Texture)
-	Canvas() Canvas
-	SetCanvas(canvas Canvas)
-	BorderPen() Pen
-	SetBorderPen(pen Pen)
-	BackgroundBrush() Brush
-	SetBackgroundBrush(brush Brush)
-	ScalingMode() ScalingMode
-	SetScalingMode(mode ScalingMode)
-	SetExplicitSize(size math.Size)
-	AspectMode() AspectMode
-	SetAspectMode(mode AspectMode)
-	PixelAt(point math.Point) (math.Point, bool) // TODO: Remove
-}
-
-type ImageImpl struct {
+type Image struct {
 	ControlBase
 	BackgroundBorderPainter
 	parent       ControlBaseParent
@@ -53,7 +35,7 @@ type ImageImpl struct {
 	explicitSize math.Size
 }
 
-func (i *ImageImpl) calculateDrawRect() math.Rect {
+func (i *Image) calculateDrawRect() math.Rect {
 	rect := i.parent.Size().Rect()
 	texW, texH := i.texture.Size().WH()
 	aspectSrc := float32(texH) / float32(texW)
@@ -73,7 +55,7 @@ func (i *ImageImpl) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *ImageImpl) Init(parent ControlBaseParent, driver Driver) {
+func (i *Image) Init(parent ControlBaseParent, driver Driver) {
 	i.parent = parent
 	i.ControlBase.Init(parent, driver)
 	i.BackgroundBorderPainter.Init(parent)
@@ -81,11 +63,11 @@ func (i *ImageImpl) Init(parent ControlBaseParent, driver Driver) {
 	i.SetBackgroundBrush(TransparentBrush)
 }
 
-func (i *ImageImpl) Texture() Texture {
+func (i *Image) Texture() Texture {
 	return i.texture
 }
 
-func (i *ImageImpl) SetTexture(texture Texture) {
+func (i *Image) SetTexture(texture Texture) {
 	if i.texture == texture {
 		return
 	}
@@ -95,11 +77,11 @@ func (i *ImageImpl) SetTexture(texture Texture) {
 	i.parent.ReLayout()
 }
 
-func (i *ImageImpl) Canvas() Canvas {
+func (i *Image) Canvas() Canvas {
 	return i.canvas
 }
 
-func (i *ImageImpl) SetCanvas(canvas Canvas) {
+func (i *Image) SetCanvas(canvas Canvas) {
 	if !canvas.IsComplete() {
 		panic("SetCanvas() called with an incomplete canvas")
 	}
@@ -113,11 +95,11 @@ func (i *ImageImpl) SetCanvas(canvas Canvas) {
 	i.parent.ReLayout()
 }
 
-func (i *ImageImpl) ScalingMode() ScalingMode {
+func (i *Image) ScalingMode() ScalingMode {
 	return i.scalingMode
 }
 
-func (i *ImageImpl) SetScalingMode(mode ScalingMode) {
+func (i *Image) SetScalingMode(mode ScalingMode) {
 	if i.scalingMode == mode {
 		return
 	}
@@ -126,11 +108,11 @@ func (i *ImageImpl) SetScalingMode(mode ScalingMode) {
 	i.parent.ReLayout()
 }
 
-func (i *ImageImpl) AspectMode() AspectMode {
+func (i *Image) AspectMode() AspectMode {
 	return i.aspectMode
 }
 
-func (i *ImageImpl) SetAspectMode(mode AspectMode) {
+func (i *Image) SetAspectMode(mode AspectMode) {
 	if i.aspectMode == mode {
 		return
 	}
@@ -139,7 +121,7 @@ func (i *ImageImpl) SetAspectMode(mode AspectMode) {
 	i.parent.Redraw()
 }
 
-func (i *ImageImpl) SetExplicitSize(explicitSize math.Size) {
+func (i *Image) SetExplicitSize(explicitSize math.Size) {
 	if i.explicitSize != explicitSize {
 		i.explicitSize = explicitSize
 		i.parent.ReLayout()
@@ -147,7 +129,7 @@ func (i *ImageImpl) SetExplicitSize(explicitSize math.Size) {
 	i.SetScalingMode(ScalingExplicitSize)
 }
 
-func (i *ImageImpl) PixelAt(point math.Point) (math.Point, bool) {
+func (i *Image) PixelAt(point math.Point) (math.Point, bool) {
 	rect := i.calculateDrawRect()
 	if tex := i.Texture(); tex != nil {
 		size := tex.SizePixels()
@@ -161,7 +143,7 @@ func (i *ImageImpl) PixelAt(point math.Point) (math.Point, bool) {
 	return math.Point{X: -1, Y: -1}, false
 }
 
-func (i *ImageImpl) DesiredSize(min, max math.Size) math.Size {
+func (i *Image) DesiredSize(min, max math.Size) math.Size {
 	size := max
 	switch i.scalingMode {
 	case ScalingExplicitSize:
@@ -177,7 +159,7 @@ func (i *ImageImpl) DesiredSize(min, max math.Size) math.Size {
 	return size.Expand(math.CreateSpacing(int(i.BorderPen().Width))).Clamp(min, max)
 }
 
-func (i *ImageImpl) Paint(canvas Canvas) {
+func (i *Image) Paint(canvas Canvas) {
 	rect := i.parent.Size().Rect()
 	i.PaintBackground(canvas, rect)
 	switch {

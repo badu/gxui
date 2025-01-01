@@ -9,36 +9,6 @@ import (
 	"strings"
 )
 
-type TextBox interface {
-	Focusable
-	OnSelectionChanged(callback func()) EventSubscription
-	OnTextChanged(callback func([]TextBoxEdit)) EventSubscription
-	Padding() math.Spacing
-	SetPadding(math.Spacing)
-	Runes() []rune
-	Text() string
-	SetText(string)
-	Font() Font
-	SetFont(Font)
-	Multiline() bool
-	SetMultiline(bool)
-	DesiredWidth() int
-	SetDesiredWidth(desiredWidth int)
-	TextColor() Color
-	SetTextColor(Color)
-	Select(TextSelectionList)
-	SelectAll()
-	Carets() []int
-	RuneIndexAt(p math.Point) (idx int, found bool)
-	TextAt(s, e int) string
-	WordAt(runeIndex int) string
-	ScrollToLine(int)
-	ScrollToRune(int)
-	LineIndex(runeIndex int) int
-	LineStart(line int) int
-	LineEnd(line int) int
-}
-
 type TextBoxLine interface {
 	Control
 	RuneIndexAt(math.Point) int
@@ -60,7 +30,7 @@ type DefaultTextBoxLineParent interface {
 	PaintSelection(c Canvas, top, bottom math.Point)
 }
 
-type TextBoxImpl struct {
+type TextBox struct {
 	ListImpl
 	AdapterBase
 	FocusablePart
@@ -77,7 +47,7 @@ type TextBoxImpl struct {
 	desiredWidth      int
 }
 
-func (t *TextBoxImpl) lineMouseDown(line TextBoxLine, event MouseEvent) {
+func (t *TextBox) lineMouseDown(line TextBoxLine, event MouseEvent) {
 	if event.Button == MouseButtonLeft {
 		p := line.RuneIndexAt(event.Point)
 		t.selectionDragging = true
@@ -88,7 +58,7 @@ func (t *TextBoxImpl) lineMouseDown(line TextBoxLine, event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) lineMouseUp(line TextBoxLine, event MouseEvent) {
+func (t *TextBox) lineMouseUp(line TextBoxLine, event MouseEvent) {
 	if event.Button == MouseButtonLeft {
 		t.selectionDragging = false
 		if !event.Modifier.Control() {
@@ -99,7 +69,7 @@ func (t *TextBoxImpl) lineMouseUp(line TextBoxLine, event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) Init(parent TextBoxParent, driver Driver, styles *StyleDefs, font Font) {
+func (t *TextBox) Init(parent TextBoxParent, driver Driver, styles *StyleDefs, font Font) {
 	t.ListImpl.Init(parent, driver, styles)
 	t.FocusablePart.Init()
 	t.parent = parent
@@ -127,64 +97,64 @@ func (t *TextBoxImpl) Init(parent TextBoxParent, driver Driver, styles *StyleDef
 	t.ListImpl.SetAdapter(t.adapter)
 }
 
-func (t *TextBoxImpl) textRect() math.Rect {
+func (t *TextBox) textRect() math.Rect {
 	return t.parent.Size().Rect().Contract(t.Padding())
 }
 
-func (t *TextBoxImpl) pageLines() int {
+func (t *TextBox) pageLines() int {
 	return (t.parent.Size().H - t.parent.Padding().H()) / t.MajorAxisItemSize()
 }
 
-func (t *TextBoxImpl) OnRedrawLines(callback func()) EventSubscription {
+func (t *TextBox) OnRedrawLines(callback func()) EventSubscription {
 	return t.onRedrawLines.Listen(callback)
 }
 
-func (t *TextBoxImpl) OnSelectionChanged(callback func()) EventSubscription {
+func (t *TextBox) OnSelectionChanged(callback func()) EventSubscription {
 	return t.controller.OnSelectionChanged(callback)
 }
 
-func (t *TextBoxImpl) OnTextChanged(callback func(lines []TextBoxEdit)) EventSubscription {
+func (t *TextBox) OnTextChanged(callback func(lines []TextBoxEdit)) EventSubscription {
 	return t.controller.OnTextChanged(callback)
 }
 
-func (t *TextBoxImpl) Runes() []rune {
+func (t *TextBox) Runes() []rune {
 	return t.controller.TextRunes()
 }
 
-func (t *TextBoxImpl) Text() string {
+func (t *TextBox) Text() string {
 	return t.controller.Text()
 }
 
-func (t *TextBoxImpl) SetText(text string) {
+func (t *TextBox) SetText(text string) {
 	t.controller.SetText(text)
 	t.parent.ReLayout()
 }
 
-func (t *TextBoxImpl) TextColor() Color {
+func (t *TextBox) TextColor() Color {
 	return t.textColor
 }
 
-func (t *TextBoxImpl) SetTextColor(color Color) {
+func (t *TextBox) SetTextColor(color Color) {
 	t.textColor = color
 	t.ReLayout()
 }
 
-func (t *TextBoxImpl) Font() Font {
+func (t *TextBox) Font() Font {
 	return t.font
 }
 
-func (t *TextBoxImpl) SetFont(font Font) {
+func (t *TextBox) SetFont(font Font) {
 	if t.font != font {
 		t.font = font
 		t.ReLayout()
 	}
 }
 
-func (t *TextBoxImpl) Multiline() bool {
+func (t *TextBox) Multiline() bool {
 	return t.multiline
 }
 
-func (t *TextBoxImpl) SetMultiline(multiline bool) {
+func (t *TextBox) SetMultiline(multiline bool) {
 	if t.multiline != multiline {
 		t.multiline = multiline
 		t.SetScrollBarEnabled(multiline)
@@ -192,18 +162,18 @@ func (t *TextBoxImpl) SetMultiline(multiline bool) {
 	}
 }
 
-func (t *TextBoxImpl) DesiredWidth() int {
+func (t *TextBox) DesiredWidth() int {
 	return t.desiredWidth
 }
 
-func (t *TextBoxImpl) SetDesiredWidth(desiredWidth int) {
+func (t *TextBox) SetDesiredWidth(desiredWidth int) {
 	if t.desiredWidth != desiredWidth {
 		t.desiredWidth = desiredWidth
 		t.SizeChanged()
 	}
 }
 
-func (t *TextBoxImpl) Select(list TextSelectionList) {
+func (t *TextBox) Select(list TextSelectionList) {
 	t.controller.StoreCaretLocations()
 	t.controller.SetSelections(list)
 	// Use two scroll tos to try and display all selections (if it fits on screen)
@@ -211,17 +181,17 @@ func (t *TextBoxImpl) Select(list TextSelectionList) {
 	t.ScrollToRune(t.controller.LastSelection().Last())
 }
 
-func (t *TextBoxImpl) SelectAll() {
+func (t *TextBox) SelectAll() {
 	t.controller.StoreCaretLocations()
 	t.controller.SelectAll()
 	t.ScrollToRune(t.controller.FirstCaret())
 }
 
-func (t *TextBoxImpl) Carets() []int {
+func (t *TextBox) Carets() []int {
 	return t.controller.Carets()
 }
 
-func (t *TextBoxImpl) RuneIndexAt(point math.Point) (int, bool) {
+func (t *TextBox) RuneIndexAt(point math.Point) (int, bool) {
 	for _, child := range ControlsUnder(point, t) {
 		line, _ := child.Control.(TextBoxLine)
 		if line == nil {
@@ -234,36 +204,36 @@ func (t *TextBoxImpl) RuneIndexAt(point math.Point) (int, bool) {
 	return -1, false
 }
 
-func (t *TextBoxImpl) TextAt(start, end int) string {
+func (t *TextBox) TextAt(start, end int) string {
 	return t.controller.TextRange(start, end)
 }
 
-func (t *TextBoxImpl) WordAt(runeIndex int) string {
+func (t *TextBox) WordAt(runeIndex int) string {
 	s, e := t.controller.WordAt(runeIndex)
 	return t.controller.TextRange(s, e)
 }
 
-func (t *TextBoxImpl) LineIndex(runeIndex int) int {
+func (t *TextBox) LineIndex(runeIndex int) int {
 	return t.controller.LineIndex(runeIndex)
 }
 
-func (t *TextBoxImpl) LineStart(line int) int {
+func (t *TextBox) LineStart(line int) int {
 	return t.controller.LineStart(line)
 }
 
-func (t *TextBoxImpl) LineEnd(line int) int {
+func (t *TextBox) LineEnd(line int) int {
 	return t.controller.LineEnd(line)
 }
 
-func (t *TextBoxImpl) ScrollToLine(index int) {
+func (t *TextBox) ScrollToLine(index int) {
 	t.ListImpl.ScrollTo(index)
 }
 
-func (t *TextBoxImpl) ScrollToRune(index int) {
+func (t *TextBox) ScrollToRune(index int) {
 	t.ScrollToLine(t.controller.LineIndex(index))
 }
 
-func (t *TextBoxImpl) KeyPress(event KeyboardEvent) bool {
+func (t *TextBox) KeyPress(event KeyboardEvent) bool {
 	switch event.Key {
 	case KeyLeft:
 		switch {
@@ -444,7 +414,7 @@ func (t *TextBoxImpl) KeyPress(event KeyboardEvent) bool {
 	return t.ListImpl.KeyPress(event)
 }
 
-func (t *TextBoxImpl) KeyStroke(event KeyStrokeEvent) bool {
+func (t *TextBox) KeyStroke(event KeyStrokeEvent) bool {
 	if !event.Modifier.Control() && !event.Modifier.Alt() {
 		t.controller.ReplaceAllRunes([]rune{event.Character})
 		t.controller.Deselect(false)
@@ -453,12 +423,12 @@ func (t *TextBoxImpl) KeyStroke(event KeyStrokeEvent) bool {
 	return true
 }
 
-func (t *TextBoxImpl) Click(event MouseEvent) bool {
+func (t *TextBox) Click(event MouseEvent) bool {
 	t.InputEventHandlerPart.Click(event)
 	return true
 }
 
-func (t *TextBoxImpl) DoubleClick(event MouseEvent) bool {
+func (t *TextBox) DoubleClick(event MouseEvent) bool {
 	if p, ok := t.RuneIndexAt(event.Point); ok {
 		s, e := t.controller.WordAt(p)
 		if event.Modifier&ModControl != 0 {
@@ -471,7 +441,7 @@ func (t *TextBoxImpl) DoubleClick(event MouseEvent) bool {
 	return true
 }
 
-func (t *TextBoxImpl) MouseMove(event MouseEvent) {
+func (t *TextBox) MouseMove(event MouseEvent) {
 	t.ListImpl.MouseMove(event)
 	if t.selectionDragging {
 		if point, ok := t.RuneIndexAt(event.Point); ok {
@@ -482,21 +452,21 @@ func (t *TextBoxImpl) MouseMove(event MouseEvent) {
 	}
 }
 
-func (t *TextBoxImpl) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
+func (t *TextBox) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
 	l := &DefaultTextBoxLine{}
 	l.Init(l, t, index)
 	return l, l
 }
 
 // mixins.ListImpl overrides
-func (t *TextBoxImpl) PaintSelection(c Canvas, r math.Rect) {}
+func (t *TextBox) PaintSelection(c Canvas, r math.Rect) {}
 
-func (t *TextBoxImpl) PaintMouseOverBackground(c Canvas, r math.Rect) {}
+func (t *TextBox) PaintMouseOverBackground(c Canvas, r math.Rect) {}
 
 // gxui.AdapterCompliance
 type TextBoxAdapter struct {
 	DefaultAdapter
-	TextBox *TextBoxImpl
+	TextBox *TextBox
 }
 
 func (t *TextBoxAdapter) Count() int {

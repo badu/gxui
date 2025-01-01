@@ -8,15 +8,6 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type ProgressBar interface {
-	Control
-	SetDesiredSize(math.Size)
-	SetProgress(int)
-	Progress() int
-	SetTarget(int)
-	Target() int
-}
-
 type ProgressBarParent interface {
 	ControlBaseParent
 	PaintProgress(Canvas, math.Rect, float32)
@@ -55,7 +46,6 @@ func (b *ProgressBarImpl) DesiredSize(min, max math.Size) math.Size {
 	return b.desiredSize.Clamp(min, max)
 }
 
-// gxui.ProgressBar compliance
 func (b *ProgressBarImpl) SetDesiredSize(size math.Size) {
 	b.desiredSize = size
 	b.ReLayout()

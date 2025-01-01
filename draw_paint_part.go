@@ -13,15 +13,16 @@ import (
 const debugVerifyDetachOnGC = false
 
 type DrawPaintParent interface {
-	Attached() bool                             // was outer.Attachable
-	Attach()                                    // was outer.Attachable
-	Detach()                                    // was outer.Attachable
-	OnAttach(callback func()) EventSubscription // was outer.Attachable
-	OnDetach(callback func()) EventSubscription // was outer.Attachable
-	Paint(canvas Canvas)                        // was outer.Painter
-	Parent() Parent                             // was outer.Parenter
-	Size() math.Size                            // was outer.Sized
-	SetSize(newSize math.Size)                  // was outer.Sized
+	Attached() bool      // was outer.Attachable
+	Parent() Parent      // was outer.Parenter
+	Size() math.Size     // was outer.Sized
+	Paint(canvas Canvas) // was outer.Painter
+
+	// Attach()                                    // was outer.Attachable
+	// Detach()                                    // was outer.Attachable
+	// OnAttach(callback func()) EventSubscription // was outer.Attachable
+	// OnDetach(callback func()) EventSubscription // was outer.Attachable
+	// SetSize(newSize math.Size)                  // was outer.Sized
 }
 
 type DrawPaintPart struct {

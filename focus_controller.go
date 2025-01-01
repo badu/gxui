@@ -5,13 +5,13 @@
 package gxui
 
 type FocusController struct {
-	window             Window
+	window             *WindowImpl
 	focus              Focusable
 	detachSubscription EventSubscription
 	setFocusCount      int
 }
 
-func CreateFocusController(window Window) *FocusController {
+func CreateFocusController(window *WindowImpl) *FocusController {
 	return &FocusController{window: window}
 }
 

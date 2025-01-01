@@ -6,19 +6,6 @@ package gxui
 
 import "github.com/badu/gxui/math"
 
-type ScrollBar interface {
-	Control
-	OnScroll(callback func(from, to int)) EventSubscription
-	ScrollPosition() (from, to int)
-	SetScrollPosition(from, to int)
-	ScrollLimit() int
-	SetScrollLimit(l int)
-	AutoHide() bool
-	SetAutoHide(l bool)
-	Orientation() Orientation
-	SetOrientation(Orientation)
-}
-
 type ScrollBarImpl struct {
 	ControlBase
 	parent             ControlBaseParent

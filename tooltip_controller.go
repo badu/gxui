@@ -23,7 +23,7 @@ type toolTipTracker struct {
 type ToolTipController struct {
 	driver        Driver
 	timer         *time.Timer
-	bubbleOverlay BubbleOverlay
+	bubbleOverlay *BubbleOverlay
 	trackers      []*toolTipTracker
 	showing       *toolTipTracker
 }
@@ -62,7 +62,7 @@ func (c *ToolTipController) hideToolTipForTracker(tracker *toolTipTracker) {
 	c.showing = nil
 }
 
-func CreateToolTipController(bubbleOverlay BubbleOverlay, driver Driver) *ToolTipController {
+func CreateToolTipController(bubbleOverlay *BubbleOverlay, driver Driver) *ToolTipController {
 	return &ToolTipController{driver: driver, bubbleOverlay: bubbleOverlay}
 }
 

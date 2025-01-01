@@ -8,13 +8,7 @@ import (
 	"github.com/badu/gxui/math"
 )
 
-type BubbleOverlay interface {
-	Control
-	Show(control Control, target math.Point)
-	Hide()
-}
-
-type BubbleOverlayImpl struct {
+type BubbleOverlay struct {
 	ContainerBase
 	parent      BaseContainerParent
 	targetPoint math.Point
@@ -24,14 +18,14 @@ type BubbleOverlayImpl struct {
 	pen         Pen
 }
 
-func (o *BubbleOverlayImpl) Init(parent BaseContainerParent, driver Driver) {
+func (o *BubbleOverlay) Init(parent BaseContainerParent, driver Driver) {
 	o.ContainerBase.Init(parent, driver)
 	o.parent = parent
 	o.arrowLength = 20
 	o.arrowWidth = 15
 }
 
-func (o *BubbleOverlayImpl) LayoutChildren() {
+func (o *BubbleOverlay) LayoutChildren() {
 	for _, child := range o.parent.Children() {
 		bounds := o.parent.Size().Rect().Contract(o.parent.Padding())
 		arrowPadding := math.CreateSpacing(o.arrowLength)
@@ -42,25 +36,25 @@ func (o *BubbleOverlayImpl) LayoutChildren() {
 	}
 }
 
-func (o *BubbleOverlayImpl) DesiredSize(min, max math.Size) math.Size {
+func (o *BubbleOverlay) DesiredSize(min, max math.Size) math.Size {
 	return max
 }
 
-func (o *BubbleOverlayImpl) Show(control Control, point math.Point) {
+func (o *BubbleOverlay) Show(control Control, point math.Point) {
 	o.Hide()
 	o.parent.AddChild(control)
 	o.targetPoint = point
 }
 
-func (o *BubbleOverlayImpl) Hide() {
+func (o *BubbleOverlay) Hide() {
 	o.parent.RemoveAll()
 }
 
-func (o *BubbleOverlayImpl) Brush() Brush {
+func (o *BubbleOverlay) Brush() Brush {
 	return o.brush
 }
 
-func (o *BubbleOverlayImpl) SetBrush(brush Brush) {
+func (o *BubbleOverlay) SetBrush(brush Brush) {
 	if o.brush == brush {
 		return
 	}
@@ -69,11 +63,11 @@ func (o *BubbleOverlayImpl) SetBrush(brush Brush) {
 	o.Redraw()
 }
 
-func (o *BubbleOverlayImpl) Pen() Pen {
+func (o *BubbleOverlay) Pen() Pen {
 	return o.pen
 }
 
-func (o *BubbleOverlayImpl) SetPen(pen Pen) {
+func (o *BubbleOverlay) SetPen(pen Pen) {
 	if o.pen == pen {
 		return
 	}
@@ -82,7 +76,7 @@ func (o *BubbleOverlayImpl) SetPen(pen Pen) {
 	o.Redraw()
 }
 
-func (o *BubbleOverlayImpl) Paint(canvas Canvas) {
+func (o *BubbleOverlay) Paint(canvas Canvas) {
 	if !o.IsVisible() {
 		return
 	}

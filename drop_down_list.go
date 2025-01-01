@@ -6,40 +6,22 @@ package gxui
 
 import "github.com/badu/gxui/math"
 
-type DropDownList interface {
-	Focusable
-	Container
-	SetBubbleOverlay(BubbleOverlay)
-	BubbleOverlay() BubbleOverlay
-	Adapter() ListAdapter
-	SetAdapter(ListAdapter)
-	BorderPen() Pen
-	SetBorderPen(Pen)
-	BackgroundBrush() Brush
-	SetBackgroundBrush(Brush)
-	Selected() AdapterItem
-	Select(AdapterItem)
-	OnSelectionChanged(callback func(AdapterItem)) EventSubscription
-	OnShowList(callback func()) EventSubscription
-	OnHideList(callback func()) EventSubscription
-}
-
-type DropDownListImpl struct {
+type DropDownList struct {
 	ContainerBase
 	BackgroundBorderPainter
 	FocusablePart
 	parent      BaseContainerParent
 	styles      *StyleDefs
-	list        List
+	list        *ListImpl
 	listShowing bool
 	itemSize    math.Size
-	overlay     BubbleOverlay
+	overlay     *BubbleOverlay
 	selected    *Child
 	onShowList  Event
 	onHideList  Event
 }
 
-func (l *DropDownListImpl) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
+func (l *DropDownList) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
 	l.styles = styles
 	l.ContainerBase.Init(parent, driver)
@@ -80,7 +62,7 @@ func (l *DropDownListImpl) Init(parent BaseContainerParent, driver Driver, style
 	l.SetMouseEventTarget(true)
 }
 
-func (l *DropDownListImpl) LayoutChildren() {
+func (l *DropDownList) LayoutChildren() {
 	if !l.RelayoutSuspended() {
 		// Disable relayout on AddChild / RemoveChild as we're performing layout here.
 		l.SetRelayoutSuspended(true)
@@ -94,7 +76,7 @@ func (l *DropDownListImpl) LayoutChildren() {
 	}
 }
 
-func (l *DropDownListImpl) DesiredSize(min, max math.Size) math.Size {
+func (l *DropDownList) DesiredSize(min, max math.Size) math.Size {
 	if l.selected != nil {
 		return l.selected.Control.DesiredSize(min, max).Expand(l.parent.Padding()).Clamp(min, max)
 	} else {
@@ -102,18 +84,18 @@ func (l *DropDownListImpl) DesiredSize(min, max math.Size) math.Size {
 	}
 }
 
-func (l *DropDownListImpl) DataReplaced() {
+func (l *DropDownList) DataReplaced() {
 	adapter := l.list.Adapter()
 	itemSize := adapter.Size(l.styles)
 	l.itemSize = itemSize
 	l.parent.ReLayout()
 }
 
-func (l *DropDownListImpl) ListShowing() bool {
+func (l *DropDownList) ListShowing() bool {
 	return l.listShowing
 }
 
-func (l *DropDownListImpl) ShowList() bool {
+func (l *DropDownList) ShowList() bool {
 	if l.listShowing || l.overlay == nil {
 		return false
 	}
@@ -132,7 +114,7 @@ func (l *DropDownListImpl) ShowList() bool {
 	return true
 }
 
-func (l *DropDownListImpl) HideList() {
+func (l *DropDownList) HideList() {
 	if !l.listShowing {
 		return
 	}
@@ -149,12 +131,12 @@ func (l *DropDownListImpl) HideList() {
 	}
 }
 
-func (l *DropDownListImpl) List() List {
+func (l *DropDownList) List() *ListImpl {
 	return l.list
 }
 
 // InputEventHandlerPart override
-func (l *DropDownListImpl) Click(ev MouseEvent) bool {
+func (l *DropDownList) Click(ev MouseEvent) bool {
 	l.InputEventHandlerPart.Click(ev)
 	if l.ListShowing() {
 		l.HideList()
@@ -164,20 +146,19 @@ func (l *DropDownListImpl) Click(ev MouseEvent) bool {
 	return true
 }
 
-// gxui.DropDownList compliance
-func (l *DropDownListImpl) SetBubbleOverlay(overlay BubbleOverlay) {
+func (l *DropDownList) SetBubbleOverlay(overlay *BubbleOverlay) {
 	l.overlay = overlay
 }
 
-func (l *DropDownListImpl) BubbleOverlay() BubbleOverlay {
+func (l *DropDownList) BubbleOverlay() *BubbleOverlay {
 	return l.overlay
 }
 
-func (l *DropDownListImpl) Adapter() ListAdapter {
+func (l *DropDownList) Adapter() ListAdapter {
 	return l.list.Adapter()
 }
 
-func (l *DropDownListImpl) SetAdapter(adapter ListAdapter) {
+func (l *DropDownList) SetAdapter(adapter ListAdapter) {
 	if l.list.Adapter() == adapter {
 		return
 	}
@@ -190,11 +171,11 @@ func (l *DropDownListImpl) SetAdapter(adapter ListAdapter) {
 	l.DataReplaced()
 }
 
-func (l *DropDownListImpl) Selected() AdapterItem {
+func (l *DropDownList) Selected() AdapterItem {
 	return l.list.Selected()
 }
 
-func (l *DropDownListImpl) Select(item AdapterItem) {
+func (l *DropDownList) Select(item AdapterItem) {
 	if l.list.Selected() == item {
 		return
 	}
@@ -202,11 +183,11 @@ func (l *DropDownListImpl) Select(item AdapterItem) {
 	l.LayoutChildren()
 }
 
-func (l *DropDownListImpl) OnSelectionChanged(callback func(AdapterItem)) EventSubscription {
+func (l *DropDownList) OnSelectionChanged(callback func(AdapterItem)) EventSubscription {
 	return l.list.OnSelectionChanged(callback)
 }
 
-func (l *DropDownListImpl) OnShowList(callback func()) EventSubscription {
+func (l *DropDownList) OnShowList(callback func()) EventSubscription {
 	if l.onShowList == nil {
 		l.onShowList = CreateEvent(callback)
 	}
@@ -214,7 +195,7 @@ func (l *DropDownListImpl) OnShowList(callback func()) EventSubscription {
 	return l.onShowList.Listen(callback)
 }
 
-func (l *DropDownListImpl) OnHideList(callback func()) EventSubscription {
+func (l *DropDownList) OnHideList(callback func()) EventSubscription {
 	if l.onHideList == nil {
 		l.onHideList = CreateEvent(callback)
 	}
@@ -223,7 +204,7 @@ func (l *DropDownListImpl) OnHideList(callback func()) EventSubscription {
 }
 
 // InputEventHandlerPart overrides
-func (l *DropDownListImpl) KeyPress(event KeyboardEvent) (consume bool) {
+func (l *DropDownList) KeyPress(event KeyboardEvent) (consume bool) {
 	if event.Key == KeySpace || event.Key == KeyEnter {
 		mouseEvent := MouseEvent{
 			Button: MouseButtonLeft,
@@ -235,7 +216,7 @@ func (l *DropDownListImpl) KeyPress(event KeyboardEvent) (consume bool) {
 }
 
 // parts.ContainerPart overrides
-func (l *DropDownListImpl) Paint(canvas Canvas) {
+func (l *DropDownList) Paint(canvas Canvas) {
 	rect := l.parent.Size().Rect()
 	l.PaintBackground(canvas, rect)
 	l.ContainerBase.Paint(canvas)

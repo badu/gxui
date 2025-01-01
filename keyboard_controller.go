@@ -155,10 +155,10 @@ type KeyboardEvent struct {
 }
 
 type KeyboardController struct {
-	window Window
+	window *WindowImpl
 }
 
-func CreateKeyboardController(window Window) *KeyboardController {
+func CreateKeyboardController(window *WindowImpl) *KeyboardController {
 	result := &KeyboardController{window: window}
 	window.OnKeyDown(result.keyDown)
 	window.OnKeyUp(result.keyUp)

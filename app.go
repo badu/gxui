@@ -55,8 +55,8 @@ type StyleDefs struct {
 	FontSize     int
 }
 
-func CreateBubbleOverlay(driver Driver, styles *StyleDefs) BubbleOverlay {
-	result := &BubbleOverlayImpl{}
+func CreateBubbleOverlay(driver Driver, styles *StyleDefs) *BubbleOverlay {
+	result := &BubbleOverlay{}
 	result.Init(result, driver)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	result.SetPadding(math.Spacing{L: 5, T: 5, R: 5, B: 5})
@@ -65,7 +65,7 @@ func CreateBubbleOverlay(driver Driver, styles *StyleDefs) BubbleOverlay {
 	return result
 }
 
-func CreateButton(driver Driver, styles *StyleDefs) Button {
+func CreateButton(driver Driver, styles *StyleDefs) *AppButton {
 	result := &AppButton{}
 	result.Init(result, driver, styles)
 	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
@@ -81,7 +81,7 @@ func CreateButton(driver Driver, styles *StyleDefs) Button {
 	return result
 }
 
-func CreateCodeEditor(driver Driver, styles *StyleDefs) CodeEditor {
+func CreateCodeEditor(driver Driver, styles *StyleDefs) *AppCodeEditor {
 	result := &AppCodeEditor{}
 	result.Init(result, driver, styles)
 	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
@@ -91,7 +91,7 @@ func CreateCodeEditor(driver Driver, styles *StyleDefs) CodeEditor {
 	return result
 }
 
-func CreateDropDownList(driver Driver, styles *StyleDefs) DropDownList {
+func CreateDropDownList(driver Driver, styles *StyleDefs) *AppDropDownList {
 	result := &AppDropDownList{}
 	result.Init(result, driver, styles)
 	result.OnGainedFocus(result.Redraw)
@@ -114,27 +114,27 @@ func CreateDropDownList(driver Driver, styles *StyleDefs) DropDownList {
 	return result
 }
 
-func CreateImage(driver Driver, styles *StyleDefs) Image {
-	result := &ImageImpl{}
+func CreateImage(driver Driver, styles *StyleDefs) *Image {
+	result := &Image{}
 	result.Init(result, driver)
 	return result
 }
 
-func CreateLabel(driver Driver, styles *StyleDefs) Label {
-	result := &LabelImpl{}
+func CreateLabel(driver Driver, styles *StyleDefs) *Label {
+	result := &Label{}
 	result.Init(result, driver, styles)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
 	return result
 }
 
-func CreateLinearLayout(driver Driver, styles *StyleDefs) LinearLayout {
+func CreateLinearLayout(driver Driver, styles *StyleDefs) *LinearLayoutImpl {
 	result := &LinearLayoutImpl{}
 	result.Init(result, driver)
 	return result
 }
 
-func CreateList(driver Driver, styles *StyleDefs) List {
-	result := &AppList{}
+func CreateList(driver Driver, styles *StyleDefs) *ListImpl {
+	result := &ListImpl{}
 	result.Init(result, driver, styles)
 	result.OnGainedFocus(result.Redraw)
 	result.OnLostFocus(result.Redraw)
@@ -143,14 +143,32 @@ func CreateList(driver Driver, styles *StyleDefs) List {
 	return result
 }
 
-func CreatePanelHolder(driver Driver, styles *StyleDefs) PanelHolder {
+func CreatePanelHolder(driver Driver, styles *StyleDefs) *AppPanelHolder {
 	result := &AppPanelHolder{}
-	result.PanelHolderImpl.Init(result, driver, styles)
+	result.Init(result, driver, styles)
 	result.SetMargin(math.Spacing{L: 0, T: 2, R: 0, B: 0})
 	return result
 }
 
-func CreateProgressBar(driver Driver, styles *StyleDefs) ProgressBar {
+type AppPanelHolder struct {
+	PanelHolderImpl
+}
+
+func (p *AppPanelHolder) CreatePanelTab() PanelTab {
+	result := &AppPanelTab{}
+	result.Button.Init(result, p.driver, p.styles)
+	result.Button.SetType(ToggleButton) // TODO : @Badu - setting ToggleButton requires POST Init() call (in Init() we set it to PushButton
+	result.SetPadding(math.Spacing{L: 5, T: 3, R: 5, B: 3})
+	result.OnMouseEnter(func(MouseEvent) { result.Redraw() })
+	result.OnMouseExit(func(MouseEvent) { result.Redraw() })
+	result.OnMouseDown(func(MouseEvent) { result.Redraw() })
+	result.OnMouseUp(func(MouseEvent) { result.Redraw() })
+	result.OnGainedFocus(result.Redraw)
+	result.OnLostFocus(result.Redraw)
+	return result
+}
+
+func CreateProgressBar(driver Driver, styles *StyleDefs) *AppProgressBar {
 	result := &AppProgressBar{}
 	result.Init(result, driver, styles)
 	result.chevronWidth = 10
@@ -184,7 +202,7 @@ func CreateProgressBar(driver Driver, styles *StyleDefs) ProgressBar {
 	return result
 }
 
-func CreateScrollBar(driver Driver, styles *StyleDefs) ScrollBar {
+func CreateScrollBar(driver Driver, styles *StyleDefs) *ScrollBarImpl {
 	result := &ScrollBarImpl{}
 	result.Init(result, driver)
 	result.SetBarBrush(styles.ScrollBarBarDefaultStyle.Brush)
@@ -211,25 +229,25 @@ func CreateScrollBar(driver Driver, styles *StyleDefs) ScrollBar {
 	return result
 }
 
-func CreateScrollLayout(driver Driver, styles *StyleDefs) ScrollLayout {
+func CreateScrollLayout(driver Driver, styles *StyleDefs) *ScrollLayoutImpl {
 	result := &ScrollLayoutImpl{}
 	result.Init(result, driver, styles)
 	return result
 }
 
-func CreateSplitterLayout(driver Driver, styles *StyleDefs) SplitterLayout {
+func CreateSplitterLayout(driver Driver, styles *StyleDefs) *AppSplitterLayout {
 	result := &AppSplitterLayout{}
 	result.Init(result, driver, styles)
 	return result
 }
 
-func CreateTableLayout(driver Driver, styles *StyleDefs) TableLayout {
+func CreateTableLayout(driver Driver, styles *StyleDefs) *TableLayoutImpl {
 	result := &TableLayoutImpl{}
 	result.Init(result, driver)
 	return result
 }
 
-func CreateTextBox(driver Driver, styles *StyleDefs) TextBox {
+func CreateTextBox(driver Driver, styles *StyleDefs) *AppTextBox {
 	result := &AppTextBox{}
 	result.Init(result, driver, styles, styles.DefaultFont)
 	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
@@ -254,7 +272,7 @@ func CreateTextBox(driver Driver, styles *StyleDefs) TextBox {
 	return result
 }
 
-func CreateTree(driver Driver, styles *StyleDefs) Tree {
+func CreateTree(driver Driver, styles *StyleDefs) *AppTree {
 	result := &AppTree{}
 	result.Init(result, driver, styles)
 	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
@@ -263,7 +281,7 @@ func CreateTree(driver Driver, styles *StyleDefs) Tree {
 	return result
 }
 
-func CreateWindow(driver Driver, styles *StyleDefs, width, height int, title string) Window {
+func CreateWindow(driver Driver, styles *StyleDefs, width, height int, title string) *WindowImpl {
 	result := &WindowImpl{}
 	result.Init(result, driver, width, height, title)
 	result.SetBackgroundBrush(CreateBrush(styles.WindowBackground))
@@ -289,13 +307,13 @@ func CreateStyle(fontColor, brushColor, penColor Color, penWidth float32, font F
 }
 
 type AppButton struct {
-	ButtonImpl
+	Button
 }
 
 // Button internal overrides
 func (b *AppButton) Paint(canvas Canvas) {
-	pen := b.ButtonImpl.BorderPen()
-	brush := b.ButtonImpl.BackgroundBrush()
+	pen := b.Button.BorderPen()
+	brush := b.Button.BackgroundBrush()
 	fontColor := b.styles.ButtonDefaultStyle.FontColor
 
 	switch {
@@ -335,12 +353,12 @@ func (b *AppButton) Paint(canvas Canvas) {
 }
 
 type AppCodeEditor struct {
-	CodeEditorImpl
+	CodeEditor
 }
 
-// mixins.CodeEditorImpl overrides
+// mixins.CodeEditor overrides
 func (t *AppCodeEditor) Paint(canvas Canvas) {
-	t.CodeEditorImpl.Paint(canvas)
+	t.CodeEditor.Paint(canvas)
 
 	if t.HasFocus() {
 		rect := t.Size().Rect()
@@ -348,7 +366,7 @@ func (t *AppCodeEditor) Paint(canvas Canvas) {
 	}
 }
 
-func (t *AppCodeEditor) CreateSuggestionList() List {
+func (t *AppCodeEditor) CreateSuggestionList() *ListImpl {
 	result := CreateList(t.driver, t.styles)
 	result.SetBackgroundBrush(t.styles.CodeSuggestionListStyle.Brush)
 	result.SetBorderPen(t.styles.CodeSuggestionListStyle.Pen)
@@ -356,12 +374,12 @@ func (t *AppCodeEditor) CreateSuggestionList() List {
 }
 
 type AppDropDownList struct {
-	DropDownListImpl
+	DropDownList
 }
 
 // mixin.ListImpl overrides
 func (l *AppDropDownList) Paint(canvas Canvas) {
-	l.DropDownListImpl.Paint(canvas)
+	l.DropDownList.Paint(canvas)
 	if l.HasFocus() || l.ListShowing() {
 		r := l.Size().Rect().ContractI(1)
 		canvas.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
@@ -372,56 +390,8 @@ func (l *AppDropDownList) DrawSelection(c Canvas, r math.Rect) {
 	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
 }
 
-type AppList struct {
-	ListImpl
-}
-
-// mixin.ListImpl overrides
-func (l *AppList) Paint(canvas Canvas) {
-	l.ListImpl.Paint(canvas)
-	if l.HasFocus() {
-		rect := l.Size().Rect().ContractI(1)
-		canvas.DrawRoundedRect(rect, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
-	}
-}
-
-func (l *AppList) PaintSelection(c Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
-}
-
-func (l *AppList) PaintMouseOverBackground(c Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, TransparentPen, CreateBrush(Gray15))
-}
-
-type AppPanelHolder struct {
-	PanelHolderImpl
-}
-
-func (p *AppPanelHolder) CreatePanelTab() PanelTab {
-	result := &AppPanelTab{}
-	result.ButtonImpl.Init(result, p.driver, p.styles)
-	result.ButtonImpl.SetType(ToggleButton) // TODO : @Badu - setting ToggleButton requires POST Init() call (in Init() we set it to PushButton
-	result.SetPadding(math.Spacing{L: 5, T: 3, R: 5, B: 3})
-	result.OnMouseEnter(func(MouseEvent) { result.Redraw() })
-	result.OnMouseExit(func(MouseEvent) { result.Redraw() })
-	result.OnMouseDown(func(MouseEvent) { result.Redraw() })
-	result.OnMouseUp(func(MouseEvent) { result.Redraw() })
-	result.OnGainedFocus(result.Redraw)
-	result.OnLostFocus(result.Redraw)
-	return result
-}
-
-func (p *AppPanelHolder) Paint(c Canvas) {
-	panel := p.SelectedPanel()
-	if panel != nil {
-		bounds := p.Children().Find(panel).Bounds()
-		c.DrawRoundedRect(bounds, 0.0, 0.0, 3.0, 3.0, p.styles.PanelBackgroundStyle.Pen, p.styles.PanelBackgroundStyle.Brush)
-	}
-	p.PanelHolderImpl.Paint(c)
-}
-
 type AppPanelTab struct {
-	ButtonImpl
+	Button
 	active bool
 }
 
@@ -459,7 +429,7 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 		canvas.DrawRect(r, style.Brush)
 	}
 
-	t.ButtonImpl.Paint(canvas)
+	t.Button.Paint(canvas)
 }
 
 type AppProgressBar struct {
@@ -553,12 +523,12 @@ func (l *AppSplitterLayout) CreateSplitterBar() Control {
 }
 
 type AppTextBox struct {
-	TextBoxImpl
+	TextBox
 }
 
-// mixins.TextBoxImpl overrides
+// mixins.TextBox overrides
 func (t *AppTextBox) Paint(canvas Canvas) {
-	t.TextBoxImpl.Paint(canvas)
+	t.TextBox.Paint(canvas)
 
 	if t.HasFocus() {
 		rect := t.Size().Rect()

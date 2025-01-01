@@ -4,15 +4,12 @@
 
 package gxui
 
-import (
-	"github.com/badu/gxui/math"
-)
-
 type PaintChildrenParent interface {
-	Container
+	// Container
+	Children() Children
 	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
-	Size() math.Size                                 // was outer.Sized
-	SetSize(newSize math.Size)                       // was outer.Sized
+	// Size() math.Size                                 // was outer.Sized
+	// SetSize(newSize math.Size)                       // was outer.Sized
 }
 
 type PaintChildrenPart struct {

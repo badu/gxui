@@ -16,14 +16,14 @@ func appMain(driver gxui.Driver) {
 	layout := gxui.CreateLinearLayout(driver, styles)
 	layout.SetSizeMode(gxui.Fill)
 
-	buttonState := map[gxui.Button]func() bool{}
+	buttonState := map[*gxui.AppButton]func() bool{}
 	update := func() {
 		for button, f := range buttonState {
 			button.SetChecked(f())
 		}
 	}
 
-	button := func(name string, action func(), isSelected func() bool) gxui.Button {
+	button := func(name string, action func(), isSelected func() bool) *gxui.AppButton {
 		b := gxui.CreateButton(driver, styles)
 		b.SetText(name)
 		b.OnClick(func(gxui.MouseEvent) { action(); update() })

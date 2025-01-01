@@ -13,12 +13,12 @@ import (
 type DefaultTextBoxLine struct {
 	ControlBase
 	parent     DefaultTextBoxLineParent
-	textbox    *TextBoxImpl
+	textbox    *TextBox
 	lineIndex  int
 	caretWidth int
 }
 
-func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, textbox *TextBoxImpl, lineIndex int) {
+func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, textbox *TextBox, lineIndex int) {
 	t.ControlBase.Init(parent, textbox.driver)
 	t.parent = parent
 	t.textbox = textbox

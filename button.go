@@ -15,34 +15,24 @@ const (
 	ToggleButton
 )
 
-type Button interface {
-	LinearLayout
-	Text() string
-	SetText(string)
-	Type() ButtonType
-	SetType(ButtonType)
-	IsChecked() bool
-	SetChecked(bool)
-}
-
 type ButtonParent interface {
 	BaseContainerParent
 	IsChecked() bool
 	SetChecked(bool)
 }
 
-type ButtonImpl struct {
+type Button struct {
 	LinearLayoutImpl
 	FocusablePart
 	parent     ButtonParent
 	driver     Driver
 	styles     *StyleDefs
-	label      Label
+	label      *Label
 	buttonType ButtonType
 	checked    bool
 }
 
-func (b *ButtonImpl) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
+func (b *Button) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
 	b.LinearLayoutImpl.Init(parent, driver)
 	b.FocusablePart.Init()
 
@@ -52,11 +42,11 @@ func (b *ButtonImpl) Init(parent ButtonParent, driver Driver, styles *StyleDefs)
 	b.parent = parent
 }
 
-func (b *ButtonImpl) Label() Label {
+func (b *Button) Label() *Label {
 	return b.label
 }
 
-func (b *ButtonImpl) Text() string {
+func (b *Button) Text() string {
 	if b.label == nil {
 		return ""
 	}
@@ -64,7 +54,7 @@ func (b *ButtonImpl) Text() string {
 	return b.label.Text()
 }
 
-func (b *ButtonImpl) SetText(text string) {
+func (b *Button) SetText(text string) {
 	if b.Text() == text {
 		return
 	}
@@ -85,11 +75,11 @@ func (b *ButtonImpl) SetText(text string) {
 	b.label.SetText(text)
 }
 
-func (b *ButtonImpl) Type() ButtonType {
+func (b *Button) Type() ButtonType {
 	return b.buttonType
 }
 
-func (b *ButtonImpl) SetType(buttonType ButtonType) {
+func (b *Button) SetType(buttonType ButtonType) {
 	if buttonType == b.buttonType {
 		return
 	}
@@ -98,11 +88,11 @@ func (b *ButtonImpl) SetType(buttonType ButtonType) {
 	b.parent.Redraw()
 }
 
-func (b *ButtonImpl) IsChecked() bool {
+func (b *Button) IsChecked() bool {
 	return b.checked
 }
 
-func (b *ButtonImpl) SetChecked(checked bool) {
+func (b *Button) SetChecked(checked bool) {
 	if checked == b.checked {
 		return
 	}
@@ -112,7 +102,7 @@ func (b *ButtonImpl) SetChecked(checked bool) {
 }
 
 // InputEventHandlerPart override
-func (b *ButtonImpl) Click(event MouseEvent) bool {
+func (b *Button) Click(event MouseEvent) bool {
 	if event.Button == MouseButtonLeft {
 		if b.buttonType == ToggleButton {
 			b.parent.SetChecked(!b.parent.IsChecked())
@@ -124,7 +114,7 @@ func (b *ButtonImpl) Click(event MouseEvent) bool {
 	return b.LinearLayoutImpl.Click(event)
 }
 
-func (b *ButtonImpl) KeyPress(event KeyboardEvent) bool {
+func (b *Button) KeyPress(event KeyboardEvent) bool {
 	consume := b.LinearLayoutImpl.KeyPress(event)
 	if event.Key == KeySpace || event.Key == KeyEnter {
 		return b.Click(MouseEvent{Button: MouseButtonLeft})

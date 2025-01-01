@@ -6,19 +6,6 @@ package gxui
 
 import "github.com/badu/gxui/math"
 
-type ScrollLayout interface {
-	Control
-	Parent
-	SetChild(Control)
-	Child() Control
-	SetScrollAxis(horizontal, vertical bool)
-	ScrollAxis() (horizontal, vertical bool)
-	BorderPen() Pen
-	SetBorderPen(Pen)
-	BackgroundBrush() Brush
-	SetBackgroundBrush(Brush)
-}
-
 type ScrollLayoutImpl struct {
 	ContainerBase
 	BackgroundBorderPainter
@@ -77,8 +64,16 @@ func (l *ScrollLayoutImpl) LayoutChildren() {
 		}
 		childSize := l.child.Control.DesiredSize(math.ZeroSize, maxSize)
 		l.child.Layout(childSize.Rect().Offset(l.scrollOffset.Neg()).Offset(offset))
-		l.scrollBarX.Control.(ScrollBar).SetScrollLimit(childSize.W)
-		l.scrollBarY.Control.(ScrollBar).SetScrollLimit(childSize.H)
+
+		switch scrollbar := l.scrollBarX.Control.(type) {
+		case *ScrollBarImpl:
+			scrollbar.SetScrollLimit(childSize.W)
+		}
+
+		switch scrollbar := l.scrollBarY.Control.(type) {
+		case *ScrollBarImpl:
+			scrollbar.SetScrollLimit(childSize.H)
+		}
 	}
 
 	l.SetScrollOffset(l.scrollOffset)
@@ -99,8 +94,16 @@ func (l *ScrollLayoutImpl) SetScrollOffset(scrollOffset math.Point) bool {
 
 	l.scrollBarX.Control.SetVisible(l.canScrollX && childSize.W > innerSize.W)
 	l.scrollBarY.Control.SetVisible(l.canScrollY && childSize.H > innerSize.H)
-	l.scrollBarX.Control.(ScrollBar).SetScrollPosition(l.scrollOffset.X, l.scrollOffset.X+innerSize.W)
-	l.scrollBarY.Control.(ScrollBar).SetScrollPosition(l.scrollOffset.Y, l.scrollOffset.Y+innerSize.H)
+
+	switch scrollbar := l.scrollBarX.Control.(type) {
+	case *ScrollBarImpl:
+		scrollbar.SetScrollPosition(l.scrollOffset.X, l.scrollOffset.X+innerSize.W)
+	}
+
+	switch scrollbar := l.scrollBarY.Control.(type) {
+	case *ScrollBarImpl:
+		scrollbar.SetScrollPosition(l.scrollOffset.Y, l.scrollOffset.Y+innerSize.H)
+	}
 
 	if l.scrollOffset != scrollOffset {
 		l.scrollOffset = scrollOffset
@@ -127,7 +130,6 @@ func (l *ScrollLayoutImpl) MouseScroll(event MouseEvent) bool {
 	}
 }
 
-// gxui.ScrollLayout complaince
 func (l *ScrollLayoutImpl) SetChild(control Control) {
 	if l.child != nil {
 		l.RemoveChild(l.child.Control)

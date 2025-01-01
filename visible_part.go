@@ -6,7 +6,7 @@ package gxui
 
 type VisibleParent interface {
 	Parent() Parent // was outer.Parenter
-	Redraw()        // was outer.Redrawer
+	// Redraw()        // was outer.Redrawer
 }
 
 type VisiblePart struct {
@@ -24,10 +24,12 @@ func (v *VisiblePart) IsVisible() bool {
 }
 
 func (v *VisiblePart) SetVisible(visible bool) {
-	if v.visible != visible {
-		v.visible = visible
-		if grandParent := v.parent.Parent(); grandParent != nil {
-			grandParent.Redraw()
-		}
+	if v.visible == visible {
+		return
+	}
+
+	v.visible = visible
+	if grandParent := v.parent.Parent(); grandParent != nil {
+		grandParent.Redraw()
 	}
 }

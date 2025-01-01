@@ -24,7 +24,7 @@ func (s MouseState) IsDown(b MouseButton) bool {
 }
 
 type MouseEvent struct {
-	Window           Window
+	Window           *WindowImpl
 	Button           MouseButton
 	State            MouseState
 	Modifier         KeyboardModifier
@@ -36,14 +36,14 @@ type MouseEvent struct {
 var doubleClickTime = time.Millisecond * 300
 
 type MouseController struct {
-	window          Window
+	window          *WindowImpl
 	focusController *FocusController
 	lastOver        ControlPointList
 	lastDown        map[MouseButton]ControlPointList
 	lastUpTime      map[MouseButton]time.Time
 }
 
-func CreateMouseController(window Window, focusCtrl *FocusController) *MouseController {
+func CreateMouseController(window *WindowImpl, focusCtrl *FocusController) *MouseController {
 	result := &MouseController{
 		window:          window,
 		focusController: focusCtrl,

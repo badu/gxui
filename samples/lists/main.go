@@ -14,7 +14,7 @@ import (
 )
 
 // Number picker uses the gxui.DefaultAdapter for driving a list
-func numberPicker(driver gxui.Driver, styles *gxui.StyleDefs, overlay gxui.BubbleOverlay) gxui.Control {
+func numberPicker(driver gxui.Driver, styles *gxui.StyleDefs, overlay *gxui.BubbleOverlay) gxui.Control {
 	items := []string{
 		"zero", "one", "two", "three", "four", "five",
 		"six", "seven", "eight", "nine", "ten",
@@ -151,9 +151,14 @@ func colorPicker(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
 
 	list.OnSelectionChanged(
 		func(item gxui.AdapterItem) {
-			if item != nil {
-				control := list.ItemControl(item)
-				selected.SetBackgroundBrush(control.(gxui.Image).BackgroundBrush())
+			if item == nil {
+				return
+			}
+
+			control := list.ItemControl(item)
+			switch image := control.(type) {
+			case *gxui.Image:
+				selected.SetBackgroundBrush(image.BackgroundBrush())
 			}
 		},
 	)

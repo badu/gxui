@@ -19,36 +19,23 @@ type CodeSuggestionProvider interface {
 	SuggestionsAt(runeIndex int) []CodeSuggestion
 }
 
-type CodeEditor interface {
-	TextBox
-	SyntaxLayers() CodeSyntaxLayers
-	SetSyntaxLayers(CodeSyntaxLayers)
-	TabWidth() int
-	SetTabWidth(newWidth int)
-	SuggestionProvider() CodeSuggestionProvider
-	SetSuggestionProvider(provider CodeSuggestionProvider)
-	ShowSuggestionList()
-	HideSuggestionList()
-}
-
 type CodeEditorParent interface {
 	TextBoxParent
-	CreateSuggestionList() List
+	CreateSuggestionList() *ListImpl
 }
 
-type CodeEditorImpl struct {
-	TextBoxImpl
+type CodeEditor struct {
+	TextBox
 	parent             CodeEditorParent
-	driver             Driver
 	layers             CodeSyntaxLayers
-	suggestionList     List
+	suggestionList     *ListImpl
 	suggestionProvider CodeSuggestionProvider
 	styles             *StyleDefs
 	suggestionAdapter  *SuggestionAdapter
 	tabWidth           int
 }
 
-func (t *CodeEditorImpl) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
+func (t *CodeEditor) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
 	t.parent = parent
 	t.driver = driver
 	t.styles = styles
@@ -59,43 +46,43 @@ func (t *CodeEditorImpl) Init(parent CodeEditorParent, driver Driver, styles *St
 	t.suggestionList = t.parent.CreateSuggestionList()
 	t.suggestionList.SetAdapter(t.suggestionAdapter)
 
-	t.TextBoxImpl.Init(parent, driver, styles, styles.CodeEditorStyle.Font)
+	t.TextBox.Init(parent, driver, styles, styles.CodeEditorStyle.Font)
 	t.controller.OnTextChanged(t.updateSpans)
 }
 
-func (t *CodeEditorImpl) ItemSize(styles *StyleDefs) math.Size {
+func (t *CodeEditor) ItemSize(styles *StyleDefs) math.Size {
 	return math.Size{W: math.MaxSize.W, H: t.font.GlyphMaxSize().H}
 }
 
-func (t *CodeEditorImpl) CreateSuggestionList() List {
+func (t *CodeEditor) CreateSuggestionList() *ListImpl {
 	list := CreateList(t.driver, t.styles)
 	list.SetBackgroundBrush(DefaultBrush)
 	list.SetBorderPen(DefaultPen)
 	return list
 }
 
-func (t *CodeEditorImpl) SyntaxLayers() CodeSyntaxLayers {
+func (t *CodeEditor) SyntaxLayers() CodeSyntaxLayers {
 	return t.layers
 }
 
-func (t *CodeEditorImpl) SetSyntaxLayers(layers CodeSyntaxLayers) {
+func (t *CodeEditor) SetSyntaxLayers(layers CodeSyntaxLayers) {
 	t.layers = layers
 	t.onRedrawLines.Emit()
 }
 
-func (t *CodeEditorImpl) TabWidth() int {
+func (t *CodeEditor) TabWidth() int {
 	return t.tabWidth
 }
 
-func (t *CodeEditorImpl) SetTabWidth(tabWidth int) {
+func (t *CodeEditor) SetTabWidth(tabWidth int) {
 	t.tabWidth = tabWidth
 }
 
-func (t *CodeEditorImpl) SuggestionProvider() CodeSuggestionProvider {
+func (t *CodeEditor) SuggestionProvider() CodeSuggestionProvider {
 	return t.suggestionProvider
 }
 
-func (t *CodeEditorImpl) SetSuggestionProvider(provider CodeSuggestionProvider) {
+func (t *CodeEditor) SetSuggestionProvider(provider CodeSuggestionProvider) {
 	if t.suggestionProvider != provider {
 		t.suggestionProvider = provider
 		if t.IsSuggestionListShowing() {
@@ -104,17 +91,17 @@ func (t *CodeEditorImpl) SetSuggestionProvider(provider CodeSuggestionProvider) 
 	}
 }
 
-func (t *CodeEditorImpl) IsSuggestionListShowing() bool {
+func (t *CodeEditor) IsSuggestionListShowing() bool {
 	return t.parent.Children().Find(t.suggestionList) != nil
 }
 
-func (t *CodeEditorImpl) SortSuggestionList() {
+func (t *CodeEditor) SortSuggestionList() {
 	caret := t.controller.LastCaret()
 	partial := t.controller.TextRange(t.controller.WordAt(caret))
 	t.suggestionAdapter.Sort(partial)
 }
 
-func (t *CodeEditorImpl) ShowSuggestionList() {
+func (t *CodeEditor) ShowSuggestionList() {
 	if t.suggestionProvider == nil || t.IsSuggestionListShowing() {
 		return
 	}
@@ -145,7 +132,7 @@ func (t *CodeEditorImpl) ShowSuggestionList() {
 	child.Layout(cs.Rect().Offset(target).Intersect(bounds))
 }
 
-func (t *CodeEditorImpl) HideSuggestionList() {
+func (t *CodeEditor) HideSuggestionList() {
 	if !t.IsSuggestionListShowing() {
 		return
 	}
@@ -153,7 +140,7 @@ func (t *CodeEditorImpl) HideSuggestionList() {
 	t.RemoveChild(t.suggestionList)
 }
 
-func (t *CodeEditorImpl) Line(idx int) TextBoxLine {
+func (t *CodeEditor) Line(idx int) TextBoxLine {
 	return FindControl(
 		t.ItemControl(idx).(Parent),
 		func(c Control) bool {
@@ -164,12 +151,12 @@ func (t *CodeEditorImpl) Line(idx int) TextBoxLine {
 }
 
 // mixins.ListImpl overrides
-func (t *CodeEditorImpl) Click(event MouseEvent) bool {
+func (t *CodeEditor) Click(event MouseEvent) bool {
 	t.HideSuggestionList()
-	return t.TextBoxImpl.Click(event)
+	return t.TextBox.Click(event)
 }
 
-func (t *CodeEditorImpl) KeyPress(event KeyboardEvent) bool {
+func (t *CodeEditor) KeyPress(event KeyboardEvent) bool {
 	switch event.Key {
 	case KeyTab:
 		replace := true
@@ -235,11 +222,11 @@ func (t *CodeEditorImpl) KeyPress(event KeyboardEvent) bool {
 		}
 	}
 
-	return t.TextBoxImpl.KeyPress(event)
+	return t.TextBox.KeyPress(event)
 }
 
-func (t *CodeEditorImpl) KeyStroke(event KeyStrokeEvent) bool {
-	consume := t.TextBoxImpl.KeyStroke(event)
+func (t *CodeEditor) KeyStroke(event KeyStrokeEvent) bool {
+	consume := t.TextBox.KeyStroke(event)
 	if t.IsSuggestionListShowing() {
 		t.SortSuggestionList()
 	}
@@ -247,8 +234,8 @@ func (t *CodeEditorImpl) KeyStroke(event KeyStrokeEvent) bool {
 	return consume
 }
 
-// mixins.TextBoxImpl overrides
-func (t *CodeEditorImpl) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
+// mixins.TextBox overrides
+func (t *CodeEditor) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
 	lineNumber := CreateLabel(driver, styles)
 
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
@@ -264,7 +251,7 @@ func (t *CodeEditorImpl) CreateLine(driver Driver, styles *StyleDefs, index int)
 	return line, layout
 }
 
-func (t *CodeEditorImpl) updateSpans(edits []TextBoxEdit) {
+func (t *CodeEditor) updateSpans(edits []TextBoxEdit) {
 	runeCount := len(t.controller.TextRunes())
 	for _, layer := range t.layers {
 		layer.UpdateSpans(runeCount, edits)

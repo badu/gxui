@@ -11,13 +11,13 @@ import (
 
 type PanelHolder interface {
 	Control
-	AddPanel(panel Control, name string)
+	// AddPanel(panel Control, name string)
 	AddPanelAt(panel Control, name string, index int)
 	RemovePanel(panel Control)
 	Select(int)
 	PanelCount() int
 	PanelIndex(Control) int
-	Panel(int) Control
+	// Panel(int) Control
 	Tab(int) Control
 }
 
@@ -37,12 +37,18 @@ type PanelHolderParent interface {
 	PanelTabCreator
 }
 
+type PanelEntry struct {
+	Tab                   PanelTab
+	Panel                 Control
+	MouseDownSubscription EventSubscription
+}
+
 type PanelHolderImpl struct {
 	ContainerBase
 	parent    PanelHolderParent
 	driver    Driver
 	styles    *StyleDefs
-	tabLayout LinearLayout
+	tabLayout *LinearLayoutImpl
 	entries   []PanelEntry
 	selected  PanelEntry
 }
@@ -69,7 +75,7 @@ func insertIndex(holder PanelHolder, at math.Point) int {
 	return bestIndex
 }
 
-func beginTabDragging(holder PanelHolder, panel Control, name string, window Window) {
+func beginTabDragging(holder PanelHolder, panel Control, name string, window *WindowImpl) {
 	var mms, mos EventSubscription
 	mms = window.OnMouseMove(
 		func(event MouseEvent) {
@@ -230,10 +236,4 @@ func (p *PanelHolderImpl) Panel(index int) Control {
 
 func (p *PanelHolderImpl) Tab(index int) Control {
 	return p.entries[index].Tab
-}
-
-type PanelEntry struct {
-	Tab                   PanelTab
-	Panel                 Control
-	MouseDownSubscription EventSubscription
 }
