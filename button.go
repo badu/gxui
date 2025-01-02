@@ -40,6 +40,13 @@ func (b *Button) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
 	b.driver = driver
 	b.styles = styles
 	b.parent = parent
+
+	b.SetBackgroundBrush(styles.ButtonDefaultStyle.Brush)
+	b.SetBorderPen(styles.ButtonDefaultStyle.Pen)
+	// TODO : @Badu - use styles
+	b.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	b.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+
 }
 
 func (b *Button) Label() *Label {
@@ -120,4 +127,46 @@ func (b *Button) KeyPress(event KeyboardEvent) bool {
 		return b.Click(MouseEvent{Button: MouseButtonLeft})
 	}
 	return consume
+}
+
+// Button internal overrides
+func (b *Button) Paint(canvas Canvas) {
+	pen := b.BorderPen()
+	brush := b.BackgroundBrush()
+	fontColor := b.styles.ButtonDefaultStyle.FontColor
+
+	switch {
+	case b.IsMouseDown(MouseButtonLeft) && b.IsMouseOver():
+		pen = b.styles.ButtonPressedStyle.Pen
+		brush = b.styles.ButtonPressedStyle.Brush
+		fontColor = b.styles.ButtonPressedStyle.FontColor
+	case b.IsMouseOver():
+		pen = b.styles.ButtonOverStyle.Pen
+		brush = b.styles.ButtonOverStyle.Brush
+		fontColor = b.styles.ButtonOverStyle.FontColor
+	}
+
+	if label := b.Label(); label != nil {
+		label.SetColor(fontColor)
+	}
+
+	rect := b.Size().Rect()
+
+	canvas.DrawRoundedRect(rect, 2, 2, 2, 2, TransparentPen, brush)
+
+	b.PaintChildrenPart.Paint(canvas)
+
+	canvas.DrawRoundedRect(rect, 2, 2, 2, 2, pen, TransparentBrush)
+
+	if b.IsChecked() {
+		pen = b.styles.HighlightStyle.Pen
+		brush = b.styles.HighlightStyle.Brush
+		canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, pen, brush)
+	}
+
+	if b.HasFocus() {
+		pen = b.styles.FocusedStyle.Pen
+		brush = b.styles.FocusedStyle.Brush
+		canvas.DrawRoundedRect(rect.ContractI(int(pen.Width)), 3.0, 3.0, 3.0, 3.0, pen, brush)
+	}
 }

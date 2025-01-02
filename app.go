@@ -65,13 +65,10 @@ func CreateBubbleOverlay(driver Driver, styles *StyleDefs) *BubbleOverlay {
 	return result
 }
 
-func CreateButton(driver Driver, styles *StyleDefs) *AppButton {
-	result := &AppButton{}
+func CreateButton(driver Driver, styles *StyleDefs) *Button {
+	result := &Button{}
 	result.Init(result, driver, styles)
-	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetBackgroundBrush(styles.ButtonDefaultStyle.Brush)
-	result.SetBorderPen(styles.ButtonDefaultStyle.Pen)
+
 	result.OnMouseEnter(func(event MouseEvent) { result.Redraw() })
 	result.OnMouseExit(func(event MouseEvent) { result.Redraw() })
 	result.OnMouseDown(func(event MouseEvent) { result.Redraw() })
@@ -91,8 +88,8 @@ func CreateCodeEditor(driver Driver, styles *StyleDefs) *AppCodeEditor {
 	return result
 }
 
-func CreateDropDownList(driver Driver, styles *StyleDefs) *AppDropDownList {
-	result := &AppDropDownList{}
+func CreateDropDownList(driver Driver, styles *StyleDefs) *DropDownList {
+	result := &DropDownList{}
 	result.Init(result, driver, styles)
 	result.OnGainedFocus(result.Redraw)
 	result.OnLostFocus(result.Redraw)
@@ -247,8 +244,8 @@ func CreateTableLayout(driver Driver, styles *StyleDefs) *TableLayoutImpl {
 	return result
 }
 
-func CreateTextBox(driver Driver, styles *StyleDefs) *AppTextBox {
-	result := &AppTextBox{}
+func CreateTextBox(driver Driver, styles *StyleDefs) *TextBox {
+	result := &TextBox{}
 	result.Init(result, driver, styles, styles.DefaultFont)
 	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
 	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
@@ -306,52 +303,6 @@ func CreateStyle(fontColor, brushColor, penColor Color, penWidth float32, font F
 	}
 }
 
-type AppButton struct {
-	Button
-}
-
-// Button internal overrides
-func (b *AppButton) Paint(canvas Canvas) {
-	pen := b.Button.BorderPen()
-	brush := b.Button.BackgroundBrush()
-	fontColor := b.styles.ButtonDefaultStyle.FontColor
-
-	switch {
-	case b.IsMouseDown(MouseButtonLeft) && b.IsMouseOver():
-		pen = b.styles.ButtonPressedStyle.Pen
-		brush = b.styles.ButtonPressedStyle.Brush
-		fontColor = b.styles.ButtonPressedStyle.FontColor
-	case b.IsMouseOver():
-		pen = b.styles.ButtonOverStyle.Pen
-		brush = b.styles.ButtonOverStyle.Brush
-		fontColor = b.styles.ButtonOverStyle.FontColor
-	}
-
-	if label := b.Label(); label != nil {
-		label.SetColor(fontColor)
-	}
-
-	rect := b.Size().Rect()
-
-	canvas.DrawRoundedRect(rect, 2, 2, 2, 2, TransparentPen, brush)
-
-	b.PaintChildrenPart.Paint(canvas)
-
-	canvas.DrawRoundedRect(rect, 2, 2, 2, 2, pen, TransparentBrush)
-
-	if b.IsChecked() {
-		pen = b.styles.HighlightStyle.Pen
-		brush = b.styles.HighlightStyle.Brush
-		canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, pen, brush)
-	}
-
-	if b.HasFocus() {
-		pen = b.styles.FocusedStyle.Pen
-		brush = b.styles.FocusedStyle.Brush
-		canvas.DrawRoundedRect(rect.ContractI(int(pen.Width)), 3.0, 3.0, 3.0, 3.0, pen, brush)
-	}
-}
-
 type AppCodeEditor struct {
 	CodeEditor
 }
@@ -373,23 +324,6 @@ func (t *AppCodeEditor) CreateSuggestionList() *ListImpl {
 	result.SetPadding(math.CreateSpacing(10))
 	result.SetBorderPen(WhitePen)
 	return result
-}
-
-type AppDropDownList struct {
-	DropDownList
-}
-
-// mixin.ListImpl overrides
-func (l *AppDropDownList) Paint(canvas Canvas) {
-	l.DropDownList.Paint(canvas)
-	if l.HasFocus() || l.ListShowing() {
-		r := l.Size().Rect().ContractI(1)
-		canvas.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
-	}
-}
-
-func (l *AppDropDownList) DrawSelection(c Canvas, r math.Rect) {
-	c.DrawRoundedRect(r, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
 }
 
 type AppPanelTab struct {
@@ -454,7 +388,7 @@ func (b *AppProgressBar) SetSize(size math.Size) {
 
 	b.chevrons = nil
 	if size.Area() > 0 {
-		b.chevrons = b.ControlBase.DrawPaintPart.driver.CreateCanvas(size)
+		b.chevrons = b.ControlBase.driver.CreateCanvas(size)
 		b.chevronWidth = size.H / 2
 		cw := b.chevronWidth
 		for x := -cw * 2; x < size.W; x += cw * 2 {
@@ -522,21 +456,6 @@ func (l *AppSplitterLayout) CreateSplitterBar() Control {
 	result.OnMouseEnter(func(event MouseEvent) { updateForegroundColor() })
 	result.OnMouseExit(func(event MouseEvent) { updateForegroundColor() })
 	return result
-}
-
-type AppTextBox struct {
-	TextBox
-}
-
-// mixins.TextBox overrides
-func (t *AppTextBox) Paint(canvas Canvas) {
-	t.TextBox.Paint(canvas)
-
-	if t.HasFocus() {
-		rect := t.Size().Rect()
-		style := t.styles.FocusedStyle
-		canvas.DrawRoundedRect(rect, 3, 3, 3, 3, style.Pen, style.Brush)
-	}
 }
 
 type AppTree struct {

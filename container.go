@@ -264,7 +264,7 @@ func (c *ContainerBase) Init(parent BaseContainerParent, driver Driver) {
 	c.ContainerPart.Init(parent)
 	c.DrawPaintPart.Init(parent, driver)
 	c.InputEventHandlerPart.Init()
-	c.LayoutablePart.Init(parent, driver)
+	c.LayoutablePart.Init(parent)
 	c.PaddablePart.Init(parent)
 	c.PaintChildrenPart.Init(parent)
 	c.ParentablePart.Init()

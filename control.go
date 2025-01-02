@@ -169,7 +169,7 @@ type ControlBase struct {
 
 func (c *ControlBase) Init(parent ControlBaseParent, driver Driver) {
 	c.DrawPaintPart.Init(parent, driver)
-	c.LayoutablePart.Init(parent, driver)
+	c.LayoutablePart.Init(parent)
 	c.InputEventHandlerPart.Init()
 	c.ParentablePart.Init()
 	c.VisiblePart.Init(parent)

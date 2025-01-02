@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+type LineWidth struct {
+	Tabs  int
+	Chars int
+}
+
 type CodeSuggestion interface {
 	Name() string
 	Code() string
@@ -32,119 +37,131 @@ type CodeEditor struct {
 	suggestionProvider CodeSuggestionProvider
 	styles             *StyleDefs
 	suggestionAdapter  *SuggestionAdapter
+	hiddenLines        map[int]struct{}
+	lineWidths         []LineWidth
 	tabWidth           int
 }
 
-func (t *CodeEditor) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
-	t.parent = parent
-	t.driver = driver
-	t.styles = styles
+func (e *CodeEditor) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
+	e.parent = parent
+	e.driver = driver
+	e.styles = styles
 
-	t.tabWidth = int(styles.CodeEditorStyle.Pen.Width)
+	e.tabWidth = int(styles.CodeEditorStyle.Pen.Width)
+	e.hiddenLines = map[int]struct{}{}
 
-	t.suggestionAdapter = &SuggestionAdapter{}
-	t.suggestionList = t.parent.CreateSuggestionList()
-	t.suggestionList.SetAdapter(t.suggestionAdapter)
+	e.suggestionAdapter = &SuggestionAdapter{}
+	e.suggestionList = e.parent.CreateSuggestionList()
+	e.suggestionList.SetAdapter(e.suggestionAdapter)
 
-	t.TextBox.Init(parent, driver, styles, styles.CodeEditorStyle.Font)
-	t.controller.OnTextChanged(t.updateSpans)
+	e.TextBox.Init(parent, driver, styles, styles.CodeEditorStyle.Font)
+	e.TextBox.horizontalScroll.Forget()
+	e.TextBox.horizontalScroll = e.TextBox.horizontalScrollbar.OnScroll(
+		func(from, to int) {
+			e.SetHorizontalOffset(from)
+		},
+	)
+
+	e.controller.OnTextChanged(e.updateSpans)
 }
 
-func (t *CodeEditor) ItemSize(styles *StyleDefs) math.Size {
-	return math.Size{W: math.MaxSize.W, H: t.font.GlyphMaxSize().H}
+func (e *CodeEditor) ItemSize(styles *StyleDefs) math.Size {
+	return math.Size{W: math.MaxSize.W, H: e.font.GlyphMaxSize().H}
 }
 
-func (t *CodeEditor) CreateSuggestionList() *ListImpl {
-	list := CreateList(t.driver, t.styles)
+func (e *CodeEditor) CreateSuggestionList() *ListImpl {
+	list := CreateList(e.driver, e.styles)
 	list.SetBackgroundBrush(DefaultBrush)
 	list.SetBorderPen(DefaultPen)
 	return list
 }
 
-func (t *CodeEditor) SyntaxLayers() CodeSyntaxLayers {
-	return t.layers
+func (e *CodeEditor) SyntaxLayers() CodeSyntaxLayers {
+	return e.layers
 }
 
-func (t *CodeEditor) SetSyntaxLayers(layers CodeSyntaxLayers) {
-	t.layers = layers
-	t.onRedrawLines.Emit()
+func (e *CodeEditor) SetSyntaxLayers(layers CodeSyntaxLayers) {
+	e.layers = layers
+	e.onRedrawLines.Emit()
 }
 
-func (t *CodeEditor) TabWidth() int {
-	return t.tabWidth
+func (e *CodeEditor) TabWidth() int {
+	return e.tabWidth
 }
 
-func (t *CodeEditor) SetTabWidth(tabWidth int) {
-	t.tabWidth = tabWidth
+func (e *CodeEditor) SetTabWidth(tabWidth int) {
+	e.tabWidth = tabWidth
 }
 
-func (t *CodeEditor) SuggestionProvider() CodeSuggestionProvider {
-	return t.suggestionProvider
+func (e *CodeEditor) SuggestionProvider() CodeSuggestionProvider {
+	return e.suggestionProvider
 }
 
-func (t *CodeEditor) SetSuggestionProvider(provider CodeSuggestionProvider) {
-	if t.suggestionProvider != provider {
-		t.suggestionProvider = provider
-		if t.IsSuggestionListShowing() {
-			t.ShowSuggestionList() // Update list
-		}
-	}
-}
-
-func (t *CodeEditor) IsSuggestionListShowing() bool {
-	return t.parent.Children().Find(t.suggestionList) != nil
-}
-
-func (t *CodeEditor) SortSuggestionList() {
-	caret := t.controller.LastCaret()
-	partial := t.controller.TextRange(t.controller.WordAt(caret))
-	t.suggestionAdapter.Sort(partial)
-}
-
-func (t *CodeEditor) ShowSuggestionList() {
-	if t.suggestionProvider == nil || t.IsSuggestionListShowing() {
+func (e *CodeEditor) SetSuggestionProvider(provider CodeSuggestionProvider) {
+	if e.suggestionProvider == provider {
 		return
 	}
 
-	caret := t.controller.LastCaret()
-	word, _ := t.controller.WordAt(caret)
+	e.suggestionProvider = provider
+	if e.IsSuggestionListShowing() {
+		e.ShowSuggestionList() // Update list
+	}
+}
 
-	suggestions := t.suggestionProvider.SuggestionsAt(word)
+func (e *CodeEditor) IsSuggestionListShowing() bool {
+	return e.parent.Children().Find(e.suggestionList) != nil
+}
+
+func (e *CodeEditor) SortSuggestionList() {
+	caret := e.controller.LastCaret()
+	partial := e.controller.TextRange(e.controller.WordAt(caret))
+	e.suggestionAdapter.Sort(partial)
+}
+
+func (e *CodeEditor) ShowSuggestionList() {
+	if e.suggestionProvider == nil || e.IsSuggestionListShowing() {
+		return
+	}
+
+	caret := e.controller.LastCaret()
+	word, _ := e.controller.WordAt(caret)
+
+	suggestions := e.suggestionProvider.SuggestionsAt(word)
 	if len(suggestions) == 0 {
-		t.HideSuggestionList()
+		e.HideSuggestionList()
 		return
 	}
 
-	t.suggestionAdapter.SetSuggestions(suggestions)
-	t.SortSuggestionList()
-	child := t.AddChild(t.suggestionList)
+	e.suggestionAdapter.SetSuggestions(suggestions)
+	e.SortSuggestionList()
+	child := e.AddChild(e.suggestionList)
 
 	// Position the suggestion list below the last caret
-	lineIdx := t.controller.LineIndex(caret)
+	lineIdx := e.controller.LineIndex(caret)
 	// TODO: What if the last caret is not visible?
-	bounds := t.Size().Rect().Contract(t.Padding())
-	line := t.Line(lineIdx)
-	lineOffset := ChildToParent(math.ZeroPoint, line, t.parent)
+	bounds := e.Size().Rect().Contract(e.Padding())
+	line := e.Line(lineIdx)
+	lineOffset := ChildToParent(math.ZeroPoint, line, e.parent)
 	target := line.PositionAt(caret).Add(lineOffset)
-	childSize := t.suggestionList.DesiredSize(math.ZeroSize, bounds.Size())
+	childSize := e.suggestionList.DesiredSize(math.ZeroSize, bounds.Size())
 
-	t.suggestionList.Select(t.suggestionList.Adapter().ItemAt(0))
-	t.suggestionList.SetSize(childSize)
+	e.suggestionList.Select(e.suggestionList.Adapter().ItemAt(0))
+	e.suggestionList.SetSize(childSize)
 
 	child.Layout(childSize.Rect().Offset(target).Intersect(bounds))
 }
 
-func (t *CodeEditor) HideSuggestionList() {
-	if !t.IsSuggestionListShowing() {
+func (e *CodeEditor) HideSuggestionList() {
+	if !e.IsSuggestionListShowing() {
 		return
 	}
 
-	t.RemoveChild(t.suggestionList)
+	e.RemoveChild(e.suggestionList)
 }
 
-func (t *CodeEditor) Line(idx int) TextBoxLine {
+func (e *CodeEditor) Line(idx int) TextBoxLine {
 	return FindControl(
-		t.ItemControl(idx).(Parent),
+		e.ItemControl(idx).(Parent),
 		func(c Control) bool {
 			_, b := c.(TextBoxLine)
 			return b
@@ -153,18 +170,18 @@ func (t *CodeEditor) Line(idx int) TextBoxLine {
 }
 
 // mixins.ListImpl overrides
-func (t *CodeEditor) Click(event MouseEvent) bool {
-	t.HideSuggestionList()
-	return t.TextBox.Click(event)
+func (e *CodeEditor) Click(event MouseEvent) bool {
+	e.HideSuggestionList()
+	return e.TextBox.Click(event)
 }
 
-func (t *CodeEditor) KeyPress(event KeyboardEvent) bool {
+func (e *CodeEditor) KeyPress(event KeyboardEvent) bool {
 	switch event.Key {
 	case KeyTab:
 		replace := true
-		for _, selection := range t.controller.Selections() {
+		for _, selection := range e.controller.Selections() {
 			start, end := selection.Range()
-			if t.controller.LineIndex(start) != t.controller.LineIndex(end) {
+			if e.controller.LineIndex(start) != e.controller.LineIndex(end) {
 				replace = false
 				break
 			}
@@ -172,19 +189,19 @@ func (t *CodeEditor) KeyPress(event KeyboardEvent) bool {
 
 		switch {
 		case replace:
-			t.controller.ReplaceAll(strings.Repeat(" ", t.tabWidth))
-			t.controller.Deselect(false)
+			e.controller.ReplaceAll(strings.Repeat(" ", e.tabWidth))
+			e.controller.Deselect(false)
 		case event.Modifier.Shift():
-			t.controller.UnindentSelection(t.tabWidth)
+			e.controller.UnindentSelection(e.tabWidth)
 		default:
-			t.controller.IndentSelection(t.tabWidth)
+			e.controller.IndentSelection(e.tabWidth)
 		}
 
 		return true
 
 	case KeySpace:
 		if event.Modifier.Control() {
-			t.ShowSuggestionList()
+			e.ShowSuggestionList()
 			return false
 		}
 
@@ -192,70 +209,147 @@ func (t *CodeEditor) KeyPress(event KeyboardEvent) bool {
 		fallthrough
 
 	case KeyDown:
-		if t.IsSuggestionListShowing() {
-			return t.suggestionList.KeyPress(event)
+		if e.IsSuggestionListShowing() {
+			return e.suggestionList.KeyPress(event)
 		}
 
 	case KeyLeft:
-		t.HideSuggestionList()
+		e.HideSuggestionList()
 
 	case KeyRight:
-		t.HideSuggestionList()
+		e.HideSuggestionList()
 
 	case KeyEnter:
-		controller := t.controller
-		if t.IsSuggestionListShowing() {
-			text := t.suggestionAdapter.Suggestion(t.suggestionList.Selected()).Code()
-			start, end := controller.WordAt(t.controller.LastCaret())
+		controller := e.controller
+		if e.IsSuggestionListShowing() {
+			text := e.suggestionAdapter.Suggestion(e.suggestionList.Selected()).Code()
+			start, end := controller.WordAt(e.controller.LastCaret())
 			controller.SetSelection(CreateTextSelection(start, end, false))
 			controller.ReplaceAll(text)
 			controller.Deselect(false)
-			t.HideSuggestionList()
+			e.HideSuggestionList()
 		} else {
-			t.controller.ReplaceWithNewlineKeepIndent()
+			e.controller.ReplaceWithNewlineKeepIndent()
 		}
 
 		return true
 
 	case KeyEscape:
-		if t.IsSuggestionListShowing() {
-			t.HideSuggestionList()
+		if e.IsSuggestionListShowing() {
+			e.HideSuggestionList()
 			return true
 		}
 	}
 
-	return t.TextBox.KeyPress(event)
+	return e.TextBox.KeyPress(event)
 }
 
-func (t *CodeEditor) KeyStroke(event KeyStrokeEvent) bool {
-	consume := t.TextBox.KeyStroke(event)
-	if t.IsSuggestionListShowing() {
-		t.SortSuggestionList()
+func (e *CodeEditor) KeyStroke(event KeyStrokeEvent) bool {
+	consume := e.TextBox.KeyStroke(event)
+	if e.IsSuggestionListShowing() {
+		e.SortSuggestionList()
 	}
 
 	return consume
 }
 
 // mixins.TextBox overrides
-func (t *CodeEditor) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
+func (e *CodeEditor) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
 	lineNumber := CreateLabel(driver, styles)
 
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 
 	line := &CodeEditorLine{}
-	line.Init(line, t, index)
+	line.Init(line, e, index)
+
+	foldButton := CreateButton(driver, styles)
+	foldButton.SetMargin(math.Spacing{L: 0, T: 0, R: 0, B: 0})
+	foldButton.SetVisible(false)
 
 	layout := CreateLinearLayout(driver, styles)
 	layout.SetDirection(LeftToRight)
 	layout.AddChild(lineNumber)
+	layout.AddChild(foldButton)
 	layout.AddChild(line)
+
+	if _, ok := e.hiddenLines[index]; ok {
+		layout.SetVisible(false)
+	}
 
 	return line, layout
 }
 
-func (t *CodeEditor) updateSpans(edits []TextBoxEdit) {
-	runeCount := len(t.controller.TextRunes())
-	for _, layer := range t.layers {
+func (e *CodeEditor) updateSpans(edits []TextBoxEdit) {
+	runeCount := len(e.controller.TextRunes())
+	for _, layer := range e.layers {
 		layer.UpdateSpans(runeCount, edits)
 	}
+}
+
+func (e *CodeEditor) RevealLines(from int, to int) {
+	for i := from; i <= to; i++ {
+		delete(e.hiddenLines, i)
+		e.ChangeHiddenCount(-1)
+	}
+	e.LayoutChildren()
+}
+
+func (e *CodeEditor) HideLines(from int, to int) {
+	for i := from; i <= to; i++ {
+		e.hiddenLines[i] = struct{}{}
+		e.ChangeHiddenCount(1)
+		ctrl := e.ItemControl(i)
+		if ctrl != nil {
+			ctrl.SetVisible(false)
+		}
+	}
+	e.LayoutChildren()
+}
+
+func (e *CodeEditor) SetHorizontalOffset(offset int) {
+	if e.horizontalOffset == offset {
+		return
+	}
+	e.updateHorizScrollLimit()
+	e.updateChildOffsets(e, offset)
+	e.horizontalScrollbar.SetScrollPosition(offset, offset+e.Size().W)
+	e.horizontalOffset = offset
+	e.LayoutChildren()
+}
+
+func (e *CodeEditor) updateHorizScrollLimit() {
+	maxWidth := e.MaxLineWidth()
+	size := e.Size().Contract(e.parent.Padding())
+	maxScroll := math.Max(maxWidth-size.W, 0)
+	math.Clamp(e.horizontalOffset, 0, maxScroll)
+	e.horizontalScrollbar.SetScrollLimit(maxWidth)
+}
+
+func (e *CodeEditor) SetLineWidths(widths []LineWidth) {
+	e.lineWidths = widths
+}
+
+func (e *CodeEditor) MaxLineWidth() int {
+	if len(e.lineWidths) == 0 {
+		return 0
+	}
+
+	maxWidth := LineWidth{}
+	for index, lineWidth := range e.lineWidths {
+
+		width := lineWidth.Tabs*e.TabWidth() + lineWidth.Chars
+
+		if width <= maxWidth.Chars {
+			continue
+		}
+
+		maxWidth.Tabs = index
+		maxWidth.Chars = width
+	}
+
+	line, _ := e.CreateLine(e.driver, e.styles, maxWidth.Tabs)
+	lineEnd := e.controller.LineEnd(maxWidth.Tabs)
+	lastPos := line.PositionAt(lineEnd)
+
+	return e.lineWidthOffset() + lastPos.X
 }

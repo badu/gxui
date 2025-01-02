@@ -76,6 +76,7 @@ type ListImpl struct {
 	scrollOffset             int
 	itemCount                int // Count number of items in the adapter
 	layoutMark               int
+	hiddenItemCount          int
 	itemSize                 math.Size
 	mousePosition            math.Point
 	scrollBarEnabled         bool
@@ -589,4 +590,8 @@ func (l *ListImpl) OnSelectionChanged(callback func(item AdapterItem)) EventSubs
 	}
 
 	return l.onSelectionChanged.Listen(callback)
+}
+
+func (l *ListImpl) ChangeHiddenCount(value int) {
+	l.hiddenItemCount += value
 }

@@ -13,11 +13,13 @@ type TextBoxLine interface {
 	Control
 	RuneIndexAt(math.Point) int
 	PositionAt(int) math.Point
+	SetOffset(int)
 }
 
 type TextBoxParent interface {
 	ListParent
 	CreateLine(driver Driver, styles *StyleDefs, index int) (line TextBoxLine, container Control)
+	MaxLineWidth() int
 }
 
 type DefaultTextBoxLineParent interface {
@@ -39,12 +41,18 @@ type TextBox struct {
 	font              Font
 	textColor         Color
 	onRedrawLines     Event
-	multiline         bool
+	selectionDrag     TextSelection
 	controller        *TextBoxController
 	adapter           *TextBoxAdapter
+	multiline         bool
 	selectionDragging bool
-	selectionDrag     TextSelection
 	desiredWidth      int
+
+	horizontalScrollbar   *ScrollBarImpl
+	horizontalScrollChild *Child
+	horizontalScroll      EventSubscription
+	horizontalOffset      int
+	maxLineWidth          int
 }
 
 func (t *TextBox) lineMouseDown(line TextBoxLine, event MouseEvent) {
@@ -86,13 +94,26 @@ func (t *TextBox) Init(parent TextBoxParent, driver Driver, styles *StyleDefs, f
 	t.SetScrollBarEnabled(false) // Defaults to single line
 	t.OnGainedFocus(func() { t.onRedrawLines.Emit() })
 	t.OnLostFocus(func() { t.onRedrawLines.Emit() })
-	t.controller.OnTextChanged(func([]TextBoxEdit) {
-		t.onRedrawLines.Emit()
-		t.ListImpl.DataChanged(false)
+
+	t.horizontalScrollbar = CreateScrollBar(driver, styles)
+	t.horizontalScrollChild = t.AddChild(t.horizontalScrollbar)
+	t.horizontalScrollbar.SetOrientation(Horizontal)
+	t.horizontalScroll = t.horizontalScrollbar.OnScroll(func(from, to int) {
+		t.SetHorizontalOffset(from)
 	})
-	t.controller.OnSelectionChanged(func() {
-		t.onRedrawLines.Emit()
-	})
+
+	t.controller.OnTextChanged(
+		func([]TextBoxEdit) {
+			t.onRedrawLines.Emit()
+			t.ListImpl.DataChanged(false)
+		},
+	)
+
+	t.controller.OnSelectionChanged(
+		func() {
+			t.onRedrawLines.Emit()
+		},
+	)
 
 	t.ListImpl.SetAdapter(t.adapter)
 }
@@ -229,8 +250,44 @@ func (t *TextBox) ScrollToLine(index int) {
 	t.ListImpl.ScrollTo(index)
 }
 
+func findLineOffset(child *Child) int {
+	switch src := child.Control.(type) {
+	case TextBoxLine:
+		return child.Offset.X
+	case Parent:
+		for _, cchild := range src.Children() {
+			if offset := findLineOffset(cchild); offset != -1 {
+				return cchild.Offset.X + offset
+			}
+		}
+	}
+	return -1
+}
+
+func (t *TextBox) lineWidthOffset() int {
+	return findLineOffset(t.Children()[0])
+}
+
 func (t *TextBox) ScrollToRune(index int) {
-	t.ScrollToLine(t.controller.LineIndex(index))
+	lineIndex := t.controller.LineIndex(index)
+	t.ScrollToLine(lineIndex)
+
+	size := t.Size()
+	lineOffset := t.lineWidthOffset()
+	padding := t.Padding()
+	horizStart := t.horizontalOffset
+	horizEnd := t.horizontalOffset + size.W - padding.W() - lineOffset
+	line, _ := t.parent.CreateLine(t.driver, t.styles, lineIndex)
+	if index < 0 || index > len(t.controller.TextRunes()) {
+		return
+	}
+	pos := line.PositionAt(index)
+	if horizStart > pos.X {
+		t.SetHorizontalOffset(pos.X)
+	}
+	if horizEnd < pos.X {
+		t.SetHorizontalOffset(pos.X - size.W + padding.W() + lineOffset)
+	}
 }
 
 func (t *TextBox) KeyPress(event KeyboardEvent) bool {
@@ -453,15 +510,15 @@ func (t *TextBox) MouseMove(event MouseEvent) {
 }
 
 func (t *TextBox) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
-	l := &DefaultTextBoxLine{}
-	l.Init(l, t, index)
-	return l, l
+	result := &DefaultTextBoxLine{}
+	result.Init(result, t, index)
+	return result, result
 }
 
 // mixins.ListImpl overrides
-func (t *TextBox) PaintSelection(c Canvas, r math.Rect) {}
+func (t *TextBox) PaintSelection(canvas Canvas, rect math.Rect) {}
 
-func (t *TextBox) PaintMouseOverBackground(c Canvas, r math.Rect) {}
+func (t *TextBox) PaintMouseOverBackground(canvas Canvas, rect math.Rect) {}
 
 // gxui.AdapterCompliance
 type TextBoxAdapter struct {
@@ -482,8 +539,7 @@ func (t *TextBoxAdapter) ItemIndex(item AdapterItem) int {
 }
 
 func (t *TextBoxAdapter) Size(styles *StyleDefs) math.Size {
-	tb := t.TextBox
-	return math.Size{W: tb.desiredWidth, H: tb.font.GlyphMaxSize().H}
+	return math.Size{W: t.TextBox.desiredWidth, H: t.TextBox.font.GlyphMaxSize().H}
 }
 
 func (t *TextBoxAdapter) Create(driver Driver, styles *StyleDefs, index int) Control {
@@ -499,4 +555,81 @@ func (t *TextBoxAdapter) Create(driver Driver, styles *StyleDefs, index int) Con
 		},
 	)
 	return container
+}
+
+func (t *TextBox) Paint(canvas Canvas) {
+	t.ListImpl.Paint(canvas)
+
+	if t.HasFocus() {
+		rect := t.Size().Rect()
+		style := t.styles.FocusedStyle
+		canvas.DrawRoundedRect(rect, 3, 3, 3, 3, style.Pen, style.Brush)
+	}
+}
+
+func (t *TextBox) MaxLineWidth() int {
+	return t.maxLineWidth
+}
+
+func (t *TextBox) updateChildOffsets(parent Parent, offset int) {
+	for _, child := range parent.Children() {
+		switch src := child.Control.(type) {
+		case TextBoxLine:
+			src.SetOffset(offset)
+		case Parent:
+			t.updateChildOffsets(src, offset)
+		}
+	}
+}
+
+func (t *TextBox) updateHorizScrollLimit() {
+	maxWidth := t.MaxLineWidth()
+	size := t.Size().Contract(t.parent.Padding())
+	maxScroll := math.Max(maxWidth-size.W, 0)
+	math.Clamp(t.horizontalOffset, 0, maxScroll)
+	t.horizontalScrollbar.SetScrollLimit(maxWidth)
+}
+
+func (t *TextBox) HorizontalOffset() int {
+	return t.horizontalOffset
+}
+
+func (t *TextBox) SetHorizontalOffset(offset int) {
+	t.updateHorizScrollLimit()
+	t.updateChildOffsets(t, offset)
+	t.horizontalScrollbar.SetScrollPosition(offset, offset+t.Size().W)
+	if t.horizontalOffset != offset {
+		t.horizontalOffset = offset
+		t.LayoutChildren()
+	}
+}
+
+func (t *TextBox) LayoutChildren() {
+	t.ListImpl.LayoutChildren()
+	if t.scrollBarEnabled {
+		size := t.Size().Contract(t.Padding())
+		scrollAreaSize := size
+		scrollAreaSize.W -= t.scrollBar.Size().W
+
+		offset := t.Padding().LT()
+		barSize := t.horizontalScrollbar.DesiredSize(math.ZeroSize, scrollAreaSize)
+		t.horizontalScrollChild.Layout(math.CreateRect(0, size.H-barSize.H, scrollAreaSize.W, size.H).Canon().Offset(offset))
+
+		maxLineWidth := t.parent.MaxLineWidth()
+		entireContentVisible := size.W > maxLineWidth
+		t.horizontalScrollbar.SetVisible(!entireContentVisible)
+		if entireContentVisible && t.horizontalOffset != 0 {
+			t.SetHorizontalOffset(0)
+		}
+	}
+}
+
+func (t *TextBox) SetSize(size math.Size) {
+	t.ListImpl.SetSize(size)
+	t.SetHorizontalOffset(t.horizontalOffset)
+}
+
+func (t *TextBox) SizeChanged() {
+	t.SetHorizontalOffset(t.horizontalOffset)
+	t.parent.ReLayout()
 }

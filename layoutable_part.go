@@ -21,16 +21,14 @@ type LayoutableParent interface {
 
 type LayoutablePart struct {
 	parent           LayoutableParent
-	driver           Driver
 	margin           math.Spacing
 	size             math.Size
 	reLayoutNeeded   bool
 	inLayoutChildren bool // True when calling LayoutChildren
 }
 
-func (l *LayoutablePart) Init(parent LayoutableParent, driver Driver) {
+func (l *LayoutablePart) Init(parent LayoutableParent) {
 	l.parent = parent
-	l.driver = driver
 }
 
 func (l *LayoutablePart) SetMargin(margin math.Spacing) {
@@ -73,9 +71,6 @@ func (l *LayoutablePart) SetSize(newSize math.Size) {
 }
 
 func (l *LayoutablePart) ReLayout() {
-	// TODO : @Badu - on desktop, why?
-	l.driver.AssertUIGoroutine()
-
 	if l.inLayoutChildren {
 		panic("cannot call ReLayout() while in LayoutChildren")
 	}

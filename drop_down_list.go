@@ -221,4 +221,13 @@ func (l *DropDownList) Paint(canvas Canvas) {
 	l.PaintBackground(canvas, rect)
 	l.ContainerBase.Paint(canvas)
 	l.PaintBorder(canvas, rect)
+
+	if l.HasFocus() || l.ListShowing() {
+		r := l.Size().Rect().ContractI(1)
+		canvas.DrawRoundedRect(r, 3.0, 3.0, 3.0, 3.0, l.styles.FocusedStyle.Pen, l.styles.FocusedStyle.Brush)
+	}
+}
+
+func (l *DropDownList) DrawSelection(canvas Canvas, rect math.Rect) {
+	canvas.DrawRoundedRect(rect, 2.0, 2.0, 2.0, 2.0, l.styles.HighlightStyle.Pen, l.styles.HighlightStyle.Brush)
 }

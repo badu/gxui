@@ -16,6 +16,7 @@ type DefaultTextBoxLine struct {
 	textbox    *TextBox
 	lineIndex  int
 	caretWidth int
+	offset     int
 }
 
 func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, textbox *TextBox, lineIndex int) {
@@ -153,4 +154,9 @@ func (t *DefaultTextBoxLine) PositionAt(runeIndex int) math.Point {
 	x := runeIndex - controller.LineStart(t.lineIndex)
 	line := controller.Line(t.lineIndex)
 	return font.Measure(&TextBlock{Runes: []rune(line[:x])}).Point()
+}
+
+func (t *DefaultTextBoxLine) SetOffset(offset int) {
+	t.offset = offset
+	t.Redraw()
 }

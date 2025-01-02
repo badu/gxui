@@ -358,51 +358,63 @@ func (w *WindowImpl) OnDoubleClick(callback func(MouseEvent)) EventSubscription 
 }
 
 func (w *WindowImpl) OnMouseMove(callback func(MouseEvent)) EventSubscription {
-	return w.onMouseMove.Listen(func(ev MouseEvent) {
-		ev.Window = w
-		ev.WindowPoint = ev.Point
-		callback(ev)
-	})
+	return w.onMouseMove.Listen(
+		func(ev MouseEvent) {
+			ev.Window = w
+			ev.WindowPoint = ev.Point
+			callback(ev)
+		},
+	)
 }
 
 func (w *WindowImpl) OnMouseEnter(callback func(MouseEvent)) EventSubscription {
-	return w.onMouseEnter.Listen(func(ev MouseEvent) {
-		ev.Window = w
-		ev.WindowPoint = ev.Point
-		callback(ev)
-	})
+	return w.onMouseEnter.Listen(
+		func(ev MouseEvent) {
+			ev.Window = w
+			ev.WindowPoint = ev.Point
+			callback(ev)
+		},
+	)
 }
 
 func (w *WindowImpl) OnMouseExit(callback func(MouseEvent)) EventSubscription {
-	return w.onMouseExit.Listen(func(ev MouseEvent) {
-		ev.Window = w
-		ev.WindowPoint = ev.Point
-		callback(ev)
-	})
+	return w.onMouseExit.Listen(
+		func(ev MouseEvent) {
+			ev.Window = w
+			ev.WindowPoint = ev.Point
+			callback(ev)
+		},
+	)
 }
 
 func (w *WindowImpl) OnMouseDown(callback func(MouseEvent)) EventSubscription {
-	return w.onMouseDown.Listen(func(ev MouseEvent) {
-		ev.Window = w
-		ev.WindowPoint = ev.Point
-		callback(ev)
-	})
+	return w.onMouseDown.Listen(
+		func(ev MouseEvent) {
+			ev.Window = w
+			ev.WindowPoint = ev.Point
+			callback(ev)
+		},
+	)
 }
 
 func (w *WindowImpl) OnMouseUp(callback func(MouseEvent)) EventSubscription {
-	return w.onMouseUp.Listen(func(ev MouseEvent) {
-		ev.Window = w
-		ev.WindowPoint = ev.Point
-		callback(ev)
-	})
+	return w.onMouseUp.Listen(
+		func(ev MouseEvent) {
+			ev.Window = w
+			ev.WindowPoint = ev.Point
+			callback(ev)
+		},
+	)
 }
 
 func (w *WindowImpl) OnMouseScroll(callback func(MouseEvent)) EventSubscription {
-	return w.onMouseScroll.Listen(func(ev MouseEvent) {
-		ev.Window = w
-		ev.WindowPoint = ev.Point
-		callback(ev)
-	})
+	return w.onMouseScroll.Listen(
+		func(ev MouseEvent) {
+			ev.Window = w
+			ev.WindowPoint = ev.Point
+			callback(ev)
+		},
+	)
 }
 
 func (w *WindowImpl) OnKeyDown(callback func(KeyboardEvent)) EventSubscription {

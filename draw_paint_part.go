@@ -12,6 +12,10 @@ import (
 
 const debugVerifyDetachOnGC = false
 
+type CanvasCreatorDriver interface {
+	CreateCanvas(size math.Size) Canvas
+}
+
 type DrawPaintParent interface {
 	Attached() bool      // was outer.Attachable
 	Parent() Parent      // was outer.Parenter
@@ -27,7 +31,7 @@ type DrawPaintParent interface {
 
 type DrawPaintPart struct {
 	parent          DrawPaintParent
-	driver          Driver
+	driver          CanvasCreatorDriver
 	canvas          Canvas
 	dirty           bool
 	redrawRequested bool
@@ -39,7 +43,7 @@ func verifyDetach(parent DrawPaintParent) {
 	}
 }
 
-func (d *DrawPaintPart) Init(parent DrawPaintParent, driver Driver) {
+func (d *DrawPaintPart) Init(parent DrawPaintParent, driver CanvasCreatorDriver) {
 	d.parent = parent
 	d.driver = driver
 
@@ -50,7 +54,7 @@ func (d *DrawPaintPart) Init(parent DrawPaintParent, driver Driver) {
 
 func (d *DrawPaintPart) Redraw() {
 	// TODO : @Badu - on desktop, why?
-	d.driver.AssertUIGoroutine()
+	//d.driver.AssertUIGoroutine()
 
 	if !d.redrawRequested {
 		if p := d.parent.Parent(); p != nil {
