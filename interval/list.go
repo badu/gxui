@@ -35,10 +35,10 @@ type intersection struct {
 	lowIndex       int
 	lowStart       uint64
 	lowEnd         uint64
-	intersectsLow  bool
 	highIndex      int
 	highStart      uint64
 	highEnd        uint64
+	intersectsLow  bool
 	intersectsHigh bool
 }
 

@@ -31,16 +31,16 @@ type CodeEditorParent interface {
 }
 
 type CodeEditor struct {
-	TextBox
 	parent             CodeEditorParent
-	layers             CodeSyntaxLayers
-	suggestionList     *ListImpl
 	suggestionProvider CodeSuggestionProvider
+	suggestionList     *ListImpl
 	styles             *StyleDefs
 	suggestionAdapter  *SuggestionAdapter
 	hiddenLines        map[int]struct{}
+	layers             CodeSyntaxLayers
 	lineWidths         []LineWidth
-	tabWidth           int
+	TextBox
+	tabWidth int
 }
 
 func (e *CodeEditor) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {

@@ -15,11 +15,11 @@ type treeToListNodeParent interface {
 type TreeToListNode struct {
 	item        AdapterItem          // The wrapped AdapterItem.
 	container   TreeNodeContainer    // The wrapped TreeNode.
-	descendants int                  // Total number of descendants.
-	children    []*TreeToListNode    // The child nodes if expanded, or nil if collapsed.
 	parent      treeToListNodeParent // The parent of this node.
-	depth       int                  // The depth of this node.
 	onChange    Event                // event()
+	children    []*TreeToListNode    // The child nodes if expanded, or nil if collapsed.
+	descendants int                  // Total number of descendants.
+	depth       int                  // The depth of this node.
 }
 
 func (n *TreeToListNode) adjustDescendants(delta int) {

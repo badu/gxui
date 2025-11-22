@@ -9,13 +9,13 @@ import (
 )
 
 type BubbleOverlay struct {
+	parent BaseContainerParent
 	ContainerBase
-	parent      BaseContainerParent
 	targetPoint math.Point
 	arrowLength int
 	arrowWidth  int
-	brush       Brush
 	pen         Pen
+	brush       Brush
 }
 
 func (o *BubbleOverlay) Init(parent BaseContainerParent, driver Driver) {

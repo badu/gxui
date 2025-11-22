@@ -25,14 +25,14 @@ const (
 )
 
 type Image struct {
-	ControlBase
+	parent  ControlBaseParent
+	texture Texture
+	canvas  Canvas
 	BackgroundBorderPainter
-	parent       ControlBaseParent
-	texture      Texture
-	canvas       Canvas
+	ControlBase
+	explicitSize math.Size
 	scalingMode  ScalingMode
 	aspectMode   AspectMode
-	explicitSize math.Size
 }
 
 func (i *Image) calculateDrawRect() math.Rect {

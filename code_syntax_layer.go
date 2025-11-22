@@ -10,11 +10,11 @@ import (
 )
 
 type CodeSyntaxLayer struct {
-	spans           interval.IntDataList
+	data            interface{}
 	color           *Color
 	backgroundColor *Color
 	borderColor     *Color
-	data            interface{}
+	spans           interval.IntDataList
 }
 
 func CreateCodeSyntaxLayer() *CodeSyntaxLayer { return &CodeSyntaxLayer{} }

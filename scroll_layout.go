@@ -7,16 +7,16 @@ package gxui
 import "github.com/badu/gxui/math"
 
 type ScrollLayoutImpl struct {
-	ContainerBase
+	parent     BaseContainerParent
+	scrollBarX *Child
+	scrollBarY *Child
+	child      *Child
 	BackgroundBorderPainter
-	parent       BaseContainerParent
+	ContainerBase
 	scrollOffset math.Point
+	innerSize    math.Size
 	canScrollX   bool
 	canScrollY   bool
-	scrollBarX   *Child
-	scrollBarY   *Child
-	child        *Child
-	innerSize    math.Size
 }
 
 func (l *ScrollLayoutImpl) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {

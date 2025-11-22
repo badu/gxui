@@ -14,8 +14,6 @@ type StyleDefs struct {
 	DefaultFont          Font
 	DefaultMonospaceFont Font
 
-	WindowBackground Color
-
 	BubbleOverlayStyle Style
 
 	ButtonDefaultStyle Style
@@ -54,6 +52,8 @@ type StyleDefs struct {
 	ScreenWidth  int
 	ScreenHeight int
 	FontSize     int
+
+	WindowBackground Color
 }
 
 func CreateBubbleOverlay(driver Driver, styles *StyleDefs) *BubbleOverlay {
@@ -370,9 +370,9 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 }
 
 type AppProgressBar struct {
+	chevrons Canvas
+	ticker   *time.Ticker
 	ProgressBarImpl
-	ticker       *time.Ticker
-	chevrons     Canvas
 	chevronWidth int
 	scroll       int
 }

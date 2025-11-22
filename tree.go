@@ -54,12 +54,12 @@ type TreeParent interface {
 }
 
 type TreeImpl struct {
-	ListImpl
-	FocusablePart
 	parent      TreeParent
 	treeAdapter TreeAdapter
-	listAdapter *TreeToListAdapter
 	creator     TreeControlCreator
+	listAdapter *TreeToListAdapter
+	FocusablePart
+	ListImpl
 }
 
 func (t *TreeImpl) Init(parent TreeParent, driver Driver, styles *StyleDefs) {

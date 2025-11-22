@@ -18,18 +18,18 @@ type CodeEditorLineParent interface {
 
 type CodeEditorLinePaintInfo struct {
 	LineSpan     interval.IntData
+	Font         Font
 	Runes        []rune
 	GlyphOffsets []math.Point
 	GlyphWidth   int
 	LineHeight   int
-	Font         Font
 }
 
 // CodeEditorLine
 type CodeEditorLine struct {
-	DefaultTextBoxLine
 	parent CodeEditorLineParent
 	editor *CodeEditor
+	DefaultTextBoxLine
 }
 
 func (l *CodeEditorLine) Init(parent CodeEditorLineParent, editor *CodeEditor, lineIndex int) {

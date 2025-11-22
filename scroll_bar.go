@@ -7,20 +7,20 @@ package gxui
 import "github.com/badu/gxui/math"
 
 type ScrollBarImpl struct {
+	parent   ControlBaseParent
+	onScroll Event
 	ControlBase
-	parent             ControlBaseParent
+	barRect            math.Rect
 	orientation        Orientation
 	thickness          int
 	minBarLength       int
 	scrollPositionFrom int
 	scrollPositionTo   int
 	scrollLimit        int
-	railBrush          Brush
-	barBrush           Brush
 	railPen            Pen
 	barPen             Pen
-	barRect            math.Rect
-	onScroll           Event
+	railBrush          Brush
+	barBrush           Brush
 	autoHide           bool
 }
 

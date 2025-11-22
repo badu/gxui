@@ -5,8 +5,6 @@
 package gxui
 
 type InputEventHandlerPart struct {
-	isMouseOver   bool
-	isMouseDown   map[MouseButton]bool
 	onClick       Event
 	onDoubleClick Event
 	onKeyPress    Event
@@ -20,6 +18,8 @@ type InputEventHandlerPart struct {
 	onKeyDown     Event
 	onKeyUp       Event
 	onKeyRepeat   Event
+	isMouseDown   map[MouseButton]bool
+	isMouseOver   bool
 }
 
 func (m *InputEventHandlerPart) getOnClick() Event {

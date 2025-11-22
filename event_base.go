@@ -30,8 +30,8 @@ func CreateEvent(signature interface{}) Event {
 }
 
 type EventListener struct {
-	Id       int
 	Function reflect.Value
+	Id       int
 }
 
 type eventBaseSubscription struct {
@@ -49,9 +49,9 @@ func (s *eventBaseSubscription) Forget() {
 type EventBase struct {
 	unlisten   func(id int)
 	paramTypes []reflect.Type
-	isVariadic bool
 	listeners  []EventListener
 	nextId     int
+	isVariadic bool
 }
 
 func (e *EventBase) init(signature interface{}) {

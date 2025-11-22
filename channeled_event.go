@@ -10,9 +10,9 @@ import (
 )
 
 type ChanneledEvent struct {
-	sync.RWMutex
-	base    EventBase
 	channel chan func()
+	base    EventBase
+	sync.RWMutex
 }
 
 func CreateChanneledEvent(signature interface{}, channel chan func()) Event {

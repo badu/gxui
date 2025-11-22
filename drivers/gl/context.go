@@ -17,15 +17,15 @@ type contextResource struct {
 
 type context struct {
 	blitter              *blitter
-	resolution           resolution
-	stats                contextStats
 	textureContexts      map[*TextureImpl]*textureContext
 	vertexStreamContexts map[*vertexStream]*vertexStreamContext
 	indexBufferContexts  map[*indexBuffer]*indexBufferContext
+	stats                contextStats
+	clip                 math.Rect
 	sizeDips             math.Size
 	sizePixels           math.Size
-	clip                 math.Rect
 	frame                int
+	resolution           resolution
 }
 
 func newContext() *context {

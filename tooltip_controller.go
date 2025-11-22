@@ -25,8 +25,8 @@ type ToolTipController struct {
 	driver        Driver
 	timer         *time.Timer
 	bubbleOverlay *BubbleOverlay
-	trackers      []*toolTipTracker
 	showing       *toolTipTracker
+	trackers      []*toolTipTracker
 }
 
 func (c *ToolTipController) beginTimer(tracker *toolTipTracker, timeout time.Duration) {

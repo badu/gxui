@@ -103,36 +103,36 @@ type WindowParent interface {
 }
 
 type WindowImpl struct {
+	PaintChildrenPart
+	driver             Driver
+	parent             WindowParent
+	viewport           Viewport
+	onClose            Event // Raised by viewport
+	onResize           Event // Raised by viewport
+	onMouseMove        Event // Raised by viewport
+	onMouseEnter       Event // Raised by viewport
+	onMouseExit        Event // Raised by viewport
+	onMouseDown        Event // Raised by viewport
+	onMouseUp          Event // Raised by viewport
+	onMouseScroll      Event // Raised by viewport
+	onKeyDown          Event // Raised by viewport
+	onKeyUp            Event // Raised by viewport
+	onKeyRepeat        Event // Raised by viewport
+	onKeyStroke        Event // Raised by viewport
+	onClick            Event // Raised by MouseController
+	onDoubleClick      Event // Raised by MouseController
+	mouseController    *MouseController
+	keyboardController *KeyboardController
+	focusController    *FocusController
 	AttachablePart
-	BackgroundBorderPainter
+	viewportSubscriptions []EventSubscription
 	ContainerPart
 	PaddablePart
-	PaintChildrenPart
-	driver                Driver
-	parent                WindowParent
-	viewport              Viewport
-	windowedSize          math.Size
-	mouseController       *MouseController
-	keyboardController    *KeyboardController
-	focusController       *FocusController
-	layoutPending         bool
-	drawPending           bool
-	updatePending         bool
-	onClose               Event // Raised by viewport
-	onResize              Event // Raised by viewport
-	onMouseMove           Event // Raised by viewport
-	onMouseEnter          Event // Raised by viewport
-	onMouseExit           Event // Raised by viewport
-	onMouseDown           Event // Raised by viewport
-	onMouseUp             Event // Raised by viewport
-	onMouseScroll         Event // Raised by viewport
-	onKeyDown             Event // Raised by viewport
-	onKeyUp               Event // Raised by viewport
-	onKeyRepeat           Event // Raised by viewport
-	onKeyStroke           Event // Raised by viewport
-	onClick               Event // Raised by MouseController
-	onDoubleClick         Event // Raised by MouseController
-	viewportSubscriptions []EventSubscription
+	BackgroundBorderPainter
+	windowedSize  math.Size
+	layoutPending bool
+	drawPending   bool
+	updatePending bool
 }
 
 func (w *WindowImpl) requestUpdate() {

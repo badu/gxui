@@ -14,9 +14,9 @@ type ProgressBarParent interface {
 }
 
 type ProgressBarImpl struct {
-	ControlBase
+	parent ProgressBarParent
 	BackgroundBorderPainter
-	parent           ProgressBarParent
+	ControlBase
 	desiredSize      math.Size
 	progress, target int
 }

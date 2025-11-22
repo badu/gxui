@@ -33,10 +33,10 @@ type drawState struct {
 }
 
 type CanvasImpl struct {
-	sizeDips          math.Size
 	ops               []canvasOp
-	built             bool
+	sizeDips          math.Size
 	buildingPushCount int
+	built             bool
 }
 
 func NewCanvas(sizeDips math.Size) *CanvasImpl {

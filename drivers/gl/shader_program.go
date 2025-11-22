@@ -13,9 +13,9 @@ import (
 type uniformBindings map[string]interface{}
 
 type shaderProgram struct {
-	program    gl.Program
 	uniforms   []shaderUniform
 	attributes []shaderAttribute
+	program    gl.Program
 }
 
 func compile(source string, shaderType int) gl.Shader {

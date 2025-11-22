@@ -91,12 +91,12 @@ const (
 )
 
 type glyphBatch struct {
+	GlyphPage *textureContext
 	DstRects  []float32
 	SrcRects  []float32
 	Colors    []float32
 	ClipRects []float32
 	Indices   []uint16
-	GlyphPage *textureContext
 }
 
 type blitter struct {

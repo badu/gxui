@@ -21,10 +21,10 @@ type Viewer interface {
 
 type DefaultAdapter struct {
 	AdapterBase
-	items       reflect.Value
 	itemToIndex map[AdapterItem]int
-	size        math.Size
 	styleLabel  func(styles *StyleDefs, label *Label)
+	items       reflect.Value
+	size        math.Size
 }
 
 func CreateDefaultAdapter(width, height int) *DefaultAdapter {

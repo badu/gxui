@@ -23,25 +23,6 @@ const clearColorG = 0.5
 const clearColorB = 0.5
 
 type ViewportImpl struct {
-	sync.Mutex
-
-	driver                  *DriverImpl
-	context                 *context
-	window                  *glfw.Window
-	canvas                  *CanvasImpl
-	fullscreen              bool
-	scaling                 float32
-	sizeDipsUnscaled        math.Size
-	sizeDips                math.Size
-	sizePixels              math.Size
-	position                math.Point
-	title                   string
-	pendingMouseMoveEvent   *gxui.MouseEvent
-	pendingMouseScrollEvent *gxui.MouseEvent
-	scrollAccumX            float64
-	scrollAccumY            float64
-	destroyed               bool
-	redrawCount             uint32
 
 	// Broadcasts to application thread
 	onClose       gxui.Event // ()
@@ -58,6 +39,27 @@ type ViewportImpl struct {
 	onKeyStroke   gxui.Event // (gxui.KeyStrokeEvent)
 	// Broadcasts to driver thread
 	onDestroy gxui.Event
+
+	driver                  *DriverImpl
+	context                 *context
+	window                  *glfw.Window
+	canvas                  *CanvasImpl
+	pendingMouseMoveEvent   *gxui.MouseEvent
+	pendingMouseScrollEvent *gxui.MouseEvent
+	title                   string
+	sizeDipsUnscaled        math.Size
+	sizeDips                math.Size
+	sizePixels              math.Size
+	position                math.Point
+	scrollAccumX            float64
+	scrollAccumY            float64
+	sync.Mutex
+
+	scaling     float32
+	redrawCount uint32
+
+	fullscreen bool
+	destroyed  bool
 }
 
 func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen bool) *ViewportImpl {

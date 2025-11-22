@@ -7,18 +7,18 @@ package gxui
 import "github.com/badu/gxui/math"
 
 type DropDownList struct {
-	ContainerBase
-	BackgroundBorderPainter
+	parent     BaseContainerParent
+	onShowList Event
+	onHideList Event
+	styles     *StyleDefs
+	list       *ListImpl
+	overlay    *BubbleOverlay
+	selected   *Child
 	FocusablePart
-	parent      BaseContainerParent
-	styles      *StyleDefs
-	list        *ListImpl
-	listShowing bool
+	BackgroundBorderPainter
+	ContainerBase
 	itemSize    math.Size
-	overlay     *BubbleOverlay
-	selected    *Child
-	onShowList  Event
-	onHideList  Event
+	listShowing bool
 }
 
 func (l *DropDownList) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {

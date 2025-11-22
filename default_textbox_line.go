@@ -11,9 +11,9 @@ import (
 
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
+	parent  DefaultTextBoxLineParent
+	textbox *TextBox
 	ControlBase
-	parent     DefaultTextBoxLineParent
-	textbox    *TextBox
 	lineIndex  int
 	caretWidth int
 	offset     int

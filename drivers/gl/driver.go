@@ -28,11 +28,11 @@ func init() {
 type DriverImpl struct {
 	pendingDriver chan func()
 	pendingApp    chan func()
-	terminated    int32 // non-zero represents driver terminations
 	viewports     *list.List
 
-	pcs  []uintptr // reusable scratch-buffer for use by runtime.Callers.
-	uiPC uintptr   // the program-counter of the applicationLoop function.
+	pcs        []uintptr // reusable scratch-buffer for use by runtime.Callers.
+	uiPC       uintptr   // the program-counter of the applicationLoop function.
+	terminated int32     // non-zero represents driver terminations
 }
 
 // StartDriver starts the gl driver with the given appRoutine.

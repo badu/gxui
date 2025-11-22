@@ -14,13 +14,13 @@ type SplitterLayoutParent interface {
 }
 
 type SplitterLayoutImpl struct {
+	parent  SplitterLayoutParent
+	driver  Driver
+	styles  *StyleDefs
+	weights map[Control]float32
 	ContainerBase
-	parent        SplitterLayoutParent
-	driver        Driver
-	styles        *StyleDefs
 	orientation   Orientation
 	splitterWidth int
-	weights       map[Control]float32
 }
 
 func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, driver Driver, styles *StyleDefs) {

@@ -24,9 +24,9 @@ type TreeControlCreator interface {
 // tree can be visualized with a ListImpl.
 type TreeToListAdapter struct {
 	AdapterBase
-	node    TreeToListNode
 	adapter TreeAdapter
 	creator TreeControlCreator
+	node    TreeToListNode
 }
 
 // CreateTreeToListAdapter wraps the provided TreeAdapter with an adapter

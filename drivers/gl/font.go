@@ -16,13 +16,13 @@ import (
 )
 
 type font struct {
-	size             int
-	scale            fixed.Int26_6
-	glyphMaxSizeDips math.Size
-	ascentDips       int
 	ttf              *truetype.Font
 	resolutions      map[resolution]*glyphTable
 	glyphAdvanceDips map[rune]int
+	glyphMaxSizeDips math.Size
+	size             int
+	ascentDips       int
+	scale            fixed.Int26_6
 }
 
 func newFont(data []byte, size int) (*font, error) {

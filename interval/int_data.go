@@ -5,9 +5,9 @@
 package interval
 
 type IntData struct {
+	data  interface{} //TODO : @Badu - good candidate for generics?
 	start int
 	end   int
-	data  interface{} //TODO : @Badu - good candidate for generics?
 }
 
 type IntDataList []IntData

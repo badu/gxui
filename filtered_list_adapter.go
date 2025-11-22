@@ -10,13 +10,13 @@ import (
 )
 
 type FilteredListItem struct {
-	Name string
 	Data interface{}
+	Name string
 }
 
 type FilteredListAdapter struct {
-	DefaultAdapter
 	items []FilteredListItem
+	DefaultAdapter
 }
 
 func (a *FilteredListAdapter) SetItems(items []FilteredListItem) {

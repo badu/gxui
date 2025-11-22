@@ -249,15 +249,15 @@ func (c *ContainerPart) ContainsPoint(point math.Point) bool {
 }
 
 type ContainerBase struct {
-	AttachablePart
-	ContainerPart
-	DrawPaintPart
 	InputEventHandlerPart
-	LayoutablePart
-	PaddablePart
 	PaintChildrenPart
 	ParentablePart
+	DrawPaintPart
+	AttachablePart
 	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 }
 
 func (c *ContainerBase) Init(parent BaseContainerParent, driver Driver) {

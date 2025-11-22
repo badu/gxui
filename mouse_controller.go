@@ -39,9 +39,9 @@ var doubleClickTime = time.Millisecond * 300
 type MouseController struct {
 	window          *WindowImpl
 	focusController *FocusController
-	lastOver        ControlPointList
 	lastDown        map[MouseButton]ControlPointList
 	lastUpTime      map[MouseButton]time.Time
+	lastOver        ControlPointList
 }
 
 func CreateMouseController(window *WindowImpl, focusCtrl *FocusController) *MouseController {

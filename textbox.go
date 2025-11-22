@@ -34,26 +34,27 @@ type DefaultTextBoxLineParent interface {
 }
 
 type TextBox struct {
-	ListImpl
 	AdapterBase
-	FocusablePart
-	parent            TextBoxParent
-	driver            Driver
-	font              Font
-	textColor         Color
-	onRedrawLines     Event
-	selectionDrag     TextSelection
-	controller        *TextBoxController
-	adapter           *TextBoxAdapter
-	multiline         bool
-	selectionDragging bool
-	desiredWidth      int
+	parent           TextBoxParent
+	driver           Driver
+	font             Font
+	onRedrawLines    Event
+	horizontalScroll EventSubscription
+	controller       *TextBoxController
+	adapter          *TextBoxAdapter
 
 	horizontalScrollbar   *ScrollBarImpl
 	horizontalScrollChild *Child
-	horizontalScroll      EventSubscription
-	horizontalOffset      int
-	maxLineWidth          int
+	FocusablePart
+	ListImpl
+	selectionDrag TextSelection
+	desiredWidth  int
+
+	horizontalOffset  int
+	maxLineWidth      int
+	textColor         Color
+	multiline         bool
+	selectionDragging bool
 }
 
 func (t *TextBox) lineMouseDown(line TextBoxLine, event MouseEvent) {
@@ -523,8 +524,8 @@ func (t *TextBox) PaintMouseOverBackground(canvas Canvas, rect math.Rect) {}
 
 // gxui.AdapterCompliance
 type TextBoxAdapter struct {
-	DefaultAdapter
 	TextBox *TextBox
+	DefaultAdapter
 }
 
 func (t *TextBoxAdapter) Count() int {

@@ -50,37 +50,37 @@ type ListAdapter interface {
 }
 
 type itemDetails struct {
+	onClickSubscription EventSubscription
 	child               *Child
 	index               int
 	mark                int
-	onClickSubscription EventSubscription
 }
 
 type ListImpl struct {
-	ContainerBase
-	BackgroundBorderPainter
-	FocusablePart
 	parent                   ListParent
 	driver                   Driver
 	adapter                  ListAdapter
-	orientation              Orientation
-	scrollBar                *ScrollBarImpl
 	onSelectionChanged       Event
 	onItemClicked            Event
 	dataChangedSubscription  EventSubscription
 	dataReplacedSubscription EventSubscription
 	selectedItem             AdapterItem
+	scrollBar                *ScrollBarImpl
 	styles                   *StyleDefs
 	scrollBarChild           *Child
 	itemMouseOver            *Child
 	details                  map[AdapterItem]itemDetails
-	scrollOffset             int
-	itemCount                int // Count number of items in the adapter
-	layoutMark               int
-	hiddenItemCount          int
-	itemSize                 math.Size
-	mousePosition            math.Point
-	scrollBarEnabled         bool
+	FocusablePart
+	BackgroundBorderPainter
+	ContainerBase
+	itemSize         math.Size
+	mousePosition    math.Point
+	orientation      Orientation
+	scrollOffset     int
+	itemCount        int // Count number of items in the adapter
+	layoutMark       int
+	hiddenItemCount  int
+	scrollBarEnabled bool
 }
 
 func (l *ListImpl) Init(parent ListParent, driver Driver, styles *StyleDefs) {

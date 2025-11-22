@@ -74,11 +74,11 @@ func (s *globalDriverStats) get() string {
 var globalStats globalDriverStats
 
 type timer struct {
+	timer    time.Time
 	name     string
+	history  [historySize]time.Duration
 	duration time.Duration
 	total    time.Duration
-	history  [historySize]time.Duration
-	timer    time.Time
 	current  int
 }
 
@@ -114,13 +114,13 @@ func (t timer) Format(f fmt.State, c rune) {
 }
 
 type contextStats struct {
+	timers             []timer
 	textureCount       int
 	vertexStreamCount  int
 	indexBufferCount   int
 	shaderProgramCount int
 	frameCount         int
 	drawCallCount      int
-	timers             []timer
 }
 
 func (s *contextStats) timer(name string) *timer {

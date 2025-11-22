@@ -30,11 +30,11 @@ type glyphEntry struct {
 
 type glyphPage struct {
 	image     *image.Alpha
-	size      math.Size // in pixels
 	entries   map[rune]glyphEntry
-	rowHeight int
 	tex       *TextureImpl
+	size      math.Size // in pixels
 	nextPoint math.Point
+	rowHeight int
 }
 
 func point26_6toPoint(point fixed.Point26_6) math.Point {

@@ -15,9 +15,9 @@ func (c Cell) AtRow(y int) bool {
 }
 
 type TableLayoutImpl struct {
+	parent BaseContainerParent
+	grid   map[Control]Cell
 	ContainerBase
-	parent  BaseContainerParent
-	grid    map[Control]Cell
 	rows    int
 	columns int
 }

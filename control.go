@@ -159,12 +159,12 @@ type ControlBaseParent interface {
 }
 
 type ControlBase struct {
-	AttachablePart
-	DrawPaintPart
-	LayoutablePart
 	InputEventHandlerPart
 	ParentablePart
+	DrawPaintPart
+	AttachablePart
 	VisiblePart
+	LayoutablePart
 }
 
 func (c *ControlBase) Init(parent ControlBaseParent, driver Driver) {

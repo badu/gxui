@@ -173,9 +173,9 @@ func (l *LinearLayoutPart) SetVerticalAlignment(alignment VAlign) {
 }
 
 type LinearLayoutImpl struct {
-	ContainerBase
 	LinearLayoutPart
 	BackgroundBorderPainter
+	ContainerBase
 }
 
 func (l *LinearLayoutImpl) Init(parent BaseContainerParent, driver Driver) {

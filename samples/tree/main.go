@@ -19,10 +19,10 @@ var nextUniqueItem item // the next item to used by node.add
 
 // node is an implementation of gxui.TreeNode.
 type node struct {
-	name     string  // The name and item for this node.
-	item     item    // The unique item for this node.
 	changed  func()  // Called when a new item is added to this node.
+	name     string  // The name and item for this node.
 	children []*node // The list of all child nodes.
+	item     item    // The unique item for this node.
 }
 
 // add appends a new child node to n with the specified name.
