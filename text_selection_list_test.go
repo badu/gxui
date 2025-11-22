@@ -5,9 +5,10 @@
 package gxui
 
 import (
+	"testing"
+
 	"github.com/badu/gxui/interval"
 	"github.com/badu/gxui/test_helper"
-	"testing"
 )
 
 func TestTextSelectionMergeOne(t *testing.T) {

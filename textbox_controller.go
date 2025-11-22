@@ -5,11 +5,12 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/interval"
-	"github.com/badu/gxui/math"
 	"sort"
 	"strings"
 	"unicode"
+
+	"github.com/badu/gxui/interval"
+	"github.com/badu/gxui/math"
 )
 
 type TextBoxEdit struct {

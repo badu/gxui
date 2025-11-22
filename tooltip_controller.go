@@ -5,8 +5,9 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
 	"time"
+
+	"github.com/badu/gxui/math"
 )
 
 type ToolTipCreator func(point math.Point) Control

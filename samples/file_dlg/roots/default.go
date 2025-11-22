@@ -14,7 +14,7 @@ import (
 
 // Roots returns the list of root directories avaliable on this machine.
 func Roots() []string {
-	roots := []string{}
+	var roots []string
 	filepath.Walk("/", func(subpath string, info os.FileInfo, err error) error {
 		if err == nil && "/" != subpath {
 			roots = append(roots, subpath)

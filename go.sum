@@ -10,7 +10,7 @@ github.com/goxjs/gl v0.0.0-20230705020350-37525f4d9d35 h1:0nrx2NBHnXyMlX9vZ+nHuu
 github.com/goxjs/gl v0.0.0-20230705020350-37525f4d9d35/go.mod h1:5N8oq1ByK4sl23tHlaSzAz+K3HembX6EP/bw25Nl1aU=
 github.com/goxjs/glfw v0.0.0-20230704040236-622eb27e272a h1:7PTr4KjX8oeckUIQgwRc/BwTJN4ti5dAR5MGoBHDKR8=
 github.com/goxjs/glfw v0.0.0-20230704040236-622eb27e272a/go.mod h1:sVbv2S3I5K7bTlalOHCPfV429ZpKzGq5zwsWgrzj5aQ=
-golang.org/x/image v0.23.0 h1:HseQ7c2OpPKTPVzNjG5fwJsOTCiiwS4QdsYi5XU6H68=
-golang.org/x/image v0.23.0/go.mod h1:wJJBTdLfCCf3tiHa1fNxpZmUI4mmoZvwMCPP0ddoNKY=
+golang.org/x/image v0.33.0 h1:LXRZRnv1+zGd5XBUVRFmYEphyyKJjQjCRiOuAP3sZfQ=
+golang.org/x/image v0.33.0/go.mod h1:DD3OsTYT9chzuzTQt+zMcOlBHgfoKQb1gry8p76Y1sc=
 honnef.co/go/js/dom v0.0.0-20241221162326-00dae5193c3f h1:qaiBxHrIMouNZDdVuAAYGn2rEzcLFoiF1AE6lBwStDM=
 honnef.co/go/js/dom v0.0.0-20241221162326-00dae5193c3f/go.mod h1:sUMDUKNB2ZcVjt92UnLy3cdGs+wDAcrPdV3JP6sVgA4=

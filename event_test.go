@@ -5,8 +5,9 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/test_helper"
 	"testing"
+
+	"github.com/badu/gxui/test_helper"
 )
 
 func TestEventNoArgs(t *testing.T) {

@@ -6,9 +6,10 @@ package gxui
 
 import (
 	"fmt"
-	"github.com/badu/gxui/math"
 	"reflect"
 	"runtime"
+
+	"github.com/badu/gxui/math"
 )
 
 func debugIndent(depth int) string {

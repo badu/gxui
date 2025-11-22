@@ -5,9 +5,10 @@
 package gl
 
 import (
+	"testing"
+
 	"github.com/badu/gxui/math"
 	"github.com/badu/gxui/test_helper"
-	"testing"
 )
 
 func v(a, b float32) math.Vec2 {

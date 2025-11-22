@@ -146,8 +146,8 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 func closedPolyToShape(p gxui.Polygon, penWidth float32) (fillShape, edgeShape *shape) {
 	p = pruneDuplicates(p)
 
-	fillEdge := []math.Vec2{}
-	vsEdgePos := []float32{}
+	var fillEdge []math.Vec2
+	var vsEdgePos []float32
 
 	for i, cnt := 0, len(p); i < cnt; i++ {
 		r := p[i].RoundedRadius
@@ -189,7 +189,7 @@ func openPolyToShape(p gxui.Polygon, penWidth float32) *shape {
 		return nil
 	}
 
-	vsEdgePos := []float32{}
+	var vsEdgePos []float32
 
 	{ // p[0] -> p[1]
 		a, c := p[0].Position.Vec2(), p[1].Position.Vec2()

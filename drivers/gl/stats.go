@@ -100,17 +100,17 @@ func (t *timer) stop() {
 
 func (t timer) Format(f fmt.State, c rune) {
 	ps := 1.0 / t.duration.Seconds()
-	max := t.history[0]
-	min := t.history[0]
+	hMax := t.history[0]
+	hMin := t.history[0]
 	for _, h := range t.history {
-		if max < h {
-			max = h
+		if hMax < h {
+			hMax = h
 		}
-		if min > h {
-			min = h
+		if hMin > h {
+			hMin = h
 		}
 	}
-	fmt.Fprintf(f, "%s: %v [%.2f/s] %v<%v<%v", t.name, t.duration, ps, min, t.history[t.current], max)
+	fmt.Fprintf(f, "%s: %v [%.2f/s] %v<%v<%v", t.name, t.duration, ps, hMin, t.history[t.current], hMax)
 }
 
 type contextStats struct {

@@ -5,8 +5,9 @@
 package interval
 
 import (
-	"github.com/badu/gxui/test_helper"
 	"testing"
+
+	"github.com/badu/gxui/test_helper"
 )
 
 func TestIntDataListReplace(t *testing.T) {

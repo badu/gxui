@@ -5,8 +5,9 @@
 package interval
 
 import (
-	"github.com/badu/gxui/test_helper"
 	"math/rand"
+
+	"github.com/badu/gxui/test_helper"
 )
 import "testing"
 

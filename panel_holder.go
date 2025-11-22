@@ -6,6 +6,7 @@ package gxui
 
 import (
 	"fmt"
+
 	"github.com/badu/gxui/math"
 )
 

@@ -22,14 +22,6 @@ func AssertEquals(t *testing.T, expected interface{}, actual interface{}) {
 	}
 }
 
-func AssertEqual(t *testing.T, name string, expected interface{}, actual interface{}) {
-	if diff, equal := DeepCompare(expected, actual); !equal {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("%s:%d ASSERT: %s not equal:\n%s\n", file, line, name, strings.Join(diff, "\n"))
-		t.Fail()
-	}
-}
-
 func DeepCompare(expected, got interface{}) (result []string, equal bool) {
 	equal = true
 	if expected == nil && got != nil {

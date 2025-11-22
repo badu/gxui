@@ -176,8 +176,8 @@ func adjust(target List, at, delta int) {
 	oldLen := target.Len()
 	newLen := oldLen + delta
 	if delta > 0 {
-		cap := target.Cap()
-		if cap < newLen {
+		targetCapacity := target.Cap()
+		if targetCapacity < newLen {
 			newCap := newLen + (newLen >> 1)
 			target.GrowTo(newLen, newCap)
 		} else {

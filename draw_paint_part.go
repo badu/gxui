@@ -6,8 +6,9 @@ package gxui
 
 import (
 	"fmt"
-	"github.com/badu/gxui/math"
 	"runtime"
+
+	"github.com/badu/gxui/math"
 )
 
 const debugVerifyDetachOnGC = false

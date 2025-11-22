@@ -8,10 +8,11 @@ package flags
 import (
 	"flag"
 	"fmt"
+	"strconv"
+
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/gxfont"
 	"github.com/goxjs/glfw"
-	"strconv"
 )
 
 var DefaultScaleFactor float32

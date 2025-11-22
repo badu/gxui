@@ -6,8 +6,9 @@ package gxui
 
 import (
 	"fmt"
-	"github.com/badu/gxui/math"
 	"strings"
+
+	"github.com/badu/gxui/math"
 )
 
 type LineWidth struct {

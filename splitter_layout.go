@@ -123,8 +123,8 @@ func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, windowPoint math.
 	childA, childB := children[splitterIndex-1], children[splitterIndex+1]
 	boundsA, boundsB := childA.Bounds(), childB.Bounds()
 
-	min, max := o.Major(boundsA.Min.XY()), o.Major(boundsB.Max.XY())
-	frac := math.RampSat(float32(o.Major(point.XY())), float32(min), float32(max))
+	minB, maxB := o.Major(boundsA.Min.XY()), o.Major(boundsB.Max.XY())
+	frac := math.RampSat(float32(o.Major(point.XY())), float32(minB), float32(maxB))
 
 	netWeight := l.weights[childA.Control] + l.weights[childB.Control]
 	l.weights[childA.Control] = netWeight * frac

@@ -5,9 +5,10 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/test_helper"
 	"strings"
 	"testing"
+
+	"github.com/badu/gxui/test_helper"
 )
 
 func calcScore(str, partial string) int {

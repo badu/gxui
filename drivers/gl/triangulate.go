@@ -7,6 +7,7 @@ package gl
 import (
 	"container/list"
 	"fmt"
+
 	"github.com/badu/gxui/math"
 )
 
@@ -89,7 +90,7 @@ func triangulate(edges []math.Vec2) []math.Vec2 {
 		l.PushBack(i)
 	}
 
-	out := []math.Vec2{}
+	var out []math.Vec2
 
 	pruned := true
 	for pruned {

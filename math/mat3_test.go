@@ -5,8 +5,9 @@
 package math
 
 import (
-	"github.com/badu/gxui/test_helper"
 	"testing"
+
+	"github.com/badu/gxui/test_helper"
 )
 
 func TestMat3InvertIdent(t *testing.T) {
