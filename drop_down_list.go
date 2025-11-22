@@ -7,16 +7,16 @@ package gxui
 import "github.com/badu/gxui/math"
 
 type DropDownList struct {
-	parent     BaseContainerParent
-	onShowList Event
-	onHideList Event
-	styles     *StyleDefs
-	list       *ListImpl
-	overlay    *BubbleOverlay
-	selected   *Child
+	ContainerBase
 	FocusablePart
 	BackgroundBorderPainter
-	ContainerBase
+	parent      BaseContainerParent
+	onShowList  Event
+	onHideList  Event
+	styles      *StyleDefs
+	list        *ListImpl
+	overlay     *BubbleOverlay
+	selected    *Child
 	itemSize    math.Size
 	listShowing bool
 }

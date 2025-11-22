@@ -108,8 +108,8 @@ func (n *node) Create(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
 
 // adapter is an implementation of gxui.TreeAdapter.
 type adapter struct {
-	gxui.AdapterBase
 	node
+	gxui.AdapterBase
 }
 
 // Size implements gxui.TreeAdapter.

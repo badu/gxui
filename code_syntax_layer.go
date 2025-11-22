@@ -17,7 +17,13 @@ type CodeSyntaxLayer struct {
 	spans           interval.IntDataList
 }
 
-func CreateCodeSyntaxLayer() *CodeSyntaxLayer { return &CodeSyntaxLayer{} }
+func CreateCodeSyntaxLayer() *CodeSyntaxLayer {
+	return &CodeSyntaxLayer{
+		color:           &Color{R: 0, G: 0, B: 0, A: 255},
+		backgroundColor: &Color{R: 255, G: 255, B: 255, A: 255},
+		borderColor:     &Color{R: 0, G: 0, B: 0, A: 255},
+	}
+}
 
 func (l *CodeSyntaxLayer) Clear() {
 	l.spans = interval.IntDataList{}
@@ -27,6 +33,7 @@ func (l *CodeSyntaxLayer) UpdateSpans(runeCount int, edits []TextBoxEdit) {
 	if l == nil {
 		return
 	}
+
 	pMin := 0
 	pMax := runeCount
 	for _, edit := range edits {

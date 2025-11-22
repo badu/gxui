@@ -23,7 +23,7 @@ const clearColorG = 0.5
 const clearColorB = 0.5
 
 type ViewportImpl struct {
-
+	sync.Mutex
 	// Broadcasts to application thread
 	onClose       gxui.Event // ()
 	onResize      gxui.Event // ()
@@ -37,9 +37,9 @@ type ViewportImpl struct {
 	onKeyUp       gxui.Event // (gxui.KeyboardEvent)
 	onKeyRepeat   gxui.Event // (gxui.KeyboardEvent)
 	onKeyStroke   gxui.Event // (gxui.KeyStrokeEvent)
-	// Broadcasts to driver thread
-	onDestroy gxui.Event
 
+	// Broadcasts to driver thread
+	onDestroy               gxui.Event
 	driver                  *DriverImpl
 	context                 *context
 	window                  *glfw.Window
@@ -53,7 +53,6 @@ type ViewportImpl struct {
 	position                math.Point
 	scrollAccumX            float64
 	scrollAccumY            float64
-	sync.Mutex
 
 	scaling     float32
 	redrawCount uint32

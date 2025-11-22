@@ -45,13 +45,13 @@ type PanelEntry struct {
 }
 
 type PanelHolderImpl struct {
+	ContainerBase
 	selected  PanelEntry
 	parent    PanelHolderParent
 	driver    Driver
 	styles    *StyleDefs
 	tabLayout *LinearLayoutImpl
 	entries   []PanelEntry
-	ContainerBase
 }
 
 func insertIndex(holder PanelHolder, at math.Point) int {

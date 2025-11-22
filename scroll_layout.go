@@ -7,12 +7,12 @@ package gxui
 import "github.com/badu/gxui/math"
 
 type ScrollLayoutImpl struct {
-	parent     BaseContainerParent
-	scrollBarX *Child
-	scrollBarY *Child
-	child      *Child
-	BackgroundBorderPainter
 	ContainerBase
+	BackgroundBorderPainter
+	parent       BaseContainerParent
+	scrollBarX   *Child
+	scrollBarY   *Child
+	child        *Child
 	scrollOffset math.Point
 	innerSize    math.Size
 	canScrollX   bool

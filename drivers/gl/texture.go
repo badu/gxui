@@ -86,11 +86,11 @@ func (t *TextureImpl) newContext() *textureContext {
 }
 
 type textureContext struct {
-	sizePixels math.Size
 	contextResource
-	texture gl.Texture
-	flipY   bool
-	pma     bool
+	sizePixels math.Size
+	texture    gl.Texture
+	flipY      bool
+	pma        bool
 }
 
 func (c *textureContext) destroy() {

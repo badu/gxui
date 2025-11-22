@@ -370,9 +370,9 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 }
 
 type AppProgressBar struct {
-	chevrons Canvas
-	ticker   *time.Ticker
 	ProgressBarImpl
+	chevrons     Canvas
+	ticker       *time.Ticker
 	chevronWidth int
 	scroll       int
 }

@@ -153,8 +153,8 @@ func (d directory) Create(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Contr
 // directoryAdapter is an implementation of the gxui.TreeAdapter interface.
 // The AdapterItems returned by this adapter are absolute file path strings.
 type directoryAdapter struct {
-	gxui.AdapterBase
 	directory
+	gxui.AdapterBase
 }
 
 func (a directoryAdapter) Size(styles *gxui.StyleDefs) math.Size {

@@ -14,11 +14,11 @@ type SplitterLayoutParent interface {
 }
 
 type SplitterLayoutImpl struct {
-	parent  SplitterLayoutParent
-	driver  Driver
-	styles  *StyleDefs
-	weights map[Control]float32
 	ContainerBase
+	parent        SplitterLayoutParent
+	driver        Driver
+	styles        *StyleDefs
+	weights       map[Control]float32
 	orientation   Orientation
 	splitterWidth int
 }

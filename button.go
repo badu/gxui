@@ -22,12 +22,12 @@ type ButtonParent interface {
 }
 
 type Button struct {
-	parent ButtonParent
-	driver Driver
-	styles *StyleDefs
-	label  *Label
 	FocusablePart
 	LinearLayoutImpl
+	parent     ButtonParent
+	driver     Driver
+	styles     *StyleDefs
+	label      *Label
 	buttonType ButtonType
 	checked    bool
 }

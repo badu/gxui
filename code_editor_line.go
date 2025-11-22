@@ -27,9 +27,9 @@ type CodeEditorLinePaintInfo struct {
 
 // CodeEditorLine
 type CodeEditorLine struct {
+	DefaultTextBoxLine
 	parent CodeEditorLineParent
 	editor *CodeEditor
-	DefaultTextBoxLine
 }
 
 func (l *CodeEditorLine) Init(parent CodeEditorLineParent, editor *CodeEditor, lineIndex int) {
@@ -38,11 +38,11 @@ func (l *CodeEditorLine) Init(parent CodeEditorLineParent, editor *CodeEditor, l
 	l.editor = editor
 }
 
-func (t *CodeEditorLine) PaintBackgroundSpans(canvas Canvas, info CodeEditorLinePaintInfo) {
+func (l *CodeEditorLine) PaintBackgroundSpans(canvas Canvas, info CodeEditorLinePaintInfo) {
 	start, _ := info.LineSpan.Span()
 	offsets := info.GlyphOffsets
 	remaining := interval.IntDataList{info.LineSpan}
-	for _, layer := range t.editor.layers {
+	for _, layer := range l.editor.layers {
 		if layer != nil && layer.BackgroundColor() != nil {
 			color := *layer.BackgroundColor()
 			for _, span := range layer.Spans().Overlaps(info.LineSpan) {
@@ -57,11 +57,11 @@ func (t *CodeEditorLine) PaintBackgroundSpans(canvas Canvas, info CodeEditorLine
 	}
 }
 
-func (t *CodeEditorLine) PaintGlyphs(canvas Canvas, info CodeEditorLinePaintInfo) {
+func (l *CodeEditorLine) PaintGlyphs(canvas Canvas, info CodeEditorLinePaintInfo) {
 	start, _ := info.LineSpan.Span()
 	runes, offsets, font := info.Runes, info.GlyphOffsets, info.Font
 	remaining := interval.IntDataList{info.LineSpan}
-	for _, layer := range t.editor.layers {
+	for _, layer := range l.editor.layers {
 		if layer != nil && layer.Color() != nil {
 			color := *layer.Color()
 			for _, span := range layer.Spans().Overlaps(info.LineSpan) {
@@ -77,14 +77,14 @@ func (t *CodeEditorLine) PaintGlyphs(canvas Canvas, info CodeEditorLinePaintInfo
 	for _, span := range remaining {
 		spanStart, spanEnd := span.Span()
 		spanStart, spanEnd = spanStart-start, spanEnd-start
-		canvas.DrawRunes(font, runes[spanStart:spanEnd], offsets[spanStart:spanEnd], t.editor.textColor)
+		canvas.DrawRunes(font, runes[spanStart:spanEnd], offsets[spanStart:spanEnd], l.editor.textColor)
 	}
 }
 
-func (t *CodeEditorLine) PaintBorders(canvas Canvas, info CodeEditorLinePaintInfo) {
+func (l *CodeEditorLine) PaintBorders(canvas Canvas, info CodeEditorLinePaintInfo) {
 	start, _ := info.LineSpan.Span()
 	offsets := info.GlyphOffsets
-	for _, layer := range t.editor.layers {
+	for _, layer := range l.editor.layers {
 		if layer != nil && layer.BorderColor() != nil {
 			color := *layer.BorderColor()
 			interval.Visit(layer.Spans(), info.LineSpan, func(vs, ve uint64, _ int) {
@@ -97,18 +97,18 @@ func (t *CodeEditorLine) PaintBorders(canvas Canvas, info CodeEditorLinePaintInf
 }
 
 // DefaultTextBoxLine overrides
-func (t *CodeEditorLine) Paint(canvas Canvas) {
-	font := t.editor.font
-	rect := t.Size().Rect().OffsetX(t.caretWidth)
-	controller := t.editor.controller
-	runes := controller.LineRunes(t.lineIndex)
-	start := controller.LineStart(t.lineIndex)
-	end := controller.LineEnd(t.lineIndex)
+func (l *CodeEditorLine) Paint(canvas Canvas) {
+	font := l.editor.font
+	rect := l.Size().Rect().OffsetX(l.caretWidth)
+	controller := l.editor.controller
+	runes := controller.LineRunes(l.lineIndex)
+	start := controller.LineStart(l.lineIndex)
+	end := controller.LineEnd(l.lineIndex)
 
 	if start != end {
 		lineSpan := interval.CreateIntData(start, end, nil)
 
-		lineHeight := t.Size().H
+		lineHeight := l.Size().H
 		glyphWidth := font.GlyphMaxSize().W
 		offsets := font.Layout(
 			&TextBlock{Runes: runes, AlignRect: rect, H: AlignLeft, V: AlignMiddle},
@@ -124,22 +124,22 @@ func (t *CodeEditorLine) Paint(canvas Canvas) {
 		}
 
 		// Background
-		t.parent.PaintBackgroundSpans(canvas, info)
+		l.parent.PaintBackgroundSpans(canvas, info)
 
 		// Selections
-		if t.textbox.HasFocus() {
-			t.parent.PaintSelections(canvas)
+		if l.textbox.HasFocus() {
+			l.parent.PaintSelections(canvas)
 		}
 
 		// Glyphs
-		t.parent.PaintGlyphs(canvas, info)
+		l.parent.PaintGlyphs(canvas, info)
 
 		// Borders
-		t.parent.PaintBorders(canvas, info)
+		l.parent.PaintBorders(canvas, info)
 	}
 
 	// Carets
-	if t.textbox.HasFocus() {
-		t.parent.PaintCarets(canvas)
+	if l.textbox.HasFocus() {
+		l.parent.PaintCarets(canvas)
 	}
 }

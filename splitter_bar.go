@@ -9,12 +9,12 @@ import (
 )
 
 type SplitterBar struct {
-	parent      ControlBaseParent
-	onDragStart Event
-	onDragEnd   Event
-	onDrag      func(point math.Point)
-	styles      *StyleDefs
 	ControlBase
+	parent          ControlBaseParent
+	onDragStart     Event
+	onDragEnd       Event
+	onDrag          func(point math.Point)
+	styles          *StyleDefs
 	BackgroundColor Color
 	ForegroundColor Color
 	IsDragging      bool

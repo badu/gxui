@@ -11,10 +11,10 @@ import (
 )
 
 type Label struct {
-	parent ControlBaseParent
-	font   Font
-	Text   string
 	ControlBase
+	parent              ControlBaseParent
+	font                Font
+	Text                string
 	horizontalAlignment HAlign
 	verticalAlignment   VAlign
 	color               Color

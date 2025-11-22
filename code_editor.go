@@ -31,6 +31,7 @@ type CodeEditorParent interface {
 }
 
 type CodeEditor struct {
+	TextBox
 	parent             CodeEditorParent
 	suggestionProvider CodeSuggestionProvider
 	suggestionList     *ListImpl
@@ -39,8 +40,7 @@ type CodeEditor struct {
 	hiddenLines        map[int]struct{}
 	layers             CodeSyntaxLayers
 	lineWidths         []LineWidth
-	TextBox
-	tabWidth int
+	tabWidth           int
 }
 
 func (e *CodeEditor) Init(parent CodeEditorParent, driver Driver, styles *StyleDefs) {
@@ -78,6 +78,9 @@ func (e *CodeEditor) CreateSuggestionList() *ListImpl {
 }
 
 func (e *CodeEditor) SyntaxLayers() CodeSyntaxLayers {
+	if len(e.layers) == 0 {
+		e.layers = append(e.layers, CreateCodeSyntaxLayer())
+	}
 	return e.layers
 }
 

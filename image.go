@@ -25,11 +25,11 @@ const (
 )
 
 type Image struct {
-	parent  ControlBaseParent
-	texture Texture
-	canvas  Canvas
-	BackgroundBorderPainter
 	ControlBase
+	BackgroundBorderPainter
+	parent       ControlBaseParent
+	texture      Texture
+	canvas       Canvas
 	explicitSize math.Size
 	scalingMode  ScalingMode
 	aspectMode   AspectMode

@@ -7,9 +7,9 @@ package gxui
 import "github.com/badu/gxui/math"
 
 type ScrollBarImpl struct {
-	parent   ControlBaseParent
-	onScroll Event
 	ControlBase
+	parent             ControlBaseParent
+	onScroll           Event
 	barRect            math.Rect
 	orientation        Orientation
 	thickness          int

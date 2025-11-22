@@ -57,6 +57,9 @@ type itemDetails struct {
 }
 
 type ListImpl struct {
+	ContainerBase
+	FocusablePart
+	BackgroundBorderPainter
 	parent                   ListParent
 	driver                   Driver
 	adapter                  ListAdapter
@@ -70,17 +73,14 @@ type ListImpl struct {
 	scrollBarChild           *Child
 	itemMouseOver            *Child
 	details                  map[AdapterItem]itemDetails
-	FocusablePart
-	BackgroundBorderPainter
-	ContainerBase
-	itemSize         math.Size
-	mousePosition    math.Point
-	orientation      Orientation
-	scrollOffset     int
-	itemCount        int // Count number of items in the adapter
-	layoutMark       int
-	hiddenItemCount  int
-	scrollBarEnabled bool
+	itemSize                 math.Size
+	mousePosition            math.Point
+	orientation              Orientation
+	scrollOffset             int
+	itemCount                int // Count number of items in the adapter
+	layoutMark               int
+	hiddenItemCount          int
+	scrollBarEnabled         bool
 }
 
 func (l *ListImpl) Init(parent ListParent, driver Driver, styles *StyleDefs) {
