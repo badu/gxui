@@ -20,7 +20,7 @@ type shaderUniform struct {
 	textureUnit int
 }
 
-func (u *shaderUniform) bind(context *context, target interface{}) {
+func (u *shaderUniform) bind(target interface{}) {
 	switch u.shaderType {
 	case stFloatMat2:
 		gl.UniformMatrix2fv(u.location, target.([]float32))
@@ -29,6 +29,7 @@ func (u *shaderUniform) bind(context *context, target interface{}) {
 		switch matrix := target.(type) {
 		case math.Mat3:
 			gl.UniformMatrix3fv(u.location, matrix[:])
+
 		case []float32:
 			gl.UniformMatrix3fv(u.location, matrix)
 		}
@@ -40,6 +41,7 @@ func (u *shaderUniform) bind(context *context, target interface{}) {
 		switch vector := target.(type) {
 		case float32:
 			gl.Uniform1f(u.location, vector)
+
 		case []float32:
 			gl.Uniform1fv(u.location, vector)
 		}
@@ -48,6 +50,7 @@ func (u *shaderUniform) bind(context *context, target interface{}) {
 		switch vector := target.(type) {
 		case math.Vec2:
 			gl.Uniform2fv(u.location, []float32{vector.X, vector.Y})
+
 		case []float32:
 			if len(vector)%2 != 0 {
 				panic(fmt.Errorf("uniform '%s' of type vec2 should be an float32 array with a multiple of two length", u.name))
@@ -59,6 +62,7 @@ func (u *shaderUniform) bind(context *context, target interface{}) {
 		switch vector := target.(type) {
 		case math.Vec3:
 			gl.Uniform3fv(u.location, []float32{vector.X, vector.Y, vector.Z})
+
 		case []float32:
 			if len(vector)%3 != 0 {
 				panic(fmt.Errorf("uniform '%s' of type vec3 should be an float32 array with a multiple of three length", u.name))
@@ -70,12 +74,15 @@ func (u *shaderUniform) bind(context *context, target interface{}) {
 		switch vector := target.(type) {
 		case math.Vec4:
 			gl.Uniform4fv(u.location, []float32{vector.X, vector.Y, vector.Z, vector.W})
+
 		case gxui.Color:
 			gl.Uniform4fv(u.location, []float32{vector.R, vector.G, vector.B, vector.A})
+
 		case []float32:
 			if len(vector)%4 != 0 {
 				panic(fmt.Errorf("uniform '%s' of type vec4 should be an float32 array with a multiple of four length", u.name))
 			}
+
 			gl.Uniform4fv(u.location, vector)
 		}
 

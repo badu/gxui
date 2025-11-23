@@ -4,6 +4,8 @@
 
 package math
 
+import "github.com/chewxy/math32"
+
 type Point struct {
 	X, Y int
 }
@@ -32,12 +34,12 @@ func (p Point) Neg() Point {
 	return Point{X: -p.X, Y: -p.Y}
 }
 
-func (p Point) SqrLen() int {
-	return p.Dot(p)
+func (p Point) SqrLen() float32 {
+	return float32(p.X*p.X + p.Y*p.Y)
 }
 
 func (p Point) Len() float32 {
-	return Sqrtf(float32(p.SqrLen()))
+	return math32.Sqrt(p.SqrLen())
 }
 
 func (p Point) Dot(o Point) int {

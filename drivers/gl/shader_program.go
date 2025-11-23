@@ -121,7 +121,7 @@ func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms unifor
 		if !found {
 			panic(fmt.Errorf("uniforms missing '%s'", uni.name))
 		}
-		uni.bind(ctx, uniform)
+		uni.bind(uniform)
 	}
 	checkError()
 }

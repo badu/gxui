@@ -8,7 +8,9 @@
 // Small program to generate roboto_regular.go and droid_sans_mono.go.
 //
 // TODO(crawshaw): italics, bold.
-package main
+package font
+
+//package main
 
 import (
 	"bytes"

@@ -11,6 +11,7 @@ import (
 	"github.com/badu/gxui/drivers/gl"
 	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
+	"github.com/chewxy/math32"
 )
 
 // Number picker uses the gxui.DefaultAdapter for driving a list
@@ -93,9 +94,9 @@ func (a *customAdapter) Size(styles *gxui.StyleDefs) math.Size {
 func (a *customAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index int) gxui.Control {
 	phase := float32(index) / 1000
 	c := gxui.Color{
-		R: 0.5 + 0.5*math.Sinf(math.TwoPi*(phase+0.000)),
-		G: 0.5 + 0.5*math.Sinf(math.TwoPi*(phase+0.333)),
-		B: 0.5 + 0.5*math.Sinf(math.TwoPi*(phase+0.666)),
+		R: 0.5 + 0.5*math32.Sin(math.TwoPi*(phase+0.000)),
+		G: 0.5 + 0.5*math32.Sin(math.TwoPi*(phase+0.333)),
+		B: 0.5 + 0.5*math32.Sin(math.TwoPi*(phase+0.666)),
 		A: 1.0,
 	}
 	i := gxui.CreateImage(driver, styles)

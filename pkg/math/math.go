@@ -4,40 +4,12 @@
 
 package math
 
-import (
-	"math"
-)
-
-func Absf(v float32) float32 {
-	if v < 0 {
-		return -v
-	} else {
-		return v
-	}
-}
-
 func Round(v float32) int {
 	if v < 0 {
 		return int(v - 0.5)
 	} else {
 		return int(v + 0.4999999)
 	}
-}
-
-func Sinf(v float32) float32 {
-	return float32(math.Sin(float64(v)))
-}
-
-func Cosf(v float32) float32 {
-	return float32(math.Cos(float64(v)))
-}
-
-func Acosf(v float32) float32 {
-	return float32(math.Acos(float64(v)))
-}
-
-func Sqrtf(v float32) float32 {
-	return float32(math.Sqrt(float64(v)))
 }
 
 func Lerp(a, b int, s float32) int {

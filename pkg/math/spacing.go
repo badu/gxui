@@ -23,23 +23,3 @@ func (s Spacing) Width() int {
 func (s Spacing) Height() int {
 	return s.Top + s.Bottom
 }
-
-func (s Spacing) Size() Size {
-	return Size{Width: s.Width(), Height: s.Height()}
-}
-
-func (s Spacing) Add(spacing Spacing) Spacing {
-	return Spacing{Left: s.Left + spacing.Left, Top: s.Top + spacing.Top, Right: s.Right + spacing.Right, Bottom: s.Bottom + spacing.Bottom}
-}
-
-func (s Spacing) Sub(spacing Spacing) Spacing {
-	return Spacing{Left: s.Left - spacing.Left, Top: s.Top - spacing.Top, Right: s.Right - spacing.Right, Bottom: s.Bottom - spacing.Bottom}
-}
-
-func (s Spacing) Min(spacing Spacing) Spacing {
-	return Spacing{Left: min(s.Left, spacing.Left), Top: min(s.Top, spacing.Top), Right: min(s.Right, spacing.Right), Bottom: min(s.Bottom, spacing.Bottom)}
-}
-
-func (s Spacing) Max(spacing Spacing) Spacing {
-	return Spacing{Left: max(s.Left, spacing.Left), Top: max(s.Top, spacing.Top), Right: max(s.Right, spacing.Right), Bottom: max(s.Bottom, spacing.Bottom)}
-}

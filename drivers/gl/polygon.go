@@ -7,6 +7,7 @@ package gl
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/pkg/math"
+	"github.com/chewxy/math32"
 )
 
 func appendVec2(arr []float32, vecs ...math.Vec2) []float32 {
@@ -43,7 +44,7 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 		return vsEdgePos, fillEdge
 	}
 
-	α := math.Acosf(dp) / 2
+	α := math32.Acos(dp) / 2
 	// ╔═══════════════════════════╦════════════════╗
 	// ║                           ║                ║
 	// ║             A             ║                ║
@@ -82,14 +83,15 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 	// d = ──────
 	//     sin(α)
 	//
-	d := r / math.Sinf(α)
+	sinα, cosα := math32.Sincos(α)
+	d := r / sinα
 
 	// X cannot be futher than half way along ab or ac
-	dMax := min(baLen, caLen) / (2 * math.Cosf(α))
+	dMax := min(baLen, caLen) / (2 * cosα)
 	if d > dMax {
 		// Adjust d and r to compensate
 		d = dMax
-		r = d * math.Sinf(α)
+		r = d * sinα
 	}
 
 	x := a.Sub(v.MulS(d))
@@ -104,7 +106,7 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 	// vertices overlapping. Instead use a point calculated much the same as
 	// x, but using the pen width.
 	useFixedInnerPoint := convex && w > r
-	fixedInnerPoint := a.Sub(v.MulS(min(w/math.Sinf(α), dMax)))
+	fixedInnerPoint := a.Sub(v.MulS(min(w/sinα, dMax)))
 
 	// Concave vertices behave much the same as convex, but we have to flip
 	// β as the sweep is reversed and w as we're extruding.
@@ -125,8 +127,8 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 		if steps > 1 {
 			γ = math.Lerpf(-β, β, float32(j)/float32(steps-1))
 		}
-
-		dir := v.MulS(math.Cosf(γ)).Add(u.MulS(math.Sinf(γ)))
+		sinγ, cosγ := math32.Sincos(γ)
+		dir := v.MulS(cosγ).Add(u.MulS(sinγ))
 		va := x.Add(dir.MulS(r))
 		vb := va.Sub(dir.MulS(w))
 		if useFixedInnerPoint {
@@ -189,7 +191,7 @@ func openPolyToShape(p gxui.Polygon, penWidth float32) *shape {
 		return nil
 	}
 
-	vsEdgePos := []float32{}
+	var vsEdgePos []float32
 
 	{ // p[0] -> p[1]
 		a, c := p[0].Position.Vec2(), p[1].Position.Vec2()
@@ -197,6 +199,7 @@ func openPolyToShape(p gxui.Polygon, penWidth float32) *shape {
 		inner := a.Sub(caDir.Tangent().MulS(penWidth))
 		vsEdgePos = appendVec2(vsEdgePos, a, inner)
 	}
+
 	for i := 1; i < len(p)-1; i++ {
 		r := p[i].RoundedRadius
 		a := p[i].Position.Vec2()

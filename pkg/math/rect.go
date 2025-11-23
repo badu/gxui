@@ -98,10 +98,6 @@ func (r Rect) Frac(point Point) Vec2 {
 	return point.Sub(r.Min).Vec2().Div(r.Size().Vec2())
 }
 
-func (r Rect) Remap(from, to Rect) Rect {
-	return Rect{Min: r.Min.Remap(from, to), Max: r.Max.Remap(from, to)}
-}
-
 func (r Rect) Expand(spacing Spacing) Rect {
 	return Rect{
 		Min: Point{r.Min.X - spacing.Left, r.Min.Y - spacing.Top},

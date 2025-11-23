@@ -4,6 +4,8 @@
 
 package math
 
+import "github.com/chewxy/math32"
+
 func linesIntersect(p0, p1, q0, q1 Vec2) bool {
 	const epsilon = 0.0001
 	// http://stackoverflow.com/a/565282
@@ -12,10 +14,10 @@ func linesIntersect(p0, p1, q0, q1 Vec2) bool {
 	PmQ := p0.Sub(q0)
 	QmP := q0.Sub(p0)
 	ScR := s.Cross(r)
-	if Absf(ScR) < 0.0001 {
+	if math32.Abs(ScR) < 0.0001 {
 		// Lines are parallel
 		QmPcR := QmP.Cross(r)
-		if Absf(QmPcR) < 0.0001 {
+		if math32.Abs(QmPcR) < 0.0001 {
 			// Colinear
 			QmPdR := QmP.Dot(r)
 			PmQdS := PmQ.Dot(s)

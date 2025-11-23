@@ -9,6 +9,7 @@ import (
 	"github.com/badu/gxui/drivers/gl"
 	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
+	"github.com/chewxy/math32"
 )
 
 func drawStar(canvas gxui.Canvas, center math.Point, radius, rotation float32, points int) {
@@ -17,10 +18,11 @@ func drawStar(canvas gxui.Canvas, center math.Point, radius, rotation float32, p
 		frac := float32(i) / float32(points*2)
 		α := frac*math.TwoPi + rotation
 		r := []float32{radius, radius / 2}[i&1]
+		sinα, cosα := math32.Sincos(α)
 		p[i] = gxui.PolygonVertex{
 			Position: math.Point{
-				X: center.X + int(r*math.Cosf(α)),
-				Y: center.Y + int(r*math.Sinf(α)),
+				X: center.X + int(r*cosα),
+				Y: center.Y + int(r*sinα),
 			},
 			RoundedRadius: []float32{0, 50}[i&1],
 		}
@@ -34,22 +36,25 @@ func drawMoon(canvas gxui.Canvas, center math.Point, radius float32) {
 	for i := 0; i < c; i++ {
 		frac := float32(i) / float32(c)
 		α := math.Lerpf(math.Pi*1.2, math.Pi*-0.2, frac)
+		sinα, cosα := math32.Sincos(α)
 		p[i] = gxui.PolygonVertex{
 			Position: math.Point{
-				X: center.X + int(radius*math.Sinf(α)),
-				Y: center.Y + int(radius*math.Cosf(α)),
+				X: center.X + int(radius*sinα),
+				Y: center.Y + int(radius*cosα),
 			},
 			RoundedRadius: 0,
 		}
 	}
+
 	for i := 0; i < c; i++ {
 		frac := float32(i) / float32(c)
 		α := math.Lerpf(math.Pi*-0.2, math.Pi*1.2, frac)
-		r := math.Lerpf(radius, radius*0.5, math.Sinf(frac*math.Pi))
+		r := math.Lerpf(radius, radius*0.5, math32.Sin(frac*math.Pi))
+		sinα, cosα := math32.Sincos(α)
 		p[i+c] = gxui.PolygonVertex{
 			Position: math.Point{
-				X: center.X + int(r*math.Sinf(α)),
-				Y: center.Y + int(r*math.Cosf(α)),
+				X: center.X + int(r*sinα),
+				Y: center.Y + int(r*cosα),
 			},
 			RoundedRadius: 0,
 		}
