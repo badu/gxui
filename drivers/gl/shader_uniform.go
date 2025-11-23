@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/goxjs/gl"
 )
 

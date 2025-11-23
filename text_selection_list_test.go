@@ -7,7 +7,7 @@ package gxui
 import (
 	"testing"
 
-	"github.com/badu/gxui/interval"
+	"github.com/badu/gxui/pkg/interval"
 	"github.com/badu/gxui/test_helper"
 )
 

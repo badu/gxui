@@ -4,7 +4,9 @@
 
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/pkg/math"
+)
 
 type DropDownList struct {
 	ContainerBase
@@ -71,7 +73,7 @@ func (l *DropDownList) LayoutChildren() {
 
 	if l.selected != nil {
 		size := l.parent.Size().Contract(l.Padding()).Max(math.ZeroSize)
-		offset := l.Padding().LT()
+		offset := l.Padding().TopLeft()
 		l.selected.Layout(size.Rect().Offset(offset))
 	}
 }
@@ -102,7 +104,7 @@ func (l *DropDownList) ShowList() bool {
 
 	l.listShowing = true
 	size := l.Size()
-	at := math.Point{X: size.W / 2, Y: size.H}
+	at := math.Point{X: size.Width / 2, Y: size.Height}
 	l.overlay.Show(l.list, TransformCoordinate(at, l.parent, l.overlay))
 
 	SetFocus(l.list)

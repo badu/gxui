@@ -6,14 +6,14 @@
 package gl
 
 import (
-	"container/list"
 	"image"
 	"runtime"
 	"sync/atomic"
 	"time"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/list"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/goxjs/gl"
 	"github.com/goxjs/glfw"
 )
@@ -28,7 +28,7 @@ func init() {
 type DriverImpl struct {
 	pendingDriver chan func()
 	pendingApp    chan func()
-	viewports     *list.List
+	viewports     *list.List[*ViewportImpl]
 
 	pcs        []uintptr // reusable scratch-buffer for use by runtime.Callers.
 	uiPC       uintptr   // the program-counter of the applicationLoop function.
@@ -49,7 +49,7 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 	result := &DriverImpl{
 		pendingDriver: make(chan func(), 256),
 		pendingApp:    make(chan func(), 256),
-		viewports:     list.New(),
+		viewports:     list.New[*ViewportImpl](),
 		pcs:           make([]uintptr, 256),
 	}
 
@@ -92,9 +92,10 @@ func (d *DriverImpl) driverLoop() {
 		case ev, open := <-d.pendingDriver:
 			if open {
 				ev()
-			} else {
-				return // terminated
+				continue
 			}
+
+			return // terminated
 		default:
 			glfw.WaitEvents()
 		}
@@ -129,7 +130,10 @@ func (d *DriverImpl) Call(callback func()) bool {
 func (d *DriverImpl) CallSync(callback func()) bool {
 	done := make(chan struct{})
 	if d.Call(
-		func() { callback(); close(done) },
+		func() {
+			callback()
+			close(done)
+		},
 	) {
 		<-done
 		return true
@@ -142,7 +146,7 @@ func (d *DriverImpl) Terminate() {
 		func() {
 			// Close all viewports. This will notify the application.
 			for frontViewport := d.viewports.Front(); frontViewport != nil; frontViewport = frontViewport.Next() {
-				frontViewport.Value.(*ViewportImpl).Destroy()
+				frontViewport.Value.Destroy()
 			}
 
 			// Flush all remaining events from the application and driver.
@@ -191,7 +195,7 @@ func (d *DriverImpl) Terminate() {
 func (d *DriverImpl) SetClipboard(str string) {
 	d.asyncDriver(
 		func() {
-			frontViewport := d.viewports.Front().Value.(*ViewportImpl)
+			frontViewport := d.viewports.Front().Value
 			frontViewport.window.SetClipboardString(str)
 		},
 	)
@@ -200,7 +204,7 @@ func (d *DriverImpl) SetClipboard(str string) {
 func (d *DriverImpl) GetClipboard() (str string, err error) {
 	d.syncDriver(
 		func() {
-			frontViewport := d.viewports.Front().Value.(*ViewportImpl)
+			frontViewport := d.viewports.Front().Value
 			str = frontViewport.window.GetClipboardString()
 		},
 	)

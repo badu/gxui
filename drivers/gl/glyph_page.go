@@ -10,7 +10,7 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	imageFont "golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
@@ -53,12 +53,12 @@ func newGlyphPage(face imageFont.Face, whichRune rune) *glyphPage {
 	// Start the page big enough to hold the initial rune.
 	glyphBounds, _, _ := face.GlyphBounds(whichRune)
 	bounds := rectangle26_6toRect(glyphBounds)
-	size := math.Size{W: glyphPageWidth, H: glyphPageHeight}.Max(bounds.Size())
-	size.W = align(size.W, glyphSizeAlignment)
-	size.H = align(size.H, glyphSizeAlignment)
+	size := math.Size{Width: glyphPageWidth, Height: glyphPageHeight}.Max(bounds.Size())
+	size.Width = align(size.Width, glyphSizeAlignment)
+	size.Height = align(size.Height, glyphSizeAlignment)
 
 	page := &glyphPage{
-		image:     image.NewAlpha(image.Rect(0, 0, size.W, size.H)),
+		image:     image.NewAlpha(image.Rect(0, 0, size.Width, size.Height)),
 		size:      size,
 		entries:   make(map[rune]glyphEntry),
 		rowHeight: 0,
@@ -91,14 +91,14 @@ func (p *glyphPage) add(face imageFont.Face, whichRune rune) bool {
 	w, h := bounds.Size().WH()
 	x, y := p.nextPoint.X, p.nextPoint.Y
 
-	if x+w > p.size.W {
+	if x+w > p.size.Width {
 		// Row full, start new line
 		x = 0
 		y += p.rowHeight + glyphPadding
 		p.rowHeight = 0
 	}
 
-	if y+h > p.size.H {
+	if y+h > p.size.Height {
 		return false // Page full
 	}
 

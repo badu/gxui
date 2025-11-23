@@ -7,7 +7,7 @@ package gxui
 import (
 	"testing"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type testTreeNode struct {

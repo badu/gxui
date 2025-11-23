@@ -12,7 +12,7 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/file_dlg/roots"
 	"github.com/badu/gxui/samples/flags"
 )
@@ -82,7 +82,7 @@ func (a *filesAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index 
 }
 
 func (a *filesAdapter) Size(styles *gxui.StyleDefs) math.Size {
-	return math.Size{W: math.MaxSize.W, H: styles.FontSize + 4}
+	return math.Size{Width: math.MaxSize.Width, Height: styles.FontSize + 4}
 }
 
 // directory implements the gxui.TreeNode interface to represent a directory
@@ -158,7 +158,7 @@ type directoryAdapter struct {
 }
 
 func (a directoryAdapter) Size(styles *gxui.StyleDefs) math.Size {
-	return math.Size{W: math.MaxSize.W, H: styles.FontSize + 4}
+	return math.Size{Width: math.MaxSize.Width, Height: styles.FontSize + 4}
 }
 
 // Override directory.Create so that the full root is shown, unaltered.
@@ -178,7 +178,7 @@ func appMain(driver gxui.Driver) {
 	// fullpath is the textbox at the top of the window holding the current
 	// selection's absolute file path.
 	fullpath := gxui.CreateTextBox(driver, styles)
-	fullpath.SetDesiredWidth(math.MaxSize.W)
+	fullpath.SetDesiredWidth(math.MaxSize.Width)
 
 	// directories is the TreeImpl of directories on the left of the window.
 	// It uses the directoryAdapter to show the entire system's directory
@@ -272,7 +272,7 @@ func appMain(driver gxui.Driver) {
 
 	window.AddChild(btmLayout)
 	window.OnClose(driver.Terminate)
-	window.SetPadding(math.Spacing{L: 10, T: 10, R: 10, B: 10})
+	window.SetPadding(math.Spacing{Left: 10, Top: 10, Right: 10, Bottom: 10})
 }
 
 func main() {

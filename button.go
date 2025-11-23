@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type ButtonType int
@@ -44,8 +44,8 @@ func (b *Button) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
 	b.SetBackgroundBrush(styles.ButtonDefaultStyle.Brush)
 	b.SetBorderPen(styles.ButtonDefaultStyle.Pen)
 	// TODO : @Badu - use styles
-	b.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	b.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	b.SetPadding(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
+	b.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 
 }
 

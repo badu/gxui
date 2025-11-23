@@ -9,7 +9,7 @@ import (
 	"unicode"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/golang/freetype/truetype"
 	imageFont "golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
@@ -87,18 +87,18 @@ func (f *font) align(rect math.Rect, size math.Size, ascent int, horizontalAlign
 	case gxui.AlignLeft:
 		origin.X = rect.Min.X
 	case gxui.AlignCenter:
-		origin.X = rect.Mid().X - (size.W / 2)
+		origin.X = rect.Middle().X - (size.Width / 2)
 	case gxui.AlignRight:
-		origin.X = rect.Max.X - size.W
+		origin.X = rect.Max.X - size.Width
 	}
 
 	switch verticalAlignment {
 	case gxui.AlignTop:
 		origin.Y = rect.Min.Y + ascent
 	case gxui.AlignMiddle:
-		origin.Y = rect.Mid().Y - (size.H / 2) + ascent
+		origin.Y = rect.Middle().Y - (size.Height / 2) + ascent
 	case gxui.AlignBottom:
-		origin.Y = rect.Max.Y - size.H + ascent
+		origin.Y = rect.Max.Y - size.Height + ascent
 	}
 
 	return origin
@@ -132,17 +132,17 @@ func (f *font) Size() int {
 }
 
 func (f *font) Measure(textBlock *gxui.TextBlock) math.Size {
-	size := math.Size{W: 0, H: f.glyphMaxSizeDips.H}
+	size := math.Size{Width: 0, Height: f.glyphMaxSizeDips.Height}
 	var offset math.Point
 	for _, curRune := range textBlock.Runes {
 		if curRune == '\n' {
 			offset.X = 0
-			offset.Y += f.glyphMaxSizeDips.H
+			offset.Y += f.glyphMaxSizeDips.Height
 			continue
 		}
 
 		offset.X += f.advanceDips(curRune)
-		size = size.Max(math.Size{W: offset.X, H: offset.Y + f.glyphMaxSizeDips.H})
+		size = size.Max(math.Size{Width: offset.X, Height: offset.Y + f.glyphMaxSizeDips.Height})
 	}
 	return size
 }
@@ -154,13 +154,13 @@ func (f *font) Layout(textBlock *gxui.TextBlock) []math.Point {
 	for i, r := range textBlock.Runes {
 		if r == '\n' {
 			offset.X = 0
-			offset.Y += f.glyphMaxSizeDips.H
+			offset.Y += f.glyphMaxSizeDips.Height
 			continue
 		}
 
 		offsets[i] = offset
 		offset.X += f.advanceDips(r)
-		sizeDips = sizeDips.Max(math.Size{W: offset.X, H: offset.Y + f.glyphMaxSizeDips.H})
+		sizeDips = sizeDips.Max(math.Size{Width: offset.X, Height: offset.Y + f.glyphMaxSizeDips.Height})
 	}
 
 	origin := f.align(textBlock.AlignRect, sizeDips, f.ascentDips, textBlock.H, textBlock.V)

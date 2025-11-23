@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 // AdapterItem is a user defined type that can be used to uniquely identify a
@@ -28,7 +28,7 @@ type DefaultAdapter struct {
 }
 
 func CreateDefaultAdapter(width, height int) *DefaultAdapter {
-	return &DefaultAdapter{size: math.Size{W: width, H: height}}
+	return &DefaultAdapter{size: math.Size{Width: width, Height: height}}
 }
 
 func (a *DefaultAdapter) SetSizeAsLargest(styles *StyleDefs) {

@@ -26,10 +26,7 @@ func CreateMat2(r0c0, r0c1, r1c0, r1c1 float32) Mat2 {
 // │ R₁ │
 // ╰    ╯
 func CreateMat2FromRows(r0, r1 Vec2) Mat2 {
-	return Mat2{
-		r0.X, r0.Y,
-		r1.X, r1.Y,
-	}
+	return Mat2{r0.X, r0.Y, r1.X, r1.Y}
 }
 
 func (m Mat2) String() string {
@@ -37,7 +34,7 @@ func (m Mat2) String() string {
 	l := 0
 	for i, v := range m {
 		s[i] = fmt.Sprintf("%.5f", v)
-		l = Max(l, len(s[i]))
+		l = max(l, len(s[i]))
 	}
 	for i, _ := range m {
 		for len(s[i]) < l {
@@ -61,12 +58,12 @@ func (m Mat2) String() string {
 }
 
 func (m Mat2) Rows() (r0, r1 Vec2) {
-	return Vec2{m[0], m[1]}, Vec2{m[2], m[3]}
+	return Vec2{X: m[0], Y: m[1]}, Vec2{X: m[2], Y: m[3]}
 }
 
 func (m Mat2) Row(i int) Vec2 {
 	i *= 2
-	return Vec2{m[i+0], m[i+1]}
+	return Vec2{X: m[i+0], Y: m[i+1]}
 }
 
 func (m Mat2) Invert() Mat2 {
@@ -83,10 +80,7 @@ func (m Mat2) Invert() Mat2 {
 }
 
 func (m Mat2) Transpose() Mat2 {
-	return CreateMat2(
-		m[0], m[2],
-		m[1], m[3],
-	)
+	return CreateMat2(m[0], m[2], m[1], m[3])
 }
 
 //	╭       ╮

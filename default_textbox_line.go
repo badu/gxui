@@ -5,8 +5,8 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/interval"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/interval"
+	"github.com/badu/gxui/pkg/math"
 )
 
 // DefaultTextBoxLine
@@ -90,8 +90,8 @@ func (t *DefaultTextBoxLine) PaintCarets(canvas Canvas) {
 
 		start := controller.LineStart(lineIndex)
 		measuredRunes := t.parent.MeasureRunes(start, caretEnd)
-		top := math.Point{X: t.caretWidth + measuredRunes.W, Y: 0}
-		bottom := top.Add(math.Point{X: 0, Y: t.Size().H})
+		top := math.Point{X: t.caretWidth + measuredRunes.Width, Y: 0}
+		bottom := top.Add(math.Point{X: 0, Y: t.Size().Height})
 		t.parent.PaintCaret(canvas, top, bottom)
 	}
 }
@@ -111,7 +111,7 @@ func (t *DefaultTextBoxLine) PaintSelections(canvas Canvas) {
 		CreateTextSelection(lineStart, lineEnd, false),
 		func(s, e uint64, _ int) {
 			if s < e {
-				x := t.parent.MeasureRunes(lineStart, int(s)).W
+				x := t.parent.MeasureRunes(lineStart, int(s)).Width
 				m := t.parent.MeasureRunes(int(s), int(e))
 				top := math.Point{X: t.caretWidth + x, Y: 0}
 				bottom := top.Add(m.Point())
@@ -141,7 +141,7 @@ func (t *DefaultTextBoxLine) RuneIndexAt(point math.Point) int {
 	i := 0
 
 	// TODO : @Badu - why?
-	for ; i < len(line) && x > font.Measure(&TextBlock{Runes: []rune(line[:i+1])}).W; i++ {
+	for ; i < len(line) && x > font.Measure(&TextBlock{Runes: []rune(line[:i+1])}).Width; i++ {
 	}
 
 	return controller.LineStart(t.lineIndex) + i

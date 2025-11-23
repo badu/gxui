@@ -34,38 +34,38 @@ func (v Vec3) Normalize() Vec3 {
 }
 
 func (v Vec3) Neg() Vec3 {
-	return Vec3{-v.X, -v.Y, -v.Z}
+	return Vec3{X: -v.X, Y: -v.Y, Z: -v.Z}
 }
 
 func (v Vec3) XY() Vec2 {
-	return Vec2{v.X, v.Y}
+	return Vec2{X: v.X, Y: v.Y}
 }
 
-func (v Vec3) Add(o Vec3) Vec3 {
-	return Vec3{v.X + o.X, v.Y + o.Y, v.Z + o.Z}
+func (v Vec3) Add(vec3 Vec3) Vec3 {
+	return Vec3{X: v.X + vec3.X, Y: v.Y + vec3.Y, Z: v.Z + vec3.Z}
 }
 
-func (v Vec3) Sub(o Vec3) Vec3 {
-	return Vec3{v.X - o.X, v.Y - o.Y, v.Z - o.Z}
+func (v Vec3) Sub(vec3 Vec3) Vec3 {
+	return Vec3{X: v.X - vec3.X, Y: v.Y - vec3.Y, Z: v.Z - vec3.Z}
 }
 
-func (v Vec3) Mul(o Vec3) Vec3 {
-	return Vec3{v.X * o.X, v.Y * o.Y, v.Z * o.Z}
+func (v Vec3) Mul(vec3 Vec3) Vec3 {
+	return Vec3{X: v.X * vec3.X, Y: v.Y * vec3.Y, Z: v.Z * vec3.Z}
 }
 
-func (v Vec3) Div(o Vec3) Vec3 {
-	return Vec3{v.X / o.X, v.Y / o.Y, v.Z / o.Z}
+func (v Vec3) Div(vec3 Vec3) Vec3 {
+	return Vec3{X: v.X / vec3.X, Y: v.Y / vec3.Y, Z: v.Z / vec3.Z}
 }
 
-func (v Vec3) Dot(o Vec3) float32 {
-	return v.X*o.X + v.Y*o.Y + v.Z*o.Z
+func (v Vec3) Dot(vec3 Vec3) float32 {
+	return v.X*vec3.X + v.Y*vec3.Y + v.Z*vec3.Z
 }
 
-func (v Vec3) Cross(o Vec3) Vec3 {
+func (v Vec3) Cross(vec3 Vec3) Vec3 {
 	return Vec3{
-		v.Y*o.Z - v.Z*o.Y,
-		v.Z*o.X - v.X*o.Z,
-		v.X*o.Y - v.Y*o.X,
+		X: v.Y*vec3.Z - v.Z*vec3.Y,
+		Y: v.Z*vec3.X - v.X*vec3.Z,
+		Z: v.X*vec3.Y - v.Y*vec3.X,
 	}
 }
 
@@ -80,17 +80,17 @@ func (v Vec3) Cross(o Vec3) Vec3 {
 // R₀ = V₀ • M₀ + V₁ • M₃ + V₂ • M₆
 // R₁ = V₀ • M₁ + V₁ • M₄ + V₂ • M₇
 // R₂ = V₀ • M₂ + V₁ • M₅ + V₂ • M₈
-func (v Vec3) MulM(m Mat3) Vec3 {
-	a := m.Row(0).MulS(v.X)
-	b := m.Row(1).MulS(v.Y)
-	c := m.Row(2).MulS(v.Z)
+func (v Vec3) MulM(mat3 Mat3) Vec3 {
+	a := mat3.Row(0).MulS(v.X)
+	b := mat3.Row(1).MulS(v.Y)
+	c := mat3.Row(2).MulS(v.Z)
 	return a.Add(b).Add(c)
 }
 
-func (v Vec3) MulS(s float32) Vec3 {
-	return Vec3{v.X * s, v.Y * s, v.Z * s}
+func (v Vec3) MulS(size float32) Vec3 {
+	return Vec3{v.X * size, v.Y * size, v.Z * size}
 }
 
-func (v Vec3) DivS(s float32) Vec3 {
-	return Vec3{v.X / s, v.Y / s, v.Z / s}
+func (v Vec3) DivS(size float32) Vec3 {
+	return Vec3{v.X / size, v.Y / size, v.Z / size}
 }

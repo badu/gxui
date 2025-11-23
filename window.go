@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type WindowParent interface {
@@ -234,7 +234,7 @@ func (w *WindowImpl) Paint(canvas Canvas) {
 
 func (w *WindowImpl) LayoutChildren() {
 	size := w.Size().Contract(w.Padding()).Max(math.ZeroSize)
-	offset := w.Padding().LT()
+	offset := w.Padding().TopLeft()
 	for _, child := range w.parent.Children() {
 		child.Layout(child.Control.DesiredSize(math.ZeroSize, size).Rect().Offset(offset))
 	}

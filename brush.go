@@ -14,5 +14,5 @@ type Brush struct {
 }
 
 func CreateBrush(color Color) Brush {
-	return Brush{color}
+	return Brush{Color: Color{A: color.A, R: color.R, G: color.G, B: color.B}}
 }

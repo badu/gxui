@@ -7,7 +7,7 @@ package main
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
 )
 
@@ -62,7 +62,7 @@ func appMain(driver gxui.Driver) {
 	window := gxui.CreateWindow(driver, styles, styles.ScreenWidth/2, styles.ScreenHeight, "Polygon")
 	window.SetScale(flags.DefaultScaleFactor)
 
-	canvas := driver.CreateCanvas(math.Size{W: 1000, H: 1000})
+	canvas := driver.CreateCanvas(math.Size{Width: 1000, Height: 1000})
 	drawStar(canvas, math.Point{X: 100, Y: 100}, 50, 0.2, 6)
 	drawStar(canvas, math.Point{X: 650, Y: 170}, 70, 0.5, 7)
 	drawStar(canvas, math.Point{X: 40, Y: 300}, 20, 0, 5)

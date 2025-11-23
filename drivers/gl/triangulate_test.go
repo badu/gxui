@@ -7,7 +7,7 @@ package gl
 import (
 	"testing"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/test_helper"
 )
 

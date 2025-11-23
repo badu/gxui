@@ -7,7 +7,7 @@ package gxui
 import (
 	"fmt"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type PanelHolder interface {
@@ -68,8 +68,8 @@ func insertIndex(holder PanelHolder, at math.Point) int {
 	for i := 0; i < holder.PanelCount(); i++ {
 		tab := holder.Tab(i)
 		size := tab.Size()
-		ml := math.Point{Y: size.H / 2}
-		mr := math.Point{Y: size.H / 2, X: size.W}
+		ml := math.Point{Y: size.Height / 2}
+		mr := math.Point{Y: size.Height / 2, X: size.Width}
 		score(TransformCoordinate(ml, tab, holder), i)
 		score(TransformCoordinate(mr, tab, holder), i+1)
 	}
@@ -114,19 +114,19 @@ func (p *PanelHolderImpl) Init(parent PanelHolderParent, driver Driver, styles *
 	p.tabLayout = CreateLinearLayout(driver, styles)
 	p.tabLayout.SetDirection(LeftToRight)
 	p.ContainerBase.AddChild(p.tabLayout)
-	p.SetMargin(math.Spacing{L: 1, T: 2, R: 1, B: 1})
+	p.SetMargin(math.Spacing{Left: 1, Top: 2, Right: 1, Bottom: 1})
 	p.SetMouseEventTarget(true) // For drag-drop targets
 }
 
 func (p *PanelHolderImpl) LayoutChildren() {
 	size := p.Size()
 
-	tabHeight := p.tabLayout.DesiredSize(math.ZeroSize, size).H
-	panelRect := math.CreateRect(0, tabHeight, size.W, size.H).Contract(p.Padding())
+	tabHeight := p.tabLayout.DesiredSize(math.ZeroSize, size).Height
+	panelRect := math.CreateRect(0, tabHeight, size.Width, size.Height).Contract(p.Padding())
 
 	for _, child := range p.Children() {
 		if child.Control == p.tabLayout {
-			child.Control.SetSize(math.Size{W: size.W, H: tabHeight})
+			child.Control.SetSize(math.Size{Width: size.Width, Height: tabHeight})
 			child.Offset = math.ZeroPoint
 		} else {
 			rect := panelRect.Contract(child.Control.Margin())
@@ -189,7 +189,7 @@ func (p *PanelHolderImpl) RemovePanel(panel Control) {
 
 	if panel == p.selected.Panel {
 		if p.PanelCount() > 0 {
-			p.Select(math.Max(index-1, 0))
+			p.Select(max(index-1, 0))
 		} else {
 			p.Select(-1)
 		}

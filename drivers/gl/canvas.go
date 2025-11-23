@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/goxjs/gl"
 )
 
@@ -40,7 +40,7 @@ type CanvasImpl struct {
 }
 
 func NewCanvas(sizeDips math.Size) *CanvasImpl {
-	if sizeDips.W <= 0 || sizeDips.H < 0 {
+	if sizeDips.Width <= 0 || sizeDips.Height < 0 {
 		panic(fmt.Errorf("canvas width and height must be positive. Size: %d", sizeDips))
 	}
 
@@ -209,10 +209,10 @@ func (c *CanvasImpl) DrawRoundedRect(rect math.Rect, tl, tr, bl, br float32, pen
 	}
 
 	polygon := gxui.Polygon{
-		gxui.PolygonVertex{Position: rect.TL(), RoundedRadius: tl},
-		gxui.PolygonVertex{Position: rect.TR(), RoundedRadius: tr},
-		gxui.PolygonVertex{Position: rect.BR(), RoundedRadius: br},
-		gxui.PolygonVertex{Position: rect.BL(), RoundedRadius: bl},
+		gxui.PolygonVertex{Position: rect.TopLeft(), RoundedRadius: tl},
+		gxui.PolygonVertex{Position: rect.TopRight(), RoundedRadius: tr},
+		gxui.PolygonVertex{Position: rect.BottomRight(), RoundedRadius: br},
+		gxui.PolygonVertex{Position: rect.BottomLeft(), RoundedRadius: bl},
 	}
 
 	c.DrawPolygon(polygon, pen, brush)

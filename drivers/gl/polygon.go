@@ -6,10 +6,8 @@ package gl
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
-
-// TODO : @Badu - do NOT touch this YET!
 
 func appendVec2(arr []float32, vecs ...math.Vec2) []float32 {
 	for _, v := range vecs {
@@ -20,7 +18,7 @@ func appendVec2(arr []float32, vecs ...math.Vec2) []float32 {
 
 func pruneDuplicates(p gxui.Polygon) gxui.Polygon {
 	pruned := make(gxui.Polygon, 0, len(p))
-	last := gxui.PolygonVertex{}
+	var last gxui.PolygonVertex
 	for i, v := range p {
 		if i == 0 || last.Position.Sub(v.Position).Vec2().Len() > 0.001 {
 			pruned = append(pruned, v)
@@ -44,6 +42,7 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 		}
 		return vsEdgePos, fillEdge
 	}
+
 	α := math.Acosf(dp) / 2
 	// ╔═══════════════════════════╦════════════════╗
 	// ║                           ║                ║
@@ -86,7 +85,7 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 	d := r / math.Sinf(α)
 
 	// X cannot be futher than half way along ab or ac
-	dMax := math.Minf(baLen, caLen) / (2 * math.Cosf(α))
+	dMax := min(baLen, caLen) / (2 * math.Cosf(α))
 	if d > dMax {
 		// Adjust d and r to compensate
 		d = dMax
@@ -105,7 +104,7 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 	// vertices overlapping. Instead use a point calculated much the same as
 	// x, but using the pen width.
 	useFixedInnerPoint := convex && w > r
-	fixedInnerPoint := a.Sub(v.MulS(math.Minf(w/math.Sinf(α), dMax)))
+	fixedInnerPoint := a.Sub(v.MulS(min(w/math.Sinf(α), dMax)))
 
 	// Concave vertices behave much the same as convex, but we have to flip
 	// β as the sweep is reversed and w as we're extruding.
@@ -146,7 +145,8 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 func closedPolyToShape(p gxui.Polygon, penWidth float32) (fillShape, edgeShape *shape) {
 	p = pruneDuplicates(p)
 
-	var fillEdge []math.Vec2
+	// Note : replacing declarations with `var fillEdge []math.Vec2` will cause malfunction in filling shapes
+	fillEdge := []math.Vec2{}
 	var vsEdgePos []float32
 
 	for i, cnt := 0, len(p); i < cnt; i++ {
@@ -189,7 +189,7 @@ func openPolyToShape(p gxui.Polygon, penWidth float32) *shape {
 		return nil
 	}
 
-	var vsEdgePos []float32
+	vsEdgePos := []float32{}
 
 	{ // p[0] -> p[1]
 		a, c := p[0].Position.Vec2(), p[1].Position.Vec2()

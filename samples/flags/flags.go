@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/gxfont"
+	"github.com/badu/gxui/pkg/font"
 	"github.com/goxjs/glfw"
 )
 
@@ -40,14 +40,14 @@ func CreateTheme(driver gxui.Driver) *gxui.StyleDefs {
 }
 
 func CreateLightTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
-	defaultFont, err := driver.CreateFont(gxfont.Default, fontSize)
+	defaultFont, err := driver.CreateFont(font.Default, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
 	} else {
 		fmt.Printf("Warning: Failed to load default font - %v\n", err)
 	}
 
-	defaultMonospaceFont, err := driver.CreateFont(gxfont.Monospace, fontSize)
+	defaultMonospaceFont, err := driver.CreateFont(font.Monospace, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
 	} else {
@@ -111,14 +111,14 @@ func CreateLightTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 }
 
 func CreateDarkTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
-	defaultFont, err := driver.CreateFont(gxfont.Default, fontSize)
+	defaultFont, err := driver.CreateFont(font.Default, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
 	} else {
 		fmt.Printf("Warning: Failed to load default font - %v\n", err)
 	}
 
-	defaultMonospaceFont, err := driver.CreateFont(gxfont.Monospace, fontSize)
+	defaultMonospaceFont, err := driver.CreateFont(font.Monospace, fontSize)
 	if err == nil {
 		defaultFont.LoadGlyphs(32, 126)
 	} else {

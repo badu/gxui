@@ -5,7 +5,7 @@
 package gl
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 
 	"github.com/goxjs/gl"
 )
@@ -62,7 +62,7 @@ func (c *context) destroy() {
 }
 
 func (c *context) beginDraw(sizeDips, sizePixels math.Size) {
-	dipsToPixels := float32(sizePixels.W) / float32(sizeDips.W)
+	dipsToPixels := float32(sizePixels.Width) / float32(sizeDips.Width)
 
 	c.sizeDips = sizeDips
 	c.sizePixels = sizePixels
@@ -143,6 +143,6 @@ func (c *context) apply(state *drawState) {
 		c.clip = rect
 		sizePixels := c.sizePixels
 		rectSize := rect.Size()
-		gl.Scissor(int32(rect.Min.X), int32(sizePixels.H)-int32(rect.Max.Y), int32(rectSize.W), int32(rectSize.H))
+		gl.Scissor(int32(rect.Min.X), int32(sizePixels.Height)-int32(rect.Max.Y), int32(rectSize.Width), int32(rectSize.Height))
 	}
 }

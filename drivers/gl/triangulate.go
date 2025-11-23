@@ -5,13 +5,11 @@
 package gl
 
 import (
-	"container/list"
 	"fmt"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/list"
+	"github.com/badu/gxui/pkg/math"
 )
-
-// TODO : @Badu - do NOT touch this YET!
 
 const debugTriangulate = false
 const epsilon = 0.00001
@@ -65,7 +63,7 @@ func isEar(edges []math.Vec2, a, b, c int) bool {
 
 func pruneEdgeDuplicates(edges []math.Vec2) []math.Vec2 {
 	pruned := make([]math.Vec2, 0, len(edges))
-	last := math.Vec2{}
+	var last math.Vec2
 	for i, v := range edges {
 		if i == 0 || last.Sub(v).Len() > 0.0001 {
 			pruned = append(pruned, v)
@@ -85,13 +83,12 @@ func triangulate(edges []math.Vec2) []math.Vec2 {
 		return []math.Vec2{}
 	}
 
-	l := list.New()
+	l := list.New[int]()
 	for i := range edges {
 		l.PushBack(i)
 	}
 
 	var out []math.Vec2
-
 	pruned := true
 	for pruned {
 		pruned = false
@@ -105,7 +102,7 @@ func triangulate(edges []math.Vec2) []math.Vec2 {
 				c = l.Front()
 			}
 
-			ia, ib, ic := a.Value.(int), b.Value.(int), c.Value.(int)
+			ia, ib, ic := a.Value, b.Value, c.Value
 
 			if isEar(edges, ia, ib, ic) {
 				l.Remove(b)

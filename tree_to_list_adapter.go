@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 // Interface used to visualize tree nodes in as a list.

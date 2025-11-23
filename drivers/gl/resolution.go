@@ -7,7 +7,7 @@ package gl
 import (
 	"fmt"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 // 16:16 fixed point ratio of DIPs to pixels
@@ -34,8 +34,8 @@ func (r resolution) pointDipsToPixels(point math.Point) math.Point {
 
 func (r resolution) sizeDipsToPixels(size math.Size) math.Size {
 	return math.Size{
-		W: r.intDipsToPixels(size.W),
-		H: r.intDipsToPixels(size.H),
+		Width:  r.intDipsToPixels(size.Width),
+		Height: r.intDipsToPixels(size.Height),
 	}
 }
 

@@ -7,7 +7,7 @@ package gxui
 import (
 	"fmt"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type LayoutChildren interface {
@@ -47,10 +47,10 @@ func (l *LayoutablePart) Size() math.Size {
 }
 
 func (l *LayoutablePart) SetSize(newSize math.Size) {
-	if newSize.W < 0 {
+	if newSize.Width < 0 {
 		panic(fmt.Errorf("SetSize() called with a negative width. Size: %v", newSize))
 	}
-	if newSize.H < 0 {
+	if newSize.Height < 0 {
 		panic(fmt.Errorf("SetSize() called with a negative height. Size: %v", newSize))
 	}
 

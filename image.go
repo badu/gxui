@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type ScalingMode int
@@ -39,15 +39,15 @@ func (i *Image) calculateDrawRect() math.Rect {
 	rect := i.parent.Size().Rect()
 	texW, texH := i.texture.Size().WH()
 	aspectSrc := float32(texH) / float32(texW)
-	aspectDst := float32(rect.H()) / float32(rect.W())
+	aspectDst := float32(rect.Height()) / float32(rect.Width())
 	switch i.aspectMode {
 	case AspectCorrectLetterbox, AspectCorrectCrop:
 		if (aspectDst < aspectSrc) != (i.aspectMode == AspectCorrectLetterbox) {
-			contract := rect.H() - int(float32(rect.W())*aspectSrc)
-			rect = rect.Contract(math.Spacing{T: contract / 2, B: contract / 2})
+			contract := rect.Height() - int(float32(rect.Width())*aspectSrc)
+			rect = rect.Contract(math.Spacing{Top: contract / 2, Bottom: contract / 2})
 		} else {
-			contract := rect.W() - int(float32(rect.H())/aspectSrc)
-			rect = rect.Contract(math.Spacing{L: contract / 2, R: contract / 2})
+			contract := rect.Width() - int(float32(rect.Height())/aspectSrc)
+			rect = rect.Contract(math.Spacing{Left: contract / 2, Right: contract / 2})
 		}
 	default:
 		//
@@ -134,8 +134,8 @@ func (i *Image) PixelAt(point math.Point) (math.Point, bool) {
 	if tex := i.Texture(); tex != nil {
 		size := tex.SizePixels()
 		point = point.Sub(rect.Min).
-			ScaleX(float32(size.W) / float32(rect.W())).
-			ScaleY(float32(size.H) / float32(rect.H()))
+			ScaleX(float32(size.Width) / float32(rect.Width())).
+			ScaleY(float32(size.Height) / float32(rect.Height()))
 		if size.Rect().Contains(point) {
 			return point, true
 		}

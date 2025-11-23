@@ -4,7 +4,9 @@
 
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/pkg/math"
+)
 
 type ScrollLayoutImpl struct {
 	ContainerBase
@@ -39,7 +41,7 @@ func (l *ScrollLayoutImpl) Init(parent BaseContainerParent, driver Driver, style
 
 func (l *ScrollLayoutImpl) LayoutChildren() {
 	size := l.parent.Size().Contract(l.Padding())
-	offset := l.Padding().LT()
+	offset := l.Padding().TopLeft()
 
 	var sxs, sys math.Size
 	if l.canScrollX {
@@ -49,30 +51,30 @@ func (l *ScrollLayoutImpl) LayoutChildren() {
 		sys = l.scrollBarY.Control.DesiredSize(math.ZeroSize, size)
 	}
 
-	l.scrollBarX.Layout(math.CreateRect(0, size.H-sxs.H, size.W-sys.W, size.H).Canon().Offset(offset))
-	l.scrollBarY.Layout(math.CreateRect(size.W-sys.W, 0, size.W, size.H-sxs.H).Canon().Offset(offset))
+	l.scrollBarX.Layout(math.CreateRect(0, size.Height-sxs.Height, size.Width-sys.Width, size.Height).Canon().Offset(offset))
+	l.scrollBarY.Layout(math.CreateRect(size.Width-sys.Width, 0, size.Width, size.Height-sxs.Height).Canon().Offset(offset))
 
-	l.innerSize = size.Contract(math.Spacing{R: sys.W, B: sxs.H})
+	l.innerSize = size.Contract(math.Spacing{Right: sys.Width, Bottom: sxs.Height})
 
 	if l.child != nil {
 		maxSize := l.innerSize
 		if l.canScrollX {
-			maxSize.W = math.MaxSize.W
+			maxSize.Width = math.MaxSize.Width
 		}
 		if l.canScrollY {
-			maxSize.H = math.MaxSize.H
+			maxSize.Height = math.MaxSize.Height
 		}
 		childSize := l.child.Control.DesiredSize(math.ZeroSize, maxSize)
 		l.child.Layout(childSize.Rect().Offset(l.scrollOffset.Neg()).Offset(offset))
 
 		switch scrollbar := l.scrollBarX.Control.(type) {
 		case *ScrollBarImpl:
-			scrollbar.SetScrollLimit(childSize.W)
+			scrollbar.SetScrollLimit(childSize.Width)
 		}
 
 		switch scrollbar := l.scrollBarY.Control.(type) {
 		case *ScrollBarImpl:
-			scrollbar.SetScrollLimit(childSize.H)
+			scrollbar.SetScrollLimit(childSize.Height)
 		}
 	}
 
@@ -92,17 +94,17 @@ func (l *ScrollLayoutImpl) SetScrollOffset(scrollOffset math.Point) bool {
 	innerSize := l.innerSize
 	scrollOffset = scrollOffset.Min(childSize.Sub(innerSize).Point()).Max(math.Point{})
 
-	l.scrollBarX.Control.SetVisible(l.canScrollX && childSize.W > innerSize.W)
-	l.scrollBarY.Control.SetVisible(l.canScrollY && childSize.H > innerSize.H)
+	l.scrollBarX.Control.SetVisible(l.canScrollX && childSize.Width > innerSize.Width)
+	l.scrollBarY.Control.SetVisible(l.canScrollY && childSize.Height > innerSize.Height)
 
 	switch scrollbar := l.scrollBarX.Control.(type) {
 	case *ScrollBarImpl:
-		scrollbar.SetScrollPosition(l.scrollOffset.X, l.scrollOffset.X+innerSize.W)
+		scrollbar.SetScrollPosition(l.scrollOffset.X, l.scrollOffset.X+innerSize.Width)
 	}
 
 	switch scrollbar := l.scrollBarY.Control.(type) {
 	case *ScrollBarImpl:
-		scrollbar.SetScrollPosition(l.scrollOffset.Y, l.scrollOffset.Y+innerSize.H)
+		scrollbar.SetScrollPosition(l.scrollOffset.Y, l.scrollOffset.Y+innerSize.Height)
 	}
 
 	if l.scrollOffset != scrollOffset {

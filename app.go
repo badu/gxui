@@ -7,7 +7,7 @@ package gxui
 import (
 	"time"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type StyleDefs struct {
@@ -59,8 +59,8 @@ type StyleDefs struct {
 func CreateBubbleOverlay(driver Driver, styles *StyleDefs) *BubbleOverlay {
 	result := &BubbleOverlay{}
 	result.Init(result, driver)
-	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetPadding(math.Spacing{L: 5, T: 5, R: 5, B: 5})
+	result.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
+	result.SetPadding(math.Spacing{Left: 5, Top: 5, Right: 5, Bottom: 5})
 	result.SetPen(styles.BubbleOverlayStyle.Pen)
 	result.SetBrush(styles.BubbleOverlayStyle.Brush)
 	return result
@@ -83,8 +83,8 @@ func CreateCodeEditor(driver Driver, styles *StyleDefs) *AppCodeEditor {
 	result := &AppCodeEditor{}
 	result.Init(result, driver, styles)
 	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
-	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	result.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
+	result.SetPadding(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 	result.SetBorderPen(TransparentPen)
 	return result
 }
@@ -121,7 +121,7 @@ func CreateImage(driver Driver, styles *StyleDefs) *Image {
 func CreateLabel(driver Driver, styles *StyleDefs) *Label {
 	result := &Label{}
 	result.Init(result, driver, styles)
-	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	result.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 	return result
 }
 
@@ -144,7 +144,7 @@ func CreateList(driver Driver, styles *StyleDefs) *ListImpl {
 func CreatePanelHolder(driver Driver, styles *StyleDefs) *AppPanelHolder {
 	result := &AppPanelHolder{}
 	result.Init(result, driver, styles)
-	result.SetMargin(math.Spacing{L: 0, T: 2, R: 0, B: 0})
+	result.SetMargin(math.Spacing{Left: 0, Top: 2, Right: 0, Bottom: 0})
 	return result
 }
 
@@ -156,7 +156,7 @@ func (p *AppPanelHolder) CreatePanelTab() PanelTab {
 	result := &AppPanelTab{}
 	result.Button.Init(result, p.driver, p.styles)
 	result.Button.SetType(ToggleButton) // TODO : @Badu - setting ToggleButton requires POST Init() call (in Init() we set it to PushButton
-	result.SetPadding(math.Spacing{L: 5, T: 3, R: 5, B: 3})
+	result.SetPadding(math.Spacing{Left: 5, Top: 3, Right: 5, Bottom: 3})
 	result.OnMouseEnter(func(MouseEvent) { result.Redraw() })
 	result.OnMouseExit(func(MouseEvent) { result.Redraw() })
 	result.OnMouseDown(func(MouseEvent) { result.Redraw() })
@@ -249,8 +249,8 @@ func CreateTextBox(driver Driver, styles *StyleDefs) *TextBox {
 	result := &TextBox{}
 	result.Init(result, driver, styles, styles.DefaultFont)
 	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
-	result.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
-	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	result.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
+	result.SetPadding(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 	result.SetBackgroundBrush(styles.TextBoxDefaultStyle.Brush)
 	result.SetBorderPen(styles.TextBoxDefaultStyle.Pen)
 
@@ -273,7 +273,7 @@ func CreateTextBox(driver Driver, styles *StyleDefs) *TextBox {
 func CreateTree(driver Driver, styles *StyleDefs) *AppTree {
 	result := &AppTree{}
 	result.Init(result, driver, styles)
-	result.SetPadding(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	result.SetPadding(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 	result.SetBorderPen(TransparentPen)
 	result.SetControlCreator(treeControlCreator{})
 	return result
@@ -356,13 +356,13 @@ func (t *AppPanelTab) Paint(canvas Canvas) {
 
 	if t.HasFocus() {
 		style = t.styles.FocusedStyle
-		r := math.CreateRect(1, 1, size.W-1, size.H-1)
+		r := math.CreateRect(1, 1, size.Width-1, size.Height-1)
 		canvas.DrawRoundedRect(r, 4.0, 4.0, 0.0, 0.0, style.Pen, style.Brush)
 	}
 
 	if t.active {
 		style = t.styles.TabActiveHighlightStyle
-		r := math.CreateRect(1, size.H-1, size.W-1, size.H)
+		r := math.CreateRect(1, size.Height-1, size.Width-1, size.Height)
 		canvas.DrawRect(r, style.Brush)
 	}
 
@@ -390,9 +390,9 @@ func (b *AppProgressBar) SetSize(size math.Size) {
 	b.chevrons = nil
 	if size.Area() > 0 {
 		b.chevrons = b.ControlBase.driver.CreateCanvas(size)
-		b.chevronWidth = size.H / 2
+		b.chevronWidth = size.Height / 2
 		cw := b.chevronWidth
-		for x := -cw * 2; x < size.W; x += cw * 2 {
+		for x := -cw * 2; x < size.Width; x += cw * 2 {
 			// x0    x2
 			// |  x1 |  x3
 			//    |     |
@@ -403,7 +403,7 @@ func (b *AppProgressBar) SetSize(size math.Size) {
 			//   /     /
 			//  /     /
 			// E-----D    - y2
-			y0, y1, y2 := 0, size.H/2, size.H
+			y0, y1, y2 := 0, size.Height/2, size.Height
 			x0, x1 := x, x+cw/2
 			x2, x3 := x0+cw, x1+cw
 			var chevron = Polygon{
@@ -489,7 +489,7 @@ type treeControlCreator struct{}
 
 func (treeControlCreator) Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control {
 	img := CreateImage(driver, styles)
-	imgSize := math.Size{W: 10, H: 10}
+	imgSize := math.Size{Width: 10, Height: 10}
 
 	layout := CreateLinearLayout(driver, styles)
 	layout.SetDirection(LeftToRight)
@@ -497,7 +497,7 @@ func (treeControlCreator) Create(driver Driver, styles *StyleDefs, control Contr
 	btn := CreateButton(driver, styles)
 	btn.SetBackgroundBrush(TransparentBrush)
 	btn.SetBorderPen(CreatePen(1, Gray30))
-	btn.SetMargin(math.Spacing{L: 1, R: 1, T: 1, B: 1})
+	btn.SetMargin(math.Spacing{Left: 1, Right: 1, Top: 1, Bottom: 1})
 	btn.OnClick(func(ev MouseEvent) {
 		if ev.Button == MouseButtonLeft {
 			node.ToggleExpanded()
@@ -541,7 +541,7 @@ func (treeControlCreator) Create(driver Driver, styles *StyleDefs, control Contr
 
 	layout.AddChild(btn)
 	layout.AddChild(control)
-	layout.SetPadding(math.Spacing{L: 16 * node.Depth()})
+	layout.SetPadding(math.Spacing{Left: 16 * node.Depth()})
 	return layout
 }
 

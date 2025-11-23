@@ -4,7 +4,9 @@
 
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/pkg/math"
+)
 
 // TreeNodeContainer is the interface used by nodes that can hold sub-nodes in the tree.
 type TreeNodeContainer interface {
@@ -173,7 +175,7 @@ func (defaultTreeControlCreator) Create(driver Driver, styles *StyleDefs, contro
 	btn := CreateButton(driver, styles)
 	btn.SetBackgroundBrush(TransparentBrush)
 	btn.SetBorderPen(CreatePen(1, Gray30))
-	btn.SetMargin(math.Spacing{L: 2, R: 2, T: 1, B: 1})
+	btn.SetMargin(math.Spacing{Left: 2, Right: 2, Top: 1, Bottom: 1})
 	btn.OnClick(func(ev MouseEvent) {
 		if ev.Button == MouseButtonLeft {
 			node.ToggleExpanded()
@@ -194,7 +196,7 @@ func (defaultTreeControlCreator) Create(driver Driver, styles *StyleDefs, contro
 
 	ll.AddChild(btn)
 	ll.AddChild(control)
-	ll.SetPadding(math.Spacing{L: 16 * node.Depth()})
+	ll.SetPadding(math.Spacing{Left: 16 * node.Depth()})
 	return ll
 }
 

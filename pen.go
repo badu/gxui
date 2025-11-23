@@ -14,5 +14,5 @@ type Pen struct {
 }
 
 func CreatePen(width float32, color Color) Pen {
-	return Pen{width, color}
+	return Pen{Width: width, Color: Color{A: color.A, R: color.R, G: color.G, B: color.B}}
 }

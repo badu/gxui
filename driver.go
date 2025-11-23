@@ -7,7 +7,7 @@ package gxui
 import (
 	"image"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 // A Font represents a TrueType font loaded by the GXUI driver.

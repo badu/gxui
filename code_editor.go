@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type LineWidth struct {
@@ -67,7 +67,7 @@ func (e *CodeEditor) Init(parent CodeEditorParent, driver Driver, styles *StyleD
 }
 
 func (e *CodeEditor) ItemSize(styles *StyleDefs) math.Size {
-	return math.Size{W: math.MaxSize.W, H: e.font.GlyphMaxSize().H}
+	return math.Size{Width: math.MaxSize.Width, Height: e.font.GlyphMaxSize().Height}
 }
 
 func (e *CodeEditor) CreateSuggestionList() *ListImpl {
@@ -267,7 +267,7 @@ func (e *CodeEditor) CreateLine(driver Driver, styles *StyleDefs, index int) (Te
 	line.Init(line, e, index)
 
 	foldButton := CreateButton(driver, styles)
-	foldButton.SetMargin(math.Spacing{L: 0, T: 0, R: 0, B: 0})
+	foldButton.SetMargin(math.Spacing{Left: 0, Top: 0, Right: 0, Bottom: 0})
 	foldButton.SetVisible(false)
 
 	layout := CreateLinearLayout(driver, styles)
@@ -316,7 +316,7 @@ func (e *CodeEditor) SetHorizontalOffset(offset int) {
 	}
 	e.updateHorizScrollLimit()
 	e.updateChildOffsets(e, offset)
-	e.horizontalScrollbar.SetScrollPosition(offset, offset+e.Size().W)
+	e.horizontalScrollbar.SetScrollPosition(offset, offset+e.Size().Width)
 	e.horizontalOffset = offset
 	e.LayoutChildren()
 }
@@ -324,7 +324,7 @@ func (e *CodeEditor) SetHorizontalOffset(offset int) {
 func (e *CodeEditor) updateHorizScrollLimit() {
 	maxWidth := e.MaxLineWidth()
 	size := e.Size().Contract(e.parent.Padding())
-	maxScroll := math.Max(maxWidth-size.W, 0)
+	maxScroll := max(maxWidth-size.Width, 0)
 	math.Clamp(e.horizontalOffset, 0, maxScroll)
 	e.horizontalScrollbar.SetScrollLimit(maxWidth)
 }

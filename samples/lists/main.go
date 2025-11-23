@@ -9,7 +9,7 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
 )
 
@@ -43,7 +43,7 @@ func numberPicker(driver gxui.Driver, styles *gxui.StyleDefs, overlay *gxui.Bubb
 	layout.AddChild(list)
 
 	label1 := gxui.CreateLabel(driver, styles)
-	label1.SetMargin(math.Spacing{T: 30})
+	label1.SetMargin(math.Spacing{Top: 30})
 	label1.SetText("Selected number:")
 	layout.AddChild(label1)
 
@@ -87,7 +87,7 @@ func (a *customAdapter) ItemIndex(item gxui.AdapterItem) int {
 }
 
 func (a *customAdapter) Size(styles *gxui.StyleDefs) math.Size {
-	return math.Size{W: 100, H: 100}
+	return math.Size{Width: 100, Height: 100}
 }
 
 func (a *customAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index int) gxui.Control {
@@ -100,7 +100,7 @@ func (a *customAdapter) Create(driver gxui.Driver, styles *gxui.StyleDefs, index
 	}
 	i := gxui.CreateImage(driver, styles)
 	i.SetBackgroundBrush(gxui.CreateBrush(c))
-	i.SetMargin(math.Spacing{L: 3, T: 3, R: 3, B: 3})
+	i.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 	i.OnMouseEnter(
 		func(ev gxui.MouseEvent) {
 			i.SetBorderPen(gxui.CreatePen(2, gxui.Gray80))
@@ -141,12 +141,12 @@ func colorPicker(driver gxui.Driver, styles *gxui.StyleDefs) gxui.Control {
 	layout.AddChild(list)
 
 	label1 := gxui.CreateLabel(driver, styles)
-	label1.SetMargin(math.Spacing{T: 30})
+	label1.SetMargin(math.Spacing{Top: 30})
 	label1.SetText("Selected color:")
 	layout.AddChild(label1)
 
 	selected := gxui.CreateImage(driver, styles)
-	selected.SetExplicitSize(math.Size{W: 32, H: styles.FontSize + 8})
+	selected.SetExplicitSize(math.Size{Width: 32, Height: styles.FontSize + 8})
 	layout.AddChild(selected)
 
 	list.OnSelectionChanged(
@@ -180,7 +180,7 @@ func appMain(driver gxui.Driver) {
 	window.AddChild(holder)
 	window.AddChild(overlay)
 	window.OnClose(driver.Terminate)
-	window.SetPadding(math.Spacing{L: 10, T: 10, R: 10, B: 10})
+	window.SetPadding(math.Spacing{Left: 10, Top: 10, Right: 10, Bottom: 10})
 }
 
 func main() {

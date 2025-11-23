@@ -9,7 +9,7 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
 )
 
@@ -20,7 +20,7 @@ func appMain(driver gxui.Driver) {
 	label.SetText("This is a progress bar:")
 
 	progressBar := gxui.CreateProgressBar(driver, styles)
-	progressBar.SetDesiredSize(math.Size{W: 400, H: styles.FontSize + 4})
+	progressBar.SetDesiredSize(math.Size{Width: 400, Height: styles.FontSize + 4})
 	progressBar.SetTarget(100)
 
 	layout := gxui.CreateLinearLayout(driver, styles)

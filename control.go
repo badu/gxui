@@ -4,7 +4,9 @@
 
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/pkg/math"
+)
 
 // Control is the interface exposed by all UI control elements.
 type Control interface {

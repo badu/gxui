@@ -9,8 +9,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/badu/gxui/interval"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/interval"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type TextBoxEdit struct {
@@ -243,11 +243,11 @@ func (t *TextBoxController) IndexLast(index int) int {
 }
 
 func (t *TextBoxController) IndexLeft(index int) int {
-	return math.Max(index-1, 0)
+	return max(index-1, 0)
 }
 
 func (t *TextBoxController) IndexRight(index int) int {
-	return math.Min(index+1, len(t.text))
+	return min(index+1, len(t.text))
 }
 
 func (t *TextBoxController) IndexWordLeft(index int) int {
@@ -285,7 +285,7 @@ func (t *TextBoxController) IndexUp(index int) int {
 	l := t.LineIndex(index)
 	x := index - t.LineStart(l)
 	if l > 0 {
-		return math.Min(t.LineStart(l-1)+x, t.LineEnd(l-1))
+		return min(t.LineStart(l-1)+x, t.LineEnd(l-1))
 	} else {
 		return 0
 	}
@@ -295,7 +295,7 @@ func (t *TextBoxController) IndexDown(index int) int {
 	l := t.LineIndex(index)
 	x := index - t.LineStart(l)
 	if l < t.LineCount()-1 {
-		return math.Min(t.LineStart(l+1)+x, t.LineEnd(l+1))
+		return min(t.LineStart(l+1)+x, t.LineEnd(l+1))
 	} else {
 		return t.LineEnd(l)
 	}
@@ -587,7 +587,7 @@ func (t *TextBoxController) UnindentSelection(tabWidth int) {
 		}
 
 		for l := lineEnd; l >= lineStart; l-- {
-			c := math.Min(t.LineIndent(l), tabWidth)
+			c := min(t.LineIndent(l), tabWidth)
 			if c > 0 {
 				ls := t.LineStart(l)
 				text, edit = t.ReplaceAt(text, ls, ls+c, []rune{})

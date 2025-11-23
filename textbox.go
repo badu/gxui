@@ -7,7 +7,7 @@ package gxui
 import (
 	"strings"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type TextBoxLine interface {
@@ -125,7 +125,7 @@ func (t *TextBox) textRect() math.Rect {
 }
 
 func (t *TextBox) pageLines() int {
-	return (t.parent.Size().H - t.parent.Padding().H()) / t.MajorAxisItemSize()
+	return (t.parent.Size().Height - t.parent.Padding().Height()) / t.MajorAxisItemSize()
 }
 
 func (t *TextBox) OnRedrawLines(callback func()) EventSubscription {
@@ -278,7 +278,7 @@ func (t *TextBox) ScrollToRune(index int) {
 	lineOffset := t.lineWidthOffset()
 	padding := t.Padding()
 	horizStart := t.horizontalOffset
-	horizEnd := t.horizontalOffset + size.W - padding.W() - lineOffset
+	horizEnd := t.horizontalOffset + size.Width - padding.Width() - lineOffset
 	line, _ := t.parent.CreateLine(t.driver, t.styles, lineIndex)
 	if index < 0 || index > len(t.controller.TextRunes()) {
 		return
@@ -288,7 +288,7 @@ func (t *TextBox) ScrollToRune(index int) {
 		t.SetHorizontalOffset(pos.X)
 	}
 	if horizEnd < pos.X {
-		t.SetHorizontalOffset(pos.X - size.W + padding.W() + lineOffset)
+		t.SetHorizontalOffset(pos.X - size.Width + padding.Width() + lineOffset)
 	}
 }
 
@@ -529,7 +529,7 @@ type TextBoxAdapter struct {
 }
 
 func (t *TextBoxAdapter) Count() int {
-	return math.Max(t.TextBox.controller.LineCount(), 1)
+	return max(t.TextBox.controller.LineCount(), 1)
 }
 
 func (t *TextBoxAdapter) ItemAt(index int) AdapterItem {
@@ -541,7 +541,7 @@ func (t *TextBoxAdapter) ItemIndex(item AdapterItem) int {
 }
 
 func (t *TextBoxAdapter) Size(styles *StyleDefs) math.Size {
-	return math.Size{W: t.TextBox.desiredWidth, H: t.TextBox.font.GlyphMaxSize().H}
+	return math.Size{Width: t.TextBox.desiredWidth, Height: t.TextBox.font.GlyphMaxSize().Height}
 }
 
 func (t *TextBoxAdapter) Create(driver Driver, styles *StyleDefs, index int) Control {
@@ -587,7 +587,7 @@ func (t *TextBox) updateChildOffsets(parent Parent, offset int) {
 func (t *TextBox) updateHorizScrollLimit() {
 	maxWidth := t.MaxLineWidth()
 	size := t.Size().Contract(t.parent.Padding())
-	maxScroll := math.Max(maxWidth-size.W, 0)
+	maxScroll := max(maxWidth-size.Width, 0)
 	math.Clamp(t.horizontalOffset, 0, maxScroll)
 	t.horizontalScrollbar.SetScrollLimit(maxWidth)
 }
@@ -599,7 +599,7 @@ func (t *TextBox) HorizontalOffset() int {
 func (t *TextBox) SetHorizontalOffset(offset int) {
 	t.updateHorizScrollLimit()
 	t.updateChildOffsets(t, offset)
-	t.horizontalScrollbar.SetScrollPosition(offset, offset+t.Size().W)
+	t.horizontalScrollbar.SetScrollPosition(offset, offset+t.Size().Width)
 	if t.horizontalOffset != offset {
 		t.horizontalOffset = offset
 		t.LayoutChildren()
@@ -611,14 +611,14 @@ func (t *TextBox) LayoutChildren() {
 	if t.scrollBarEnabled {
 		size := t.Size().Contract(t.Padding())
 		scrollAreaSize := size
-		scrollAreaSize.W -= t.scrollBar.Size().W
+		scrollAreaSize.Width -= t.scrollBar.Size().Width
 
-		offset := t.Padding().LT()
+		offset := t.Padding().TopLeft()
 		barSize := t.horizontalScrollbar.DesiredSize(math.ZeroSize, scrollAreaSize)
-		t.horizontalScrollChild.Layout(math.CreateRect(0, size.H-barSize.H, scrollAreaSize.W, size.H).Canon().Offset(offset))
+		t.horizontalScrollChild.Layout(math.CreateRect(0, size.Height-barSize.Height, scrollAreaSize.Width, size.Height).Canon().Offset(offset))
 
 		maxLineWidth := t.parent.MaxLineWidth()
-		entireContentVisible := size.W > maxLineWidth
+		entireContentVisible := size.Width > maxLineWidth
 		t.horizontalScrollbar.SetVisible(!entireContentVisible)
 		if entireContentVisible && t.horizontalOffset != 0 {
 			t.SetHorizontalOffset(0)

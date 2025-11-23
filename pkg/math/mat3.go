@@ -18,11 +18,7 @@ import (
 type Mat3 [9]float32
 
 func CreateMat3(r0c0, r0c1, r0c2, r1c0, r1c1, r1c2, r2c0, r2c1, r2c2 float32) Mat3 {
-	return Mat3{
-		r0c0, r0c1, r0c2,
-		r1c0, r1c1, r1c2,
-		r2c0, r2c1, r2c2,
-	}
+	return Mat3{r0c0, r0c1, r0c2, r1c0, r1c1, r1c2, r2c0, r2c1, r2c2}
 }
 
 // Build a 3x3 matrix from 3 row vectors
@@ -33,11 +29,7 @@ func CreateMat3(r0c0, r0c1, r0c2, r1c0, r1c1, r1c2, r2c0, r2c1, r2c2 float32) Ma
 //	│ R₂ │
 //	╰    ╯
 func CreateMat3FromRows(r0, r1, r2 Vec3) Mat3 {
-	return Mat3{
-		r0.X, r0.Y, r0.Z,
-		r1.X, r1.Y, r1.Z,
-		r2.X, r2.Y, r2.Z,
-	}
+	return Mat3{r0.X, r0.Y, r0.Z, r1.X, r1.Y, r1.Z, r2.X, r2.Y, r2.Z}
 }
 
 //	   A
@@ -56,11 +48,7 @@ func CreateMat3FromRows(r0, r1, r2 Vec3) Mat3 {
 func CreateMat3PositionToBarycentric(a, b, c Vec2) Mat3 {
 	m := CreateMat2FromRows(a.Sub(c), b.Sub(c)).Invert()
 	o := MulVM2(c, m)
-	return Mat3{
-		m[0], m[1], 0,
-		m[2], m[3], 0,
-		-o.X, -o.Y, 1,
-	}
+	return Mat3{m[0], m[1], 0, m[2], m[3], 0, -o.X, -o.Y, 1}
 }
 
 func (m Mat3) String() string {
@@ -68,9 +56,9 @@ func (m Mat3) String() string {
 	l := 0
 	for i, v := range m {
 		s[i] = fmt.Sprintf("%.5f", v)
-		l = Max(l, len(s[i]))
+		l = max(l, len(s[i]))
 	}
-	for i, _ := range m {
+	for i := range m {
 		for len(s[i]) < l {
 			s[i] = " " + s[i]
 		}
@@ -94,12 +82,12 @@ func (m Mat3) String() string {
 }
 
 func (m Mat3) Rows() (r0, r1, r2 Vec3) {
-	return Vec3{m[0], m[1], m[2]}, Vec3{m[3], m[4], m[5]}, Vec3{m[6], m[7], m[8]}
+	return Vec3{X: m[0], Y: m[1], Z: m[2]}, Vec3{X: m[3], Y: m[4], Z: m[5]}, Vec3{X: m[6], Y: m[7], Z: m[8]}
 }
 
 func (m Mat3) Row(i int) Vec3 {
 	i *= 3
-	return Vec3{m[i+0], m[i+1], m[i+2]}
+	return Vec3{X: m[i+0], Y: m[i+1], Z: m[i+2]}
 }
 
 func (m Mat3) Invert() Mat3 {
@@ -119,11 +107,7 @@ func (m Mat3) Invert() Mat3 {
 }
 
 func (m Mat3) Transpose() Mat3 {
-	return CreateMat3(
-		m[0], m[3], m[6],
-		m[1], m[4], m[7],
-		m[2], m[5], m[8],
-	)
+	return CreateMat3(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8])
 }
 
 func (m Mat3) DivS(s float32) Mat3 {

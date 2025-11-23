@@ -7,7 +7,7 @@ package gxui
 import (
 	"strings"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type Label struct {

@@ -4,7 +4,9 @@
 
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/pkg/math"
+)
 
 type ScrollBarImpl struct {
 	ControlBase
@@ -44,17 +46,17 @@ func (s *ScrollBarImpl) updateBarRect() {
 	rect := size.Rect()
 	halfMinLen := s.minBarLength / 2
 	if s.orientation.Horizontal() {
-		rect.Min.X = math.Lerp(0, size.W, fractionFrom)
-		rect.Max.X = math.Lerp(0, size.W, fractionTo)
-		if rect.W() < s.minBarLength {
+		rect.Min.X = math.Lerp(0, size.Width, fractionFrom)
+		rect.Max.X = math.Lerp(0, size.Width, fractionTo)
+		if rect.Width() < s.minBarLength {
 			half := (rect.Min.X + rect.Max.X) / 2
 			half = math.Clamp(half, rect.Min.X+halfMinLen, rect.Max.X-halfMinLen)
 			rect.Min.X, rect.Max.X = half-halfMinLen, half+halfMinLen
 		}
 	} else {
-		rect.Min.Y = math.Lerp(0, size.H, fractionFrom)
-		rect.Max.Y = math.Lerp(0, size.H, fractionTo)
-		if rect.H() < s.minBarLength {
+		rect.Min.Y = math.Lerp(0, size.Height, fractionFrom)
+		rect.Max.Y = math.Lerp(0, size.Height, fractionTo)
+		if rect.Height() < s.minBarLength {
 			half := (rect.Min.Y + rect.Max.Y) / 2
 			half = math.Clamp(half, rect.Min.Y+halfMinLen, rect.Max.Y-halfMinLen)
 			rect.Min.Y, rect.Max.Y = half-halfMinLen, half+halfMinLen
@@ -87,9 +89,9 @@ func (s *ScrollBarImpl) ScrollFraction() (float32, float32) {
 
 func (s *ScrollBarImpl) DesiredSize(min, max math.Size) math.Size {
 	if s.orientation.Horizontal() {
-		return math.Size{W: max.W, H: s.thickness}.Clamp(min, max)
+		return math.Size{Width: max.Width, Height: s.thickness}.Clamp(min, max)
 	} else {
-		return math.Size{W: s.thickness, H: max.H}.Clamp(min, max)
+		return math.Size{Width: s.thickness, Height: max.Height}.Clamp(min, max)
 	}
 }
 
@@ -204,11 +206,11 @@ func (s *ScrollBarImpl) Click(event MouseEvent) bool {
 		switch {
 		case p < from:
 			width := to - from
-			from = math.Max(from-width, 0)
+			from = max(from-width, 0)
 			s.SetScrollPosition(from, from+width)
 		case p > to:
 			width := to - from
-			to = math.Min(to+width, s.scrollLimit)
+			to = min(to+width, s.scrollLimit)
 			s.SetScrollPosition(to-width, to)
 		}
 	}

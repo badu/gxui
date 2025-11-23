@@ -6,7 +6,7 @@ package gl
 
 import (
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 
 	"github.com/goxjs/gl"
 )
@@ -134,23 +134,23 @@ func (b *blitter) blit(ctx *context, textureCtx *textureContext, srcRect, dstRec
 	var mUV math.Mat3
 	if textureCtx.flipY {
 		mUV = math.CreateMat3(
-			float32(srcRect.W())/float32(sw), 0, 0,
-			0, -float32(srcRect.H())/float32(sh), 0,
+			float32(srcRect.Width())/float32(sw), 0, 0,
+			0, -float32(srcRect.Height())/float32(sh), 0,
 			float32(srcRect.Min.X)/float32(sw),
 			1.0-float32(srcRect.Min.Y)/float32(sh), 1,
 		)
 	} else {
 		mUV = math.CreateMat3(
-			float32(srcRect.W())/float32(sw), 0, 0,
-			0, float32(srcRect.H())/float32(sh), 0,
+			float32(srcRect.Width())/float32(sw), 0, 0,
+			0, float32(srcRect.Height())/float32(sh), 0,
 			float32(srcRect.Min.X)/float32(sw),
 			float32(srcRect.Min.Y)/float32(sh), 1,
 		)
 	}
 
 	mPos := math.CreateMat3(
-		+2.0*float32(dstRect.W())/float32(dw), 0, 0,
-		0, -2.0*float32(dstRect.H())/float32(dh), 0,
+		+2.0*float32(dstRect.Width())/float32(dw), 0, 0,
+		0, -2.0*float32(dstRect.Height())/float32(dh), 0,
 		-1.0+2.0*float32(dstRect.Min.X)/float32(dw),
 		+1.0-2.0*float32(dstRect.Min.Y)/float32(dh), 1,
 	)
@@ -267,8 +267,8 @@ func (b *blitter) blitRect(ctx *context, dstRect math.Rect, color gxui.Color, st
 	dstRect = dstRect.Offset(state.OriginPixels)
 	dw, dh := ctx.sizePixels.WH()
 	mPos := math.CreateMat3(
-		+2.0*float32(dstRect.W())/float32(dw), 0, 0,
-		0, -2.0*float32(dstRect.H())/float32(dh), 0,
+		+2.0*float32(dstRect.Width())/float32(dw), 0, 0,
+		0, -2.0*float32(dstRect.Height())/float32(dh), 0,
 		-1.0+2.0*float32(dstRect.Min.X)/float32(dw),
 		+1.0-2.0*float32(dstRect.Min.Y)/float32(dh), 1,
 	)

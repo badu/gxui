@@ -5,8 +5,8 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/interval"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/interval"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type CodeEditorLineParent interface {
@@ -108,8 +108,8 @@ func (l *CodeEditorLine) Paint(canvas Canvas) {
 	if start != end {
 		lineSpan := interval.CreateIntData(start, end, nil)
 
-		lineHeight := l.Size().H
-		glyphWidth := font.GlyphMaxSize().W
+		lineHeight := l.Size().Height
+		glyphWidth := font.GlyphMaxSize().Width
 		offsets := font.Layout(
 			&TextBlock{Runes: runes, AlignRect: rect, H: AlignLeft, V: AlignMiddle},
 		)

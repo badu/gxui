@@ -7,7 +7,7 @@ package gxui
 import (
 	"fmt"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type ListParent interface {
@@ -137,13 +137,13 @@ func (l *ListImpl) LayoutChildren() {
 	}
 
 	size := l.parent.Size().Contract(l.Padding())
-	offset := l.Padding().LT()
+	offset := l.Padding().TopLeft()
 
 	var itemSize math.Size
 	if l.orientation.Horizontal() {
-		itemSize = math.Size{W: l.itemSize.W, H: size.H}
+		itemSize = math.Size{Width: l.itemSize.Width, Height: size.Height}
 	} else {
-		itemSize = math.Size{W: size.W, H: l.itemSize.H}
+		itemSize = math.Size{Width: size.Width, Height: l.itemSize.Height}
 	}
 
 	startIndex, endIndex := l.VisibleItemRange(true)
@@ -182,9 +182,9 @@ func (l *ListImpl) LayoutChildren() {
 		childSize := itemSize.Contract(childMargin).Max(math.ZeroSize)
 
 		if l.orientation.Horizontal() {
-			child.Layout(math.CreateRect(displacement, childMargin.T, displacement+childSize.W, childMargin.T+childSize.H).Offset(offset))
+			child.Layout(math.CreateRect(displacement, childMargin.Top, displacement+childSize.Width, childMargin.Top+childSize.Height).Offset(offset))
 		} else {
-			child.Layout(math.CreateRect(childMargin.L, displacement, childMargin.L+childSize.W, displacement+childSize.H).Offset(offset))
+			child.Layout(math.CreateRect(childMargin.Left, displacement, childMargin.Left+childSize.Width, displacement+childSize.Height).Offset(offset))
 		}
 
 		displacement += majorAxisItemSize
@@ -202,9 +202,9 @@ func (l *ListImpl) LayoutChildren() {
 	if l.scrollBarEnabled {
 		scrollSize := l.scrollBar.DesiredSize(math.ZeroSize, size)
 		if l.Orientation().Horizontal() {
-			l.scrollBarChild.Layout(math.CreateRect(0, size.H-scrollSize.H, size.W, size.H).Canon().Offset(offset))
+			l.scrollBarChild.Layout(math.CreateRect(0, size.Height-scrollSize.Height, size.Width, size.Height).Canon().Offset(offset))
 		} else {
-			l.scrollBarChild.Layout(math.CreateRect(size.W-scrollSize.W, 0, size.W, size.H).Canon().Offset(offset))
+			l.scrollBarChild.Layout(math.CreateRect(size.Width-scrollSize.Width, 0, size.Width, size.Height).Canon().Offset(offset))
 		}
 
 		// Only show the scroll bar if needed
@@ -221,29 +221,29 @@ func (l *ListImpl) SetSize(size math.Size) {
 	l.SetScrollOffset(l.scrollOffset)
 }
 
-func (l *ListImpl) DesiredSize(min, max math.Size) math.Size {
+func (l *ListImpl) DesiredSize(minSize, maxSize math.Size) math.Size {
 	if l.adapter == nil {
-		return min
+		return minSize
 	}
 
-	count := math.Max(l.itemCount, 1)
+	count := max(l.itemCount, 1)
 
 	var size math.Size
 	if l.orientation.Horizontal() {
-		size = math.Size{W: l.itemSize.W * count, H: l.itemSize.H}
+		size = math.Size{Width: l.itemSize.Width * count, Height: l.itemSize.Height}
 	} else {
-		size = math.Size{W: l.itemSize.W, H: l.itemSize.H * count}
+		size = math.Size{Width: l.itemSize.Width, Height: l.itemSize.Height * count}
 	}
 
 	if l.scrollBarEnabled {
 		if l.orientation.Horizontal() {
-			size.H += l.scrollBar.DesiredSize(min, max).H
+			size.Height += l.scrollBar.DesiredSize(minSize, maxSize).Height
 		} else {
-			size.W += l.scrollBar.DesiredSize(min, max).W
+			size.Width += l.scrollBar.DesiredSize(minSize, maxSize).Width
 		}
 	}
 
-	return size.Expand(l.parent.Padding()).Clamp(min, max)
+	return size.Expand(l.parent.Padding()).Clamp(minSize, maxSize)
 }
 
 func (l *ListImpl) ScrollBarEnabled(bool) bool {
@@ -267,13 +267,13 @@ func (l *ListImpl) SetScrollOffset(scrollOffset int) {
 	size := l.parent.Size().Contract(l.parent.Padding())
 
 	if l.orientation.Horizontal() {
-		maxScroll := math.Max(l.itemSize.W*l.itemCount-size.W, 0)
+		maxScroll := max(l.itemSize.Width*l.itemCount-size.Width, 0)
 		scrollOffset = math.Clamp(scrollOffset, 0, maxScroll)
-		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+size.W)
+		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+size.Width)
 	} else {
-		maxScroll := math.Max(l.itemSize.H*l.itemCount-size.H, 0)
+		maxScroll := max(l.itemSize.Height*l.itemCount-size.Height, 0)
 		scrollOffset = math.Clamp(scrollOffset, 0, maxScroll)
-		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+size.H)
+		l.scrollBar.SetScrollPosition(scrollOffset, scrollOffset+size.Height)
 	}
 
 	if l.scrollOffset != scrollOffset {
@@ -305,17 +305,17 @@ func (l *ListImpl) VisibleItemRange(includePartiallyVisible bool) (int, int) {
 
 	endIndex := 0
 	if l.orientation.Horizontal() {
-		endIndex = l.scrollOffset + size.W - padding.W()
+		endIndex = l.scrollOffset + size.Width - padding.Width()
 	} else {
-		endIndex = l.scrollOffset + size.H - padding.H()
+		endIndex = l.scrollOffset + size.Height - padding.Height()
 	}
 
 	if includePartiallyVisible {
 		endIndex += majorAxisItemSize - 1
 	}
 
-	startIndex = math.Max(startIndex/majorAxisItemSize, 0)
-	endIndex = math.Min(endIndex/majorAxisItemSize, l.itemCount)
+	startIndex = max(startIndex/majorAxisItemSize, 0)
+	endIndex = min(endIndex/majorAxisItemSize, l.itemCount)
 
 	return startIndex, endIndex
 }
@@ -428,10 +428,10 @@ func (l *ListImpl) MouseScroll(event MouseEvent) bool {
 
 	prevOffset := l.scrollOffset
 	if l.orientation.Horizontal() {
-		delta := event.ScrollY * l.itemSize.W / 8
+		delta := event.ScrollY * l.itemSize.Width / 8
 		l.SetScrollOffset(l.scrollOffset - delta)
 	} else {
-		delta := event.ScrollY * l.itemSize.H / 8
+		delta := event.ScrollY * l.itemSize.Height / 8
 		l.SetScrollOffset(l.scrollOffset - delta)
 	}
 
@@ -451,11 +451,11 @@ func (l *ListImpl) KeyPress(event KeyboardEvent) bool {
 				return true
 
 			case KeyPageUp:
-				l.SetScrollOffset(l.scrollOffset - l.Size().W)
+				l.SetScrollOffset(l.scrollOffset - l.Size().Width)
 				return true
 
 			case KeyPageDown:
-				l.SetScrollOffset(l.scrollOffset + l.Size().W)
+				l.SetScrollOffset(l.scrollOffset + l.Size().Width)
 				return true
 			}
 		} else {
@@ -469,11 +469,11 @@ func (l *ListImpl) KeyPress(event KeyboardEvent) bool {
 				return true
 
 			case KeyPageUp:
-				l.SetScrollOffset(l.scrollOffset - l.Size().H)
+				l.SetScrollOffset(l.scrollOffset - l.Size().Height)
 				return true
 
 			case KeyPageDown:
-				l.SetScrollOffset(l.scrollOffset + l.Size().H)
+				l.SetScrollOffset(l.scrollOffset + l.Size().Height)
 				return true
 
 			}
@@ -522,16 +522,16 @@ func (l *ListImpl) ScrollTo(item AdapterItem) {
 	startIndex, endIndex := l.VisibleItemRange(false)
 	if idx < startIndex {
 		if l.Orientation().Horizontal() {
-			l.SetScrollOffset(l.itemSize.W * idx)
+			l.SetScrollOffset(l.itemSize.Width * idx)
 		} else {
-			l.SetScrollOffset(l.itemSize.H * idx)
+			l.SetScrollOffset(l.itemSize.Height * idx)
 		}
 	} else if idx >= endIndex {
 		count := endIndex - startIndex
 		if l.Orientation().Horizontal() {
-			l.SetScrollOffset(l.itemSize.W * (idx - count + 1))
+			l.SetScrollOffset(l.itemSize.Width * (idx - count + 1))
 		} else {
-			l.SetScrollOffset(l.itemSize.H * (idx - count + 1))
+			l.SetScrollOffset(l.itemSize.Height * (idx - count + 1))
 		}
 	}
 }

@@ -11,7 +11,7 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl/platform"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/goxjs/gl"
 	"github.com/goxjs/glfw"
 )
@@ -110,7 +110,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	wnd.SetSizeCallback(
 		func(_ *glfw.Window, w, h int) {
 			result.Lock()
-			result.sizeDipsUnscaled = math.Size{W: w, H: h}
+			result.sizeDipsUnscaled = math.Size{Width: w, Height: h}
 			result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
 			result.Unlock()
 			result.onResize.Emit()
@@ -120,7 +120,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	wnd.SetFramebufferSizeCallback(
 		func(_ *glfw.Window, w, h int) {
 			result.Lock()
-			result.sizePixels = math.Size{W: w, H: h}
+			result.sizePixels = math.Size{Width: w, Height: h}
 			result.Unlock()
 			gl.Viewport(0, 0, w, h)
 			gl.ClearColor(clearColorR, clearColorG, clearColorB, 1.0)
@@ -286,9 +286,9 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	result.onKeyStroke = driver.createAppEvent(func(gxui.KeyStrokeEvent) {})
 	result.onDestroy = driver.createDriverEvent(func() {})
 
-	result.sizeDipsUnscaled = math.Size{W: width, H: height}
+	result.sizeDipsUnscaled = math.Size{Width: width, Height: height}
 	result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
-	result.sizePixels = math.Size{W: fw, H: fh}
+	result.sizePixels = math.Size{Width: fw, Height: fh}
 	result.position = math.Point{X: posX, Y: posY}
 
 	return result
@@ -379,7 +379,7 @@ func (v *ViewportImpl) SetSizeDips(size math.Size) {
 	v.driver.syncDriver(func() {
 		v.sizeDips = size
 		v.sizeDipsUnscaled = size.ScaleS(v.scaling)
-		v.window.SetSize(v.sizeDipsUnscaled.W, v.sizeDipsUnscaled.H)
+		v.window.SetSize(v.sizeDipsUnscaled.Width, v.sizeDipsUnscaled.Height)
 	})
 }
 

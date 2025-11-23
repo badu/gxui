@@ -1,6 +1,8 @@
 package gxui
 
-import "github.com/badu/gxui/math"
+import (
+	"github.com/badu/gxui/pkg/math"
+)
 
 type Cell struct {
 	x, y, w, h int
@@ -30,9 +32,9 @@ func (l *TableLayoutImpl) Init(parent BaseContainerParent, driver Driver) {
 
 func (l *TableLayoutImpl) LayoutChildren() {
 	size := l.parent.Size().Contract(l.parent.Padding())
-	offset := l.parent.Padding().LT()
+	offset := l.parent.Padding().TopLeft()
 
-	columnWidth, columnHeight := size.W/l.columns, size.H/l.rows
+	columnWidth, columnHeight := size.Width/l.columns, size.Height/l.rows
 
 	var childRect math.Rect
 	for _, child := range l.parent.Children() {
@@ -42,7 +44,7 @@ func (l *TableLayoutImpl) LayoutChildren() {
 		x, y := cell.x*columnWidth, cell.y*columnHeight
 		w, h := x+cell.w*columnWidth, y+cell.h*columnHeight
 
-		childRect = math.CreateRect(x+childMargin.L, y+childMargin.T, w-childMargin.R, h-childMargin.B)
+		childRect = math.CreateRect(x+childMargin.Left, y+childMargin.Top, w-childMargin.Right, h-childMargin.Bottom)
 
 		child.Layout(childRect.Offset(offset).Canon())
 	}

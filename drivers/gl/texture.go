@@ -7,7 +7,7 @@ package gl
 import (
 	"image"
 
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/goxjs/gl"
 )
 
@@ -36,7 +36,7 @@ func (t *TextureImpl) Size() math.Size {
 
 func (t *TextureImpl) SizePixels() math.Size {
 	s := t.image.Bounds().Size()
-	return math.Size{W: s.X, H: s.Y}
+	return math.Size{Width: s.X, Height: s.Y}
 }
 
 func (t *TextureImpl) FlipY() bool {

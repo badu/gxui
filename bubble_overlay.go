@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type BubbleOverlay struct {
@@ -97,10 +97,10 @@ func (o *BubbleOverlay) Paint(canvas Canvas) {
 			    D-----------------C
 			*/
 			polygon = Polygon{
-				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
-				/*B*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
-				/*C*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
-				/*D*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
+				/*A*/ {Position: expandedBounds.TopLeft(), RoundedRadius: 5},
+				/*B*/ {Position: expandedBounds.TopRight(), RoundedRadius: 5},
+				/*C*/ {Position: expandedBounds.BottomRight(), RoundedRadius: 5},
+				/*D*/ {Position: expandedBounds.BottomLeft(), RoundedRadius: 5},
 				/*E*/ {Position: math.Point{X: expandedBounds.Min.X, Y: math.Clamp(targetPoint.Y+halfWidth, expandedBounds.Min.Y+halfWidth, expandedBounds.Max.Y)}, RoundedRadius: 0},
 				/*F*/ {Position: targetPoint, RoundedRadius: 0},
 				/*G*/ {Position: math.Point{X: expandedBounds.Min.X, Y: math.Clamp(targetPoint.Y-halfWidth, expandedBounds.Min.Y, expandedBounds.Max.Y-halfWidth)}, RoundedRadius: 0},
@@ -114,13 +114,13 @@ func (o *BubbleOverlay) Paint(canvas Canvas) {
 			   G-----------------F
 			*/
 			polygon = Polygon{
-				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
-				/*B*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
+				/*A*/ {Position: expandedBounds.TopLeft(), RoundedRadius: 5},
+				/*B*/ {Position: expandedBounds.TopRight(), RoundedRadius: 5},
 				/*C*/ {Position: math.Point{X: expandedBounds.Max.X, Y: math.Clamp(targetPoint.Y-halfWidth, expandedBounds.Min.Y, expandedBounds.Max.Y-halfWidth)}, RoundedRadius: 0},
 				/*D*/ {Position: targetPoint, RoundedRadius: 0},
 				/*E*/ {Position: math.Point{X: expandedBounds.Max.X, Y: math.Clamp(targetPoint.Y+halfWidth, expandedBounds.Min.Y+halfWidth, expandedBounds.Max.Y)}, RoundedRadius: 0},
-				/*F*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
-				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
+				/*F*/ {Position: expandedBounds.BottomRight(), RoundedRadius: 5},
+				/*G*/ {Position: expandedBounds.BottomLeft(), RoundedRadius: 5},
 			}
 		case targetPoint.Y < expandedBounds.Min.Y:
 			/*
@@ -132,13 +132,13 @@ func (o *BubbleOverlay) Paint(canvas Canvas) {
 			   G-----------------F
 			*/
 			polygon = Polygon{
-				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
+				/*A*/ {Position: expandedBounds.TopLeft(), RoundedRadius: 5},
 				/*B*/ {Position: math.Point{X: math.Clamp(targetPoint.X-halfWidth, expandedBounds.Min.X, expandedBounds.Max.X-halfWidth), Y: expandedBounds.Min.Y}, RoundedRadius: 0},
 				/*C*/ {Position: targetPoint, RoundedRadius: 0},
 				/*D*/ {Position: math.Point{X: math.Clamp(targetPoint.X+halfWidth, expandedBounds.Min.X+halfWidth, expandedBounds.Max.X), Y: expandedBounds.Min.Y}, RoundedRadius: 0},
-				/*E*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
-				/*F*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
-				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
+				/*E*/ {Position: expandedBounds.TopRight(), RoundedRadius: 5},
+				/*F*/ {Position: expandedBounds.BottomRight(), RoundedRadius: 5},
+				/*G*/ {Position: expandedBounds.BottomLeft(), RoundedRadius: 5},
 			}
 		default:
 			/*
@@ -150,13 +150,13 @@ func (o *BubbleOverlay) Paint(canvas Canvas) {
 			                 E
 			*/
 			polygon = Polygon{
-				/*A*/ {Position: expandedBounds.TL(), RoundedRadius: 5},
-				/*B*/ {Position: expandedBounds.TR(), RoundedRadius: 5},
-				/*C*/ {Position: expandedBounds.BR(), RoundedRadius: 5},
+				/*A*/ {Position: expandedBounds.TopLeft(), RoundedRadius: 5},
+				/*B*/ {Position: expandedBounds.TopRight(), RoundedRadius: 5},
+				/*C*/ {Position: expandedBounds.BottomRight(), RoundedRadius: 5},
 				/*D*/ {Position: math.Point{X: math.Clamp(targetPoint.X+halfWidth, expandedBounds.Min.X+halfWidth, expandedBounds.Max.X), Y: expandedBounds.Max.Y}, RoundedRadius: 0},
 				/*E*/ {Position: targetPoint, RoundedRadius: 0},
 				/*F*/ {Position: math.Point{X: math.Clamp(targetPoint.X-halfWidth, expandedBounds.Min.X, expandedBounds.Max.X-halfWidth), Y: expandedBounds.Max.Y}, RoundedRadius: 0},
-				/*G*/ {Position: expandedBounds.BL(), RoundedRadius: 5},
+				/*G*/ {Position: expandedBounds.BottomLeft(), RoundedRadius: 5},
 			}
 		}
 		canvas.DrawPolygon(polygon, o.pen, o.brush)

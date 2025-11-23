@@ -9,15 +9,15 @@ import (
 
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl"
-	"github.com/badu/gxui/gxfont"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/font"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
 )
 
 func appMain(driver gxui.Driver) {
 	styles := flags.CreateTheme(driver)
 
-	font, err := driver.CreateFont(gxfont.Default, 75)
+	font, err := driver.CreateFont(font.Default, 75)
 	if err != nil {
 		panic(err)
 	}

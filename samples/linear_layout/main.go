@@ -7,7 +7,7 @@ package main
 import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl"
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
 )
 
@@ -81,7 +81,7 @@ func appMain(driver gxui.Driver) {
 	window.SetScale(flags.DefaultScaleFactor)
 	window.AddChild(layout)
 	window.OnClose(driver.Terminate)
-	window.SetPadding(math.Spacing{L: 10, T: 10, R: 10, B: 10})
+	window.SetPadding(math.Spacing{Left: 10, Top: 10, Right: 10, Bottom: 10})
 }
 
 func main() {

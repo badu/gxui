@@ -5,7 +5,7 @@
 package gxui
 
 import (
-	"github.com/badu/gxui/math"
+	"github.com/badu/gxui/pkg/math"
 )
 
 type SplitterLayoutParent interface {
@@ -35,7 +35,7 @@ func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, driver Driver, st
 
 func (l *SplitterLayoutImpl) LayoutChildren() {
 	size := l.parent.Size().Contract(l.Padding())
-	offset := l.Padding().LT()
+	offset := l.Padding().TopLeft()
 
 	children := l.parent.Children()
 
@@ -43,9 +43,9 @@ func (l *SplitterLayoutImpl) LayoutChildren() {
 
 	splitterWidth := l.splitterWidth
 	if l.orientation.Horizontal() {
-		size.W -= splitterWidth * splitterCount
+		size.Width -= splitterWidth * splitterCount
 	} else {
-		size.H -= splitterWidth * splitterCount
+		size.Height -= splitterWidth * splitterCount
 	}
 
 	netWeight := float32(0.0)
@@ -62,19 +62,19 @@ func (l *SplitterLayoutImpl) LayoutChildren() {
 			childMargin := child.Control.Margin()
 			frac := l.weights[child.Control] / netWeight
 			if l.orientation.Horizontal() {
-				childWidth := int(float32(size.W) * frac)
-				childRect = math.CreateRect(trackedDist+childMargin.L, childMargin.T, trackedDist+childWidth-childMargin.R, size.H-childMargin.B)
+				childWidth := int(float32(size.Width) * frac)
+				childRect = math.CreateRect(trackedDist+childMargin.Left, childMargin.Top, trackedDist+childWidth-childMargin.Right, size.Height-childMargin.Bottom)
 				trackedDist += childWidth
 			} else {
-				childHeight := int(float32(size.H) * frac)
-				childRect = math.CreateRect(childMargin.L, trackedDist+childMargin.T, size.W-childMargin.R, trackedDist+childHeight-childMargin.B)
+				childHeight := int(float32(size.Height) * frac)
+				childRect = math.CreateRect(childMargin.Left, trackedDist+childMargin.Top, size.Width-childMargin.Right, trackedDist+childHeight-childMargin.Bottom)
 				trackedDist += childHeight
 			}
 		} else {
 			if l.orientation.Horizontal() {
-				childRect = math.CreateRect(trackedDist, 0, trackedDist+splitterWidth, size.H)
+				childRect = math.CreateRect(trackedDist, 0, trackedDist+splitterWidth, size.Height)
 			} else {
-				childRect = math.CreateRect(0, trackedDist, size.W, trackedDist+splitterWidth)
+				childRect = math.CreateRect(0, trackedDist, size.Width, trackedDist+splitterWidth)
 			}
 			trackedDist += splitterWidth
 		}
