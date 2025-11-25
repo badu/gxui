@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: Unlicense OR MIT
-
 //go:build darwin || linux || freebsd || openbsd
 // +build darwin linux freebsd openbsd
 
@@ -129,6 +127,18 @@ typedef GLboolean (*_glUnmapBuffer)(GLenum target);
 typedef void (*_glBindImageTexture)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
 typedef void (*_glTexStorage2D)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
 typedef void (*_glBlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+
+typedef void  (*_glGetActiveUniform)(GLuint  program, GLuint  index, GLsizei  bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
+typedef void  (*_glGetActiveAttrib)(GLuint  program, GLuint  index, GLsizei  bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
+typedef GLint  (*_glGetAttribLocation)(GLuint  program, const GLchar * name);
+typedef void  (*_glBlendFunc)(GLenum  sfactor, GLenum  dfactor);
+typedef void  (*_glUniformMatrix2fv)(GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value);
+typedef void  (*_glUniformMatrix3fv)(GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value);
+typedef void  (*_glUniformMatrix4fv)(GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value);
+typedef void  (*_glUniform1fv)(GLint  location, GLsizei  count, const GLfloat * value);
+typedef void  (*_glUniform2fv)(GLint  location, GLsizei  count, const GLfloat * value);
+typedef void  (*_glUniform3fv)(GLint  location, GLsizei  count, const GLfloat * value);
+typedef void  (*_glUniform4fv)(GLint  location, GLsizei  count, const GLfloat * value);
 
 static void glActiveTexture(_glActiveTexture f, GLenum texture) {
 	f(texture);
@@ -517,6 +527,50 @@ static void glTexStorage2D(_glTexStorage2D f, GLenum target, GLsizei levels, GLe
 static void glBlitFramebuffer(_glBlitFramebuffer f, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter) {
 	f(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
 }
+
+static void  glowGetActiveUniform(_glGetActiveUniform f, GLuint  program, GLuint  index, GLsizei  bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name) {
+	f(program, index, bufSize, length, size, type, name);
+}
+
+static void  glowGetActiveAttrib(_glGetActiveAttrib f, GLuint  program, GLuint  index, GLsizei  bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name) {
+   f(program, index, bufSize, length, size, type, name);
+}
+
+static GLint  glowGetAttribLocation(_glGetAttribLocation f, GLuint  program, const GLchar * name) {
+   return f(program, name);
+}
+
+static void  glowBlendFunc(_glBlendFunc f, GLenum  sfactor, GLenum  dfactor) {
+   f(sfactor, dfactor);
+}
+
+static void  glowUniformMatrix2fv(_glUniformMatrix2fv f, GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value) {
+   f(location, count, transpose, value);
+}
+
+static void  glowUniformMatrix3fv(_glUniformMatrix3fv f, GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value) {
+   f(location, count, transpose, value);
+}
+
+static void  glowUniformMatrix4fv(_glUniformMatrix4fv f, GLint  location, GLsizei  count, GLboolean  transpose, const GLfloat * value) {
+   f(location, count, transpose, value);
+}
+
+static void  glowUniform1fv(_glUniform1fv f, GLint  location, GLsizei  count, const GLfloat * value) {
+   f(location, count, value);
+}
+
+static void  glowUniform2fv(_glUniform2fv f, GLint  location, GLsizei  count, const GLfloat * value) {
+   f(location, count, value);
+}
+
+static void  glowUniform3fv(_glUniform3fv f, GLint  location, GLsizei  count, const GLfloat * value) {
+   f(location, count, value);
+}
+
+static void  glowUniform4fv(_glUniform4fv f, GLint  location, GLsizei  count, const GLfloat * value) {
+   f(location, count, value);
+}
 */
 import "C"
 
@@ -623,17 +677,32 @@ type Functions struct {
 	glBindImageTexture                    C._glBindImageTexture
 	glTexStorage2D                        C._glTexStorage2D
 	glBlitFramebuffer                     C._glBlitFramebuffer
+
+	glowGetActiveUniform  C._glGetActiveUniform
+	glowGetActiveAttrib   C._glGetActiveAttrib
+	glowGetAttribLocation C._glGetAttribLocation
+	glowBlendFunc         C._glBlendFunc
+	glowUniformMatrix2fv  C._glUniformMatrix2fv
+	glowUniformMatrix3fv  C._glUniformMatrix3fv
+	glowUniformMatrix4fv  C._glUniformMatrix4fv
+	glowUniform1fv        C._glUniform1fv
+	glowUniform2fv        C._glUniform2fv
+	glowUniform3fv        C._glUniform3fv
+	glowUniform4fv        C._glUniform4fv
 }
 
+// https://github.com/YouROK/go-mpv
 func NewFunctions(ctx Context, forceES bool) (*Functions, error) {
 	if ctx != nil {
 		panic("non-nil context")
 	}
 	f := new(Functions)
+
 	err := f.load(forceES)
 	if err != nil {
 		return nil, err
 	}
+
 	return f, nil
 }
 
@@ -683,6 +752,13 @@ func (fn *Functions) load(forceES bool) error {
 				return (*[0]byte)(f)
 			}
 		}
+
+		// Try glGetProcAddress second
+		if f := GetProcAddress(s); f != nil {
+			fmt.Println("glGetProcAddress:", s, "->", C.GoString((*C.char)(f)))
+			return (*[0]byte)(f)
+		}
+
 		return nil
 	}
 
@@ -814,6 +890,18 @@ func (fn *Functions) load(forceES bool) error {
 	fn.glBlitFramebuffer = load("glBlitFramebuffer")
 	fn.glGetProgramBinary = load("glGetProgramBinary")
 
+	fn.glowGetActiveUniform = load("glGetActiveUniform")
+	fn.glowGetActiveAttrib = load("glGetActiveAttrib")
+	fn.glowGetAttribLocation = load("glGetAttribLocation")
+	fn.glowBlendFunc = load("glBlendFunc")
+	fn.glowUniformMatrix2fv = load("glUniformMatrix2fv")
+	fn.glowUniformMatrix3fv = load("glUniformMatrix3fv")
+	fn.glowUniformMatrix4fv = load("glUniformMatrix4fv")
+	fn.glowUniform1fv = load("glUniform1fv")
+	fn.glowUniform2fv = load("glUniform2fv")
+	fn.glowUniform3fv = load("glUniform3fv")
+	fn.glowUniform4fv = load("glUniform4fv")
+
 	return loadErr
 }
 
@@ -883,12 +971,12 @@ func (fn *Functions) BlitFramebuffer(sx0, sy0, sx1, sy1, dx0, dy0, dx1, dy1 int,
 	)
 }
 
-func (fn *Functions) BufferData(target Enum, size int, usage Enum, data []byte) {
+func (fn *Functions) BufferData(target Enum, data []byte, usage Enum) {
 	var p unsafe.Pointer
 	if len(data) > 0 {
 		p = unsafe.Pointer(&data[0])
 	}
-	C.glBufferData(fn.glBufferData, C.GLenum(target), C.GLsizeiptr(size), p, C.GLenum(usage))
+	C.glBufferData(fn.glBufferData, C.GLenum(target), C.GLsizeiptr(len(data)), p, C.GLenum(usage))
 }
 
 func (fn *Functions) BufferSubData(target Enum, offset int, src []byte) {
@@ -1261,8 +1349,12 @@ func (fn *Functions) ShaderSource(s Shader, src string) {
 	C.glShaderSource(fn.glShaderSource, C.GLuint(s.V), 1, &csrc, &strlen)
 }
 
-func (fn *Functions) TexImage2D(target Enum, level int, internalFormat Enum, width int, height int, format Enum, ty Enum) {
-	C.glTexImage2D(fn.glTexImage2D, C.GLenum(target), C.GLint(level), C.GLint(internalFormat), C.GLsizei(width), C.GLsizei(height), 0, C.GLenum(format), C.GLenum(ty), nil)
+func (fn *Functions) TexImage2D(target Enum, level int, width int, height int, format Enum, ty Enum, data []byte) {
+	var p unsafe.Pointer
+	if len(data) > 0 {
+		p = unsafe.Pointer(&data[0])
+	}
+	C.glTexImage2D(fn.glTexImage2D, C.GLenum(target), C.GLint(level), C.GLint(format), C.GLsizei(width), C.GLsizei(height), 0, C.GLenum(format), C.GLenum(ty), p)
 }
 
 func (fn *Functions) TexStorage2D(target Enum, levels int, internalFormat Enum, width, height int) {
@@ -1324,4 +1416,80 @@ func (fn *Functions) VertexAttribPointer(dst Attrib, size int, ty Enum, normaliz
 
 func (fn *Functions) Viewport(x int, y int, width int, height int) {
 	C.glViewport(fn.glViewport, C.GLint(x), C.GLint(y), C.GLsizei(width), C.GLsizei(height))
+}
+
+// BlendFunc sets the pixel blending factors.
+//
+// http://www.khronos.org/opengles/sdk/docs/man3/html/glBlendFunc.xhtml
+func (fn *Functions) BlendFunc(sfactor, dfactor Enum) {
+	C.glowBlendFunc(fn.glowBlendFunc, C.GLenum(sfactor), C.GLenum(dfactor))
+}
+
+// GetActiveUniform returns details about an active uniform variable.
+// A value of 0 for index selects the first active uniform variable.
+// Permissible values for index range from 0 to the number of active
+// uniform variables minus 1.
+//
+// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveUniform.xhtml
+func (fn *Functions) GetActiveUniform(p Program, index uint32) (name string, size int, ty Enum) {
+	var length, si C.GLint
+	var typ C.GLenum
+	name = strings.Repeat("\x00", 256)
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	C.glowGetActiveUniform(fn.glowGetActiveUniform, C.GLuint(p.V), C.GLuint(index), C.GLint(len(name)-1), &length, &si, &typ, cname)
+	name = name[:strings.IndexRune(name, 0)]
+	return name, int(si), Enum(typ)
+
+}
+
+// GetActiveAttrib returns details about an active attribute variable.
+// A value of 0 for index selects the first active attribute variable.
+// Permissible values for index range from 0 to the number of active
+// attribute variables minus 1.
+//
+// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveAttrib.xhtml
+func (fn *Functions) GetActiveAttrib(p Program, index uint32) (name string, size int, ty Enum) {
+	var length, si C.GLint
+	var typ C.GLenum
+	name = strings.Repeat("\x00", 256)
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	C.glowGetActiveAttrib(fn.glowGetActiveAttrib, C.GLuint(p.V), C.GLuint(index), C.GLint(len(name)-1), &length, &si, &typ, cname)
+	name = name[:strings.IndexRune(name, 0)]
+	return name, int(si), Enum(typ)
+}
+
+func (fn *Functions) GetAttribLocation(p Program, name string) Attrib {
+	cname := C.CString(name + "\x00")
+	defer C.free(unsafe.Pointer(cname))
+	return Attrib(uint(C.glowGetAttribLocation(fn.glowGetAttribLocation, C.GLuint(p.V), cname)))
+}
+
+func (fn *Functions) UniformMatrix2fv(dst Uniform, src []float32) {
+	C.glowUniformMatrix2fv(fn.glowUniformMatrix2fv, C.GLint(dst.V), C.GLsizei(len(src)/(2*2)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+}
+
+func (fn *Functions) UniformMatrix3fv(dst Uniform, src []float32) {
+	C.glowUniformMatrix3fv(fn.glowUniformMatrix3fv, C.GLint(dst.V), C.GLsizei(len(src)/(3*3)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+}
+
+func (fn *Functions) UniformMatrix4fv(dst Uniform, src []float32) {
+	C.glowUniformMatrix4fv(fn.glowUniformMatrix4fv, C.GLint(dst.V), C.GLsizei(len(src)/(4*4)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+}
+
+func (fn *Functions) Uniform1fv(dst Uniform, src []float32) {
+	C.glowUniform1fv(fn.glowUniform1fv, C.GLint(dst.V), C.GLsizei(len(src)), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+}
+
+func (fn *Functions) Uniform2fv(dst Uniform, src []float32) {
+	C.glowUniform2fv(fn.glowUniform2fv, C.GLint(dst.V), C.GLsizei(len(src)/2), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+}
+
+func (fn *Functions) Uniform3fv(dst Uniform, src []float32) {
+	C.glowUniform3fv(fn.glowUniform3fv, C.GLint(dst.V), C.GLsizei(len(src)/3), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+}
+
+func (fn *Functions) Uniform4fv(dst Uniform, src []float32) {
+	C.glowUniform4fv(fn.glowUniform4fv, C.GLint(dst.V), C.GLsizei(len(src)/4), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }

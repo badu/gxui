@@ -1,3 +1,57 @@
+25.11.2025
+---
+"github.com/goxjs/gl" calls:
+
+gl.CreateTexture
+gl.Scissor
+gl.GetActiveAttrib [missing]
+gl.GetError
+gl.UniformMatrix3fv [missing]
+gl.BindTexture
+gl.Disable
+gl.Clear
+gl.BlendFunc
+gl.GetShaderInfoLog
+gl.GetProgramInfoLog
+gl.GetActiveUniform [missing]
+gl.DrawArrays
+gl.BindBuffer
+gl.BufferData
+gl.ShaderSource
+gl.UseProgram
+gl.CreateBuffer
+gl.UniformMatrix2fv [missing]
+gl.UniformMatrix4fv [missing]
+gl.Uniform1fv
+gl.ActiveTexture
+gl.Uniform1i
+gl.Viewport
+gl.GetShaderi
+gl.Uniform1f
+gl.Uniform2fv
+gl.ClearColor
+gl.Enable
+gl.CompileShader
+gl.CreateProgram
+gl.EnableVertexAttribArray
+gl.DrawElements
+gl.TexParameteri
+gl.DeleteTexture
+gl.DeleteProgram
+gl.DeleteBuffer
+gl.Uniform3fv
+gl.Uniform4fv
+gl.TexImage2D
+gl.AttachShader
+gl.GetProgrami
+gl.GetUniformLocation
+gl.GetAttribLocation [missing]
+gl.DisableVertexAttribArray
+gl.CreateShader
+gl.Enum
+gl.LinkProgram
+gl.VertexAttribPointer
+
 28.12.2024
 ---
 

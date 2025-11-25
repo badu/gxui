@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: Unlicense OR MIT
-
 package purego
 
 import (
@@ -503,4 +501,78 @@ func cString(s string) []byte {
 // workaround for golang.org/issue/34474.
 func issue34474KeepAlive(v interface{}) {
 	runtime.KeepAlive(v)
+}
+
+// TODO : fix me
+// GetActiveUniform returns details about an active uniform variable.
+// A value of 0 for index selects the first active uniform variable.
+// Permissible values for index range from 0 to the number of active
+// uniform variables minus 1.
+//
+// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveUniform.xhtml
+func (fn *Functions) GetActiveUniform(p Program, index uint32) (name string, size int, ty Enum) {
+	var length, si int32
+	var typ uint32
+	name = strings.Repeat("\x00", 256)
+	cname := C.Str(name)
+	C.GetActiveUniform(p.V, index, int32(len(name)-1), &length, &si, &typ, cname)
+	name = name[:strings.IndexRune(name, 0)]
+	return name, int(si), Enum(typ)
+}
+
+// TODO : fix me
+// GetActiveAttrib returns details about an active attribute variable.
+// A value of 0 for index selects the first active attribute variable.
+// Permissible values for index range from 0 to the number of active
+// attribute variables minus 1.
+//
+// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveAttrib.xhtml
+func (fn *Functions) GetActiveAttrib(p Program, index uint32) (name string, size int, ty Enum) {
+	var length, si int32
+	var typ uint32
+	name = strings.Repeat("\x00", 256)
+	cname := C.Str(name)
+	C.GetActiveAttrib(p.V, index, int32(len(name)-1), &length, &si, &typ, cname)
+	name = name[:strings.IndexRune(name, 0)]
+	return name, int(si), Enum(typ)
+}
+
+// TODO : fix me
+func (fn *Functions) GetAttribLocation(p Program, name string) Attrib {
+	return Attrib(uint(C.GetAttribLocation(p.V, C.Str(name+"\x00"))))
+}
+
+// TODO : fix me
+func (fn *Functions) UniformMatrix2fv(dst Uniform, src []float32) {
+	C.UniformMatrix2fv(dst.V, int32(len(src)/(2*2)), false, &src[0])
+}
+
+// TODO : fix me
+func (fn *Functions) UniformMatrix3fv(dst Uniform, src []float32) {
+	C.UniformMatrix3fv(dst.V, int32(len(src)/(3*3)), false, &src[0])
+}
+
+// TODO : fix me
+func (fn *Functions) UniformMatrix4fv(dst Uniform, src []float32) {
+	C.UniformMatrix4fv(dst.V, int32(len(src)/(4*4)), false, &src[0])
+}
+
+// TODO : fix me
+func (fn *Functions) Uniform1fv(dst Uniform, src []float32) {
+	C.Uniform1fv(dst.V, int32(len(src)), &src[0])
+}
+
+// TODO : fix me
+func (fn *Functions) Uniform2fv(dst Uniform, src []float32) {
+	C.Uniform2fv(dst.V, int32(len(src)/2), &src[0])
+}
+
+// TODO : fix me
+func (fn *Functions) Uniform3fv(dst Uniform, src []float32) {
+	C.Uniform3fv(dst.V, int32(len(src)/3), &src[0])
+}
+
+// TODO : fix me
+func (fn *Functions) Uniform4fv(dst Uniform, src []float32) {
+	C.Uniform4fv(dst.V, int32(len(src)/4), &src[0])
 }
