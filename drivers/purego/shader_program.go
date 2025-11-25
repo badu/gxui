@@ -98,13 +98,17 @@ func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms unifor
 	s.fn.UseProgram(s.program)
 
 	for _, attr := range s.attributes {
+		if attr.name == "" {
+			continue
+		}
+
 		vertex, found := buffer.streams[attr.name]
 		if !found {
-			panic(fmt.Errorf("VertexBuffer missing required stream '%s'", attr.name))
+			panic(fmt.Errorf("VertexBuffer missing required stream %q", attr.name))
 		}
 
 		if attr.shaderType != vertex.shaderType {
-			panic(fmt.Errorf("attribute '%s' type '%s' does not match stream type '%s'", attr.name, attr.shaderType, vertex.shaderType))
+			panic(fmt.Errorf("attribute %q type %q does not match stream type %q", attr.name, attr.shaderType, vertex.shaderType))
 		}
 
 		elementCount := attr.shaderType.vectorElementCount()
@@ -115,9 +119,13 @@ func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms unifor
 	}
 
 	for _, uni := range s.uniforms {
+		if uni.name == "" {
+			continue
+		}
+
 		uniform, found := uniforms[uni.name]
 		if !found {
-			panic(fmt.Errorf("uniforms missing '%s'", uni.name))
+			panic(fmt.Errorf("uniforms missing %q", uni.name))
 		}
 		uni.bind(uniform)
 	}
@@ -126,7 +134,12 @@ func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms unifor
 
 func (s *shaderProgram) unbind(ctx *context) {
 	for _, a := range s.attributes {
+		if a.name == "" {
+			continue
+		}
+
 		a.disableArray()
 	}
+
 	checkError(s.fn)
 }

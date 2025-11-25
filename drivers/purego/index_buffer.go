@@ -6,12 +6,12 @@ import (
 )
 
 type indexBuffer struct {
-	fn       *Functions // TODO : fill me up
+	fn       *Functions
 	data     []byte
 	primType primitiveType
 }
 
-func newIndexBuffer(primType primitiveType, dataU16 []uint16) *indexBuffer {
+func newIndexBuffer(fn *Functions, primType primitiveType, dataU16 []uint16) *indexBuffer {
 	switch primType {
 	case ptUbyte, ptUshort, ptUint:
 		if !primType.isArrayOfType(dataU16) {
@@ -28,7 +28,7 @@ func newIndexBuffer(primType primitiveType, dataU16 []uint16) *indexBuffer {
 		data[2*i+1] = byte(v >> 8)
 	}
 
-	result := &indexBuffer{data: data, primType: primType}
+	result := &indexBuffer{data: data, primType: primType, fn: fn}
 	return result
 }
 
@@ -45,6 +45,7 @@ func (b *indexBuffer) newContext() *indexBufferContext {
 
 	globalStats.indexBufferContextCount.inc()
 	return &indexBufferContext{
+		fn:       b.fn,
 		glBuffer: buffer,
 		primType: b.primType,
 		length:   length,
@@ -53,7 +54,7 @@ func (b *indexBuffer) newContext() *indexBufferContext {
 
 type indexBufferContext struct {
 	contextResource
-	fn       *Functions // TODO : fill me up
+	fn       *Functions
 	glBuffer Buffer
 	primType primitiveType
 	length   int

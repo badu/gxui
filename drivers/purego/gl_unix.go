@@ -574,8 +574,6 @@ static void  glowUniform4fv(_glUniform4fv f, GLint  location, GLsizei  count, co
 */
 import "C"
 
-type Context interface{}
-
 type Functions struct {
 	// Query caches.
 	uints  [100]C.GLuint
@@ -692,10 +690,7 @@ type Functions struct {
 }
 
 // https://github.com/YouROK/go-mpv
-func NewFunctions(ctx Context, forceES bool) (*Functions, error) {
-	if ctx != nil {
-		panic("non-nil context")
-	}
+func NewFunctions(forceES bool) (*Functions, error) {
 	f := new(Functions)
 
 	err := f.load(forceES)
@@ -890,17 +885,17 @@ func (fn *Functions) load(forceES bool) error {
 	fn.glBlitFramebuffer = load("glBlitFramebuffer")
 	fn.glGetProgramBinary = load("glGetProgramBinary")
 
-	fn.glowGetActiveUniform = load("glGetActiveUniform")
-	fn.glowGetActiveAttrib = load("glGetActiveAttrib")
-	fn.glowGetAttribLocation = load("glGetAttribLocation")
-	fn.glowBlendFunc = load("glBlendFunc")
-	fn.glowUniformMatrix2fv = load("glUniformMatrix2fv")
-	fn.glowUniformMatrix3fv = load("glUniformMatrix3fv")
-	fn.glowUniformMatrix4fv = load("glUniformMatrix4fv")
-	fn.glowUniform1fv = load("glUniform1fv")
-	fn.glowUniform2fv = load("glUniform2fv")
-	fn.glowUniform3fv = load("glUniform3fv")
-	fn.glowUniform4fv = load("glUniform4fv")
+	fn.glowGetActiveUniform = must("glGetActiveUniform")
+	fn.glowGetActiveAttrib = must("glGetActiveAttrib")
+	fn.glowGetAttribLocation = must("glGetAttribLocation")
+	fn.glowBlendFunc = must("glBlendFunc")
+	fn.glowUniformMatrix2fv = must("glUniformMatrix2fv")
+	fn.glowUniformMatrix3fv = must("glUniformMatrix3fv")
+	fn.glowUniformMatrix4fv = must("glUniformMatrix4fv")
+	fn.glowUniform1fv = must("glUniform1fv")
+	fn.glowUniform2fv = must("glUniform2fv")
+	fn.glowUniform3fv = must("glUniform3fv")
+	fn.glowUniform4fv = must("glUniform4fv")
 
 	return loadErr
 }
@@ -1036,7 +1031,7 @@ func (fn *Functions) CreateRenderbuffer() Renderbuffer {
 }
 
 func (fn *Functions) CreateShader(ty Enum) Shader {
-	return Shader{uint(C.glCreateShader(fn.glCreateShader, C.GLenum(ty)))}
+	return Shader{V: uint(C.glCreateShader(fn.glCreateShader, C.GLenum(ty)))}
 }
 
 func (fn *Functions) CreateTexture() Texture {

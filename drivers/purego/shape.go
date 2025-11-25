@@ -35,6 +35,7 @@ func newQuadShape(fn *Functions) *shape {
 	)
 	vBuffer := newVertexBuffer(pos)
 	iBuffer := newIndexBuffer(
+		fn,
 		ptUshort,
 		[]uint16{
 			0, 1, 2,

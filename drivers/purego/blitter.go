@@ -99,7 +99,7 @@ type blitter struct {
 	copyShader  *shaderProgram
 	colorShader *shaderProgram
 	fontShader  *shaderProgram
-	fn          *Functions // TODO : fill me up
+	fn          *Functions
 	glyphBatch  glyphBatch
 }
 
@@ -308,7 +308,7 @@ func (b *blitter) commitGlyphs(ctx *context) {
 		newVertexStream(b.fn, "aCol", stFloatVec4, b.glyphBatch.Colors),
 	)
 
-	indexesBuffer := newIndexBuffer(ptUshort, b.glyphBatch.Indices)
+	indexesBuffer := newIndexBuffer(b.fn, ptUshort, b.glyphBatch.Indices)
 
 	targetShape := newShape(b.fn, buffer, indexesBuffer, dmTriangles)
 
