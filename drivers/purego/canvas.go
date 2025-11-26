@@ -60,7 +60,7 @@ func (c *CanvasImpl) appendOp(name string, op canvasOp) {
 	c.ops = append(c.ops, op)
 }
 
-// gxui.Canvas compliance
+// Size is gxui.Canvas compliance
 func (c *CanvasImpl) Size() math.Size {
 	return c.sizeDips
 }
@@ -174,7 +174,7 @@ func (c *CanvasImpl) DrawLines(lines gxui.Polygon, pen gxui.Pen) {
 }
 
 func (c *CanvasImpl) DrawPolygon(poly gxui.Polygon, pen gxui.Pen, brush gxui.Brush) {
-	fill, edge := closedPolyToShape(c.fn, poly, pen.Width)
+	fill, edge := closedPolyToShape(poly, pen.Width)
 	c.appendOp(
 		"DrawPolygon",
 		func(ctx *context, stack *drawStateStack) {

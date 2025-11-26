@@ -503,76 +503,75 @@ func issue34474KeepAlive(v interface{}) {
 	runtime.KeepAlive(v)
 }
 
-// TODO : fix me
+// BlendFunc sets the pixel blending factors.
+func (fn *Functions) BlendFunc(sfactor, dfactor Enum) {
+	C.glowBlendFunc(fn.glowBlendFunc, C.GLenum(sfactor), C.GLenum(dfactor))
+}
+
 // GetActiveUniform returns details about an active uniform variable.
 // A value of 0 for index selects the first active uniform variable.
 // Permissible values for index range from 0 to the number of active
 // uniform variables minus 1.
-//
-// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveUniform.xhtml
 func (fn *Functions) GetActiveUniform(p Program, index uint32) (name string, size int, ty Enum) {
-	var length, si int32
-	var typ uint32
-	name = strings.Repeat("\x00", 256)
-	cname := C.Str(name)
-	C.GetActiveUniform(p.V, index, int32(len(name)-1), &length, &si, &typ, cname)
-	name = name[:strings.IndexRune(name, 0)]
+	var length, si C.GLint
+	var typ C.GLenum
+	bufSize := C.GLsizei(256)
+	cname := (*C.GLchar)(C.malloc(C.size_t(bufSize)))
+	defer C.free(unsafe.Pointer(cname))
+
+	C.glowGetActiveUniform(fn.glowGetActiveUniform, C.GLuint(p.V), C.GLuint(index), bufSize, &length, &si, &typ, cname)
+	name = C.GoString((*C.char)(cname))
+
 	return name, int(si), Enum(typ)
 }
 
-// TODO : fix me
 // GetActiveAttrib returns details about an active attribute variable.
 // A value of 0 for index selects the first active attribute variable.
 // Permissible values for index range from 0 to the number of active
 // attribute variables minus 1.
-//
-// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveAttrib.xhtml
 func (fn *Functions) GetActiveAttrib(p Program, index uint32) (name string, size int, ty Enum) {
-	var length, si int32
-	var typ uint32
-	name = strings.Repeat("\x00", 256)
-	cname := C.Str(name)
-	C.GetActiveAttrib(p.V, index, int32(len(name)-1), &length, &si, &typ, cname)
-	name = name[:strings.IndexRune(name, 0)]
+	var length, si C.GLint
+	var typ C.GLenum
+	bufSize := C.GLsizei(256)
+	cname := (*C.GLchar)(C.malloc(C.size_t(bufSize)))
+	defer C.free(unsafe.Pointer(cname))
+
+	C.glowGetActiveAttrib(fn.glowGetActiveAttrib, C.GLuint(p.V), C.GLuint(index), bufSize, &length, &si, &typ, cname)
+	name = C.GoString((*C.char)(cname))
+
 	return name, int(si), Enum(typ)
 }
 
-// TODO : fix me
 func (fn *Functions) GetAttribLocation(p Program, name string) Attrib {
-	return Attrib(uint(C.GetAttribLocation(p.V, C.Str(name+"\x00"))))
+	cname := C.CString(name + "\x00")
+	defer C.free(unsafe.Pointer(cname))
+	return Attrib(C.glowGetAttribLocation(fn.glowGetAttribLocation, C.GLuint(p.V), cname))
 }
 
-// TODO : fix me
 func (fn *Functions) UniformMatrix2fv(dst Uniform, src []float32) {
-	C.UniformMatrix2fv(dst.V, int32(len(src)/(2*2)), false, &src[0])
+	C.glowUniformMatrix2fv(fn.glowUniformMatrix2fv, C.GLint(dst.V), C.GLsizei(len(src)/(2*2)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }
 
-// TODO : fix me
 func (fn *Functions) UniformMatrix3fv(dst Uniform, src []float32) {
-	C.UniformMatrix3fv(dst.V, int32(len(src)/(3*3)), false, &src[0])
+	C.glowUniformMatrix3fv(fn.glowUniformMatrix3fv, C.GLint(dst.V), C.GLsizei(len(src)/(3*3)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }
 
-// TODO : fix me
 func (fn *Functions) UniformMatrix4fv(dst Uniform, src []float32) {
-	C.UniformMatrix4fv(dst.V, int32(len(src)/(4*4)), false, &src[0])
+	C.glowUniformMatrix4fv(fn.glowUniformMatrix4fv, C.GLint(dst.V), C.GLsizei(len(src)/(4*4)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }
 
-// TODO : fix me
 func (fn *Functions) Uniform1fv(dst Uniform, src []float32) {
-	C.Uniform1fv(dst.V, int32(len(src)), &src[0])
+	C.glowUniform1fv(fn.glowUniform1fv, C.GLint(dst.V), C.GLsizei(len(src)), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }
 
-// TODO : fix me
 func (fn *Functions) Uniform2fv(dst Uniform, src []float32) {
-	C.Uniform2fv(dst.V, int32(len(src)/2), &src[0])
+	C.glowUniform2fv(fn.glowUniform2fv, C.GLint(dst.V), C.GLsizei(len(src)/2), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }
 
-// TODO : fix me
 func (fn *Functions) Uniform3fv(dst Uniform, src []float32) {
-	C.Uniform3fv(dst.V, int32(len(src)/3), &src[0])
+	C.glowUniform3fv(fn.glowUniform3fv, C.GLint(dst.V), C.GLsizei(len(src)/3), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }
 
-// TODO : fix me
 func (fn *Functions) Uniform4fv(dst Uniform, src []float32) {
-	C.Uniform4fv(dst.V, int32(len(src)/4), &src[0])
+	C.glowUniform4fv(fn.glowUniform4fv, C.GLint(dst.V), C.GLsizei(len(src)/4), (*C.GLfloat)(unsafe.Pointer(&src[0])))
 }

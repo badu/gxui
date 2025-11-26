@@ -30,26 +30,30 @@ func newContext(fn *Functions) *context {
 		vertexStreamContexts: make(map[*vertexStream]*vertexStreamContext),
 		indexBufferContexts:  make(map[*indexBuffer]*indexBufferContext),
 	}
-	result.blitter = newBlitter(fn, result, &result.stats)
+	result.blitter = newBlitter(result, &result.stats)
 	return result
 }
 
 func (c *context) destroy() {
+	if c.fn == nil {
+		panic("fn cannot be nil while destroying context")
+	}
+
 	for textureCtx, tc := range c.textureContexts {
 		delete(c.textureContexts, textureCtx)
-		tc.destroy()
+		tc.destroy(c.fn)
 		c.stats.textureCount--
 	}
 
 	for stream, sc := range c.vertexStreamContexts {
 		delete(c.vertexStreamContexts, stream)
-		sc.destroy()
+		sc.destroy(c.fn)
 		c.stats.vertexStreamCount--
 	}
 
 	for buffer, ic := range c.indexBufferContexts {
 		delete(c.indexBufferContexts, buffer)
-		ic.destroy()
+		ic.destroy(c.fn)
 		c.stats.indexBufferCount--
 	}
 
@@ -73,7 +77,7 @@ func (c *context) endDraw() {
 	for textureCtx, tc := range c.textureContexts {
 		if tc.lastContextUse != c.frame {
 			delete(c.textureContexts, textureCtx)
-			tc.destroy()
+			tc.destroy(c.fn)
 			c.stats.textureCount--
 		}
 	}
@@ -81,7 +85,7 @@ func (c *context) endDraw() {
 	for stream, sc := range c.vertexStreamContexts {
 		if sc.lastContextUse != c.frame {
 			delete(c.vertexStreamContexts, stream)
-			sc.destroy()
+			sc.destroy(c.fn)
 			c.stats.vertexStreamCount--
 		}
 	}
@@ -89,7 +93,7 @@ func (c *context) endDraw() {
 	for buffer, ic := range c.indexBufferContexts {
 		if ic.lastContextUse != c.frame {
 			delete(c.indexBufferContexts, buffer)
-			ic.destroy()
+			ic.destroy(c.fn)
 			c.stats.indexBufferCount--
 		}
 	}
@@ -102,7 +106,7 @@ func (c *context) endDraw() {
 func (c *context) getOrCreateTextureContext(targetTexture *TextureImpl) *textureContext {
 	textureCtx, found := c.textureContexts[targetTexture]
 	if !found {
-		textureCtx = targetTexture.newContext()
+		textureCtx = targetTexture.newContext(c.fn)
 		c.textureContexts[targetTexture] = textureCtx
 		c.stats.textureCount++
 	}
@@ -113,7 +117,7 @@ func (c *context) getOrCreateTextureContext(targetTexture *TextureImpl) *texture
 func (c *context) getOrCreateVertexStreamContext(targetStream *vertexStream) *vertexStreamContext {
 	stream, found := c.vertexStreamContexts[targetStream]
 	if !found {
-		stream = targetStream.newContext()
+		stream = targetStream.newContext(c.fn)
 		c.vertexStreamContexts[targetStream] = stream
 		c.stats.vertexStreamCount++
 	}

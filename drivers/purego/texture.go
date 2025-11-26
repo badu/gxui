@@ -8,7 +8,6 @@ import (
 
 type textureContext struct {
 	contextResource
-	fn         *Functions
 	sizePixels math.Size
 	texture    Texture
 	flipY      bool
@@ -16,22 +15,20 @@ type textureContext struct {
 }
 
 type TextureImpl struct {
-	fn           *Functions
 	image        image.Image
 	pixelsPerDip float32
 	flipY        bool
 }
 
-func NewTexture(fn *Functions, fromImage image.Image, pixelsPerDip float32) *TextureImpl {
+func NewTexture(fromImage image.Image, pixelsPerDip float32) *TextureImpl {
 	result := &TextureImpl{
-		fn:           fn,
 		image:        fromImage,
 		pixelsPerDip: pixelsPerDip,
 	}
 	return result
 }
 
-// gxui.Texture compliance
+// Image is gxui.Texture compliance
 func (t *TextureImpl) Image() image.Image {
 	return t.image
 }
@@ -53,7 +50,7 @@ func (t *TextureImpl) SetFlipY(flipY bool) {
 	t.flipY = flipY
 }
 
-func (t *TextureImpl) newContext() *textureContext {
+func (t *TextureImpl) newContext(fn *Functions) *textureContext {
 	var format Enum
 	var data []byte
 	var pma bool
@@ -73,18 +70,17 @@ func (t *TextureImpl) newContext() *textureContext {
 		panic("Unsupported image type")
 	}
 
-	glTexture := t.fn.CreateTexture()
-	t.fn.BindTexture(TEXTURE_2D, glTexture)
+	glTexture := fn.CreateTexture()
+	fn.BindTexture(TEXTURE_2D, glTexture)
 	w, h := t.SizePixels().WH()
-	t.fn.TexImage2D(TEXTURE_2D, 0, w, h, format, UNSIGNED_BYTE, data)
-	t.fn.TexParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR)
-	t.fn.TexParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR)
-	t.fn.BindTexture(TEXTURE_2D, Texture{})
-	checkError(t.fn)
+	fn.TexImage2D(TEXTURE_2D, 0, w, h, format, UNSIGNED_BYTE, data)
+	fn.TexParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR)
+	fn.TexParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR)
+	fn.BindTexture(TEXTURE_2D, Texture{})
+	checkError(fn)
 
 	globalStats.textureContextCount.inc()
 	return &textureContext{
-		fn:         t.fn,
 		texture:    glTexture,
 		sizePixels: t.Size(),
 		flipY:      t.flipY,
@@ -92,8 +88,8 @@ func (t *TextureImpl) newContext() *textureContext {
 	}
 }
 
-func (c *textureContext) destroy() {
+func (c *textureContext) destroy(fn *Functions) {
 	globalStats.textureContextCount.dec()
-	c.fn.DeleteTexture(c.texture)
+	fn.DeleteTexture(c.texture)
 	c.texture = Texture{}
 }

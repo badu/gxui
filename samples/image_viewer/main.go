@@ -1,7 +1,3 @@
-// Copyright 2015 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package main
 
 import (
@@ -14,7 +10,7 @@ import (
 	"os"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/drivers/gl"
+	"github.com/badu/gxui/drivers/purego"
 	"github.com/badu/gxui/samples/flags"
 )
 
@@ -59,5 +55,5 @@ func appMain(driver gxui.Driver) {
 
 func main() {
 	flag.Parse()
-	gl.StartDriver(appMain)
+	purego.StartDriver(appMain)
 }

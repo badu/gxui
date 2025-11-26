@@ -59,7 +59,7 @@ func (f *font) advanceDips(ofRune rune) int {
 	return advance
 }
 
-func (f *font) glyphTable(fn *Functions, resolution resolution) *glyphTable {
+func (f *font) glyphTable(resolution resolution) *glyphTable {
 	result, found := f.resolutions[resolution]
 	if !found {
 		opt := truetype.Options{
@@ -70,7 +70,7 @@ func (f *font) glyphTable(fn *Functions, resolution resolution) *glyphTable {
 			SubPixelsX:        1,
 			SubPixelsY:        1,
 		}
-		result = newGlyphTable(fn, truetype.NewFace(f.ttf, &opt))
+		result = newGlyphTable(truetype.NewFace(f.ttf, &opt))
 		f.resolutions[resolution] = result
 	}
 	return result
@@ -106,7 +106,7 @@ func (f *font) DrawRunes(fn *Functions, ctx *context, runes []rune, offsets []ma
 	}
 
 	atResolution := ctx.resolution
-	table := f.glyphTable(fn, atResolution)
+	table := f.glyphTable(atResolution)
 
 	for runeIdx, curRune := range runes {
 		if unicode.IsSpace(curRune) {

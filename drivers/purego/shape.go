@@ -1,19 +1,17 @@
 package purego
 
 type shape struct {
-	fn           *Functions
 	vertexBuffer *vertexBuffer
 	indexBuffer  *indexBuffer
 	drawMode     drawMode
 }
 
-func newShape(fn *Functions, vertexBuffer *vertexBuffer, indexBuffer *indexBuffer, mode drawMode) *shape {
+func newShape(vertexBuffer *vertexBuffer, indexBuffer *indexBuffer, mode drawMode) *shape {
 	if vertexBuffer == nil {
 		panic("VertexBuffer cannot be nil")
 	}
 
 	result := &shape{
-		fn:           fn,
 		vertexBuffer: vertexBuffer,
 		indexBuffer:  indexBuffer,
 		drawMode:     mode,
@@ -23,7 +21,6 @@ func newShape(fn *Functions, vertexBuffer *vertexBuffer, indexBuffer *indexBuffe
 
 func newQuadShape(fn *Functions) *shape {
 	pos := newVertexStream(
-		fn,
 		"aPosition",
 		stFloatVec2,
 		[]float32{
@@ -43,18 +40,18 @@ func newQuadShape(fn *Functions) *shape {
 		},
 	)
 
-	return newShape(fn, vBuffer, iBuffer, dmTriangles)
+	return newShape(vBuffer, iBuffer, dmTriangles)
 }
 
 func (s shape) draw(ctx *context, shader *shaderProgram, bindings uniformBindings) {
 	shader.bind(ctx, s.vertexBuffer, bindings)
 
 	if s.indexBuffer != nil {
-		ctx.getOrCreateIndexBufferContext(s.indexBuffer).render(s.drawMode)
+		ctx.getOrCreateIndexBufferContext(s.indexBuffer).render(s.drawMode, ctx.fn)
 	} else {
-		s.fn.DrawArrays(Enum(s.drawMode), 0, s.vertexBuffer.count)
+		ctx.fn.DrawArrays(Enum(s.drawMode), 0, s.vertexBuffer.count)
 	}
 
-	shader.unbind(ctx)
-	checkError(s.fn)
+	shader.unbind(ctx.fn)
+	checkError(ctx.fn)
 }

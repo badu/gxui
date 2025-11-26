@@ -99,18 +99,16 @@ type blitter struct {
 	copyShader  *shaderProgram
 	colorShader *shaderProgram
 	fontShader  *shaderProgram
-	fn          *Functions
 	glyphBatch  glyphBatch
 }
 
-func newBlitter(fn *Functions, ctx *context, stats *contextStats) *blitter {
+func newBlitter(ctx *context, stats *contextStats) *blitter {
 	return &blitter{
-		fn:          fn,
 		stats:       stats,
-		quad:        newQuadShape(fn),
-		copyShader:  newShaderProgram(fn, ctx, vsCopySrc, fsCopySrc),
-		colorShader: newShaderProgram(fn, ctx, vsColorSrc, fsColorSrc),
-		fontShader:  newShaderProgram(fn, ctx, vsFontSrc, fsFontSrc),
+		quad:        newQuadShape(ctx.fn),
+		copyShader:  newShaderProgram(ctx, vsCopySrc, fsCopySrc),
+		colorShader: newShaderProgram(ctx, vsColorSrc, fsColorSrc),
+		fontShader:  newShaderProgram(ctx, vsFontSrc, fsFontSrc),
 	}
 }
 
@@ -152,7 +150,7 @@ func (b *blitter) blit(ctx *context, textureCtx *textureContext, srcRect, dstRec
 	)
 
 	if !textureCtx.pma {
-		b.fn.BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
+		ctx.fn.BlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
 	}
 
 	b.quad.draw(
@@ -166,7 +164,7 @@ func (b *blitter) blit(ctx *context, textureCtx *textureContext, srcRect, dstRec
 	)
 
 	if !textureCtx.pma {
-		b.fn.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA)
+		ctx.fn.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA)
 	}
 	b.stats.drawCallCount++
 }
@@ -302,17 +300,17 @@ func (b *blitter) commitGlyphs(ctx *context) {
 	)
 
 	buffer := newVertexBuffer(
-		newVertexStream(b.fn, "aDst", stFloatVec2, b.glyphBatch.DstRects),
-		newVertexStream(b.fn, "aSrc", stFloatVec2, b.glyphBatch.SrcRects),
-		newVertexStream(b.fn, "aClp", stFloatVec4, b.glyphBatch.ClipRects),
-		newVertexStream(b.fn, "aCol", stFloatVec4, b.glyphBatch.Colors),
+		newVertexStream("aDst", stFloatVec2, b.glyphBatch.DstRects),
+		newVertexStream("aSrc", stFloatVec2, b.glyphBatch.SrcRects),
+		newVertexStream("aClp", stFloatVec4, b.glyphBatch.ClipRects),
+		newVertexStream("aCol", stFloatVec4, b.glyphBatch.Colors),
 	)
 
-	indexesBuffer := newIndexBuffer(b.fn, ptUshort, b.glyphBatch.Indices)
+	indexesBuffer := newIndexBuffer(ctx.fn, ptUshort, b.glyphBatch.Indices)
 
-	targetShape := newShape(b.fn, buffer, indexesBuffer, dmTriangles)
+	targetShape := newShape(buffer, indexesBuffer, dmTriangles)
 
-	b.fn.Disable(SCISSOR_TEST)
+	ctx.fn.Disable(SCISSOR_TEST)
 	targetShape.draw(
 		ctx,
 		b.fontShader,
@@ -322,7 +320,7 @@ func (b *blitter) commitGlyphs(ctx *context) {
 			"mSrc":   mSrc,
 		},
 	)
-	b.fn.Enable(SCISSOR_TEST)
+	ctx.fn.Enable(SCISSOR_TEST)
 
 	b.glyphBatch.GlyphPage = nil
 	b.glyphBatch.DstRects = b.glyphBatch.DstRects[:0]

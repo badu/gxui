@@ -58,9 +58,9 @@ type globalDriverStats struct {
 
 func (s *globalDriverStats) get() string {
 	buffer := new(bytes.Buffer)
-	fmt.Fprintf(buffer, "Vertex stream context count: %v\n", s.vertexStreamContextCount)
-	fmt.Fprintf(buffer, "Index buffer context count: %v\n", s.indexBufferContextCount)
-	fmt.Fprintf(buffer, "Texture context count: %v\n", s.textureContextCount)
+	_, _ = fmt.Fprintf(buffer, "Vertex stream context count: %v\n", s.vertexStreamContextCount)
+	_, _ = fmt.Fprintf(buffer, "Index buffer context count: %v\n", s.indexBufferContextCount)
+	_, _ = fmt.Fprintf(buffer, "Texture context count: %v\n", s.textureContextCount)
 	s.vertexStreamContextCount.resetDeltas()
 	s.indexBufferContextCount.resetDeltas()
 	s.textureContextCount.resetDeltas()
@@ -106,7 +106,7 @@ func (t timer) Format(f fmt.State, c rune) {
 			hMin = h
 		}
 	}
-	fmt.Fprintf(f, "%s: %v [%.2f/s] %v<%v<%v", t.name, t.duration, ps, hMin, t.history[t.current], hMax)
+	_, _ = fmt.Fprintf(f, "%s: %v [%.2f/s] %v<%v<%v", t.name, t.duration, ps, hMin, t.history[t.current], hMax)
 }
 
 type contextStats struct {
@@ -133,13 +133,13 @@ func (s *contextStats) timer(name string) *timer {
 func (s contextStats) String() string {
 	buffer := new(bytes.Buffer)
 	for _, t := range s.timers {
-		fmt.Fprintf(buffer, "%v\n", t)
+		_, _ = fmt.Fprintf(buffer, "%v\n", t)
 	}
-	fmt.Fprintf(buffer, "Draw calls per frame: %d\n", s.drawCallCount)
-	fmt.Fprintf(buffer, "Frame count: %d\n", s.frameCount)
-	fmt.Fprintf(buffer, "Textures: %d\n", s.textureCount)
-	fmt.Fprintf(buffer, "Vertex stream count: %d\n", s.vertexStreamCount)
-	fmt.Fprintf(buffer, "Index buffer count: %d\n", s.indexBufferCount)
-	fmt.Fprintf(buffer, "Shader program count: %d\n", s.shaderProgramCount)
+	_, _ = fmt.Fprintf(buffer, "Draw calls per frame: %d\n", s.drawCallCount)
+	_, _ = fmt.Fprintf(buffer, "Frame count: %d\n", s.frameCount)
+	_, _ = fmt.Fprintf(buffer, "Textures: %d\n", s.textureCount)
+	_, _ = fmt.Fprintf(buffer, "Vertex stream count: %d\n", s.vertexStreamCount)
+	_, _ = fmt.Fprintf(buffer, "Index buffer count: %d\n", s.indexBufferCount)
+	_, _ = fmt.Fprintf(buffer, "Shader program count: %d\n", s.shaderProgramCount)
 	return buffer.String()
 }

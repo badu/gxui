@@ -140,7 +140,7 @@ func segment(penWidth, r float32, a, b, c math.Vec2, aIsLast bool, vsEdgePos []f
 	return vsEdgePos, fillEdge
 }
 
-func closedPolyToShape(fn *Functions, p gxui.Polygon, penWidth float32) (fillShape, edgeShape *shape) {
+func closedPolyToShape(p gxui.Polygon, penWidth float32) (fillShape, edgeShape *shape) {
 	p = pruneDuplicates(p)
 
 	// Note : replacing declarations with `var fillEdge []math.Vec2` will cause malfunction in filling shapes
@@ -167,14 +167,14 @@ func closedPolyToShape(fn *Functions, p gxui.Polygon, penWidth float32) (fillSha
 			fillPos[i*2+0] = t.X
 			fillPos[i*2+1] = t.Y
 		}
-		fillShape = newShape(fn, newVertexBuffer(
-			newVertexStream(fn, "aPosition", stFloatVec2, fillPos),
+		fillShape = newShape(newVertexBuffer(
+			newVertexStream("aPosition", stFloatVec2, fillPos),
 		), nil, dmTriangles)
 	}
 
 	if len(vsEdgePos) > 0 {
-		edgeShape = newShape(fn, newVertexBuffer(
-			newVertexStream(fn, "aPosition", stFloatVec2, vsEdgePos),
+		edgeShape = newShape(newVertexBuffer(
+			newVertexStream("aPosition", stFloatVec2, vsEdgePos),
 		), nil, dmTriangleStrip)
 	}
 
@@ -210,8 +210,8 @@ func openPolyToShape(fn *Functions, p gxui.Polygon, penWidth float32) *shape {
 		vsEdgePos = appendVec2(vsEdgePos, c, inner)
 	}
 	if len(vsEdgePos) > 0 {
-		return newShape(fn, newVertexBuffer(
-			newVertexStream(fn, "aPosition", stFloatVec2, vsEdgePos),
+		return newShape(newVertexBuffer(
+			newVertexStream("aPosition", stFloatVec2, vsEdgePos),
 		), nil, dmTriangleStrip)
 	}
 	return nil

@@ -689,7 +689,7 @@ type Functions struct {
 	glowUniform4fv        C._glUniform4fv
 }
 
-// https://github.com/YouROK/go-mpv
+// Functions taken from https://github.com/YouROK/go-mpv
 func NewFunctions(forceES bool) (*Functions, error) {
 	f := new(Functions)
 
@@ -738,7 +738,7 @@ func (fn *Functions) load(forceES bool) error {
 		}
 	}
 	if len(handles) == 0 {
-		return fmt.Errorf("gl: no OpenGL implementation could be loaded (tried %q)", libNames)
+		return fmt.Errorf("no OpenGL implementation could be loaded (tried %q)", libNames)
 	}
 
 	load := func(s string) *[0]byte {
@@ -750,7 +750,6 @@ func (fn *Functions) load(forceES bool) error {
 
 		// Try glGetProcAddress second
 		if f := GetProcAddress(s); f != nil {
-			fmt.Println("glGetProcAddress:", s, "->", C.GoString((*C.char)(f)))
 			return (*[0]byte)(f)
 		}
 
@@ -885,6 +884,7 @@ func (fn *Functions) load(forceES bool) error {
 	fn.glBlitFramebuffer = load("glBlitFramebuffer")
 	fn.glGetProgramBinary = load("glGetProgramBinary")
 
+	// extra stuff, inherited from old GXUI
 	fn.glowGetActiveUniform = must("glGetActiveUniform")
 	fn.glowGetActiveAttrib = must("glGetActiveAttrib")
 	fn.glowGetAttribLocation = must("glGetAttribLocation")
@@ -1008,26 +1008,26 @@ func (fn *Functions) CopyTexSubImage2D(target Enum, level, xoffset, yoffset, x, 
 
 func (fn *Functions) CreateBuffer() Buffer {
 	C.glGenBuffers(fn.glGenBuffers, 1, &fn.uints[0])
-	return Buffer{uint(fn.uints[0])}
+	return Buffer{V: uint(fn.uints[0])}
 }
 
 func (fn *Functions) CreateFramebuffer() Framebuffer {
 	C.glGenFramebuffers(fn.glGenFramebuffers, 1, &fn.uints[0])
-	return Framebuffer{uint(fn.uints[0])}
+	return Framebuffer{V: uint(fn.uints[0])}
 }
 
 func (fn *Functions) CreateProgram() Program {
-	return Program{uint(C.glCreateProgram(fn.glCreateProgram))}
+	return Program{V: uint(C.glCreateProgram(fn.glCreateProgram))}
 }
 
 func (fn *Functions) CreateQuery() Query {
 	C.glGenQueries(fn.glGenQueries, 1, &fn.uints[0])
-	return Query{uint(fn.uints[0])}
+	return Query{V: uint(fn.uints[0])}
 }
 
 func (fn *Functions) CreateRenderbuffer() Renderbuffer {
 	C.glGenRenderbuffers(fn.glGenRenderbuffers, 1, &fn.uints[0])
-	return Renderbuffer{uint(fn.uints[0])}
+	return Renderbuffer{V: uint(fn.uints[0])}
 }
 
 func (fn *Functions) CreateShader(ty Enum) Shader {
@@ -1036,12 +1036,12 @@ func (fn *Functions) CreateShader(ty Enum) Shader {
 
 func (fn *Functions) CreateTexture() Texture {
 	C.glGenTextures(fn.glGenTextures, 1, &fn.uints[0])
-	return Texture{uint(fn.uints[0])}
+	return Texture{V: uint(fn.uints[0])}
 }
 
 func (fn *Functions) CreateVertexArray() VertexArray {
 	C.glGenVertexArrays(fn.glGenVertexArrays, 1, &fn.uints[0])
-	return VertexArray{uint(fn.uints[0])}
+	return VertexArray{V: uint(fn.uints[0])}
 }
 
 func (fn *Functions) DeleteBuffer(v Buffer) {
@@ -1147,11 +1147,11 @@ func (fn *Functions) GenerateMipmap(target Enum) {
 }
 
 func (fn *Functions) GetBinding(pname Enum) Object {
-	return Object{uint(fn.GetInteger(pname))}
+	return Object{V: uint(fn.GetInteger(pname))}
 }
 
 func (fn *Functions) GetBindingi(pname Enum, idx int) Object {
-	return Object{uint(fn.GetIntegeri(pname, idx))}
+	return Object{V: uint(fn.GetIntegeri(pname, idx))}
 }
 
 func (fn *Functions) GetError() Enum {
@@ -1285,7 +1285,7 @@ func (fn *Functions) GetVertexAttrib(index int, pname Enum) int {
 }
 
 func (fn *Functions) GetVertexAttribBinding(index int, pname Enum) Object {
-	return Object{uint(fn.GetVertexAttrib(index, pname))}
+	return Object{V: uint(fn.GetVertexAttrib(index, pname))}
 }
 
 func (fn *Functions) GetVertexAttribPointer(index int, pname Enum) uintptr {
@@ -1414,8 +1414,6 @@ func (fn *Functions) Viewport(x int, y int, width int, height int) {
 }
 
 // BlendFunc sets the pixel blending factors.
-//
-// http://www.khronos.org/opengles/sdk/docs/man3/html/glBlendFunc.xhtml
 func (fn *Functions) BlendFunc(sfactor, dfactor Enum) {
 	C.glowBlendFunc(fn.glowBlendFunc, C.GLenum(sfactor), C.GLenum(dfactor))
 }
@@ -1424,41 +1422,40 @@ func (fn *Functions) BlendFunc(sfactor, dfactor Enum) {
 // A value of 0 for index selects the first active uniform variable.
 // Permissible values for index range from 0 to the number of active
 // uniform variables minus 1.
-//
-// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveUniform.xhtml
 func (fn *Functions) GetActiveUniform(p Program, index uint32) (name string, size int, ty Enum) {
 	var length, si C.GLint
 	var typ C.GLenum
-	name = strings.Repeat("\x00", 256)
-	cname := C.CString(name)
+	bufSize := C.GLsizei(256)
+	cname := (*C.GLchar)(C.malloc(C.size_t(bufSize)))
 	defer C.free(unsafe.Pointer(cname))
-	C.glowGetActiveUniform(fn.glowGetActiveUniform, C.GLuint(p.V), C.GLuint(index), C.GLint(len(name)-1), &length, &si, &typ, cname)
-	name = name[:strings.IndexRune(name, 0)]
-	return name, int(si), Enum(typ)
 
+	C.glowGetActiveUniform(fn.glowGetActiveUniform, C.GLuint(p.V), C.GLuint(index), bufSize, &length, &si, &typ, cname)
+	name = C.GoString((*C.char)(cname))
+
+	return name, int(si), Enum(typ)
 }
 
 // GetActiveAttrib returns details about an active attribute variable.
 // A value of 0 for index selects the first active attribute variable.
 // Permissible values for index range from 0 to the number of active
 // attribute variables minus 1.
-//
-// http://www.khronos.org/opengles/sdk/docs/man3/html/glGetActiveAttrib.xhtml
 func (fn *Functions) GetActiveAttrib(p Program, index uint32) (name string, size int, ty Enum) {
 	var length, si C.GLint
 	var typ C.GLenum
-	name = strings.Repeat("\x00", 256)
-	cname := C.CString(name)
+	bufSize := C.GLsizei(256)
+	cname := (*C.GLchar)(C.malloc(C.size_t(bufSize)))
 	defer C.free(unsafe.Pointer(cname))
-	C.glowGetActiveAttrib(fn.glowGetActiveAttrib, C.GLuint(p.V), C.GLuint(index), C.GLint(len(name)-1), &length, &si, &typ, cname)
-	name = name[:strings.IndexRune(name, 0)]
+
+	C.glowGetActiveAttrib(fn.glowGetActiveAttrib, C.GLuint(p.V), C.GLuint(index), bufSize, &length, &si, &typ, cname)
+	name = C.GoString((*C.char)(cname))
+
 	return name, int(si), Enum(typ)
 }
 
 func (fn *Functions) GetAttribLocation(p Program, name string) Attrib {
 	cname := C.CString(name + "\x00")
 	defer C.free(unsafe.Pointer(cname))
-	return Attrib(uint(C.glowGetAttribLocation(fn.glowGetAttribLocation, C.GLuint(p.V), cname)))
+	return Attrib(C.glowGetAttribLocation(fn.glowGetAttribLocation, C.GLuint(p.V), cname))
 }
 
 func (fn *Functions) UniformMatrix2fv(dst Uniform, src []float32) {

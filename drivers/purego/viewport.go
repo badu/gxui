@@ -8,6 +8,7 @@ import (
 	"github.com/badu/gxui"
 	"github.com/badu/gxui/drivers/gl/platform"
 	"github.com/badu/gxui/pkg/math"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 const viewportDebugEnabled = false
@@ -67,6 +68,9 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 		monitor = GetPrimaryMonitor()
 		if width == 0 || height == 0 {
 			vm := monitor.GetVideoMode()
+			if vm == nil {
+				panic("No video mode available on primary monitor")
+			}
 			width, height = vm.Width, vm.Height
 		}
 	}
@@ -196,7 +200,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			}
 			ev.Button = translateMouseButton(button)
 			ev.State = getMouseState(w)
-			if action == Press {
+			if action == glfw.Press {
 				result.onMouseDown.Emit(ev)
 			} else {
 				result.onMouseUp.Emit(ev)
@@ -211,11 +215,11 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 				Modifier: translateKeyboardModifier(mods),
 			}
 			switch action {
-			case Press:
+			case glfw.Press:
 				result.onKeyDown.Emit(ev)
-			case Release:
+			case glfw.Release:
 				result.onKeyUp.Emit(ev)
-			case Repeat:
+			case glfw.Repeat:
 				result.onKeyRepeat.Emit(ev)
 			}
 		},
@@ -331,7 +335,7 @@ func (v *ViewportImpl) drawFrameUpdate(ctx *context) {
 	ctx.blitter.blitRect(ctx, rect, gxui.White, state)
 }
 
-// gxui.Viewport compliance
+// SetCanvas is gxui.Viewport compliance
 // These methods are all called on the application routine
 func (v *ViewportImpl) SetCanvas(newCanvas gxui.Canvas) {
 	cnt := atomic.AddUint32(&v.redrawCount, 1)

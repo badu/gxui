@@ -45,7 +45,6 @@ func (b *indexBuffer) newContext() *indexBufferContext {
 
 	globalStats.indexBufferContextCount.inc()
 	return &indexBufferContext{
-		fn:       b.fn,
 		glBuffer: buffer,
 		primType: b.primType,
 		length:   length,
@@ -54,23 +53,22 @@ func (b *indexBuffer) newContext() *indexBufferContext {
 
 type indexBufferContext struct {
 	contextResource
-	fn       *Functions
 	glBuffer Buffer
 	primType primitiveType
 	length   int
 }
 
-func (c *indexBufferContext) destroy() {
+func (c *indexBufferContext) destroy(fn *Functions) {
 	globalStats.indexBufferContextCount.dec()
 
-	c.fn.DeleteBuffer(c.glBuffer)
+	fn.DeleteBuffer(c.glBuffer)
 
 	c.glBuffer = Buffer{}
 }
 
-func (c *indexBufferContext) render(mode drawMode) {
-	c.fn.BindBuffer(ELEMENT_ARRAY_BUFFER, c.glBuffer)
-	c.fn.DrawElements(Enum(mode), c.length, Enum(c.primType), 0)
-	c.fn.BindBuffer(ELEMENT_ARRAY_BUFFER, Buffer{})
-	checkError(c.fn)
+func (c *indexBufferContext) render(mode drawMode, fn *Functions) {
+	fn.BindBuffer(ELEMENT_ARRAY_BUFFER, c.glBuffer)
+	fn.DrawElements(Enum(mode), c.length, Enum(c.primType), 0)
+	fn.BindBuffer(ELEMENT_ARRAY_BUFFER, Buffer{})
+	checkError(fn)
 }

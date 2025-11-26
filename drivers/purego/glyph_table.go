@@ -3,14 +3,13 @@ package purego
 import imageFont "golang.org/x/image/font"
 
 type glyphTable struct {
-	fn    *Functions
 	face  imageFont.Face
 	index map[rune]int
 	pages []*glyphPage
 }
 
-func newGlyphTable(fn *Functions, face imageFont.Face) *glyphTable {
-	return &glyphTable{fn: fn, face: face, index: make(map[rune]int)}
+func newGlyphTable(face imageFont.Face) *glyphTable {
+	return &glyphTable{face: face, index: make(map[rune]int)}
 }
 
 func (t *glyphTable) get(whichRune rune) *glyphPage {
@@ -20,11 +19,11 @@ func (t *glyphTable) get(whichRune rune) *glyphPage {
 	}
 
 	if len(t.pages) == 0 {
-		t.pages = append(t.pages, newGlyphPage(t.fn, t.face, whichRune))
+		t.pages = append(t.pages, newGlyphPage(t.face, whichRune))
 	} else {
 		page := t.pages[len(t.pages)-1]
 		if !page.add(t.face, whichRune) {
-			page = newGlyphPage(t.fn, t.face, whichRune)
+			page = newGlyphPage(t.face, whichRune)
 			t.pages = append(t.pages, page)
 		}
 	}

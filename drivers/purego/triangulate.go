@@ -89,10 +89,12 @@ func triangulate(edges []math.Vec2) []math.Vec2 {
 	for pruned {
 		pruned = false
 		for a := l.Front(); a != nil; {
+
 			b := a.Next()
 			if b == nil {
 				b = l.Front()
 			}
+
 			c := b.Next()
 			if c == nil {
 				c = l.Front()

@@ -114,7 +114,7 @@ func (d *DriverImpl) applicationLoop() {
 	}
 }
 
-// gxui.Driver compliance
+// Call is gxui.Driver compliance
 func (d *DriverImpl) Call(callback func()) bool {
 	if callback == nil {
 		panic("Function must not be nil")
@@ -248,5 +248,5 @@ func (d *DriverImpl) CreateCanvas(s math.Size) gxui.Canvas {
 }
 
 func (d *DriverImpl) CreateTexture(img image.Image, pixelsPerDip float32) gxui.Texture {
-	return NewTexture(d.fn, img, pixelsPerDip)
+	return NewTexture(img, pixelsPerDip)
 }

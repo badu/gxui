@@ -2,223 +2,224 @@ package purego
 
 import (
 	"github.com/badu/gxui"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 func translateKeyboardKey(in Key) gxui.KeyboardKey {
 	switch in {
-	case KeySpace:
+	case glfw.KeySpace:
 		return gxui.KeySpace
-	case KeyApostrophe:
+	case glfw.KeyApostrophe:
 		return gxui.KeyApostrophe
-	case KeyComma:
+	case glfw.KeyComma:
 		return gxui.KeyComma
-	case KeyMinus:
+	case glfw.KeyMinus:
 		return gxui.KeyMinus
-	case KeyPeriod:
+	case glfw.KeyPeriod:
 		return gxui.KeyPeriod
-	case KeySlash:
+	case glfw.KeySlash:
 		return gxui.KeySlash
-	case Key0:
+	case glfw.Key0:
 		return gxui.Key0
-	case Key1:
+	case glfw.Key1:
 		return gxui.Key1
-	case Key2:
+	case glfw.Key2:
 		return gxui.Key2
-	case Key3:
+	case glfw.Key3:
 		return gxui.Key3
-	case Key4:
+	case glfw.Key4:
 		return gxui.Key4
-	case Key5:
+	case glfw.Key5:
 		return gxui.Key5
-	case Key6:
+	case glfw.Key6:
 		return gxui.Key6
-	case Key7:
+	case glfw.Key7:
 		return gxui.Key7
-	case Key8:
+	case glfw.Key8:
 		return gxui.Key8
-	case Key9:
+	case glfw.Key9:
 		return gxui.Key9
-	case KeySemicolon:
+	case glfw.KeySemicolon:
 		return gxui.KeySemicolon
-	case KeyEqual:
+	case glfw.KeyEqual:
 		return gxui.KeyEqual
-	case KeyA:
+	case glfw.KeyA:
 		return gxui.KeyA
-	case KeyB:
+	case glfw.KeyB:
 		return gxui.KeyB
-	case KeyC:
+	case glfw.KeyC:
 		return gxui.KeyC
-	case KeyD:
+	case glfw.KeyD:
 		return gxui.KeyD
-	case KeyE:
+	case glfw.KeyE:
 		return gxui.KeyE
-	case KeyF:
+	case glfw.KeyF:
 		return gxui.KeyF
-	case KeyG:
+	case glfw.KeyG:
 		return gxui.KeyG
-	case KeyH:
+	case glfw.KeyH:
 		return gxui.KeyH
-	case KeyI:
+	case glfw.KeyI:
 		return gxui.KeyI
-	case KeyJ:
+	case glfw.KeyJ:
 		return gxui.KeyJ
-	case KeyK:
+	case glfw.KeyK:
 		return gxui.KeyK
-	case KeyL:
+	case glfw.KeyL:
 		return gxui.KeyL
-	case KeyM:
+	case glfw.KeyM:
 		return gxui.KeyM
-	case KeyN:
+	case glfw.KeyN:
 		return gxui.KeyN
-	case KeyO:
+	case glfw.KeyO:
 		return gxui.KeyO
-	case KeyP:
+	case glfw.KeyP:
 		return gxui.KeyP
-	case KeyQ:
+	case glfw.KeyQ:
 		return gxui.KeyQ
-	case KeyR:
+	case glfw.KeyR:
 		return gxui.KeyR
-	case KeyS:
+	case glfw.KeyS:
 		return gxui.KeyS
-	case KeyT:
+	case glfw.KeyT:
 		return gxui.KeyT
-	case KeyU:
+	case glfw.KeyU:
 		return gxui.KeyU
-	case KeyV:
+	case glfw.KeyV:
 		return gxui.KeyV
-	case KeyW:
+	case glfw.KeyW:
 		return gxui.KeyW
-	case KeyX:
+	case glfw.KeyX:
 		return gxui.KeyX
-	case KeyY:
+	case glfw.KeyY:
 		return gxui.KeyY
-	case KeyZ:
+	case glfw.KeyZ:
 		return gxui.KeyZ
-	case KeyLeftBracket:
+	case glfw.KeyLeftBracket:
 		return gxui.KeyLeftBracket
-	case KeyBackslash:
+	case glfw.KeyBackslash:
 		return gxui.KeyBackslash
-	case KeyRightBracket:
+	case glfw.KeyRightBracket:
 		return gxui.KeyRightBracket
-	case KeyGraveAccent:
+	case glfw.KeyGraveAccent:
 		return gxui.KeyGraveAccent
-	case KeyWorld1:
+	case glfw.KeyWorld1:
 		return gxui.KeyWorld1
-	case KeyWorld2:
+	case glfw.KeyWorld2:
 		return gxui.KeyWorld2
-	case KeyEscape:
+	case glfw.KeyEscape:
 		return gxui.KeyEscape
-	case KeyEnter:
+	case glfw.KeyEnter:
 		return gxui.KeyEnter
-	case KeyTab:
+	case glfw.KeyTab:
 		return gxui.KeyTab
-	case KeyBackspace:
+	case glfw.KeyBackspace:
 		return gxui.KeyBackspace
-	case KeyInsert:
+	case glfw.KeyInsert:
 		return gxui.KeyInsert
-	case KeyDelete:
+	case glfw.KeyDelete:
 		return gxui.KeyDelete
-	case KeyRight:
+	case glfw.KeyRight:
 		return gxui.KeyRight
-	case KeyLeft:
+	case glfw.KeyLeft:
 		return gxui.KeyLeft
-	case KeyDown:
+	case glfw.KeyDown:
 		return gxui.KeyDown
-	case KeyUp:
+	case glfw.KeyUp:
 		return gxui.KeyUp
-	case KeyPageUp:
+	case glfw.KeyPageUp:
 		return gxui.KeyPageUp
-	case KeyPageDown:
+	case glfw.KeyPageDown:
 		return gxui.KeyPageDown
-	case KeyHome:
+	case glfw.KeyHome:
 		return gxui.KeyHome
-	case KeyEnd:
+	case glfw.KeyEnd:
 		return gxui.KeyEnd
-	case KeyCapsLock:
+	case glfw.KeyCapsLock:
 		return gxui.KeyCapsLock
-	case KeyScrollLock:
+	case glfw.KeyScrollLock:
 		return gxui.KeyScrollLock
-	case KeyNumLock:
+	case glfw.KeyNumLock:
 		return gxui.KeyNumLock
-	case KeyPrintScreen:
+	case glfw.KeyPrintScreen:
 		return gxui.KeyPrintScreen
-	case KeyPause:
+	case glfw.KeyPause:
 		return gxui.KeyPause
-	case KeyF1:
+	case glfw.KeyF1:
 		return gxui.KeyF1
-	case KeyF2:
+	case glfw.KeyF2:
 		return gxui.KeyF2
-	case KeyF3:
+	case glfw.KeyF3:
 		return gxui.KeyF3
-	case KeyF4:
+	case glfw.KeyF4:
 		return gxui.KeyF4
-	case KeyF5:
+	case glfw.KeyF5:
 		return gxui.KeyF5
-	case KeyF6:
+	case glfw.KeyF6:
 		return gxui.KeyF6
-	case KeyF7:
+	case glfw.KeyF7:
 		return gxui.KeyF7
-	case KeyF8:
+	case glfw.KeyF8:
 		return gxui.KeyF8
-	case KeyF9:
+	case glfw.KeyF9:
 		return gxui.KeyF9
-	case KeyF10:
+	case glfw.KeyF10:
 		return gxui.KeyF10
-	case KeyF11:
+	case glfw.KeyF11:
 		return gxui.KeyF11
-	case KeyF12:
+	case glfw.KeyF12:
 		return gxui.KeyF12
-	case KeyKP0:
+	case glfw.KeyKP0:
 		return gxui.KeyKp0
-	case KeyKP1:
+	case glfw.KeyKP1:
 		return gxui.KeyKp1
-	case KeyKP2:
+	case glfw.KeyKP2:
 		return gxui.KeyKp2
-	case KeyKP3:
+	case glfw.KeyKP3:
 		return gxui.KeyKp3
-	case KeyKP4:
+	case glfw.KeyKP4:
 		return gxui.KeyKp4
-	case KeyKP5:
+	case glfw.KeyKP5:
 		return gxui.KeyKp5
-	case KeyKP6:
+	case glfw.KeyKP6:
 		return gxui.KeyKp6
-	case KeyKP7:
+	case glfw.KeyKP7:
 		return gxui.KeyKp7
-	case KeyKP8:
+	case glfw.KeyKP8:
 		return gxui.KeyKp8
-	case KeyKP9:
+	case glfw.KeyKP9:
 		return gxui.KeyKp9
-	case KeyKPDecimal:
+	case glfw.KeyKPDecimal:
 		return gxui.KeyKpDecimal
-	case KeyKPDivide:
+	case glfw.KeyKPDivide:
 		return gxui.KeyKpDivide
-	case KeyKPMultiply:
+	case glfw.KeyKPMultiply:
 		return gxui.KeyKpMultiply
-	case KeyKPSubtract:
+	case glfw.KeyKPSubtract:
 		return gxui.KeyKpSubtract
-	case KeyKPAdd:
+	case glfw.KeyKPAdd:
 		return gxui.KeyKpAdd
-	case KeyKPEnter:
+	case glfw.KeyKPEnter:
 		return gxui.KeyKpEnter
-	case KeyKPEqual:
+	case glfw.KeyKPEqual:
 		return gxui.KeyKpEqual
-	case KeyLeftShift:
+	case glfw.KeyLeftShift:
 		return gxui.KeyLeftShift
-	case KeyLeftControl:
+	case glfw.KeyLeftControl:
 		return gxui.KeyLeftControl
-	case KeyLeftAlt:
+	case glfw.KeyLeftAlt:
 		return gxui.KeyLeftAlt
-	case KeyLeftSuper:
+	case glfw.KeyLeftSuper:
 		return gxui.KeyLeftSuper
-	case KeyRightShift:
+	case glfw.KeyRightShift:
 		return gxui.KeyRightShift
-	case KeyRightControl:
+	case glfw.KeyRightControl:
 		return gxui.KeyRightControl
-	case KeyRightAlt:
+	case glfw.KeyRightAlt:
 		return gxui.KeyRightAlt
-	case KeyRightSuper:
+	case glfw.KeyRightSuper:
 		return gxui.KeyRightSuper
-	case KeyMenu:
+	case glfw.KeyMenu:
 		return gxui.KeyMenu
 	default:
 		return gxui.KeyUnknown
@@ -227,16 +228,16 @@ func translateKeyboardKey(in Key) gxui.KeyboardKey {
 
 func translateKeyboardModifier(from ModifierKey) gxui.KeyboardModifier {
 	out := gxui.ModNone
-	if from&ModShift != 0 {
+	if from&glfw.ModShift != 0 {
 		out |= gxui.ModShift
 	}
-	if from&ModControl != 0 {
+	if from&glfw.ModControl != 0 {
 		out |= gxui.ModControl
 	}
-	if from&ModAlt != 0 {
+	if from&glfw.ModAlt != 0 {
 		out |= gxui.ModAlt
 	}
-	if from&ModSuper != 0 {
+	if from&glfw.ModSuper != 0 {
 		out |= gxui.ModSuper
 	}
 	return out

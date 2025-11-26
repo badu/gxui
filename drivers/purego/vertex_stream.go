@@ -7,14 +7,13 @@ import (
 )
 
 type vertexStream struct {
-	fn         *Functions // TODO : fill me up
 	name       string
 	data       []byte
 	shaderType shaderDataType
 	count      int
 }
 
-func newVertexStream(fn *Functions, name string, shaderType shaderDataType, data32 []float32) *vertexStream {
+func newVertexStream(name string, shaderType shaderDataType, data32 []float32) *vertexStream {
 	dataVal := reflect.ValueOf(data32)
 	dataLen := dataVal.Len()
 
@@ -29,7 +28,6 @@ func newVertexStream(fn *Functions, name string, shaderType shaderDataType, data
 	data := float32Bytes(data32...)
 
 	stream := &vertexStream{
-		fn:         fn,
 		name:       name,
 		data:       data,
 		shaderType: shaderType,
@@ -38,13 +36,13 @@ func newVertexStream(fn *Functions, name string, shaderType shaderDataType, data
 	return stream
 }
 
-func (s *vertexStream) newContext() *vertexStreamContext {
-	buffer := s.fn.CreateBuffer()
+func (s *vertexStream) newContext(fn *Functions) *vertexStreamContext {
+	buffer := fn.CreateBuffer()
 
-	s.fn.BindBuffer(ARRAY_BUFFER, buffer)
-	s.fn.BufferData(ARRAY_BUFFER, s.data, STATIC_DRAW)
-	s.fn.BindBuffer(ARRAY_BUFFER, Buffer{})
-	checkError(s.fn)
+	fn.BindBuffer(ARRAY_BUFFER, buffer)
+	fn.BufferData(ARRAY_BUFFER, s.data, STATIC_DRAW)
+	fn.BindBuffer(ARRAY_BUFFER, Buffer{})
+	checkError(fn)
 
 	globalStats.vertexStreamContextCount.inc()
 	return &vertexStreamContext{glBuffer: buffer}
@@ -52,17 +50,16 @@ func (s *vertexStream) newContext() *vertexStreamContext {
 
 type vertexStreamContext struct {
 	contextResource
-	fn       *Functions // TODO : fill me up
 	glBuffer Buffer
 }
 
-func (c *vertexStreamContext) bind() {
-	c.fn.BindBuffer(ARRAY_BUFFER, c.glBuffer)
+func (c *vertexStreamContext) bind(fn *Functions) {
+	fn.BindBuffer(ARRAY_BUFFER, c.glBuffer)
 }
 
-func (c *vertexStreamContext) destroy() {
+func (c *vertexStreamContext) destroy(fn *Functions) {
 	globalStats.vertexStreamContextCount.dec()
-	c.fn.DeleteBuffer(c.glBuffer)
+	fn.DeleteBuffer(c.glBuffer)
 	c.glBuffer = Buffer{}
 }
 

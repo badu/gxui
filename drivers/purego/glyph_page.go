@@ -1,6 +1,7 @@
 package purego
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -25,7 +26,6 @@ type glyphEntry struct {
 }
 
 type glyphPage struct {
-	fn        *Functions
 	image     *image.Alpha
 	entries   map[rune]glyphEntry
 	tex       *TextureImpl
@@ -46,7 +46,7 @@ func align(width, size int) int {
 	return (width + size - 1) & ^(size - 1)
 }
 
-func newGlyphPage(fn *Functions, face imageFont.Face, whichRune rune) *glyphPage {
+func newGlyphPage(face imageFont.Face, whichRune rune) *glyphPage {
 	// Start the page big enough to hold the initial rune.
 	glyphBounds, _, _ := face.GlyphBounds(whichRune)
 	bounds := rectangle26_6toRect(glyphBounds)
@@ -55,7 +55,6 @@ func newGlyphPage(fn *Functions, face imageFont.Face, whichRune rune) *glyphPage
 	size.Height = align(size.Height, glyphSizeAlignment)
 
 	page := &glyphPage{
-		fn:        fn,
 		image:     image.NewAlpha(image.Rect(0, 0, size.Width, size.Height)),
 		size:      size,
 		entries:   make(map[rune]glyphEntry),
@@ -70,11 +69,18 @@ func (p *glyphPage) commit() {
 		return
 	}
 
-	p.tex = NewTexture(p.fn, p.image, 1.0)
+	p.tex = NewTexture(p.image, 1.0)
 	if dumpGlyphPages {
 		f, _ := os.Create("glyph-page.png")
-		defer f.Close()
-		png.Encode(f, p.image)
+		defer func() {
+			err := f.Close()
+			if err != nil {
+				fmt.Println("error closing glyph-page.png:" + err.Error())
+			}
+		}()
+		if err := png.Encode(f, p.image); err != nil {
+			fmt.Println("error encoding glyph-page.png:" + err.Error())
+		}
 	}
 }
 

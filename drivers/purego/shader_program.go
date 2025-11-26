@@ -7,7 +7,6 @@ import (
 type uniformBindings map[string]interface{}
 
 type shaderProgram struct {
-	fn         *Functions
 	uniforms   []shaderUniform
 	attributes []shaderAttribute
 	program    Program
@@ -27,31 +26,30 @@ func compile(fn *Functions, source string, shaderType int) Shader {
 	return shader
 }
 
-func newShaderProgram(fn *Functions, ctx *context, vertSource, fragSource string) *shaderProgram {
-	vertex := compile(fn, vertSource, VERTEX_SHADER)
-	fragment := compile(fn, fragSource, FRAGMENT_SHADER)
+func newShaderProgram(ctx *context, vertSource, fragSource string) *shaderProgram {
+	vertex := compile(ctx.fn, vertSource, VERTEX_SHADER)
+	fragment := compile(ctx.fn, fragSource, FRAGMENT_SHADER)
 
-	program := fn.CreateProgram()
-	fn.AttachShader(program, vertex)
-	fn.AttachShader(program, fragment)
-	fn.LinkProgram(program)
+	program := ctx.fn.CreateProgram()
+	ctx.fn.AttachShader(program, vertex)
+	ctx.fn.AttachShader(program, fragment)
+	ctx.fn.LinkProgram(program)
 
-	if fn.GetProgrami(program, LINK_STATUS) != TRUE {
-		panic(fn.GetProgramInfoLog(program))
+	if ctx.fn.GetProgrami(program, LINK_STATUS) != TRUE {
+		panic(ctx.fn.GetProgramInfoLog(program))
 	}
 
-	fn.UseProgram(program)
+	ctx.fn.UseProgram(program)
 
-	checkError(fn)
+	checkError(ctx.fn)
 
-	uniformCount := fn.GetProgrami(program, ACTIVE_UNIFORMS)
+	uniformCount := ctx.fn.GetProgrami(program, ACTIVE_UNIFORMS)
 	uniforms := make([]shaderUniform, uniformCount)
 	textureUnit := 0
 	for index := range uniforms {
-		name, size, shaderType := fn.GetActiveUniform(program, uint32(index))
-		location := fn.GetUniformLocation(program, name)
+		name, size, shaderType := ctx.fn.GetActiveUniform(program, uint32(index))
+		location := ctx.fn.GetUniformLocation(program, name)
 		uniforms[index] = shaderUniform{
-			fn:          fn,
 			name:        name,
 			size:        size,
 			shaderType:  shaderDataType(shaderType),
@@ -63,13 +61,12 @@ func newShaderProgram(fn *Functions, ctx *context, vertSource, fragSource string
 		}
 	}
 
-	attributeCount := fn.GetProgrami(program, ACTIVE_ATTRIBUTES)
+	attributeCount := ctx.fn.GetProgrami(program, ACTIVE_ATTRIBUTES)
 	attributes := make([]shaderAttribute, attributeCount)
 	for index := range attributes {
-		name, size, shaderType := fn.GetActiveAttrib(program, uint32(index))
-		location := fn.GetAttribLocation(program, name)
+		name, size, shaderType := ctx.fn.GetActiveAttrib(program, uint32(index))
+		location := ctx.fn.GetAttribLocation(program, name)
 		attributes[index] = shaderAttribute{
-			fn:         fn,
 			name:       name,
 			size:       size,
 			shaderType: shaderDataType(shaderType),
@@ -80,7 +77,6 @@ func newShaderProgram(fn *Functions, ctx *context, vertSource, fragSource string
 	ctx.stats.shaderProgramCount++
 
 	return &shaderProgram{
-		fn:         fn,
 		program:    program,
 		uniforms:   uniforms,
 		attributes: attributes,
@@ -88,18 +84,18 @@ func newShaderProgram(fn *Functions, ctx *context, vertSource, fragSource string
 }
 
 func (s *shaderProgram) destroy(ctx *context) {
-	s.fn.DeleteProgram(s.program)
+	ctx.fn.DeleteProgram(s.program)
 	s.program = Program{}
 	// TODO: Delete shaders.
 	ctx.stats.shaderProgramCount--
 }
 
 func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms uniformBindings) {
-	s.fn.UseProgram(s.program)
+	ctx.fn.UseProgram(s.program)
 
 	for _, attr := range s.attributes {
 		if attr.name == "" {
-			continue
+			panic("empty attribute name")
 		}
 
 		vertex, found := buffer.streams[attr.name]
@@ -113,33 +109,35 @@ func (s *shaderProgram) bind(ctx *context, buffer *vertexBuffer, uniforms unifor
 
 		elementCount := attr.shaderType.vectorElementCount()
 		elementTy := attr.shaderType.vectorElementType()
-		ctx.getOrCreateVertexStreamContext(vertex).bind()
-		attr.enableArray()
-		attr.attribPointer(int32(elementCount), uint32(elementTy), false, 0, 0)
+		ctx.getOrCreateVertexStreamContext(vertex).bind(ctx.fn)
+		attr.enableArray(ctx.fn)
+		attr.attribPointer(ctx.fn, int32(elementCount), uint32(elementTy), false, 0, 0)
 	}
 
 	for _, uni := range s.uniforms {
 		if uni.name == "" {
-			continue
+			panic("empty uniform name")
 		}
 
 		uniform, found := uniforms[uni.name]
 		if !found {
 			panic(fmt.Errorf("uniforms missing %q", uni.name))
 		}
-		uni.bind(uniform)
+
+		uni.bind(ctx.fn, uniform)
 	}
-	checkError(s.fn)
+
+	checkError(ctx.fn)
 }
 
-func (s *shaderProgram) unbind(ctx *context) {
+func (s *shaderProgram) unbind(fn *Functions) {
 	for _, a := range s.attributes {
 		if a.name == "" {
-			continue
+			panic("empty attribute name on unbind")
 		}
 
-		a.disableArray()
+		a.disableArray(fn)
 	}
 
-	checkError(s.fn)
+	checkError(fn)
 }
