@@ -1,56 +1,70 @@
+26.11.2025
+---
+TODO : purego Windows driver requires testing
+- BlendFunc
+- GetActiveUniform
+- GetActiveAttrib
+- GetAttribLocation
+- UniformMatrix2fv
+- UniformMatrix3fv
+- UniformMatrix4fv
+- Uniform1fv
+- Uniform2fv
+- Uniform3fv
+- Uniform4fv
+
 25.11.2025
 ---
-"github.com/goxjs/gl" calls:
-
-gl.CreateTexture
-gl.Scissor
-gl.GetActiveAttrib [missing]
-gl.GetError
-gl.UniformMatrix3fv [missing]
-gl.BindTexture
-gl.Disable
-gl.Clear
-gl.BlendFunc
-gl.GetShaderInfoLog
-gl.GetProgramInfoLog
-gl.GetActiveUniform [missing]
-gl.DrawArrays
-gl.BindBuffer
-gl.BufferData
-gl.ShaderSource
-gl.UseProgram
-gl.CreateBuffer
-gl.UniformMatrix2fv [missing]
-gl.UniformMatrix4fv [missing]
-gl.Uniform1fv
+github.com/goxjs/gl unique calls :
 gl.ActiveTexture
-gl.Uniform1i
-gl.Viewport
-gl.GetShaderi
-gl.Uniform1f
-gl.Uniform2fv
+gl.AttachShader
+gl.BindBuffer
+gl.BindTexture
+gl.BlendFunc
+gl.BufferData
+gl.Clear
 gl.ClearColor
-gl.Enable
 gl.CompileShader
+gl.CreateBuffer
 gl.CreateProgram
-gl.EnableVertexAttribArray
-gl.DrawElements
-gl.TexParameteri
-gl.DeleteTexture
-gl.DeleteProgram
+gl.CreateShader
+gl.CreateTexture
 gl.DeleteBuffer
+gl.DeleteProgram
+gl.DeleteTexture
+gl.Disable
+gl.DisableVertexAttribArray
+gl.DrawArrays
+gl.DrawElements
+gl.Enable
+gl.EnableVertexAttribArray
+gl.Enum
+gl.GetActiveAttrib
+gl.GetActiveUniform
+gl.GetAttribLocation
+gl.GetError
+gl.GetProgramInfoLog
+gl.GetProgrami
+gl.GetShaderInfoLog
+gl.GetShaderi
+gl.GetUniformLocation
+gl.LinkProgram
+gl.Scissor
+gl.ShaderSource
+gl.TexImage2D
+gl.TexParameteri
+gl.Uniform1f
+gl.Uniform1fv
+gl.Uniform1i
+gl.Uniform2fv
 gl.Uniform3fv
 gl.Uniform4fv
-gl.TexImage2D
-gl.AttachShader
-gl.GetProgrami
-gl.GetUniformLocation
-gl.GetAttribLocation [missing]
-gl.DisableVertexAttribArray
-gl.CreateShader
-gl.Enum
-gl.LinkProgram
+gl.UniformMatrix2fv
+gl.UniformMatrix3fv
+gl.UniformMatrix4fv
+gl.UseProgram
 gl.VertexAttribPointer
+gl.Viewport
 
 28.12.2024
 ---

@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -26,6 +27,7 @@ func main() {
 	}
 
 	uniques := make(map[string]struct{})
+	sortedUniques := make([]string, 0)
 	for pkgName, pkg := range pkgs {
 		fmt.Printf("Analyzing package: **%s**\n", pkgName)
 
@@ -57,6 +59,7 @@ func main() {
 				fmt.Printf("  **Found call:** %s at %s\n", callKey, fset.Position(callExpr.Lparen))
 				if _, found := uniques[callKey]; !found {
 					uniques[callKey] = struct{}{}
+					sortedUniques = append(sortedUniques, callKey)
 				}
 			}
 
@@ -64,8 +67,9 @@ func main() {
 		})
 	}
 
+	sort.Strings(sortedUniques)
 	fmt.Printf("%s unique calls : \n", targetImportPath)
-	for callKey := range uniques {
+	for _, callKey := range sortedUniques {
 		fmt.Printf("%s\n", callKey)
 	}
 }

@@ -1,5 +1,6 @@
 package purego
 
+import "C"
 import (
 	"math"
 	"runtime"
@@ -98,6 +99,18 @@ var (
 	_glUseProgram                          = LibGLESv2.NewProc("glUseProgram")
 	_glVertexAttribPointer                 = LibGLESv2.NewProc("glVertexAttribPointer")
 	_glViewport                            = LibGLESv2.NewProc("glViewport")
+
+	_glGetActiveUniform  = LibGLESv2.NewProc("glGetActiveUniform")
+	_glGetActiveAttrib   = LibGLESv2.NewProc("glGetActiveAttrib")
+	_glGetAttribLocation = LibGLESv2.NewProc("glGetAttribLocation")
+	_glBlendFunc         = LibGLESv2.NewProc("glBlendFunc")
+	_glUniformMatrix2fv  = LibGLESv2.NewProc("glUniformMatrix2fv")
+	_glUniformMatrix3fv  = LibGLESv2.NewProc("glUniformMatrix3fv")
+	_glUniformMatrix4fv  = LibGLESv2.NewProc("glUniformMatrix4fv")
+	_glUniform1fv        = LibGLESv2.NewProc("glUniform1fv")
+	_glUniform2fv        = LibGLESv2.NewProc("glUniform2fv")
+	_glUniform3fv        = LibGLESv2.NewProc("glUniform3fv")
+	_glUniform4fv        = LibGLESv2.NewProc("glUniform4fv")
 )
 
 type Functions struct {
@@ -503,9 +516,12 @@ func issue34474KeepAlive(v interface{}) {
 	runtime.KeepAlive(v)
 }
 
+// =====================
+// === untested area ===
+// =====================
 // BlendFunc sets the pixel blending factors.
 func (fn *Functions) BlendFunc(sfactor, dfactor Enum) {
-	C.glowBlendFunc(fn.glowBlendFunc, C.GLenum(sfactor), C.GLenum(dfactor))
+	syscall.Syscall(_glBlendFunc.Addr(), 2, uintptr(sfactor), uintptr(dfactor), 0)
 }
 
 // GetActiveUniform returns details about an active uniform variable.
@@ -513,15 +529,24 @@ func (fn *Functions) BlendFunc(sfactor, dfactor Enum) {
 // Permissible values for index range from 0 to the number of active
 // uniform variables minus 1.
 func (fn *Functions) GetActiveUniform(p Program, index uint32) (name string, size int, ty Enum) {
-	var length, si C.GLint
-	var typ C.GLenum
-	bufSize := C.GLsizei(256)
-	cname := (*C.GLchar)(C.malloc(C.size_t(bufSize)))
-	defer C.free(unsafe.Pointer(cname))
-
-	C.glowGetActiveUniform(fn.glowGetActiveUniform, C.GLuint(p.V), C.GLuint(index), bufSize, &length, &si, &typ, cname)
-	name = C.GoString((*C.char)(cname))
-
+	var length, si int32
+	var typ uint32
+	bufSize := int32(256)
+	buf := make([]byte, bufSize)
+	syscall.Syscall9(
+		_glGetActiveUniform.Addr(),
+		7,
+		uintptr(p.V),
+		uintptr(index),
+		uintptr(bufSize),
+		uintptr(unsafe.Pointer(&length)),
+		uintptr(unsafe.Pointer(&si)),
+		uintptr(unsafe.Pointer(&typ)),
+		uintptr(unsafe.Pointer(&buf[0])),
+		0,
+		0,
+	)
+	name = string(buf[:clen(buf)])
 	return name, int(si), Enum(typ)
 }
 
@@ -530,48 +555,97 @@ func (fn *Functions) GetActiveUniform(p Program, index uint32) (name string, siz
 // Permissible values for index range from 0 to the number of active
 // attribute variables minus 1.
 func (fn *Functions) GetActiveAttrib(p Program, index uint32) (name string, size int, ty Enum) {
-	var length, si C.GLint
-	var typ C.GLenum
-	bufSize := C.GLsizei(256)
-	cname := (*C.GLchar)(C.malloc(C.size_t(bufSize)))
-	defer C.free(unsafe.Pointer(cname))
-
-	C.glowGetActiveAttrib(fn.glowGetActiveAttrib, C.GLuint(p.V), C.GLuint(index), bufSize, &length, &si, &typ, cname)
-	name = C.GoString((*C.char)(cname))
-
+	var length, si int32
+	var typ uint32
+	bufSize := int32(256)
+	buf := make([]byte, bufSize)
+	syscall.Syscall9(
+		_glGetActiveAttrib.Addr(),
+		7,
+		uintptr(p.V),
+		uintptr(index),
+		uintptr(bufSize),
+		uintptr(unsafe.Pointer(&length)),
+		uintptr(unsafe.Pointer(&si)),
+		uintptr(unsafe.Pointer(&typ)),
+		uintptr(unsafe.Pointer(&buf[0])),
+		0,
+		0,
+	)
+	name = string(buf[:clen(buf)])
 	return name, int(si), Enum(typ)
 }
 
 func (fn *Functions) GetAttribLocation(p Program, name string) Attrib {
-	cname := C.CString(name + "\x00")
-	defer C.free(unsafe.Pointer(cname))
-	return Attrib(C.glowGetAttribLocation(fn.glowGetAttribLocation, C.GLuint(p.V), cname))
+	cname := cString(name)
+	c0 := &cname[0]
+	u, _, _ := syscall.Syscall(_glGetAttribLocation.Addr(), 2, uintptr(p.V), uintptr(unsafe.Pointer(c0)), 0)
+	issue34474KeepAlive(c0)
+	return Attrib(u)
 }
 
 func (fn *Functions) UniformMatrix2fv(dst Uniform, src []float32) {
-	C.glowUniformMatrix2fv(fn.glowUniformMatrix2fv, C.GLint(dst.V), C.GLsizei(len(src)/(2*2)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniformMatrix2fv.Addr(), 4, uintptr(dst.V), uintptr(len(src)/(2*2)), 0, uintptr(unsafe.Pointer(s0)), 0, 0)
+		issue34474KeepAlive(s0)
+	}
 }
 
 func (fn *Functions) UniformMatrix3fv(dst Uniform, src []float32) {
-	C.glowUniformMatrix3fv(fn.glowUniformMatrix3fv, C.GLint(dst.V), C.GLsizei(len(src)/(3*3)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniformMatrix3fv.Addr(), 4, uintptr(dst.V), uintptr(len(src)/(3*3)), 0, uintptr(unsafe.Pointer(s0)), 0, 0)
+		issue34474KeepAlive(s0)
+	}
 }
 
 func (fn *Functions) UniformMatrix4fv(dst Uniform, src []float32) {
-	C.glowUniformMatrix4fv(fn.glowUniformMatrix4fv, C.GLint(dst.V), C.GLsizei(len(src)/(4*4)), C.GLboolean(FALSE), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniformMatrix4fv.Addr(), 4, uintptr(dst.V), uintptr(len(src)/(4*4)), 0, uintptr(unsafe.Pointer(s0)), 0, 0)
+		issue34474KeepAlive(s0)
+	}
 }
 
 func (fn *Functions) Uniform1fv(dst Uniform, src []float32) {
-	C.glowUniform1fv(fn.glowUniform1fv, C.GLint(dst.V), C.GLsizei(len(src)), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniform1fv.Addr(), 3, uintptr(dst.V), uintptr(len(src)), uintptr(unsafe.Pointer(s0)), 0, 0, 0)
+		issue34474KeepAlive(s0)
+	}
 }
 
 func (fn *Functions) Uniform2fv(dst Uniform, src []float32) {
-	C.glowUniform2fv(fn.glowUniform2fv, C.GLint(dst.V), C.GLsizei(len(src)/2), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniform2fv.Addr(), 3, uintptr(dst.V), uintptr(len(src)/2), uintptr(unsafe.Pointer(s0)), 0, 0, 0)
+		issue34474KeepAlive(s0)
+	}
 }
 
 func (fn *Functions) Uniform3fv(dst Uniform, src []float32) {
-	C.glowUniform3fv(fn.glowUniform3fv, C.GLint(dst.V), C.GLsizei(len(src)/3), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniform3fv.Addr(), 3, uintptr(dst.V), uintptr(len(src)/3), uintptr(unsafe.Pointer(s0)), 0, 0, 0)
+		issue34474KeepAlive(s0)
+	}
 }
 
 func (fn *Functions) Uniform4fv(dst Uniform, src []float32) {
-	C.glowUniform4fv(fn.glowUniform4fv, C.GLint(dst.V), C.GLsizei(len(src)/4), (*C.GLfloat)(unsafe.Pointer(&src[0])))
+	if len(src) > 0 {
+		s0 := &src[0]
+		syscall.Syscall6(_glUniform4fv.Addr(), 3, uintptr(dst.V), uintptr(len(src)/4), uintptr(unsafe.Pointer(s0)), 0, 0, 0)
+		issue34474KeepAlive(s0)
+	}
+}
+
+// clen returns the index of the first null byte in b or len(b) if b contains no null byte.
+func clen(b []byte) int {
+	for i := 0; i < len(b); i++ {
+		if b[i] == 0 {
+			return i
+		}
+	}
+	return len(b)
 }
