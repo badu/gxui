@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/drivers/cgo"
+	"github.com/badu/gxui/drivers/purego"
 	"github.com/badu/gxui/pkg/font"
 )
 
@@ -58,7 +58,7 @@ func CreateLightTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 	neonBlue := gxui.ColorFromHex(0xFF5C8CFF)
 	focus := gxui.ColorFromHex(0xFFC4D6FF)
 
-	monitor := cgo.GetPrimaryMonitor()
+	monitor := purego.GetPrimaryMonitor()
 	_, _, w, h := monitor.GetWorkarea()
 	if w == 0 || h == 0 {
 		vm := monitor.GetVideoMode()
@@ -129,7 +129,7 @@ func CreateDarkTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 	neonBlue := gxui.ColorFromHex(0xFF5C8CFF)
 	focus := gxui.ColorFromHex(0xA0C4D6FF)
 
-	monitor := cgo.GetPrimaryMonitor()
+	monitor := purego.GetPrimaryMonitor()
 	_, _, w, h := monitor.GetWorkarea()
 	if w == 0 || h == 0 {
 		vm := monitor.GetVideoMode()
