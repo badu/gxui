@@ -196,7 +196,7 @@ func NewFunctions() (*Functions, error) {
 	if err := ctx.LoadFunctions(); err != nil {
 		return nil, err
 	}
-	
+
 	return ctx, nil
 }
 
