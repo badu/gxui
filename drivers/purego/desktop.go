@@ -1,419 +1,328 @@
 package purego
 
 import (
-	"io"
-	"os"
 	"runtime"
-
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
+
+const (
+	Press   = 1
+	Release = 2
+	Repeat  = 3
+
+	KeySpace        Key = 32
+	KeyApostrophe   Key = 39 /* ' */
+	KeyComma        Key = 44 /* , */
+	KeyMinus        Key = 45 /* - */
+	KeyPeriod       Key = 46 /* . */
+	KeySlash        Key = 47 /* / */
+	Key0            Key = 48
+	Key1            Key = 49
+	Key2            Key = 50
+	Key3            Key = 51
+	Key4            Key = 52
+	Key5            Key = 53
+	Key6            Key = 54
+	Key7            Key = 55
+	Key8            Key = 56
+	Key9            Key = 57
+	KeySemicolon    Key = 59 /* ; */
+	KeyEqual        Key = 61 /* = */
+	KeyA            Key = 65
+	KeyB            Key = 66
+	KeyC            Key = 67
+	KeyD            Key = 68
+	KeyE            Key = 69
+	KeyF            Key = 70
+	KeyG            Key = 71
+	KeyH            Key = 72
+	KeyI            Key = 73
+	KeyJ            Key = 74
+	KeyK            Key = 75
+	KeyL            Key = 76
+	KeyM            Key = 77
+	KeyN            Key = 78
+	KeyO            Key = 79
+	KeyP            Key = 80
+	KeyQ            Key = 81
+	KeyR            Key = 82
+	KeyS            Key = 83
+	KeyT            Key = 84
+	KeyU            Key = 85
+	KeyV            Key = 86
+	KeyW            Key = 87
+	KeyX            Key = 88
+	KeyY            Key = 89
+	KeyZ            Key = 90
+	KeyLeftBracket  Key = 91  /* [ */
+	KeyBackslash    Key = 92  /* \ */
+	KeyRightBracket Key = 93  /* ] */
+	KeyGraveAccent  Key = 96  /* ` */
+	KeyWorld1       Key = 161 /* non-US #1 */
+	KeyWorld2       Key = 162 /* non-US #2 */
+	KeyEscape       Key = 256
+	KeyEnter        Key = 257
+	KeyTab          Key = 258
+	KeyBackspace    Key = 259
+	KeyInsert       Key = 260
+	KeyDelete       Key = 261
+	KeyRight        Key = 262
+	KeyLeft         Key = 263
+	KeyDown         Key = 264
+	KeyUp           Key = 265
+	KeyPageUp       Key = 266
+	KeyPageDown     Key = 267
+	KeyHome         Key = 268
+	KeyEnd          Key = 269
+	KeyCapsLock     Key = 280
+	KeyScrollLock   Key = 281
+	KeyNumLock      Key = 282
+	KeyPrintScreen  Key = 283
+	KeyPause        Key = 284
+	KeyF1           Key = 290
+	KeyF2           Key = 291
+	KeyF3           Key = 292
+	KeyF4           Key = 293
+	KeyF5           Key = 294
+	KeyF6           Key = 295
+	KeyF7           Key = 296
+	KeyF8           Key = 297
+	KeyF9           Key = 298
+	KeyF10          Key = 299
+	KeyF11          Key = 300
+	KeyF12          Key = 301
+	KeyKP0          Key = 320
+	KeyKP1          Key = 321
+	KeyKP2          Key = 322
+	KeyKP3          Key = 323
+	KeyKP4          Key = 324
+	KeyKP5          Key = 325
+	KeyKP6          Key = 326
+	KeyKP7          Key = 327
+	KeyKP8          Key = 328
+	KeyKP9          Key = 329
+	KeyKPDecimal    Key = 330
+	KeyKPDivide     Key = 331
+	KeyKPMultiply   Key = 332
+	KeyKPSubtract   Key = 333
+	KeyKPAdd        Key = 334
+	KeyKPEnter      Key = 335
+	KeyKPEqual      Key = 336
+	KeyLeftShift    Key = 340
+	KeyLeftControl  Key = 341
+	KeyLeftAlt      Key = 342
+	KeyLeftSuper    Key = 343
+	KeyRightShift   Key = 344
+	KeyRightControl Key = 345
+	KeyRightAlt     Key = 346
+	KeyRightSuper   Key = 347
+	KeyMenu         Key = 348
+
+	ModShift   ModifierKey = 1
+	ModControl ModifierKey = 1
+	ModAlt     ModifierKey = 1
+	ModSuper   ModifierKey = 1
+)
+
+type MouseButton = int32
+type Action = int32
+type ModifierKey = int32
+type Key = int32
+type InputMode = int32
 
 func init() {
 	runtime.LockOSThread()
 }
 
-// Init initializes the library.
-//
-// A valid ContextWatcher must be provided. It gets notified when context becomes current or detached.
-// It should be provided by the GL bindings you are using, so you can do glfw.Init(gl.ContextWatcher).
-func Init() error {
-	return glfw.Init()
-}
-
-func Terminate() {
-	glfw.Terminate()
-}
-
-func CreateWindow(width, height int, title string, monitor *Monitor, share *Window) (*Window, error) {
-	var m *glfw.Monitor
-	if monitor != nil {
-		m = monitor.Monitor
-	}
-
-	var s *glfw.Window
-	if share != nil {
-		s = share.Window
-	}
-
-	w, err := glfw.CreateWindow(width, height, title, m, s)
-	if err != nil {
-		return nil, err
-	}
-
-	window := &Window{Window: w}
-
-	return window, err
-}
-
-func SwapInterval(interval int) {
-	glfw.SwapInterval(interval)
-}
-
-func (w *Window) MakeContextCurrent() {
-	w.Window.MakeContextCurrent()
-}
-
-func DetachCurrentContext() {
-	glfw.DetachCurrentContext()
-}
-
 type Window struct {
-	*glfw.Window
+	handle uintptr
 }
 
-type Monitor struct {
-	*glfw.Monitor
-}
-
-func GetPrimaryMonitor() *Monitor {
-	m := glfw.GetPrimaryMonitor()
-	return &Monitor{Monitor: m}
-}
-
-func PollEvents() {
-	glfw.PollEvents()
-}
-
-type CursorPosCallback func(w *Window, xpos float64, ypos float64)
-
-func (w *Window) SetCursorPosCallback(cbfun CursorPosCallback) (previous CursorPosCallback) {
-	wrappedCbfun := func(_ *glfw.Window, xpos float64, ypos float64) {
-		cbfun(w, xpos, ypos)
+// Handle returns the raw uintptr handle
+func (w *Window) Handle() uintptr {
+	if w == nil {
+		return 0
 	}
-
-	p := w.Window.SetCursorPosCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+	return w.handle
 }
 
-type MouseMovementCallback func(w *Window, xpos, ypos, xdelta, ydelta float64)
-
-var lastMousePos [2]float64 // HACK.
-
-// TODO: For now, this overrides SetCursorPosCallback; should support both.
-func (w *Window) SetMouseMovementCallback(cbfun MouseMovementCallback) (previous MouseMovementCallback) {
-	lastMousePos[0], lastMousePos[1] = w.Window.GetCursorPos()
-	wrappedCbfun := func(_ *glfw.Window, xpos, ypos float64) {
-		xdelta, ydelta := xpos-lastMousePos[0], ypos-lastMousePos[1]
-		lastMousePos[0], lastMousePos[1] = xpos, ypos
-		cbfun(w, xpos, ypos, xdelta, ydelta)
-	}
-
-	p := w.Window.SetCursorPosCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+// MakeContextCurrent makes this window's context current
+func (w *Window) MakeContextCurrent() {
+	MakeContextCurrent(w)
 }
 
-type KeyCallback func(w *Window, key Key, scancode int, action Action, mods ModifierKey)
-
-func (w *Window) SetKeyCallback(cbfun KeyCallback) (previous KeyCallback) {
-	wrappedCbfun := func(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		cbfun(w, key, scancode, action, mods)
-	}
-
-	p := w.Window.SetKeyCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+// GetCursorPos retrieves the cursor position for this window
+func (w *Window) GetCursorPos() (xpos, ypos float64) {
+	return GetCursorPos(w)
 }
 
-type CharCallback func(w *Window, char rune)
-
-func (w *Window) SetCharCallback(cbfun CharCallback) (previous CharCallback) {
-	wrappedCbfun := func(_ *glfw.Window, char rune) {
-		cbfun(w, char)
-	}
-
-	p := w.Window.SetCharCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+// SetCursorPosCallback sets the cursor position callback for this window
+func (w *Window) SetCursorPosCallback(callback CursorPosCallback) {
+	SetCursorPosCallback(w, callback)
 }
 
-type ScrollCallback func(w *Window, xoff float64, yoff float64)
-
-func (w *Window) SetScrollCallback(cbfun ScrollCallback) (previous ScrollCallback) {
-	wrappedCbfun := func(_ *glfw.Window, xoff float64, yoff float64) {
-		cbfun(w, xoff, yoff)
-	}
-
-	p := w.Window.SetScrollCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+// SetKeyCallback sets the key callback for this window
+func (w *Window) SetKeyCallback(callback KeyCallback) {
+	SetKeyCallback(w, callback)
 }
 
-type MouseButtonCallback func(w *Window, button MouseButton, action Action, mods ModifierKey)
-
-func (w *Window) SetMouseButtonCallback(cbfun MouseButtonCallback) (previous MouseButtonCallback) {
-	wrappedCbfun := func(_ *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
-		cbfun(w, button, action, mods)
-	}
-
-	p := w.Window.SetMouseButtonCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+// SetCharCallback sets the character callback for this window
+func (w *Window) SetCharCallback(callback CharCallback) {
+	SetCharCallback(w, callback)
 }
 
-type FramebufferSizeCallback func(w *Window, width int, height int)
+// SetScrollCallback sets the scroll callback for this window
+func (w *Window) SetScrollCallback(callback ScrollCallback) {
+	SetScrollCallback(w, callback)
+}
 
-func (w *Window) SetFramebufferSizeCallback(cbfun FramebufferSizeCallback) (previous FramebufferSizeCallback) {
-	wrappedCbfun := func(_ *glfw.Window, width int, height int) {
-		cbfun(w, width, height)
-	}
+// SetMouseButtonCallback sets the mouse button callback for this window
+func (w *Window) SetMouseButtonCallback(callback MouseButtonCallback) {
+	SetMouseButtonCallback(w, callback)
+}
 
-	p := w.Window.SetFramebufferSizeCallback(wrappedCbfun)
-	_ = p
+// SetFramebufferSizeCallback sets the framebuffer size callback for this window
+func (w *Window) SetFramebufferSizeCallback(callback FramebufferSizeCallback) {
+	SetFramebufferSizeCallback(w, callback)
+}
 
-	// TODO: Handle previous.
-	return nil
+// SetCloseCallback sets the window close callback for this window
+func (w *Window) SetCloseCallback(callback CloseCallback) {
+	SetCloseCallback(w, callback)
+}
+
+// SetRefreshCallback sets the window refresh callback for this window
+func (w *Window) SetRefreshCallback(callback RefreshCallback) {
+	SetRefreshCallback(w, callback)
+}
+
+// SetSizeCallback sets the window size callback for this window
+func (w *Window) SetSizeCallback(callback SizeCallback) {
+	SetSizeCallback(w, callback)
+}
+
+// SetCursorEnterCallback sets the cursor enter/leave callback for this window
+func (w *Window) SetCursorEnterCallback(callback CursorEnterCallback) {
+	SetCursorEnterCallback(w, callback)
+}
+
+// SetCharModsCallback sets the character with modifiers callback for this window
+func (w *Window) SetCharModsCallback(callback CharModsCallback) {
+	SetCharModsCallback(w, callback)
+}
+
+// SetPosCallback sets the window position callback for this window
+func (w *Window) SetPosCallback(callback PosCallback) {
+	SetPosCallback(w, callback)
+}
+
+// SetFocusCallback sets the window focus callback for this window
+func (w *Window) SetFocusCallback(callback FocusCallback) {
+	SetFocusCallback(w, callback)
+}
+
+// SetIconifyCallback sets the window iconify callback for this window
+func (w *Window) SetIconifyCallback(callback IconifyCallback) {
+	SetIconifyCallback(w, callback)
+}
+
+// SetDropCallback sets the file drop callback for this window
+func (w *Window) SetDropCallback(callback DropCallback) {
+	SetDropCallback(w, callback)
+}
+
+// SetClipboardString sets the clipboard to the specified string for this window
+func (w *Window) SetClipboardString(str string) {
+	SetClipboardString(w, str)
+}
+
+func (w *Window) GetClipboardString() string {
+	return GetClipboardString(w)
 }
 
 func (w *Window) GetKey(key Key) Action {
-	return w.Window.GetKey(key)
+	return GetWindowKey(w, key)
 }
 
 func (w *Window) GetMouseButton(button MouseButton) Action {
-	return w.Window.GetMouseButton(button)
+	return GetWindowMouseButton(w, button)
 }
 
-func (w *Window) GetInputMode(mode InputMode) int {
-	return w.Window.GetInputMode(mode)
+func (w *Window) GetInputMode(mode InputMode) int32 {
+	return GetWindowInputMode(w, mode)
 }
 
-func (w *Window) SetInputMode(mode InputMode, value int) {
-	w.Window.SetInputMode(mode, value)
+func (w *Window) SetInputMode(mode InputMode, value int32) {
+	SetWindowInputMode(w, mode, value)
 }
 
-type Key = glfw.Key
-
-const (
-	KeyF13 = glfw.KeyF13
-	KeyF14 = glfw.KeyF14
-	KeyF15 = glfw.KeyF15
-	KeyF16 = glfw.KeyF16
-	KeyF17 = glfw.KeyF17
-	KeyF18 = glfw.KeyF18
-	KeyF19 = glfw.KeyF19
-	KeyF20 = glfw.KeyF20
-	KeyF21 = glfw.KeyF21
-	KeyF22 = glfw.KeyF22
-	KeyF23 = glfw.KeyF23
-	KeyF24 = glfw.KeyF24
-	KeyF25 = glfw.KeyF25
-)
-
-type MouseButton = glfw.MouseButton
-
-const (
-	MouseButton1 = glfw.MouseButton1
-	MouseButton2 = glfw.MouseButton2
-	MouseButton3 = glfw.MouseButton3
-)
-
-type Action = glfw.Action
-
-type InputMode = glfw.InputMode
-
-const (
-	CursorMode             = glfw.CursorMode
-	StickyKeysMode         = glfw.StickyKeysMode
-	StickyMouseButtonsMode = glfw.StickyMouseButtonsMode
-)
-
-const (
-	CursorNormal   = glfw.CursorNormal
-	CursorHidden   = glfw.CursorHidden
-	CursorDisabled = glfw.CursorDisabled
-)
-
-type ModifierKey = glfw.ModifierKey
-
-// Open opens a named asset. It's the caller's responsibility to close it when done.
-//
-// For now, assets are read directly from the current working directory.
-func Open(name string) (io.ReadCloser, error) {
-	return os.Open(name)
+func (w *Window) GetFramebufferSize() (width, height int32) {
+	return GetWindowFramebufferSize(w)
 }
 
-// ---
-
-func WaitEvents() {
-	glfw.WaitEvents()
+func (w *Window) GetPos() (xpos, ypos int) {
+	return GetWindowPos(w)
 }
 
-func PostEmptyEvent() {
-	glfw.PostEmptyEvent()
+func (w *Window) SetPos(xpos, ypos int) {
+	SetWindowPos(w, xpos, ypos)
 }
 
-func DefaultWindowHints() {
-	glfw.DefaultWindowHints()
+func (w *Window) GetSize() (width, height int) {
+	return GetWindowSize(w)
 }
 
-type CloseCallback func(w *Window)
+func (w *Window) SetSize(width, height int) {
+	SetWindowSize(w, width, height)
+}
 
-func (w *Window) SetCloseCallback(cbfun CloseCallback) (previous CloseCallback) {
-	wrappedCbfun := func(_ *glfw.Window) {
-		cbfun(w)
+func (w *Window) SetTitle(title string) {
+	SetWindowTitle(w, title)
+}
+
+func (w *Window) SwapBuffers() {
+	SwapWindowBuffers(w)
+}
+
+func (w *Window) Show() {
+	ShowWindow(w)
+}
+
+func (w *Window) Hide() {
+	HideWindow(w)
+}
+
+func (w *Window) Destroy() {
+	DestroyWindow(w)
+}
+
+// Monitor represents a GLFW monitor handle
+type Monitor struct {
+	handle uintptr
+}
+
+// Handle returns the raw uintptr handle
+func (m *Monitor) Handle() uintptr {
+	if m == nil {
+		return 0
 	}
-
-	p := w.Window.SetCloseCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+	return m.handle
 }
 
-type RefreshCallback func(w *Window)
-
-func (w *Window) SetRefreshCallback(cbfun RefreshCallback) (previous RefreshCallback) {
-	wrappedCbfun := func(_ *glfw.Window) {
-		cbfun(w)
-	}
-
-	p := w.Window.SetRefreshCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+type VidMode struct {
+	Width       int // The width, in pixels, of the video mode.
+	Height      int // The height, in pixels, of the video mode.
+	RedBits     int // The bit depth of the red channel of the video mode.
+	GreenBits   int // The bit depth of the green channel of the video mode.
+	BlueBits    int // The bit depth of the blue channel of the video mode.
+	RefreshRate int // The refresh rate, in Hz, of the video mode.
 }
 
-type SizeCallback func(w *Window, width int, height int)
-
-func (w *Window) SetSizeCallback(cbfun SizeCallback) (previous SizeCallback) {
-	wrappedCbfun := func(_ *glfw.Window, width int, height int) {
-		cbfun(w, width, height)
-	}
-
-	p := w.Window.SetSizeCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
-}
-
-type CursorEnterCallback func(w *Window, entered bool)
-
-func (w *Window) SetCursorEnterCallback(cbfun CursorEnterCallback) (previous CursorEnterCallback) {
-	wrappedCbfun := func(_ *glfw.Window, entered bool) {
-		cbfun(w, entered)
-	}
-
-	p := w.Window.SetCursorEnterCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
-}
-
-type CharModsCallback func(w *Window, char rune, mods ModifierKey)
-
-func (w *Window) SetCharModsCallback(cbfun CharModsCallback) (previous CharModsCallback) {
-	wrappedCbfun := func(_ *glfw.Window, char rune, mods glfw.ModifierKey) {
-		cbfun(w, char, mods)
-	}
-
-	p := w.Window.SetCharModsCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
-}
-
-type PosCallback func(w *Window, xpos int, ypos int)
-
-func (w *Window) SetPosCallback(cbfun PosCallback) (previous PosCallback) {
-	wrappedCbfun := func(_ *glfw.Window, xpos int, ypos int) {
-		cbfun(w, xpos, ypos)
-	}
-
-	p := w.Window.SetPosCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
-}
-
-type FocusCallback func(w *Window, focused bool)
-
-func (w *Window) SetFocusCallback(cbfun FocusCallback) (previous FocusCallback) {
-	wrappedCbfun := func(_ *glfw.Window, focused bool) {
-		cbfun(w, focused)
-	}
-
-	p := w.Window.SetFocusCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
-}
-
-type IconifyCallback func(w *Window, iconified bool)
-
-func (w *Window) SetIconifyCallback(cbfun IconifyCallback) (previous IconifyCallback) {
-	wrappedCbfun := func(_ *glfw.Window, iconified bool) {
-		cbfun(w, iconified)
-	}
-
-	p := w.Window.SetIconifyCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
-}
-
-type DropCallback func(w *Window, names []string)
-
-func (w *Window) SetDropCallback(cbfun DropCallback) (previous DropCallback) {
-	wrappedCbfun := func(_ *glfw.Window, names []string) {
-		cbfun(w, names)
-	}
-
-	p := w.Window.SetDropCallback(wrappedCbfun)
-	_ = p
-
-	// TODO: Handle previous.
-	return nil
+func (m *Monitor) GetVideoMode() *VidMode {
+	return GetVideoMode(m)
 }
 
 type Hint int
 
 const (
-	ClientAPI = Hint(glfw.ClientAPI)
-
-	AlphaBits   = Hint(glfw.AlphaBits)
-	DepthBits   = Hint(glfw.DepthBits)
-	StencilBits = Hint(glfw.StencilBits)
-	Samples     = Hint(glfw.Samples)
-	Resizable   = Hint(glfw.Resizable)
-
-	// These hints used for WebGL contexts, ignored on desktop.
-	PremultipliedAlpha = noopHint
-	PreserveDrawingBuffer
-	PreferLowPowerToHighPerformance
-	FailIfMajorPerformanceCaveat
+	Samples = Hint(SAMPLES)
 )
-
-const (
-	NoAPI = glfw.NoAPI
-)
-
-// noopHint is ignored.
-const noopHint Hint = -1
-
-func WindowHint(target Hint, hint int) {
-	if target == noopHint {
-		return
-	}
-
-	glfw.WindowHint(glfw.Hint(target), hint)
-}

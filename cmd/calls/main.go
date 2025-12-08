@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const targetImportPath = "github.com/goxjs/gl"
+const targetImportPath = "github.com/go-gl/glfw/v3.3/glfw"
 
 func main() {
 	dir := "."

@@ -59,7 +59,7 @@ func CreateLightTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 	focus := gxui.ColorFromHex(0xFFC4D6FF)
 
 	monitor := purego.GetPrimaryMonitor()
-	_, _, w, h := monitor.GetWorkarea()
+	_, _, w, h := purego.GetMonitorWorkarea(monitor)
 	if w == 0 || h == 0 {
 		vm := monitor.GetVideoMode()
 		w, h = vm.Width, vm.Height
@@ -130,7 +130,7 @@ func CreateDarkTheme(driver gxui.Driver, fontSize int) *gxui.StyleDefs {
 	focus := gxui.ColorFromHex(0xA0C4D6FF)
 
 	monitor := purego.GetPrimaryMonitor()
-	_, _, w, h := monitor.GetWorkarea()
+	_, _, w, h := purego.GetMonitorWorkarea(monitor)
 	if w == 0 || h == 0 {
 		vm := monitor.GetVideoMode()
 		w, h = vm.Width, vm.Height

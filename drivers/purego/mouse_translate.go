@@ -4,16 +4,15 @@ import (
 	"fmt"
 
 	"github.com/badu/gxui"
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 func translateMouseButton(button MouseButton) gxui.MouseButton {
 	switch button {
-	case glfw.MouseButtonLeft:
+	case GLFW_MOUSE_BUTTON_LEFT:
 		return gxui.MouseButtonLeft
-	case glfw.MouseButtonMiddle:
+	case GLFW_MOUSE_BUTTON_MIDDLE:
 		return gxui.MouseButtonMiddle
-	case glfw.MouseButtonRight:
+	case GLFW_MOUSE_BUTTON_RIGHT:
 		return gxui.MouseButtonRight
 	default:
 		panic(fmt.Errorf("unknown mouse button %v", button))
@@ -22,8 +21,8 @@ func translateMouseButton(button MouseButton) gxui.MouseButton {
 
 func getMouseState(glfwWindow *Window) gxui.MouseState {
 	var state gxui.MouseState
-	for _, button := range []MouseButton{glfw.MouseButtonLeft, glfw.MouseButtonMiddle, glfw.MouseButtonRight} {
-		if glfwWindow.GetMouseButton(button) == glfw.Press {
+	for _, button := range []MouseButton{GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_MIDDLE, GLFW_MOUSE_BUTTON_RIGHT} {
+		if glfwWindow.GetMouseButton(button) == Press {
 			state |= 1 << uint(translateMouseButton(button))
 		}
 	}

@@ -1,6 +1,7 @@
 package purego
 
 import (
+	"fmt"
 	"image"
 	"runtime"
 	"sync/atomic"
@@ -35,6 +36,10 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 		runtime.GOMAXPROCS(2)
 	}
 
+	if err := LoadGLFW(); err != nil {
+		panic("glfw load error:" + err.Error())
+	}
+
 	fn, err := NewFunctions()
 	if err != nil {
 		panic("error init:" + err.Error())
@@ -48,8 +53,8 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 		fn:            fn,
 	}
 
-	if err := Init(); err != nil {
-		panic(err)
+	if Init() != GLFW_TRUE {
+		panic("glfw init error")
 	}
 	defer Terminate()
 
@@ -59,6 +64,8 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 	go result.applicationLoop()
 
 	result.driverLoop()
+
+	fmt.Println("driver terminated")
 }
 
 func (d *DriverImpl) asyncDriver(callback func()) {

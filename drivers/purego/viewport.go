@@ -6,11 +6,10 @@ import (
 	"unicode"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/drivers/gl/platform"
 	"github.com/badu/gxui/pkg/math"
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
+const ScrollSpeed = 20.0
 const viewportDebugEnabled = false
 
 const clearColorR = 0.5
@@ -75,10 +74,8 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 		}
 	}
 
-	wnd, err := CreateWindow(width, height, result.title, monitor, nil)
-	if err != nil {
-		panic(err)
-	}
+	wnd := CreateWindow(width, height, result.title, monitor, nil)
+
 	width, height = wnd.GetSize() // At this time, width and height serve as a "hint" for CreateWindow, so get actual values from window.
 
 	wnd.MakeContextCurrent()
@@ -99,17 +96,17 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	)
 
 	wnd.SetPosCallback(
-		func(w *Window, x, y int) {
+		func(w *Window, x, y int32) {
 			result.Lock()
-			result.position = math.NewPoint(x, y)
+			result.position = math.NewPoint(int(x), int(y))
 			result.Unlock()
 		},
 	)
 
 	wnd.SetSizeCallback(
-		func(_ *Window, w, h int) {
+		func(_ *Window, w, h int32) {
 			result.Lock()
-			result.sizeDipsUnscaled = math.Size{Width: w, Height: h}
+			result.sizeDipsUnscaled = math.Size{Width: int(w), Height: int(h)}
 			result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
 			result.Unlock()
 			result.onResize.Emit()
@@ -117,9 +114,9 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	)
 
 	wnd.SetFramebufferSizeCallback(
-		func(_ *Window, w, h int) {
+		func(_ *Window, w, h int32) {
 			result.Lock()
-			result.sizePixels = math.Size{Width: w, Height: h}
+			result.sizePixels = math.Size{Width: int(w), Height: int(h)}
 			result.Unlock()
 			driver.fn.Viewport(0, 0, int32(w), int32(h))
 			driver.fn.ClearColor(clearColorR, clearColorG, clearColorB, 1.0)
@@ -184,8 +181,8 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 				})
 			}
 			result.pendingMouseScrollEvent.Point = p
-			result.scrollAccumX += xoff * platform.ScrollSpeed
-			result.scrollAccumY += yoff * platform.ScrollSpeed
+			result.scrollAccumX += xoff * ScrollSpeed
+			result.scrollAccumY += yoff * ScrollSpeed
 			result.pendingMouseScrollEvent.State = getMouseState(w)
 			result.Unlock()
 		},
@@ -200,7 +197,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			}
 			ev.Button = translateMouseButton(button)
 			ev.State = getMouseState(w)
-			if action == glfw.Press {
+			if action == Press {
 				result.onMouseDown.Emit(ev)
 			} else {
 				result.onMouseUp.Emit(ev)
@@ -209,17 +206,17 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	)
 
 	wnd.SetKeyCallback(
-		func(w *Window, key Key, scancode int, action Action, mods ModifierKey) {
+		func(w *Window, key Key, scancode int32, action Action, mods ModifierKey) {
 			ev := gxui.KeyboardEvent{
 				Key:      translateKeyboardKey(key),
 				Modifier: translateKeyboardModifier(mods),
 			}
 			switch action {
-			case glfw.Press:
+			case Press:
 				result.onKeyDown.Emit(ev)
-			case glfw.Release:
+			case Release:
 				result.onKeyUp.Emit(ev)
-			case glfw.Repeat:
+			case Repeat:
 				result.onKeyRepeat.Emit(ev)
 			}
 		},
@@ -261,8 +258,8 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	driver.fn.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA)
 	driver.fn.Enable(BLEND)
 	driver.fn.Enable(SCISSOR_TEST)
-	driver.fn.Viewport(0, 0, int32(fw), int32(fh))
-	driver.fn.Scissor(0, 0, int32(fw), int32(fh))
+	driver.fn.Viewport(0, 0, fw, fh)
+	driver.fn.Scissor(0, 0, fw, fh)
 	driver.fn.ClearColor(clearColorR, clearColorG, clearColorB, 1.0)
 	driver.fn.Clear(COLOR_BUFFER_BIT)
 	wnd.SwapBuffers()
@@ -287,7 +284,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 
 	result.sizeDipsUnscaled = math.Size{Width: width, Height: height}
 	result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
-	result.sizePixels = math.Size{Width: fw, Height: fh}
+	result.sizePixels = math.Size{Width: int(fw), Height: int(fh)}
 	result.position = math.Point{X: posX, Y: posY}
 
 	return result
