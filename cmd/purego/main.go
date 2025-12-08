@@ -74,10 +74,8 @@ func main() {
 	})
 
 	// Set close callback
-	shouldClose := false
 	window.SetCloseCallback(func(w *purego.Window) {
 		fmt.Println("Window close requested!")
-		shouldClose = true
 	})
 
 	// Set refresh callback
@@ -148,12 +146,13 @@ func main() {
 			fmt.Printf("Monitor resolution: %dx%d @ %dHz\n", videoMode.Width, videoMode.Height, videoMode.RefreshRate)
 		}
 
-		wx, wy, ww, wh := purego.GetMonitorWorkarea(monitor)
+		// Get monitor work area (excludes taskbars, menu bars, etc.)
+		wx, wy, ww, wh := monitor.GetWorkarea()
 		fmt.Printf("Monitor work area: position=(%d, %d), size=%dx%d\n", wx, wy, ww, wh)
 	}
 
 	// Get window size
-	width, height := purego.GetWindowSize(window)
+	width, height := window.GetWindowSize()
 	fmt.Printf("Window size: %dx%d\n", width, height)
 
 	// Get framebuffer size (in pixels, important for OpenGL viewport)
@@ -167,47 +166,99 @@ func main() {
 	// Example: Window manipulation functions
 
 	// Get and set window position
-	xp, yp := purego.GetWindowPos(window)
-	fmt.Printf("Window position: (%d, %d)\n", xp, yp)
+	xw, yw := window.GetWindowPos()
+	fmt.Printf("Window position: (%d, %d)\n", xw, yw)
 
 	// Move window to center of screen (assuming 1920x1080 screen)
-	purego.SetWindowPos(window, 960-400, 540-300)
+	window.SetWindowPos(960-400, 540-300)
 
 	// Change window size
-	purego.SetWindowSize(window, 1024, 768)
+	window.SetWindowSize(1024, 768)
 	fmt.Println("Window resized to 1024x768")
 
 	// Update window title
-	purego.SetWindowTitle(window, "Purego GLFW - Updated Title")
+	window.SetWindowTitle("Purego GLFW - Updated Title")
 
 	// Example: Set input modes
+	const (
+		GLFW_CURSOR           = 0x00033001
+		GLFW_CURSOR_DISABLED  = 0x00034003
+		GLFW_STICKY_KEYS      = 0x00033002
+		GLFW_RAW_MOUSE_MOTION = 0x00033005
+	)
 
 	// Disable cursor for FPS-style camera control
-	window.SetInputMode(purego.GLFW_CURSOR, purego.GLFW_CURSOR_DISABLED)
+	window.SetInputMode(purego.InputMode(GLFW_CURSOR), GLFW_CURSOR_DISABLED)
 	fmt.Println("Cursor disabled for FPS camera mode")
 
 	// Enable sticky keys to avoid missing key presses
-	window.SetInputMode(purego.GLFW_STICKY_KEYS, purego.GLFW_TRUE)
+	window.SetInputMode(purego.InputMode(GLFW_STICKY_KEYS), purego.GLFW_TRUE)
 	fmt.Println("Sticky keys enabled")
 
 	// Example: Poll key state in event loop
+	const (
+		GLFW_KEY_ESCAPE          = 256
+		GLFW_KEY_M               = 77
+		GLFW_KEY_I               = 73
+		GLFW_KEY_R               = 82
+		GLFW_PRESS               = 1
+		GLFW_MOUSE_BUTTON_LEFT   = 0
+		GLFW_MOUSE_BUTTON_RIGHT  = 1
+		GLFW_MOUSE_BUTTON_MIDDLE = 2
+	)
 
-	// Event loop
-	for !shouldClose {
+	// Example: Use GetTime for delta time calculation
+	lastTime := purego.GetTime()
+	frameCount := 0
+
+	// Event loop using ShouldClose
+	for !window.ShouldClose() {
 		purego.PollEvents()
 
+		// Calculate delta time
+		currentTime := purego.GetTime()
+		deltaTime := currentTime - lastTime
+		lastTime = currentTime
+
 		// Check if Escape key is pressed
-		if window.GetKey(purego.KeyEscape) == purego.GLFW_PRESS {
-			fmt.Println("Escape key is pressed!")
-			shouldClose = true
+		if window.GetKey(purego.Key(GLFW_KEY_ESCAPE)) == purego.Action(GLFW_PRESS) {
+			fmt.Println("Escape key pressed - closing window")
+			window.SetShouldClose(true)
+		}
+
+		// Check for window state hotkeys
+		if window.GetKey(purego.Key(GLFW_KEY_M)) == purego.Action(GLFW_PRESS) {
+			window.Maximize()
+			fmt.Println("Window maximized")
+		}
+		if window.GetKey(purego.Key(GLFW_KEY_I)) == purego.Action(GLFW_PRESS) {
+			window.Iconify()
+			fmt.Println("Window iconified")
+		}
+		if window.GetKey(purego.Key(GLFW_KEY_R)) == purego.Action(GLFW_PRESS) {
+			window.Restore()
+			fmt.Println("Window restored")
 		}
 
 		// Check if left mouse button is pressed
-		if window.GetMouseButton(purego.GLFW_MOUSE_BUTTON_LEFT) == purego.GLFW_PRESS {
+		if window.GetMouseButton(purego.MouseButton(GLFW_MOUSE_BUTTON_LEFT)) == purego.Action(GLFW_PRESS) {
 			x, y := window.GetCursorPos()
 			fmt.Printf("Left mouse button pressed at: %.2f, %.2f\n", x, y)
 		}
+
+		// Example rendering (swap buffers)
+		// In a real OpenGL app, you'd render here
+		window.SwapBuffers()
+
+		frameCount++
+		if frameCount%60 == 0 {
+			fps := 1.0 / deltaTime
+			window.SetWindowTitle(fmt.Sprintf("Purego GLFW - Frame %d (%.1f FPS)", frameCount, fps))
+		}
 	}
 
+	// Cleanup
+	window.Destroy()
+	fmt.Println("Window destroyed")
 	fmt.Println("Exiting...")
 }

@@ -285,7 +285,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 	result.sizeDipsUnscaled = math.Size{Width: width, Height: height}
 	result.sizeDips = result.sizeDipsUnscaled.ScaleS(1 / result.scaling)
 	result.sizePixels = math.Size{Width: int(fw), Height: int(fh)}
-	result.position = math.Point{X: posX, Y: posY}
+	result.position = math.Point{X: int(posX), Y: int(posY)}
 
 	return result
 }

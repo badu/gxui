@@ -76,6 +76,13 @@ var (
 	glfwHideWindow                 uintptr
 	glfwDestroyWindow              uintptr
 	glfwGetMonitorWorkarea         uintptr
+	glfwWindowShouldClose          uintptr
+	glfwSetWindowShouldClose       uintptr
+	glfwGetProcAddress             uintptr
+	glfwGetTime                    uintptr
+	glfwMaximizeWindow             uintptr
+	glfwIconifyWindow              uintptr
+	glfwRestoreWindow              uintptr
 )
 
 // Init initializes the GLFW library
@@ -171,16 +178,6 @@ func MakeContextCurrent(window *Window) {
 // This is done by calling MakeContextCurrent with NULL (0)
 func DetachCurrentContext() {
 	MakeContextCurrent(nil)
-}
-
-// GetCursorPos retrieves the position of the cursor relative to the content area of the window
-func GetCursorPos(window *Window) (xpos, ypos float64) {
-	if window == nil {
-		return 0, 0
-	}
-
-	purego.SyscallN(glfwGetCursorPos, window.handle, uintptr(unsafe.Pointer(&xpos)), uintptr(unsafe.Pointer(&ypos)))
-	return
 }
 
 // SetClipboardString sets the clipboard to the specified string
@@ -286,7 +283,7 @@ func GetWindowFramebufferSize(window *Window) (int32, int32) {
 }
 
 // GetWindowPos retrieves the position of the content area of the specified window
-func GetWindowPos(window *Window) (xpos, ypos int) {
+func GetWindowPos(window *Window) (xpos, ypos int32) {
 	if window == nil {
 		return 0, 0
 	}
@@ -360,6 +357,73 @@ func GetMonitorWorkarea(monitor *Monitor) (xpos, ypos, width, height int) {
 		uintptr(unsafe.Pointer(&ypos)),
 		uintptr(unsafe.Pointer(&width)),
 		uintptr(unsafe.Pointer(&height)))
+	return
+}
+
+// WindowShouldClose returns the value of the close flag of the specified window
+func WindowShouldClose(window *Window) bool {
+	if window == nil {
+		return false
+	}
+	ret, _, _ := purego.SyscallN(glfwWindowShouldClose, window.handle)
+	return ret == GLFW_TRUE
+}
+
+// SetWindowShouldClose sets the value of the close flag of the specified window
+func SetWindowShouldClose(window *Window, value bool) {
+	if window == nil {
+		return
+	}
+	val := GLFW_FALSE
+	if value {
+		val = GLFW_TRUE
+	}
+	purego.SyscallN(glfwSetWindowShouldClose, window.handle, uintptr(val))
+}
+
+// GetProcAddress returns the address of the specified OpenGL or OpenGL ES core or extension function
+func GetProcAddress(procname string) uintptr {
+	nameBytes := append([]byte(procname), 0)
+	ret, _, _ := purego.SyscallN(glfwGetProcAddress, uintptr(unsafe.Pointer(&nameBytes[0])))
+	return ret
+}
+
+// GetTime returns the current GLFW time in seconds
+func GetTime() float64 {
+	ret, _, _ := purego.SyscallN(glfwGetTime)
+	return *(*float64)(unsafe.Pointer(&ret))
+}
+
+// MaximizeWindow maximizes the specified window
+func MaximizeWindow(window *Window) {
+	if window == nil {
+		return
+	}
+	purego.SyscallN(glfwMaximizeWindow, window.handle)
+}
+
+// IconifyWindow iconifies (minimizes) the specified window
+func IconifyWindow(window *Window) {
+	if window == nil {
+		return
+	}
+	purego.SyscallN(glfwIconifyWindow, window.handle)
+}
+
+// RestoreWindow restores the specified window
+func RestoreWindow(window *Window) {
+	if window == nil {
+		return
+	}
+	purego.SyscallN(glfwRestoreWindow, window.handle)
+}
+
+// GetCursorPos retrieves the position of the cursor relative to the content area of the window
+func GetCursorPos(window *Window) (xpos, ypos float64) {
+	if window == nil {
+		return 0, 0
+	}
+	purego.SyscallN(glfwGetCursorPos, window.handle, uintptr(unsafe.Pointer(&xpos)), uintptr(unsafe.Pointer(&ypos)))
 	return
 }
 
@@ -714,6 +778,13 @@ func LoadGLFW() error {
 		"glfwHideWindow":                 &glfwHideWindow,
 		"glfwDestroyWindow":              &glfwDestroyWindow,
 		"glfwGetMonitorWorkarea":         &glfwGetMonitorWorkarea,
+		"glfwWindowShouldClose":          &glfwWindowShouldClose,
+		"glfwSetWindowShouldClose":       &glfwSetWindowShouldClose,
+		"glfwGetProcAddress":             &glfwGetProcAddress,
+		"glfwGetTime":                    &glfwGetTime,
+		"glfwMaximizeWindow":             &glfwMaximizeWindow,
+		"glfwIconifyWindow":              &glfwIconifyWindow,
+		"glfwRestoreWindow":              &glfwRestoreWindow,
 	}
 
 	for name, ptr := range funcs {

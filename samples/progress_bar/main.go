@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/badu/gxui"
-	"github.com/badu/gxui/drivers/cgo"
+	"github.com/badu/gxui/drivers/purego"
 	"github.com/badu/gxui/pkg/math"
 	"github.com/badu/gxui/samples/flags"
 )
@@ -42,5 +42,5 @@ func appMain(driver gxui.Driver) {
 }
 
 func main() {
-	cgo.StartDriver(appMain)
+	purego.StartDriver(appMain)
 }
