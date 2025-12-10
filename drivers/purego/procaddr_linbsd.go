@@ -69,6 +69,7 @@ func getProcAddressGL(name string) (uintptr, error) {
 			purego.RegisterLibFunc(&glXGetProcAddress, libGL, "glXGetProcAddressARB")
 		}
 	}
+
 	if glXGetProcAddress == nil {
 		return 0, fmt.Errorf("gl: failed to find glXGetProcAddress or glXGetProcAddressARB in libGL.so")
 	}

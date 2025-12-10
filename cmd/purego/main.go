@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/badu/gxui/drivers/purego"
 )
 
 func main() {
-	// Ensure we're on the main thread for GLFW
-	runtime.LockOSThread()
-
 	// Load GLFW library
 	if err := purego.LoadGLFW(); err != nil {
 		panic(err)

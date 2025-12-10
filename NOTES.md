@@ -1,3 +1,37 @@
+10.12.2025
+---
+Undocumented things from the past:
+
+1. brought github.com/chewxy/math32, since all the math operations are done in 32 bits
+2. brought github.com/ebitengine/purego, so CGO_ENABLED=0 env is possible. All samples are working with purego driver
+3. at one moment, created the `cgo` driver, which still uses CGO, but openGL functions are called directly
+
+**Solution 1 — Statically Link GLFW (Best Option)**
+
+GLFW ships with static libraries: libglfw3.a
+
+If you build GLFW from source:
+
+`cmake -DBUILD_SHARED_LIBS=OFF .`
+
+`make`
+
+`sudo make install`
+
+Then, static linking in Go:
+
+`#cgo LDFLAGS: -L/usr/local/lib -lglfw3 -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lGL -lm -ldl`
+
+or, the equivalent:
+
+`go build -ldflags="-extldflags=-static"`
+
+Important note : GLFW depends on system X11 libraries. (libX11, libXrandr, libXi, libGL, etc.)
+
+**Solution 2 — Embed .so Files Beside the Go Binary**
+
+**Solution 3 — Embed the .so into the Go binary and extract at runtime**
+
 26.11.2025
 ---
 TODO : purego Windows driver requires testing

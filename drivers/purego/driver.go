@@ -16,6 +16,7 @@ import (
 const maxFlushTime = time.Second * 3
 
 func init() {
+	// Ensure we're on the main thread for GLFW
 	runtime.LockOSThread()
 }
 

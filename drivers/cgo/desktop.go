@@ -6,14 +6,9 @@ package cgo
 import (
 	"io"
 	"os"
-	"runtime"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
-
-func init() {
-	runtime.LockOSThread()
-}
 
 // Init initializes the library.
 //
