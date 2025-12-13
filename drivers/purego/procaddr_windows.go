@@ -1,6 +1,7 @@
-package gl
+package purego
 
 import (
+	"errors"
 	"fmt"
 	"unsafe"
 
@@ -26,7 +27,10 @@ func (c *Functions) getProcAddress(namea string) (uintptr, error) {
 	if r != 0 {
 		return r, nil
 	}
-	if err != nil && err != windows.ERROR_SUCCESS && err != windows.ERROR_PROC_NOT_FOUND {
+	if err != nil && err != windows.ERROR_SUCCESS {
+		if errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
+			return 0, fmt.Errorf("gl: wglGetProcAddress not found for %s: %w", namea, err)
+		}
 		return 0, fmt.Errorf("gl: wglGetProcAddress failed for %s: %w", namea, err)
 	}
 
@@ -34,5 +38,8 @@ func (c *Functions) getProcAddress(namea string) (uintptr, error) {
 	if err := p.Find(); err != nil {
 		return 0, err
 	}
+
+	c.libGL = p.Addr()
+
 	return p.Addr(), nil
 }

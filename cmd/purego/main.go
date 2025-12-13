@@ -8,12 +8,12 @@ import (
 
 func main() {
 	// Load GLFW library
-	if err := purego.LoadGLFW(); err != nil {
+	if err := purego.LoadAndInitGLFW(); err != nil {
 		panic(err)
 	}
 
 	// Initialize GLFW
-	if purego.Init() != purego.GLFW_TRUE {
+	if purego.Start() != purego.GLFW_TRUE {
 		panic("failed to initialize GLFW")
 	}
 	defer purego.Terminate()

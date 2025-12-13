@@ -37,7 +37,7 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 		runtime.GOMAXPROCS(2)
 	}
 
-	if err := LoadGLFW(); err != nil {
+	if err := LoadAndInitGLFW(); err != nil {
 		panic("glfw load error:" + err.Error())
 	}
 
@@ -54,9 +54,6 @@ func StartDriver(appRoutine func(driver gxui.Driver)) {
 		fn:            fn,
 	}
 
-	if Init() != GLFW_TRUE {
-		panic("glfw init error")
-	}
 	defer Terminate()
 
 	result.pendingApp <- result.discoverUIGoRoutine

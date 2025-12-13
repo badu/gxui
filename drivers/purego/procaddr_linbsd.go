@@ -10,12 +10,7 @@ import (
 	"github.com/ebitengine/purego"
 )
 
-var (
-	libGL   uintptr
-	libGLES uintptr
-)
-
-func (fn *Functions) init() error {
+func (f *Functions) init() error {
 	var errs []error
 
 	// Try OpenGL ES first. Some machines like Android and Raspberry Pi might work only with OpenGL ES.
@@ -26,8 +21,8 @@ func (fn *Functions) init() error {
 		for _, name := range []string{"libGLESv2.so", "libGLESv2.so.2", "libGLESv2.so.1", "libGLESv2.so.0"} {
 			lib, err := purego.Dlopen(name, purego.RTLD_LAZY|purego.RTLD_GLOBAL)
 			if err == nil {
-				libGLES = lib
-				fn.isES = true
+				f.libGLES = lib
+				f.isES = true
 				return nil
 			}
 			errs = append(errs, fmt.Errorf("gl: Dlopen failed: name: %s: %w", name, err))
@@ -42,7 +37,7 @@ func (fn *Functions) init() error {
 	for _, name := range []string{"libGL.so", "libGL.so.2", "libGL.so.1", "libGL.so.0"} {
 		lib, err := purego.Dlopen(name, purego.RTLD_LAZY|purego.RTLD_GLOBAL)
 		if err == nil {
-			libGL = lib
+			f.libGL = lib
 			return nil
 		}
 		errs = append(errs, fmt.Errorf("gl: Dlopen failed: name: %s: %w", name, err))
@@ -52,33 +47,31 @@ func (fn *Functions) init() error {
 	return errors.Join(errs...)
 }
 
-func (fn *Functions) getProcAddress(name string) (uintptr, error) {
-	if fn.isES {
-		return getProcAddressGLES(name)
+func (f *Functions) getProcAddress(name string) (uintptr, error) {
+	if f.isES {
+		return f.getProcAddressGLES(name)
 	}
-	return getProcAddressGL(name)
+	return f.getProcAddressGL(name)
 }
 
-var glXGetProcAddress func(name string) uintptr
-
-func getProcAddressGL(name string) (uintptr, error) {
-	if glXGetProcAddress == nil {
-		if _, err := purego.Dlsym(libGL, "glXGetProcAddress"); err == nil {
-			purego.RegisterLibFunc(&glXGetProcAddress, libGL, "glXGetProcAddress")
-		} else if _, err := purego.Dlsym(libGL, "glXGetProcAddressARB"); err == nil {
-			purego.RegisterLibFunc(&glXGetProcAddress, libGL, "glXGetProcAddressARB")
+func (f *Functions) getProcAddressGL(name string) (uintptr, error) {
+	if f.glXGetProcAddress == nil {
+		if _, err := purego.Dlsym(f.libGL, "glXGetProcAddress"); err == nil {
+			purego.RegisterLibFunc(&f.glXGetProcAddress, f.libGL, "glXGetProcAddress")
+		} else if _, err := purego.Dlsym(f.libGL, "glXGetProcAddressARB"); err == nil {
+			purego.RegisterLibFunc(&f.glXGetProcAddress, f.libGL, "glXGetProcAddressARB")
 		}
 	}
 
-	if glXGetProcAddress == nil {
+	if f.glXGetProcAddress == nil {
 		return 0, fmt.Errorf("gl: failed to find glXGetProcAddress or glXGetProcAddressARB in libGL.so")
 	}
 
-	return glXGetProcAddress(name), nil
+	return f.glXGetProcAddress(name), nil
 }
 
-func getProcAddressGLES(name string) (uintptr, error) {
-	proc, err := purego.Dlsym(libGLES, name)
+func (f *Functions) getProcAddressGLES(name string) (uintptr, error) {
+	proc, err := purego.Dlsym(f.libGLES, name)
 	if err != nil {
 		return 0, err
 	}

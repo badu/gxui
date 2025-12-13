@@ -39,13 +39,11 @@ var (
 	glfwWaitEvents         uintptr
 	glfwPostEmptyEvent     uintptr
 	glfwSwapInterval       uintptr
-
-	glfwGetProcAddress uintptr
-	glfwGetTime        uintptr
+	glfwGetTime            uintptr
 )
 
-// Init initializes the GLFW library
-func Init() int {
+// Start initializes the GLFW library
+func Start() int {
 	ret, _, _ := purego.SyscallN(glfwInit)
 	return int(ret)
 }
@@ -73,13 +71,6 @@ func GetPrimaryMonitor() *Monitor {
 		return nil
 	}
 	clone := *monitorProtoPtr
-	ret, _, _ := purego.SyscallN(clone.glfwGetPrimaryMonitor)
-	if ret == 0 {
-		return nil
-	}
-
-	clone.handle = ret
-
 	return &clone
 }
 
@@ -101,13 +92,6 @@ func PostEmptyEvent() {
 // SwapInterval sets the swap interval for the current context
 func SwapInterval(interval int) {
 	purego.SyscallN(glfwSwapInterval, uintptr(interval))
-}
-
-// GetProcAddress returns the address of the specified OpenGL or OpenGL ES core or extension function
-func GetProcAddress(procname string) uintptr {
-	nameBytes := append([]byte(procname), 0)
-	ret, _, _ := purego.SyscallN(glfwGetProcAddress, uintptr(unsafe.Pointer(&nameBytes[0])))
-	return ret
 }
 
 // GetTime returns the current GLFW time in seconds
@@ -132,8 +116,8 @@ func cStringToGoString(ptr uintptr) string {
 	return string(unsafe.Slice((*byte)(unsafe.Pointer(ptr)), length))
 }
 
-// LoadGLFW loads the GLFW shared library and resolves function symbols
-func LoadGLFW() error {
+// LoadAndInitGLFW loads the GLFW shared library and resolves function symbols
+func LoadAndInitGLFW() error {
 	// Try common GLFW library names and paths on Linux
 	libPaths := []string{
 		"libglfw.so.3",
@@ -146,11 +130,11 @@ func LoadGLFW() error {
 		"/usr/lib/libglfw.so",
 	}
 
-	var lib uintptr
+	var glfwLib uintptr
 	var err error
 
 	for _, path := range libPaths {
-		lib, err = purego.Dlopen(path, purego.RTLD_NOW|purego.RTLD_GLOBAL)
+		glfwLib, err = purego.Dlopen(path, purego.RTLD_NOW|purego.RTLD_GLOBAL)
 		if err == nil {
 			fmt.Printf("Successfully loaded GLFW from: %s\n", path)
 			break
@@ -178,7 +162,6 @@ func LoadGLFW() error {
 		"glfwPostEmptyEvent":     &glfwPostEmptyEvent,
 		"glfwSwapInterval":       &glfwSwapInterval,
 		"glfwGetTime":            &glfwGetTime,
-		"glfwGetProcAddress":     &glfwGetProcAddress,
 
 		"glfwGetPrimaryMonitor":  &prototypeMonitor.glfwGetPrimaryMonitor,
 		"glfwGetMonitorWorkarea": &prototypeMonitor.glfwGetMonitorWorkarea,
@@ -227,7 +210,7 @@ func LoadGLFW() error {
 	}
 
 	for name, ptr := range funcs {
-		sym, err := purego.Dlsym(lib, name)
+		sym, err := purego.Dlsym(glfwLib, name)
 		if err != nil {
 			fmt.Printf("error loading symbol %q : %#v\n", name, err)
 			return fmt.Errorf("failed to load symbol %s: %w", name, err)
@@ -242,6 +225,18 @@ func LoadGLFW() error {
 	}
 
 	windowProto.Store(&prototypeWindow)
+
+	if Start() != GLFW_TRUE {
+		panic("glfw init error")
+	}
+
+	ret, _, _ := purego.SyscallN(prototypeMonitor.glfwGetPrimaryMonitor)
+	if ret == 0 {
+		return nil
+	}
+
+	prototypeMonitor.handle = ret
+
 	monitorProto.Store(&prototypeMonitor)
 
 	return nil
