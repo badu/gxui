@@ -21,8 +21,14 @@ type toolTipTracker struct {
 	lastPosition math.Point
 }
 
+type DriverCaller interface {
+	// Call queues f to be run on the UI go-routine, returning before f may have been called.
+	// Call returns false if the driver has been terminated, in which case f may not be called.
+	Call(callback func()) bool
+}
+
 type ToolTipController struct {
-	driver        Driver
+	driverCaller  DriverCaller
 	timer         *time.Timer
 	bubbleOverlay *BubbleOverlay
 	showing       *toolTipTracker
@@ -36,7 +42,7 @@ func (c *ToolTipController) beginTimer(tracker *toolTipTracker, timeout time.Dur
 	}
 	if timeout > 0 {
 		c.timer = time.AfterFunc(timeout, func() {
-			c.driver.Call(func() { c.showToolTipForTracker(tracker) })
+			c.driverCaller.Call(func() { c.showToolTipForTracker(tracker) })
 		})
 	} else {
 		c.showToolTipForTracker(tracker)
@@ -63,8 +69,8 @@ func (c *ToolTipController) hideToolTipForTracker(tracker *toolTipTracker) {
 	c.showing = nil
 }
 
-func CreateToolTipController(bubbleOverlay *BubbleOverlay, driver Driver) *ToolTipController {
-	return &ToolTipController{driver: driver, bubbleOverlay: bubbleOverlay}
+func CreateToolTipController(bubbleOverlay *BubbleOverlay, driverCaller DriverCaller) *ToolTipController {
+	return &ToolTipController{driverCaller: driverCaller, bubbleOverlay: bubbleOverlay}
 }
 
 func (c *ToolTipController) AddToolTip(control Control, delaySeconds float32, creator ToolTipCreator) {

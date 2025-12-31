@@ -158,6 +158,10 @@ type ControlBaseParent interface {
 	ReLayout()           // was outer.Relayouter
 }
 
+type CanvasCreator interface {
+	CreateCanvas(size math.Size) Canvas
+}
+
 type ControlBase struct {
 	InputEventHandlerPart
 	ParentablePart
@@ -167,12 +171,12 @@ type ControlBase struct {
 	LayoutablePart
 }
 
-func (c *ControlBase) Init(parent ControlBaseParent, driver Driver) {
-	c.DrawPaintPart.Init(parent, driver)
-	c.LayoutablePart.Init(parent)
+func (c *ControlBase) Init(controlBaseParent ControlBaseParent, canvasCreator CanvasCreator) {
+	c.DrawPaintPart.Init(controlBaseParent, canvasCreator)
+	c.LayoutablePart.Init(controlBaseParent)
 	c.InputEventHandlerPart.Init()
 	c.ParentablePart.Init()
-	c.VisiblePart.Init(parent)
+	c.VisiblePart.Init(controlBaseParent)
 }
 
 func (c *ControlBase) DesiredSize(min, max math.Size) math.Size {

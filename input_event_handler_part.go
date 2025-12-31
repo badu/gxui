@@ -24,7 +24,7 @@ type InputEventHandlerPart struct {
 
 func (m *InputEventHandlerPart) getOnClick() Event {
 	if m.onClick == nil {
-		m.onClick = CreateEvent(m.Click)
+		m.onClick = NewListener(m.Click)
 	}
 
 	return m.onClick
@@ -32,7 +32,7 @@ func (m *InputEventHandlerPart) getOnClick() Event {
 
 func (m *InputEventHandlerPart) getOnDoubleClick() Event {
 	if m.onDoubleClick == nil {
-		m.onDoubleClick = CreateEvent(m.DoubleClick)
+		m.onDoubleClick = NewListener(m.DoubleClick)
 	}
 
 	return m.onDoubleClick
@@ -40,7 +40,7 @@ func (m *InputEventHandlerPart) getOnDoubleClick() Event {
 
 func (m *InputEventHandlerPart) getOnKeyPress() Event {
 	if m.onKeyPress == nil {
-		m.onKeyPress = CreateEvent(m.KeyPress)
+		m.onKeyPress = NewListener(m.KeyPress)
 	}
 
 	return m.onKeyPress
@@ -48,7 +48,7 @@ func (m *InputEventHandlerPart) getOnKeyPress() Event {
 
 func (m *InputEventHandlerPart) getOnKeyStroke() Event {
 	if m.onKeyStroke == nil {
-		m.onKeyStroke = CreateEvent(m.KeyStroke)
+		m.onKeyStroke = NewListener(m.KeyStroke)
 	}
 
 	return m.onKeyStroke
@@ -56,7 +56,7 @@ func (m *InputEventHandlerPart) getOnKeyStroke() Event {
 
 func (m *InputEventHandlerPart) getOnMouseMove() Event {
 	if m.onMouseMove == nil {
-		m.onMouseMove = CreateEvent(m.MouseMove)
+		m.onMouseMove = NewListener(m.MouseMove)
 	}
 
 	return m.onMouseMove
@@ -64,7 +64,7 @@ func (m *InputEventHandlerPart) getOnMouseMove() Event {
 
 func (m *InputEventHandlerPart) getOnMouseEnter() Event {
 	if m.onMouseEnter == nil {
-		m.onMouseEnter = CreateEvent(m.MouseEnter)
+		m.onMouseEnter = NewListener(m.MouseEnter)
 	}
 
 	return m.onMouseEnter
@@ -72,7 +72,7 @@ func (m *InputEventHandlerPart) getOnMouseEnter() Event {
 
 func (m *InputEventHandlerPart) getOnMouseExit() Event {
 	if m.onMouseExit == nil {
-		m.onMouseExit = CreateEvent(m.MouseExit)
+		m.onMouseExit = NewListener(m.MouseExit)
 	}
 
 	return m.onMouseExit
@@ -80,7 +80,7 @@ func (m *InputEventHandlerPart) getOnMouseExit() Event {
 
 func (m *InputEventHandlerPart) getOnMouseDown() Event {
 	if m.onMouseDown == nil {
-		m.onMouseDown = CreateEvent(m.MouseDown)
+		m.onMouseDown = NewListener(m.MouseDown)
 	}
 
 	return m.onMouseDown
@@ -88,7 +88,7 @@ func (m *InputEventHandlerPart) getOnMouseDown() Event {
 
 func (m *InputEventHandlerPart) getOnMouseUp() Event {
 	if m.onMouseUp == nil {
-		m.onMouseUp = CreateEvent(m.MouseUp)
+		m.onMouseUp = NewListener(m.MouseUp)
 	}
 
 	return m.onMouseUp
@@ -96,7 +96,7 @@ func (m *InputEventHandlerPart) getOnMouseUp() Event {
 
 func (m *InputEventHandlerPart) getOnMouseScroll() Event {
 	if m.onMouseScroll == nil {
-		m.onMouseScroll = CreateEvent(m.MouseScroll)
+		m.onMouseScroll = NewListener(m.MouseScroll)
 	}
 
 	return m.onMouseScroll
@@ -104,7 +104,7 @@ func (m *InputEventHandlerPart) getOnMouseScroll() Event {
 
 func (m *InputEventHandlerPart) getOnKeyDown() Event {
 	if m.onKeyDown == nil {
-		m.onKeyDown = CreateEvent(m.KeyDown)
+		m.onKeyDown = NewListener(m.KeyDown)
 	}
 
 	return m.onKeyDown
@@ -112,7 +112,7 @@ func (m *InputEventHandlerPart) getOnKeyDown() Event {
 
 func (m *InputEventHandlerPart) getOnKeyUp() Event {
 	if m.onKeyUp == nil {
-		m.onKeyUp = CreateEvent(m.KeyUp)
+		m.onKeyUp = NewListener(m.KeyUp)
 	}
 
 	return m.onKeyUp
@@ -120,7 +120,7 @@ func (m *InputEventHandlerPart) getOnKeyUp() Event {
 
 func (m *InputEventHandlerPart) getOnKeyRepeat() Event {
 	if m.onKeyRepeat == nil {
-		m.onKeyRepeat = CreateEvent(m.KeyRepeat)
+		m.onKeyRepeat = NewListener(m.KeyRepeat)
 	}
 
 	return m.onKeyRepeat

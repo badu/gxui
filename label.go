@@ -21,9 +21,9 @@ type Label struct {
 	multiline           bool
 }
 
-func (l *Label) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs) {
-	l.ControlBase.Init(parent, driver)
-	l.parent = parent
+func (l *Label) Init(controlBaseParent ControlBaseParent, canvasCreator CanvasCreator, styles *StyleDefs) {
+	l.ControlBase.Init(controlBaseParent, canvasCreator)
+	l.parent = controlBaseParent
 	l.font = styles.DefaultFont
 	l.color = styles.LabelStyle.FontColor
 	l.horizontalAlignment = styles.LabelStyle.HAlign

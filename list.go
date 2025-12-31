@@ -557,7 +557,7 @@ func (l *ListImpl) ItemClicked(event MouseEvent, item AdapterItem) {
 
 func (l *ListImpl) OnItemClicked(callback func(event MouseEvent, item AdapterItem)) EventSubscription {
 	if l.onItemClicked == nil {
-		l.onItemClicked = CreateEvent(callback)
+		l.onItemClicked = NewListener(callback)
 	}
 
 	return l.onItemClicked.Listen(callback)
@@ -587,7 +587,7 @@ func (l *ListImpl) Select(item AdapterItem) bool {
 
 func (l *ListImpl) OnSelectionChanged(callback func(item AdapterItem)) EventSubscription {
 	if l.onItemClicked == nil {
-		l.onSelectionChanged = CreateEvent(callback)
+		l.onSelectionChanged = NewListener(callback)
 	}
 
 	return l.onSelectionChanged.Listen(callback)

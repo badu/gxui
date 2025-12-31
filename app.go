@@ -118,9 +118,9 @@ func CreateImage(driver Driver, styles *StyleDefs) *Image {
 	return result
 }
 
-func CreateLabel(driver Driver, styles *StyleDefs) *Label {
+func CreateLabel(canvasCreator CanvasCreator, styles *StyleDefs) *Label {
 	result := &Label{}
-	result.Init(result, driver, styles)
+	result.Init(result, canvasCreator, styles)
 	result.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
 	return result
 }
@@ -436,7 +436,7 @@ type AppSplitterLayout struct {
 // mixins.SplitterLayoutImpl overrides
 func (l *AppSplitterLayout) CreateSplitterBar() Control {
 	result := &SplitterBar{}
-	result.Init(result, l.driver, l.styles)
+	result.Init(result, l.canvasCreator, l.styles)
 	result.BackgroundColor = l.styles.SplitterBarDefaultStyle.Brush.Color
 	result.ForegroundColor = l.styles.SplitterBarDefaultStyle.Pen.Color
 	result.OnSplitterDragged(func(wndPnt math.Point) { l.SplitterDragged(result, wndPnt) })

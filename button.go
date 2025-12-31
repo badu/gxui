@@ -24,12 +24,12 @@ type ButtonParent interface {
 type Button struct {
 	FocusablePart
 	LinearLayoutImpl
-	parent     ButtonParent
-	driver     Driver
-	styles     *StyleDefs
-	label      *Label
-	buttonType ButtonType
-	checked    bool
+	parent        ButtonParent
+	canvasCreator CanvasCreator
+	styles        *StyleDefs
+	label         *Label
+	buttonType    ButtonType
+	checked       bool
 }
 
 func (b *Button) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
@@ -37,7 +37,7 @@ func (b *Button) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
 	b.FocusablePart.Init()
 
 	b.buttonType = PushButton
-	b.driver = driver
+	b.canvasCreator = driver
 	b.styles = styles
 	b.parent = parent
 
@@ -75,7 +75,7 @@ func (b *Button) SetText(text string) {
 	}
 
 	if b.label == nil {
-		b.label = CreateLabel(b.driver, b.styles)
+		b.label = CreateLabel(b.canvasCreator, b.styles)
 		b.label.SetMargin(math.ZeroSpacing)
 		b.AddChild(b.label)
 	}

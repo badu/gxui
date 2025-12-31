@@ -89,7 +89,7 @@ func (t *TextBox) Init(parent TextBoxParent, driver Driver, styles *StyleDefs, f
 	} else {
 		t.font = font
 	}
-	t.onRedrawLines = CreateEvent(func() {})
+	t.onRedrawLines = NewListener(func() {})
 	t.controller = CreateTextBoxController()
 	t.adapter = &TextBoxAdapter{TextBox: t}
 	t.desiredWidth = 100

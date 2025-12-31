@@ -191,7 +191,7 @@ func (l *DropDownList) OnSelectionChanged(callback func(AdapterItem)) EventSubsc
 
 func (l *DropDownList) OnShowList(callback func()) EventSubscription {
 	if l.onShowList == nil {
-		l.onShowList = CreateEvent(callback)
+		l.onShowList = NewListener(callback)
 	}
 
 	return l.onShowList.Listen(callback)
@@ -199,7 +199,7 @@ func (l *DropDownList) OnShowList(callback func()) EventSubscription {
 
 func (l *DropDownList) OnHideList(callback func()) EventSubscription {
 	if l.onHideList == nil {
-		l.onHideList = CreateEvent(callback)
+		l.onHideList = NewListener(callback)
 	}
 
 	return l.onHideList.Listen(callback)

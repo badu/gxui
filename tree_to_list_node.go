@@ -153,7 +153,7 @@ func (n *TreeToListNode) CollapseAll() {
 // a change in the number of children.
 func (n *TreeToListNode) OnChange(callback func()) EventSubscription {
 	if n.onChange == nil {
-		n.onChange = CreateEvent(callback)
+		n.onChange = NewListener(callback)
 	}
 
 	return n.onChange.Listen(callback)

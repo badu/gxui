@@ -32,8 +32,8 @@ type TextBoxController struct {
 
 func CreateTextBoxController() *TextBoxController {
 	result := &TextBoxController{
-		onSelectionChanged: CreateEvent(func() {}),
-		onTextChanged:      CreateEvent(func([]TextBoxEdit) {}),
+		onSelectionChanged: NewListener(func() {}),
+		onTextChanged:      NewListener(func([]TextBoxEdit) {}),
 	}
 	result.selections = TextSelectionList{TextSelection{}}
 	return result

@@ -56,7 +56,7 @@ func (f *FocusablePart) SetFocusable(bool) {
 
 func (f *FocusablePart) OnGainedFocus(callback func()) EventSubscription {
 	if f.onGainedFocus == nil {
-		f.onGainedFocus = CreateEvent(f.GainedFocus)
+		f.onGainedFocus = NewListener(f.GainedFocus)
 	}
 
 	return f.onGainedFocus.Listen(callback)
@@ -64,7 +64,7 @@ func (f *FocusablePart) OnGainedFocus(callback func()) EventSubscription {
 
 func (f *FocusablePart) OnLostFocus(callback func()) EventSubscription {
 	if f.onLostFocus == nil {
-		f.onLostFocus = CreateEvent(f.LostFocus)
+		f.onLostFocus = NewListener(f.LostFocus)
 	}
 
 	return f.onLostFocus.Listen(callback)

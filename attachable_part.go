@@ -38,7 +38,7 @@ func (a *AttachablePart) Detach() {
 
 func (a *AttachablePart) OnAttach(callback func()) EventSubscription {
 	if a.onAttach == nil {
-		a.onAttach = CreateEvent(func() {})
+		a.onAttach = NewListener(func() {})
 	}
 
 	return a.onAttach.Listen(callback)
@@ -46,7 +46,7 @@ func (a *AttachablePart) OnAttach(callback func()) EventSubscription {
 
 func (a *AttachablePart) OnDetach(callback func()) EventSubscription {
 	if a.onDetach == nil {
-		a.onDetach = CreateEvent(func() {})
+		a.onDetach = NewListener(func() {})
 	}
 
 	return a.onDetach.Listen(callback)
