@@ -13,11 +13,11 @@ var (
 	procWglGetProcAddress = opengl32.NewProc("wglGetProcAddress")
 )
 
-func (c *Functions) init() error {
+func (f *Functions) init() error {
 	return nil
 }
 
-func (c *Functions) getProcAddress(namea string) (uintptr, error) {
+func (f *Functions) getProcAddress(namea string) (uintptr, error) {
 	cname, err := windows.BytePtrFromString(namea)
 	if err != nil {
 		return 0, err
@@ -39,7 +39,7 @@ func (c *Functions) getProcAddress(namea string) (uintptr, error) {
 		return 0, err
 	}
 
-	c.libGL = p.Addr()
+	f.libGL = p.Addr()
 
 	return p.Addr(), nil
 }

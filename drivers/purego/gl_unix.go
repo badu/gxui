@@ -620,6 +620,8 @@ func (f *Functions) UseProgram(program uint32) {
 }
 
 // VertexAttribPointer(dst Attrib, size int, ty Enum, normalized bool, stride int, offset int)
+// Do I have to call glVertexAttribPointer() for each VAO that I create?
+// Yes : the VAO contains the state of the attrib pointers and a bunch of other stuff. This allows you to pull from two different buffer objects within one VAO.
 func (f *Functions) VertexAttribPointer(index uint32, size int32, xtype uint32, normalized bool, stride int32, offset int) {
 	purego.SyscallN(f.gpVertexAttribPointer, uintptr(index), uintptr(size), uintptr(xtype), uintptr(boolToInt(normalized)), uintptr(stride), uintptr(offset))
 }

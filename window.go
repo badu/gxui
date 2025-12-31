@@ -8,100 +8,6 @@ import (
 	"github.com/badu/gxui/pkg/math"
 )
 
-type WindowParent interface {
-	Container
-
-	// Title returns the title of the window.
-	// This is usually the text displayed at the top of the window.
-	Title() string
-
-	// SetTitle changes the title of the window.
-	SetTitle(string)
-
-	// Scale returns the display scaling for this window.
-	// A scale of 1 is unscaled, 2 is twice the regular scaling.
-	Scale() float32
-
-	// SetScale alters the display scaling for this window.
-	// A scale of 1 is unscaled, 2 is twice the regular scaling.
-	SetScale(float32)
-
-	// Position returns position of the window.
-	Position() math.Point
-
-	// SetPosition changes position of the window.
-	SetPosition(math.Point)
-
-	// Fullscreen returns true if the window is currently full-screen.
-	Fullscreen() bool
-
-	// SetFullscreen makes the window either full-screen or windowed.
-	SetFullscreen(bool)
-
-	// Show makes the window visible.
-	Show()
-
-	// Hide makes the window invisible.
-	Hide()
-
-	// Close destroys the window.
-	// Once the window is closed, no further calls should be made to it.
-	Close()
-
-	// Focus returns the control currently with focus.
-	Focus() Focusable
-
-	// SetFocus gives the specified control Focus, returning true on success or
-	// false if the control cannot be given focus.
-	SetFocus(Control) bool
-
-	// BackgroundBrush returns the brush used to draw the window background.
-	BackgroundBrush() Brush
-
-	// SetBackgroundBrush sets the brush used to draw the window background.
-	SetBackgroundBrush(Brush)
-
-	// BorderPen returns the pen used to draw the window border.
-	BorderPen() Pen
-
-	// SetBorderPen sets the pen used to draw the window border.
-	SetBorderPen(Pen)
-
-	Click(MouseEvent)
-	DoubleClick(MouseEvent)
-	KeyPress(KeyboardEvent)
-	KeyStroke(KeyStrokeEvent)
-
-	// Events
-	OnClose(func()) EventSubscription
-	OnResize(func()) EventSubscription
-	OnClick(func(MouseEvent)) EventSubscription
-	OnDoubleClick(func(MouseEvent)) EventSubscription
-	OnMouseMove(func(MouseEvent)) EventSubscription
-	OnMouseEnter(func(MouseEvent)) EventSubscription
-	OnMouseExit(func(MouseEvent)) EventSubscription
-	OnMouseDown(func(MouseEvent)) EventSubscription
-	OnMouseUp(func(MouseEvent)) EventSubscription
-	OnMouseScroll(func(MouseEvent)) EventSubscription
-	OnKeyDown(func(KeyboardEvent)) EventSubscription
-	OnKeyUp(func(KeyboardEvent)) EventSubscription
-	OnKeyRepeat(func(KeyboardEvent)) EventSubscription
-	OnKeyStroke(func(KeyStrokeEvent)) EventSubscription
-
-	Attached() bool                                  // was outer.Attachable
-	Attach()                                         // was outer.Attachable
-	Detach()                                         // was outer.Attachable
-	OnAttach(callback func()) EventSubscription      // was outer.Attachable
-	OnDetach(callback func()) EventSubscription      // was outer.Attachable
-	IsVisible() bool                                 // was outer.IsVisibler
-	LayoutChildren()                                 // was outer.LayoutChildren
-	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
-	Paint(canvas Canvas)                             // was outer.Painter
-	Parent() Parent                                  // was outer.Parenter
-	Size() math.Size                                 // was outer.Sized
-	SetSize(newSize math.Size)                       // was outer.Sized
-}
-
 type WindowImpl struct {
 	PaintChildrenPart
 	AttachablePart
@@ -109,7 +15,7 @@ type WindowImpl struct {
 	PaddablePart
 	BackgroundBorderPainter
 	driver                Driver
-	parent                WindowParent
+	parent                *WindowImpl
 	viewport              Viewport
 	onClose               Event // Raised by viewport
 	onResize              Event // Raised by viewport
@@ -164,13 +70,13 @@ func (w *WindowImpl) update() {
 	}
 }
 
-func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int, title string) {
-	w.BackgroundBorderPainter.Init(parent)
-	w.ContainerPart.Init(parent)
-	w.PaddablePart.Init(parent)
-	w.PaintChildrenPart.Init(parent)
+func (w *WindowImpl) Init(window *WindowImpl, driver Driver, width, height int, title string) {
+	w.BackgroundBorderPainter.Init(window)
+	w.ContainerPart.Init(window)
+	w.PaddablePart.Init(window)
+	w.PaintChildrenPart.Init(window)
 
-	w.parent = parent
+	w.parent = window
 	w.driver = driver
 
 	w.onResize = CreateEvent(func() {})
@@ -188,14 +94,9 @@ func (w *WindowImpl) Init(parent WindowParent, driver Driver, width, height int,
 	w.onClick = CreateEvent(func(MouseEvent) {})
 	w.onDoubleClick = CreateEvent(func(MouseEvent) {})
 
-	switch window := parent.(type) {
-	case *WindowImpl:
-		w.focusController = CreateFocusController(window)
-		w.mouseController = CreateMouseController(window, w.focusController)
-		w.keyboardController = CreateKeyboardController(window)
-	default:
-		panic("parent should be *WindowImpl")
-	}
+	w.focusController = CreateFocusController(window)
+	w.mouseController = CreateMouseController(window, w.focusController)
+	w.keyboardController = CreateKeyboardController(window)
 
 	w.onResize.Listen(
 		func() {
