@@ -11,3 +11,7 @@ type ParentablePart struct {
 func (p *ParentablePart) Parent() Parent {
 	return p.parent
 }
+
+func (p *ParentablePart) SetParent(parent Parent) {
+	p.parent = parent
+}
