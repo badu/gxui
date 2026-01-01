@@ -390,7 +390,7 @@ func (b *AppProgressBar) SetSize(size math.Size) {
 
 	b.chevrons = nil
 	if size.Area() > 0 {
-		b.chevrons = b.ControlBase.driver.CreateCanvas(size)
+		b.chevrons = b.driver.CreateCanvas(size)
 		b.chevronWidth = size.Height / 2
 		cw := b.chevronWidth
 		for x := -cw * 2; x < size.Width; x += cw * 2 {
@@ -428,6 +428,10 @@ func (b *AppProgressBar) PaintProgress(canvas Canvas, rect math.Rect, frac float
 	canvas.AddClip(rect)
 	canvas.DrawCanvas(b.chevrons, math.Point{X: b.scroll})
 	canvas.Pop()
+}
+
+func (b *AppProgressBar) ContainsPoint(point math.Point) bool {
+	return b.IsVisible() && b.Size().Rect().Contains(point)
 }
 
 type AppSplitterLayout struct {

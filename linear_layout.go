@@ -8,10 +8,12 @@ import (
 	"github.com/badu/gxui/pkg/math"
 )
 
+// LinearLayoutParent is minimal from Container
 type LinearLayoutParent interface {
-	Container
-	Size() math.Size           // was outer.Sized
-	SetSize(newSize math.Size) // was outer.Sized
+	Size() math.Size
+	ReLayout()
+	Children() Children
+	Padding() math.Spacing
 }
 
 type LinearLayoutPart struct {
@@ -177,11 +179,26 @@ func (l *LinearLayoutPart) SetVerticalAlignment(alignment VAlign) {
 type LinearLayoutImpl struct {
 	LinearLayoutPart
 	BackgroundBorderPainter
-	ContainerBase
+	InputEventHandlerPart
+	PaintChildrenPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 }
 
 func (l *LinearLayoutImpl) Init(parent BaseContainerParent, canvasCreator CanvasCreator) {
-	l.ContainerBase.Init(parent, canvasCreator)
+	l.ContainerPart.Init(parent)
+	l.DrawPaintPart.Init(parent, canvasCreator)
+	l.InputEventHandlerPart.Init()
+	l.LayoutablePart.Init(parent)
+	l.PaddablePart.Init(parent)
+	l.PaintChildrenPart.Init(parent)
+	l.VisiblePart.Init(parent)
+
 	l.LinearLayoutPart.Init(parent)
 	l.BackgroundBorderPainter.Init(parent)
 	l.SetMouseEventTarget(true)

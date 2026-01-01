@@ -9,12 +9,37 @@ import (
 )
 
 type SplitterLayoutParent interface {
-	BaseContainerParent
+	Control
+
 	CreateSplitterBar() Control
+	Children() Children
+	ReLayout()
+	Redraw()
+
+	AddChildAt(index int, child Control) *Child
+	RemoveChildAt(index int)
+
+	Attached() bool
+	OnAttach(callback func()) EventSubscription
+	OnDetach(callback func()) EventSubscription
+	IsVisible() bool
+	Size() math.Size
+	Parent() Parent
+	Paint(canvas Canvas)
+	LayoutChildren()
+	PaintChild(canvas Canvas, child *Child, idx int)
 }
 
 type SplitterLayoutImpl struct {
-	ContainerBase
+	InputEventHandlerPart
+	PaintChildrenPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 	parent        SplitterLayoutParent
 	canvasCreator CanvasCreator
 	styles        *StyleDefs
@@ -24,7 +49,14 @@ type SplitterLayoutImpl struct {
 }
 
 func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, driver Driver, styles *StyleDefs) {
-	l.ContainerBase.Init(parent, driver)
+	l.ContainerPart.Init(parent)
+	l.DrawPaintPart.Init(parent, driver)
+	l.InputEventHandlerPart.Init()
+	l.LayoutablePart.Init(parent)
+	l.PaddablePart.Init(parent)
+	l.PaintChildrenPart.Init(parent)
+	l.VisiblePart.Init(parent)
+
 	l.parent = parent
 	l.canvasCreator = driver
 	l.styles = styles
@@ -118,7 +150,7 @@ func (l *SplitterLayoutImpl) CreateSplitterBar() Control {
 func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, windowPoint math.Point) {
 	o := l.orientation
 	point := WindowToChild(windowPoint, l.parent)
-	children := l.ContainerBase.Children()
+	children := l.ContainerPart.Children()
 	splitterIndex := children.IndexOf(splitter)
 	childA, childB := children[splitterIndex-1], children[splitterIndex+1]
 	boundsA, boundsB := childA.Bounds(), childB.Bounds()
@@ -135,18 +167,18 @@ func (l *SplitterLayoutImpl) SplitterDragged(splitter Control, windowPoint math.
 // base.ContainerBase overrides
 func (l *SplitterLayoutImpl) AddChildAt(index int, control Control) *Child {
 	l.weights[control] = 1.0
-	if len(l.ContainerBase.Children()) > 0 {
-		l.ContainerBase.AddChildAt(index, l.parent.CreateSplitterBar())
+	if len(l.ContainerPart.Children()) > 0 {
+		l.ContainerPart.AddChildAt(index, l.parent.CreateSplitterBar())
 		index++
 	}
-	return l.ContainerBase.AddChildAt(index, control)
+	return l.ContainerPart.AddChildAt(index, control)
 }
 
 func (l *SplitterLayoutImpl) RemoveChildAt(index int) {
-	children := l.ContainerBase.Children()
+	children := l.ContainerPart.Children()
 	if len(children) > 1 {
-		l.ContainerBase.RemoveChildAt(index + 1)
+		l.ContainerPart.RemoveChildAt(index + 1)
 	}
 	delete(l.weights, children[index].Control)
-	l.ContainerBase.RemoveChildAt(index)
+	l.ContainerPart.RemoveChildAt(index)
 }

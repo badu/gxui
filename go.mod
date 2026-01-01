@@ -10,11 +10,14 @@ require (
 	github.com/goxjs/gl v0.0.0-20230705020350-37525f4d9d35
 	github.com/goxjs/glfw v0.0.0-20230704040236-622eb27e272a
 	golang.org/x/image v0.33.0
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
+	golang.org/x/sys v0.39.0
+	golang.org/x/tools v0.40.0
 )
 
 require (
 	github.com/go-gl/gl v0.0.0-20231021071112-07e5d0ea2e71 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
+	golang.org/x/mod v0.31.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
 	honnef.co/go/js/dom v0.0.0-20241221162326-00dae5193c3f // indirect
 )

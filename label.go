@@ -11,7 +11,12 @@ import (
 )
 
 type Label struct {
-	ControlBase
+	InputEventHandlerPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	LayoutablePart
 	parent              ControlBaseParent
 	font                Font
 	Text                string
@@ -22,7 +27,10 @@ type Label struct {
 }
 
 func (l *Label) Init(controlBaseParent ControlBaseParent, canvasCreator CanvasCreator, styles *StyleDefs) {
-	l.ControlBase.Init(controlBaseParent, canvasCreator)
+	l.DrawPaintPart.Init(controlBaseParent, canvasCreator)
+	l.LayoutablePart.Init(controlBaseParent)
+	l.InputEventHandlerPart.Init()
+	l.VisiblePart.Init(controlBaseParent)
 	l.parent = controlBaseParent
 	l.font = styles.DefaultFont
 	l.color = styles.LabelStyle.FontColor
@@ -125,4 +133,8 @@ func (l *Label) Paint(canvas Canvas) {
 		&TextBlock{Runes: runes, AlignRect: rect, H: l.horizontalAlignment, V: l.verticalAlignment},
 	)
 	canvas.DrawRunes(l.font, runes, offsets, l.color)
+}
+
+func (l *Label) ContainsPoint(point math.Point) bool {
+	return l.IsVisible() && l.Size().Rect().Contains(point)
 }

@@ -9,7 +9,15 @@ import (
 )
 
 type ScrollLayoutImpl struct {
-	ContainerBase
+	InputEventHandlerPart
+	PaintChildrenPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 	BackgroundBorderPainter
 	parent       BaseContainerParent
 	scrollBarX   *Child
@@ -22,7 +30,14 @@ type ScrollLayoutImpl struct {
 }
 
 func (l *ScrollLayoutImpl) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
-	l.ContainerBase.Init(parent, driver)
+	l.ContainerPart.Init(parent)
+	l.DrawPaintPart.Init(parent, driver)
+	l.InputEventHandlerPart.Init()
+	l.LayoutablePart.Init(parent)
+	l.PaddablePart.Init(parent)
+	l.PaintChildrenPart.Init(parent)
+	l.VisiblePart.Init(parent)
+
 	l.BackgroundBorderPainter.Init(parent)
 
 	l.parent = parent

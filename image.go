@@ -25,7 +25,12 @@ const (
 )
 
 type Image struct {
-	ControlBase
+	InputEventHandlerPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	LayoutablePart
 	BackgroundBorderPainter
 	parent       ControlBaseParent
 	texture      Texture
@@ -57,7 +62,10 @@ func (i *Image) calculateDrawRect() math.Rect {
 
 func (i *Image) Init(parent ControlBaseParent, canvasCreator CanvasCreator) {
 	i.parent = parent
-	i.ControlBase.Init(parent, canvasCreator)
+	i.DrawPaintPart.Init(parent, canvasCreator)
+	i.LayoutablePart.Init(parent)
+	i.InputEventHandlerPart.Init()
+	i.VisiblePart.Init(parent)
 	i.BackgroundBorderPainter.Init(parent)
 	i.SetBorderPen(TransparentPen)
 	i.SetBackgroundBrush(TransparentBrush)
@@ -169,4 +177,8 @@ func (i *Image) Paint(canvas Canvas) {
 		canvas.DrawCanvas(i.canvas, math.ZeroPoint)
 	}
 	i.PaintBorder(canvas, rect)
+}
+
+func (i *Image) ContainsPoint(point math.Point) bool {
+	return i.IsVisible() && i.Size().Rect().Contains(point)
 }

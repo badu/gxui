@@ -118,11 +118,13 @@ func WindowToChild(coord math.Point, to Control) math.Point {
 		if p == nil {
 			panic("Control's parent was nil")
 		}
+
 		child := p.Children().Find(c)
 		if child == nil {
 			Dump(p)
 			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &p, p, &c, c))
 		}
+
 		coord = coord.Sub(child.Offset)
 
 		switch p.(type) {
@@ -130,7 +132,12 @@ func WindowToChild(coord math.Point, to Control) math.Point {
 			return coord
 		}
 
-		c = p.(Control)
+		var ok bool
+		c, ok = p.(Control)
+		if !ok {
+			Dump(p)
+			panic(fmt.Errorf("WindowToChild (%p %T) -> (%p %T) reached non-control parent (%p %T).", &to, to, &p, p, &c, c))
+		}
 	}
 }
 

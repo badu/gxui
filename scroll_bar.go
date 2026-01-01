@@ -9,7 +9,12 @@ import (
 )
 
 type ScrollBarImpl struct {
-	ControlBase
+	InputEventHandlerPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	LayoutablePart
 	parent             ControlBaseParent
 	onScroll           Event
 	barRect            math.Rect
@@ -66,7 +71,10 @@ func (s *ScrollBarImpl) updateBarRect() {
 }
 
 func (s *ScrollBarImpl) Init(parent ControlBaseParent, canvasCreator CanvasCreator) {
-	s.ControlBase.Init(parent, canvasCreator)
+	s.DrawPaintPart.Init(parent, canvasCreator)
+	s.LayoutablePart.Init(parent)
+	s.InputEventHandlerPart.Init()
+	s.VisiblePart.Init(parent)
 
 	s.parent = parent
 	s.thickness = 10
@@ -184,7 +192,7 @@ func (s *ScrollBarImpl) IsVisible() bool {
 	if s.autoHide && s.scrollPositionFrom == 0 && s.scrollPositionTo == s.scrollLimit {
 		return false
 	}
-	return s.ControlBase.IsVisible()
+	return s.VisiblePart.IsVisible()
 }
 
 func (s *ScrollBarImpl) Orientation() Orientation {
@@ -235,4 +243,8 @@ func (s *ScrollBarImpl) MouseDown(event MouseEvent) {
 		)
 	}
 	s.InputEventHandlerPart.MouseDown(event)
+}
+
+func (s *ScrollBarImpl) ContainsPoint(point math.Point) bool {
+	return s.IsVisible() && s.Size().Rect().Contains(point)
 }

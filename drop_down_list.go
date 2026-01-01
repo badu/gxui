@@ -9,7 +9,15 @@ import (
 )
 
 type DropDownList struct {
-	ContainerBase
+	InputEventHandlerPart
+	PaintChildrenPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 	FocusablePart
 	BackgroundBorderPainter
 	parent      BaseContainerParent
@@ -26,7 +34,15 @@ type DropDownList struct {
 func (l *DropDownList) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
 	l.styles = styles
-	l.ContainerBase.Init(parent, driver)
+
+	l.ContainerPart.Init(parent)
+	l.DrawPaintPart.Init(parent, driver)
+	l.InputEventHandlerPart.Init()
+	l.LayoutablePart.Init(parent)
+	l.PaddablePart.Init(parent)
+	l.PaintChildrenPart.Init(parent)
+	l.VisiblePart.Init(parent)
+
 	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
 
@@ -221,7 +237,7 @@ func (l *DropDownList) KeyPress(event KeyboardEvent) (consume bool) {
 func (l *DropDownList) Paint(canvas Canvas) {
 	rect := l.parent.Size().Rect()
 	l.PaintBackground(canvas, rect)
-	l.ContainerBase.Paint(canvas)
+	l.PaintChildrenPart.Paint(canvas)
 	l.PaintBorder(canvas, rect)
 
 	if l.HasFocus() || l.ListShowing() {

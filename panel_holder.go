@@ -45,7 +45,15 @@ type PanelEntry struct {
 }
 
 type PanelHolderImpl struct {
-	ContainerBase
+	InputEventHandlerPart
+	PaintChildrenPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 	selected  PanelEntry
 	parent    PanelHolderParent
 	driver    Driver
@@ -105,7 +113,13 @@ func beginTabDragging(holder PanelHolder, panel Control, name string, window *Wi
 }
 
 func (p *PanelHolderImpl) Init(parent PanelHolderParent, driver Driver, styles *StyleDefs) {
-	p.ContainerBase.Init(parent, driver)
+	p.ContainerPart.Init(parent)
+	p.DrawPaintPart.Init(parent, driver)
+	p.InputEventHandlerPart.Init()
+	p.LayoutablePart.Init(parent)
+	p.PaddablePart.Init(parent)
+	p.PaintChildrenPart.Init(parent)
+	p.VisiblePart.Init(parent)
 
 	p.parent = parent
 	p.driver = driver
@@ -113,7 +127,7 @@ func (p *PanelHolderImpl) Init(parent PanelHolderParent, driver Driver, styles *
 
 	p.tabLayout = CreateLinearLayout(driver, styles)
 	p.tabLayout.SetDirection(LeftToRight)
-	p.ContainerBase.AddChild(p.tabLayout)
+	p.ContainerPart.AddChild(p.tabLayout)
 	p.SetMargin(math.Spacing{Left: 1, Top: 2, Right: 1, Bottom: 1})
 	p.SetMouseEventTarget(true) // For drag-drop targets
 }
@@ -203,7 +217,7 @@ func (p *PanelHolderImpl) Select(index int) {
 
 	if p.selected.Panel != nil {
 		p.selected.Tab.SetActive(false)
-		p.ContainerBase.RemoveChild(p.selected.Panel)
+		p.ContainerPart.RemoveChild(p.selected.Panel)
 	}
 
 	if index >= 0 {
@@ -213,7 +227,7 @@ func (p *PanelHolderImpl) Select(index int) {
 	}
 
 	if p.selected.Panel != nil {
-		p.ContainerBase.AddChild(p.selected.Panel)
+		p.ContainerPart.AddChild(p.selected.Panel)
 		p.selected.Tab.SetActive(true)
 	}
 }

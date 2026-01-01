@@ -17,7 +17,15 @@ func (c Cell) AtRow(y int) bool {
 }
 
 type TableLayoutImpl struct {
-	ContainerBase
+	InputEventHandlerPart
+	PaintChildrenPart
+	ParentablePart
+	DrawPaintPart
+	AttachablePart
+	VisiblePart
+	ContainerPart
+	PaddablePart
+	LayoutablePart
 	parent  BaseContainerParent
 	grid    map[Control]Cell
 	rows    int
@@ -25,7 +33,14 @@ type TableLayoutImpl struct {
 }
 
 func (l *TableLayoutImpl) Init(parent BaseContainerParent, driver Driver) {
-	l.ContainerBase.Init(parent, driver)
+	l.ContainerPart.Init(parent)
+	l.DrawPaintPart.Init(parent, driver)
+	l.InputEventHandlerPart.Init()
+	l.LayoutablePart.Init(parent)
+	l.PaddablePart.Init(parent)
+	l.PaintChildrenPart.Init(parent)
+	l.VisiblePart.Init(parent)
+
 	l.parent = parent
 	l.grid = make(map[Control]Cell)
 }
@@ -102,10 +117,10 @@ func (l *TableLayoutImpl) SetChildAt(x, y, w, h int, child Control) *Child {
 	}
 
 	l.grid[child] = Cell{x, y, w, h}
-	return l.ContainerBase.AddChild(child)
+	return l.ContainerPart.AddChild(child)
 }
 
 func (l *TableLayoutImpl) RemoveChild(child Control) {
 	delete(l.grid, child)
-	l.ContainerBase.RemoveChild(child)
+	l.ContainerPart.RemoveChild(child)
 }

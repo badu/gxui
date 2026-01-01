@@ -23,7 +23,11 @@ type Parent interface {
 }
 
 type Container interface {
-	Parent
+	// Parent interface
+	Children() Children
+	ReLayout()
+	Redraw()
+	// Container interface
 	AddChild(child Control) *Child
 	AddChildAt(index int, child Control) *Child
 	RemoveChild(child Control)
@@ -34,15 +38,83 @@ type Container interface {
 }
 
 type ContainerBaseNoControlOuter interface {
-	Container
+	// Parent interface
+	Children() Children
+	ReLayout()
+	Redraw()
+	// Container interface
+	AddChild(child Control) *Child
+	AddChildAt(index int, child Control) *Child
+	RemoveChild(child Control)
+	RemoveChildAt(index int)
+	RemoveAll()
+	Padding() math.Spacing
+	SetPadding(math.Spacing)
+	// ContainerBaseNoControlOuter interface
 	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
 	Paint(canvas Canvas)                             // was outer.Painter
 	LayoutChildren()                                 // was outer.LayoutChildren
 }
 
 type BaseContainerParent interface {
-	Container
-	Control
+	// Parent interface
+	Children() Children
+	ReLayout()
+	Redraw()
+	// Container interface
+	AddChild(child Control) *Child
+	AddChildAt(index int, child Control) *Child
+	RemoveChild(child Control)
+	RemoveChildAt(index int)
+	RemoveAll()
+	Padding() math.Spacing
+	SetPadding(math.Spacing)
+	// Control interface
+	Size() math.Size
+	SetSize(newSize math.Size)
+	Draw() Canvas
+	Parent() Parent
+	SetParent(newParent Parent)
+	Attached() bool
+	Attach()
+	Detach()
+	DesiredSize(min, max math.Size) math.Size
+	Margin() math.Spacing
+	SetMargin(math.Spacing)
+	IsVisible() bool
+	SetVisible(isVisible bool)
+	ContainsPoint(point math.Point) bool
+	IsMouseOver() bool
+	IsMouseDown(button MouseButton) bool
+	Click(event MouseEvent) (consume bool)
+	DoubleClick(event MouseEvent) (consume bool)
+	KeyPress(event KeyboardEvent) (consume bool)
+	KeyStroke(event KeyStrokeEvent) (consume bool)
+	MouseScroll(event MouseEvent) (consume bool)
+	MouseMove(event MouseEvent)
+	MouseEnter(event MouseEvent)
+	MouseExit(event MouseEvent)
+	MouseDown(event MouseEvent)
+	MouseUp(event MouseEvent)
+	KeyDown(event KeyboardEvent)
+	KeyUp(event KeyboardEvent)
+	KeyRepeat(event KeyboardEvent)
+	OnAttach(callback func()) EventSubscription
+	OnDetach(callback func()) EventSubscription
+	OnKeyPress(callback func(KeyboardEvent)) EventSubscription
+	OnKeyStroke(callback func(KeyStrokeEvent)) EventSubscription
+	OnClick(callback func(MouseEvent)) EventSubscription
+	OnDoubleClick(callback func(MouseEvent)) EventSubscription
+	OnMouseMove(callback func(MouseEvent)) EventSubscription
+	OnMouseEnter(callback func(MouseEvent)) EventSubscription
+	OnMouseExit(callback func(MouseEvent)) EventSubscription
+	OnMouseDown(callback func(MouseEvent)) EventSubscription
+	OnMouseUp(callback func(MouseEvent)) EventSubscription
+	OnMouseScroll(callback func(MouseEvent)) EventSubscription
+	OnKeyDown(callback func(KeyboardEvent)) EventSubscription
+	OnKeyUp(callback func(KeyboardEvent)) EventSubscription
+	OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription
+	// BaseContainerParent
 	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
 	Paint(canvas Canvas)                             // was outer.Painter
 	LayoutChildren()                                 // was outer.LayoutChildren
@@ -100,21 +172,19 @@ func (c Children) Find(control Control) *Child {
 }
 
 type ContainerPartParent interface {
-	// Container
-	Parent
+	// Parent interface
+	Children() Children
+	ReLayout()
+	Redraw()
+
 	AddChildAt(index int, child Control) *Child
 	RemoveChildAt(index int)
 
-	Attached() bool // was outer.Attachable
-	// Attach()                                    // was outer.Attachable
-	// Detach()                                    // was outer.Attachable
-	OnAttach(callback func()) EventSubscription // was outer.Attachable
-	OnDetach(callback func()) EventSubscription // was outer.Attachable
-	IsVisible() bool                            // was outer.IsVisibler
-	// LayoutChildren()                            // was outer.LayoutChildren
-	// Parent() Parent                             // was outer.Parenter
-	Size() math.Size // was outer.Sized
-	// SetSize(newSize math.Size)                  // was outer.Sized
+	Attached() bool
+	OnAttach(callback func()) EventSubscription
+	OnDetach(callback func()) EventSubscription
+	IsVisible() bool
+	Size() math.Size
 }
 
 type ContainerPart struct {
@@ -246,26 +316,4 @@ func (c *ContainerPart) ContainsPoint(point math.Point) bool {
 	}
 
 	return false
-}
-
-type ContainerBase struct {
-	InputEventHandlerPart
-	PaintChildrenPart
-	ParentablePart
-	DrawPaintPart
-	AttachablePart
-	VisiblePart
-	ContainerPart
-	PaddablePart
-	LayoutablePart
-}
-
-func (c *ContainerBase) Init(parent BaseContainerParent, driver CanvasCreatorDriver) {
-	c.ContainerPart.Init(parent)
-	c.DrawPaintPart.Init(parent, driver)
-	c.InputEventHandlerPart.Init()
-	c.LayoutablePart.Init(parent)
-	c.PaddablePart.Init(parent)
-	c.PaintChildrenPart.Init(parent)
-	c.VisiblePart.Init(parent)
 }
