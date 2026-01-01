@@ -32,12 +32,12 @@ type Button struct {
 	checked       bool
 }
 
-func (b *Button) Init(parent ButtonParent, driver Driver, styles *StyleDefs) {
-	b.LinearLayoutImpl.Init(parent, driver)
+func (b *Button) Init(parent ButtonParent, canvasCreator CanvasCreator, styles *StyleDefs) {
+	b.LinearLayoutImpl.Init(parent, canvasCreator)
 	b.FocusablePart.Init()
 
 	b.buttonType = PushButton
-	b.canvasCreator = driver
+	b.canvasCreator = canvasCreator
 	b.styles = styles
 	b.parent = parent
 

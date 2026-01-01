@@ -118,7 +118,7 @@ func NewViewport(driver *DriverImpl, width, height int, title string, fullscreen
 			result.Lock()
 			result.sizePixels = math.Size{Width: int(w), Height: int(h)}
 			result.Unlock()
-			driver.fn.Viewport(0, 0, int32(w), int32(h))
+			driver.fn.Viewport(0, 0, w, h)
 			driver.fn.ClearColor(clearColorR, clearColorG, clearColorB, 1.0)
 			driver.fn.Clear(COLOR_BUFFER_BIT)
 		},

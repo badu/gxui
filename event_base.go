@@ -168,7 +168,7 @@ func (e *EventBase) Listen(listener interface{}) EventSubscription {
 	reflectTy := reflect.TypeOf(listener)
 	if reflectTy.Kind() == reflect.Func {
 		paramTypes = make([]reflect.Type, reflectTy.NumIn())
-		for i, _ := range paramTypes {
+		for i := range paramTypes {
 			paramTypes[i] = reflectTy.In(i)
 		}
 		function = reflect.ValueOf(listener)

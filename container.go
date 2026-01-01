@@ -260,13 +260,12 @@ type ContainerBase struct {
 	LayoutablePart
 }
 
-func (c *ContainerBase) Init(parent BaseContainerParent, driver Driver) {
+func (c *ContainerBase) Init(parent BaseContainerParent, driver CanvasCreatorDriver) {
 	c.ContainerPart.Init(parent)
 	c.DrawPaintPart.Init(parent, driver)
 	c.InputEventHandlerPart.Init()
 	c.LayoutablePart.Init(parent)
 	c.PaddablePart.Init(parent)
 	c.PaintChildrenPart.Init(parent)
-	c.ParentablePart.Init()
 	c.VisiblePart.Init(parent)
 }

@@ -19,7 +19,7 @@ type TextBoxLine interface {
 
 type TextBoxParent interface {
 	ListParent
-	CreateLine(driver Driver, styles *StyleDefs, index int) (line TextBoxLine, container Control)
+	CreateLine(canvasCreator CanvasCreator, styles *StyleDefs, index int) (line TextBoxLine, container Control)
 	MaxLineWidth() int
 }
 
@@ -37,11 +37,12 @@ type TextBox struct {
 	AdapterBase
 	FocusablePart
 	ListImpl
-	parent           TextBoxParent
-	driver           Driver
-	font             Font
-	onRedrawLines    Event
-	horizontalScroll EventSubscription
+	parent            TextBoxParent
+	driver            Driver
+	clipboardOperator ClipboardOperator
+	font              Font
+	onRedrawLines     Event
+	horizontalScroll  EventSubscription
 
 	controller            *TextBoxController
 	adapter               *TextBoxAdapter
@@ -442,7 +443,7 @@ func (t *TextBox) KeyPress(event KeyboardEvent) bool {
 	case KeyC:
 		if event.Modifier.Control() {
 			parts := make([]string, t.controller.SelectionCount())
-			for i, _ := range parts {
+			for i := range parts {
 				parts[i] = t.controller.SelectionText(i)
 				if parts[i] == "" {
 					// Copy line instead.
@@ -450,7 +451,7 @@ func (t *TextBox) KeyPress(event KeyboardEvent) bool {
 				}
 			}
 			str := strings.Join(parts, "\n")
-			t.driver.SetClipboard(str)
+			t.clipboardOperator.SetClipboard(str)
 
 			if event.Key == KeyX {
 				t.controller.ReplaceAll("")
@@ -460,7 +461,7 @@ func (t *TextBox) KeyPress(event KeyboardEvent) bool {
 
 	case KeyV:
 		if event.Modifier.Control() {
-			str, _ := t.driver.GetClipboard()
+			str, _ := t.clipboardOperator.GetClipboard()
 			t.controller.ReplaceAll(str)
 			t.controller.Deselect(false)
 			return true
@@ -511,7 +512,7 @@ func (t *TextBox) MouseMove(event MouseEvent) {
 	}
 }
 
-func (t *TextBox) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
+func (t *TextBox) CreateLine(canvasCreator CanvasCreator, styles *StyleDefs, index int) (TextBoxLine, Control) {
 	result := &DefaultTextBoxLine{}
 	result.Init(result, t, index)
 	return result, result

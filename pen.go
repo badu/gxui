@@ -4,9 +4,9 @@
 
 package gxui
 
-var DefaultPen Pen = CreatePen(1.0, Black)
-var TransparentPen Pen = CreatePen(0.0, Transparent)
-var WhitePen Pen = CreatePen(1.0, White)
+var DefaultPen = CreatePen(1.0, Black)
+var TransparentPen = CreatePen(0.0, Transparent)
+var WhitePen = CreatePen(1.0, White)
 
 type Pen struct {
 	Width float32

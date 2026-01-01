@@ -18,7 +18,7 @@ type BubbleOverlay struct {
 	brush       Brush
 }
 
-func (o *BubbleOverlay) Init(parent BaseContainerParent, driver Driver) {
+func (o *BubbleOverlay) Init(parent BaseContainerParent, driver CanvasCreatorDriver) {
 	o.ContainerBase.Init(parent, driver)
 	o.parent = parent
 	o.arrowLength = 20

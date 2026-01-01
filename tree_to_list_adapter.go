@@ -12,7 +12,7 @@ import (
 type TreeControlCreator interface {
 	// Create returns a Control that contains control (returned by the backing
 	// TreeNode) and visualizes the expanded state of node.
-	Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control
+	Create(canvasCreator CanvasCreator, styles *StyleDefs, control Control, node *TreeToListNode) Control
 
 	// Size returns the size that each of the controls returned by Create will
 	// be displayed at for the given theme.

@@ -180,8 +180,8 @@ type LinearLayoutImpl struct {
 	ContainerBase
 }
 
-func (l *LinearLayoutImpl) Init(parent BaseContainerParent, driver Driver) {
-	l.ContainerBase.Init(parent, driver)
+func (l *LinearLayoutImpl) Init(parent BaseContainerParent, canvasCreator CanvasCreator) {
+	l.ContainerBase.Init(parent, canvasCreator)
 	l.LinearLayoutPart.Init(parent)
 	l.BackgroundBorderPainter.Init(parent)
 	l.SetMouseEventTarget(true)

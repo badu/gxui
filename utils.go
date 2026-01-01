@@ -92,7 +92,7 @@ func TopControlsUnder(p math.Point, c Parent) ControlPointList {
 }
 
 func ControlsUnder(p math.Point, c Parent) ControlPointList {
-	toVisit := []ParentPoint{ParentPoint{c, p}}
+	toVisit := []ParentPoint{{Control: c, Point: p}}
 	l := ControlPointList{}
 	for len(toVisit) > 0 {
 		c = toVisit[0].Control

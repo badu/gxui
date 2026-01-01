@@ -8,12 +8,6 @@ type ParentablePart struct {
 	parent Parent
 }
 
-func (p *ParentablePart) Init() {}
-
 func (p *ParentablePart) Parent() Parent {
 	return p.parent
-}
-
-func (p *ParentablePart) SetParent(parent Parent) {
-	p.parent = parent
 }
