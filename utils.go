@@ -24,64 +24,64 @@ type ControlPoint struct {
 
 type ControlPointList []ControlPoint
 
-func (l ControlPointList) Contains(c Control) bool {
-	_, found := l.Find(c)
+func (l ControlPointList) Contains(control Control) bool {
+	_, found := l.Find(control)
 	return found
 }
 
-func (l ControlPointList) Find(c Control) (math.Point, bool) {
+func (l ControlPointList) Find(control Control) (math.Point, bool) {
 	for _, i := range l {
-		if i.Control == c {
+		if i.Control == control {
 			return i.Point, true
 		}
 	}
 	return math.Point{}, false
 }
 
-func ValidateHierarchy(p Parent) {
-	for _, c := range p.Children() {
-		if p != c.Control.Parent() {
+func ValidateHierarchy(parent Parent) {
+	for _, child := range parent.Children() {
+		if parent != child.Control.Parent() {
 			panic(fmt.Errorf("Child's parent is not as expected.\nChild: %s\nExpected parent: %s",
-				Path(c.Control), Path(p)))
+				Path(child.Control), Path(parent)))
 		}
-		if cp, ok := c.Control.(Parent); ok {
+		if cp, ok := child.Control.(Parent); ok {
 			ValidateHierarchy(cp)
 		}
 	}
 }
 
-func CommonAncestor(a, b Control) Parent {
+func CommonAncestor(control, otherControl Control) Parent {
 	seen := make(map[Parent]bool)
-	if c, _ := a.(Parent); c != nil {
-		seen[c] = true
+	if parent, _ := control.(Parent); parent != nil {
+		seen[parent] = true
 	}
-	for a != nil {
-		p := a.Parent()
+	for control != nil {
+		p := control.Parent()
 		seen[p] = true
-		a, _ = p.(Control)
+		control, _ = p.(Control)
 	}
-	if c, _ := b.(Parent); c != nil {
+	if c, _ := otherControl.(Parent); c != nil {
 		if seen[c] {
 			return c
 		}
 	}
-	for b != nil {
-		p := b.Parent()
+	for otherControl != nil {
+		p := otherControl.Parent()
 		if seen[p] {
 			return p
 		}
-		b, _ = p.(Control)
+		otherControl, _ = p.(Control)
 	}
 	return nil
 }
 
-func TopControlsUnder(p math.Point, c Parent) ControlPointList {
-	children := c.Children()
+func TopControlsUnder(point math.Point, parent Parent) ControlPointList {
+	children := parent.Children()
 	for i := len(children) - 1; i >= 0; i-- {
 		child := children[i]
-		cp := p.Sub(child.Offset)
+		cp := point.Sub(child.Offset)
 		if child.Control.ContainsPoint(cp) {
-			l := ControlPointList{ControlPoint{child.Control, cp}}
+			l := ControlPointList{ControlPoint{Control: child.Control, Point: cp}}
 			if cc, ok := child.Control.(Parent); ok {
 				l = append(l, TopControlsUnder(cp, cc)...)
 			}
@@ -91,15 +91,15 @@ func TopControlsUnder(p math.Point, c Parent) ControlPointList {
 	return ControlPointList{}
 }
 
-func ControlsUnder(p math.Point, c Parent) ControlPointList {
-	toVisit := []ParentPoint{{Control: c, Point: p}}
+func ControlsUnder(point math.Point, parent Parent) ControlPointList {
+	toVisit := []ParentPoint{{Control: parent, Point: point}}
 	l := ControlPointList{}
 	for len(toVisit) > 0 {
-		c = toVisit[0].Control
-		p = toVisit[0].Point
+		parent = toVisit[0].Control
+		point = toVisit[0].Point
 		toVisit = toVisit[1:]
-		for _, child := range c.Children() {
-			cp := p.Sub(child.Offset)
+		for _, child := range parent.Children() {
+			cp := point.Sub(child.Offset)
 			if child.Control.ContainsPoint(cp) {
 				l = append(l, ControlPoint{child.Control, cp})
 				if cc, ok := child.Control.(Parent); ok {
@@ -111,87 +111,87 @@ func ControlsUnder(p math.Point, c Parent) ControlPointList {
 	return l
 }
 
-func WindowToChild(coord math.Point, to Control) math.Point {
-	c := to
+func WindowToChild(point math.Point, control Control) math.Point {
+	ctrl := control
 	for {
-		p := c.Parent()
-		if p == nil {
+		parent := ctrl.Parent()
+		if parent == nil {
 			panic("Control's parent was nil")
 		}
 
-		child := p.Children().Find(c)
+		child := parent.Children().Find(ctrl)
 		if child == nil {
-			Dump(p)
-			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &p, p, &c, c))
+			Dump(parent)
+			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &parent, parent, &ctrl, ctrl))
 		}
 
-		coord = coord.Sub(child.Offset)
+		point = point.Sub(child.Offset)
 
-		switch p.(type) {
+		switch parent.(type) {
 		case *WindowImpl:
-			return coord
+			return point
 		}
 
 		var ok bool
-		c, ok = p.(Control)
+		ctrl, ok = parent.(Control)
 		if !ok {
-			Dump(p)
-			panic(fmt.Errorf("WindowToChild (%p %T) -> (%p %T) reached non-control parent (%p %T).", &to, to, &p, p, &c, c))
+			Dump(parent)
+			panic(fmt.Errorf("WindowToChild (%p %T) -> (%p %T) reached non-control parent (%p %T).", &control, control, &parent, parent, &ctrl, ctrl))
 		}
 	}
 }
 
-func ChildToParent(coord math.Point, from Control, to Parent) math.Point {
-	control := from
+func ChildToParent(point math.Point, onControl Control, parent Parent) math.Point {
+	control := onControl
 	for {
-		p := control.Parent()
-		if p == nil {
+		parent := control.Parent()
+		if parent == nil {
 			panic(fmt.Errorf("Control detached: %s", Path(control)))
 		}
 
-		child := p.Children().Find(control)
+		child := parent.Children().Find(control)
 		if child == nil {
-			Dump(p)
-			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &p, p, &control, control))
+			Dump(parent)
+			panic(fmt.Errorf("Control's parent (%p %T) did not contain control (%p %T).", &parent, parent, &control, control))
 		}
 
-		coord = coord.Add(child.Offset)
-		if p == to {
-			return coord
+		point = point.Add(child.Offset)
+		if parent == parent {
+			return point
 		}
 
 		var ok bool
-		control, ok = p.(Control)
+		control, ok = parent.(Control)
 		if !ok {
-			Dump(p)
-			panic(fmt.Errorf("ChildToParent (%p %T) -> (%p %T) reached non-control parent (%p %T).", &from, from, &to, to, &p, p))
+			Dump(parent)
+			panic(fmt.Errorf("ChildToParent (%p %T) -> (%p %T) reached non-control parent (%p %T).", &onControl, onControl, &parent, parent, &parent, parent))
 		}
 	}
 }
 
-func ParentToChild(coord math.Point, from Parent, to Control) math.Point {
-	return coord.Sub(ChildToParent(math.ZeroPoint, to, from))
+func ParentToChild(point math.Point, parent Parent, control Control) math.Point {
+	return point.Sub(ChildToParent(math.ZeroPoint, control, parent))
 }
 
-func TransformCoordinate(coord math.Point, from, to Control) math.Point {
-	if from == to {
-		return coord
+func TransformCoordinate(point math.Point, fromControl, toControl Control) math.Point {
+	if fromControl == toControl {
+		return point
 	}
 
-	ancestor := CommonAncestor(from, to)
+	ancestor := CommonAncestor(fromControl, toControl)
 	if ancestor == nil {
-		panic(fmt.Errorf("no common ancestor between %s and %s", Path(from), Path(to)))
+		panic(fmt.Errorf("no common ancestor between %s and %s", Path(fromControl), Path(toControl)))
 	}
 
-	if parent, ok := ancestor.(Control); !ok || parent != from {
-		coord = ChildToParent(coord, from, ancestor)
+	if parent, ok := ancestor.(Control); !ok || parent != fromControl {
+		point = ChildToParent(point, fromControl, ancestor)
 	}
 
-	if parent, ok := ancestor.(Control); !ok || parent != to {
-		coord = ParentToChild(coord, ancestor, to)
+	if parent, ok := ancestor.(Control); !ok || parent != toControl {
+		point = ParentToChild(point, ancestor, toControl)
 	}
 
-	return coord
+	return point
 }
 
 // FindControl performs a depth-first search of the controls starting from root, calling test with each visited control.
