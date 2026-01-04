@@ -65,8 +65,8 @@ func (s *ScrollBarImpl) updateBarRect() {
 	s.barRect = rect
 }
 
-func (s *ScrollBarImpl) Init(parent ControlBaseParent, canvasCreator CanvasCreator) {
-	s.ControlBase.Init(parent, canvasCreator)
+func (s *ScrollBarImpl) Init(parent ControlBaseParent, driver Driver) {
+	s.ControlBase.Init(parent, driver)
 
 	s.parent = parent
 	s.thickness = 10

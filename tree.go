@@ -168,11 +168,11 @@ func (t *TreeImpl) KeyPress(event KeyboardEvent) bool {
 
 type defaultTreeControlCreator struct{}
 
-func (defaultTreeControlCreator) Create(canvasCreator CanvasCreator, styles *StyleDefs, control Control, node *TreeToListNode) Control {
-	ll := CreateLinearLayout(canvasCreator, styles)
+func (defaultTreeControlCreator) Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control {
+	ll := CreateLinearLayout(driver, styles)
 	ll.SetDirection(LeftToRight)
 
-	btn := CreateButton(canvasCreator, styles)
+	btn := CreateButton(driver, styles)
 	btn.SetBackgroundBrush(TransparentBrush)
 	btn.SetBorderPen(CreatePen(1, Gray30))
 	btn.SetMargin(math.Spacing{Left: 2, Right: 2, Top: 1, Bottom: 1})

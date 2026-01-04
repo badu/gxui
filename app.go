@@ -66,9 +66,9 @@ func CreateBubbleOverlay(driver Driver, styles *StyleDefs) *BubbleOverlay {
 	return result
 }
 
-func CreateButton(canvasCreator CanvasCreator, styles *StyleDefs) *Button {
+func CreateButton(driver Driver, styles *StyleDefs) *Button {
 	result := &Button{}
-	result.Init(result, canvasCreator, styles)
+	result.Init(result, driver, styles)
 
 	result.OnMouseEnter(func(event MouseEvent) { result.Redraw() })
 	result.OnMouseExit(func(event MouseEvent) { result.Redraw() })
@@ -112,9 +112,9 @@ func CreateDropDownList(driver Driver, styles *StyleDefs) *DropDownList {
 	return result
 }
 
-func CreateImage(canvasCreator CanvasCreator, styles *StyleDefs) *Image {
+func CreateImage(driver Driver, styles *StyleDefs) *Image {
 	result := &Image{}
-	result.Init(result, canvasCreator)
+	result.Init(result, driver)
 	return result
 }
 
@@ -125,9 +125,9 @@ func CreateLabel(canvasCreator CanvasCreator, styles *StyleDefs) *Label {
 	return result
 }
 
-func CreateLinearLayout(canvasCreator CanvasCreator, styles *StyleDefs) *LinearLayoutImpl {
+func CreateLinearLayout(driver Driver, styles *StyleDefs) *LinearLayoutImpl {
 	result := &LinearLayoutImpl{}
-	result.Init(result, canvasCreator)
+	result.Init(result, driver)
 	return result
 }
 
@@ -200,9 +200,9 @@ func CreateProgressBar(driver Driver, styles *StyleDefs) *AppProgressBar {
 	return result
 }
 
-func CreateScrollBar(canvasCreator CanvasCreator, styles *StyleDefs) *ScrollBarImpl {
+func CreateScrollBar(driver Driver, styles *StyleDefs) *ScrollBarImpl {
 	result := &ScrollBarImpl{}
-	result.Init(result, canvasCreator)
+	result.Init(result, driver)
 	result.SetBarBrush(styles.ScrollBarBarDefaultStyle.Brush)
 	result.SetBarPen(styles.ScrollBarBarDefaultStyle.Pen)
 	result.SetRailBrush(styles.ScrollBarRailDefaultStyle.Brush)
@@ -247,7 +247,6 @@ func CreateTableLayout(driver Driver, styles *StyleDefs) *TableLayoutImpl {
 
 func CreateTextBox(driver Driver, styles *StyleDefs) *TextBox {
 	result := &TextBox{}
-	result.clipboardOperator = driver
 	result.Init(result, driver, styles, styles.DefaultFont)
 	result.SetTextColor(styles.TextBoxDefaultStyle.FontColor)
 	result.SetMargin(math.Spacing{Left: 3, Top: 3, Right: 3, Bottom: 3})
@@ -488,14 +487,14 @@ func (t *AppTree) PaintSelection(canvas Canvas, rect math.Rect) {
 
 type treeControlCreator struct{}
 
-func (treeControlCreator) Create(canvasCreator CanvasCreator, styles *StyleDefs, control Control, node *TreeToListNode) Control {
-	img := CreateImage(canvasCreator, styles)
+func (treeControlCreator) Create(driver Driver, styles *StyleDefs, control Control, node *TreeToListNode) Control {
+	img := CreateImage(driver, styles)
 	imgSize := math.Size{Width: 10, Height: 10}
 
-	layout := CreateLinearLayout(canvasCreator, styles)
+	layout := CreateLinearLayout(driver, styles)
 	layout.SetDirection(LeftToRight)
 
-	btn := CreateButton(canvasCreator, styles)
+	btn := CreateButton(driver, styles)
 	btn.SetBackgroundBrush(TransparentBrush)
 	btn.SetBorderPen(CreatePen(1, Gray30))
 	btn.SetMargin(math.Spacing{Left: 1, Right: 1, Top: 1, Bottom: 1})
@@ -519,7 +518,7 @@ func (treeControlCreator) Create(canvasCreator CanvasCreator, styles *StyleDefs,
 	}
 	update := func() {
 		expanded := node.IsExpanded()
-		canvas := canvasCreator.CreateCanvas(imgSize)
+		canvas := driver.CreateCanvas(imgSize)
 		btn.SetVisible(!node.IsLeaf())
 		switch {
 		case !btn.IsMouseDown(MouseButtonLeft) && expanded:

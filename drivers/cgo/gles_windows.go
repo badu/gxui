@@ -450,7 +450,7 @@ func (c *Functions) Scissor(x, y, width, height int32) {
 	syscall.Syscall6(_glScissor.Addr(), 4, uintptr(x), uintptr(y), uintptr(width), uintptr(height), 0, 0)
 }
 func (c *Functions) ShaderSource(s Shader, src string) {
-	var n = uintptr(len(src))
+	var n uintptr = uintptr(len(src))
 	psrc := &src
 	syscall.Syscall6(_glShaderSource.Addr(), 4, uintptr(s.V), 1, uintptr(unsafe.Pointer(psrc)), uintptr(unsafe.Pointer(&n)), 0, 0)
 	issue34474KeepAlive(psrc)

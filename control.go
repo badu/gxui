@@ -162,11 +162,6 @@ type CanvasCreator interface {
 	CreateCanvas(size math.Size) Canvas
 }
 
-type ClipboardOperator interface {
-	SetClipboard(content string)
-	GetClipboard() (content string, err error)
-}
-
 type ControlBase struct {
 	InputEventHandlerPart
 	ParentablePart
@@ -180,6 +175,7 @@ func (c *ControlBase) Init(controlBaseParent ControlBaseParent, canvasCreator Ca
 	c.DrawPaintPart.Init(controlBaseParent, canvasCreator)
 	c.LayoutablePart.Init(controlBaseParent)
 	c.InputEventHandlerPart.Init()
+	c.ParentablePart.Init()
 	c.VisiblePart.Init(controlBaseParent)
 }
 

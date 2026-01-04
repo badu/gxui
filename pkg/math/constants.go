@@ -12,7 +12,7 @@ var ZeroSize Size
 var ZeroSpacing Spacing
 var ZeroPoint Point
 
-var MaxSize = Size{Width: 0x40000000, Height: 0x40000000} // Picked to avoid integer overflows
+var MaxSize = Size{0x40000000, 0x40000000} // Picked to avoid integer overflows
 
 const Pi = float32(math.Pi)
 const TwoPi = Pi * 2.0

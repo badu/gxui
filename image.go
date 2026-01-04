@@ -55,9 +55,9 @@ func (i *Image) calculateDrawRect() math.Rect {
 	return rect
 }
 
-func (i *Image) Init(parent ControlBaseParent, canvasCreator CanvasCreator) {
+func (i *Image) Init(parent ControlBaseParent, driver Driver) {
 	i.parent = parent
-	i.ControlBase.Init(parent, canvasCreator)
+	i.ControlBase.Init(parent, driver)
 	i.BackgroundBorderPainter.Init(parent)
 	i.SetBorderPen(TransparentPen)
 	i.SetBackgroundBrush(TransparentBrush)

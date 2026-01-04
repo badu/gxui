@@ -258,19 +258,19 @@ func (e *CodeEditor) KeyStroke(event KeyStrokeEvent) bool {
 }
 
 // mixins.TextBox overrides
-func (e *CodeEditor) CreateLine(canvasCreator CanvasCreator, styles *StyleDefs, index int) (TextBoxLine, Control) {
-	lineNumber := CreateLabel(canvasCreator, styles)
+func (e *CodeEditor) CreateLine(driver Driver, styles *StyleDefs, index int) (TextBoxLine, Control) {
+	lineNumber := CreateLabel(driver, styles)
 
 	lineNumber.SetText(fmt.Sprintf("%d", index+1)) // Displayed lines start at 1
 
 	line := &CodeEditorLine{}
 	line.Init(line, e, index)
 
-	foldButton := CreateButton(canvasCreator, styles)
+	foldButton := CreateButton(driver, styles)
 	foldButton.SetMargin(math.Spacing{Left: 0, Top: 0, Right: 0, Bottom: 0})
 	foldButton.SetVisible(false)
 
-	layout := CreateLinearLayout(canvasCreator, styles)
+	layout := CreateLinearLayout(driver, styles)
 	layout.SetDirection(LeftToRight)
 	layout.AddChild(lineNumber)
 	layout.AddChild(foldButton)
