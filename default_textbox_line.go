@@ -11,12 +11,7 @@ import (
 
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
-	InputEventHandlerPart
-	ParentablePart
-	DrawPaintPart
-	AttachablePart
-	VisiblePart
-	LayoutablePart
+	ControlBase
 	parent     DefaultTextBoxLineParent
 	textbox    *TextBox
 	lineIndex  int
@@ -25,11 +20,7 @@ type DefaultTextBoxLine struct {
 }
 
 func (t *DefaultTextBoxLine) Init(parent DefaultTextBoxLineParent, textbox *TextBox, lineIndex int) {
-	t.DrawPaintPart.Init(parent, textbox.driver)
-	t.LayoutablePart.Init(parent)
-	t.InputEventHandlerPart.Init()
-	t.VisiblePart.Init(parent)
-
+	t.ControlBase.Init(parent, textbox.driver)
 	t.parent = parent
 	t.textbox = textbox
 	t.lineIndex = lineIndex
@@ -168,8 +159,4 @@ func (t *DefaultTextBoxLine) PositionAt(runeIndex int) math.Point {
 func (t *DefaultTextBoxLine) SetOffset(offset int) {
 	t.offset = offset
 	t.Redraw()
-}
-
-func (t *DefaultTextBoxLine) ContainsPoint(point math.Point) bool {
-	return t.IsVisible() && t.Size().Rect().Contains(point)
 }

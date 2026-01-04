@@ -57,15 +57,7 @@ type itemDetails struct {
 }
 
 type ListImpl struct {
-	InputEventHandlerPart
-	PaintChildrenPart
-	ParentablePart
-	DrawPaintPart
-	AttachablePart
-	VisiblePart
-	ContainerPart
-	PaddablePart
-	LayoutablePart
+	ContainerBase
 	FocusablePart
 	BackgroundBorderPainter
 	parent                   ListParent
@@ -96,14 +88,7 @@ func (l *ListImpl) Init(parent ListParent, driver Driver, styles *StyleDefs) {
 	l.driver = driver
 	l.styles = styles
 
-	l.ContainerPart.Init(parent)
-	l.DrawPaintPart.Init(parent, driver)
-	l.InputEventHandlerPart.Init()
-	l.LayoutablePart.Init(parent)
-	l.PaddablePart.Init(parent)
-	l.PaintChildrenPart.Init(parent)
-	l.VisiblePart.Init(parent)
-
+	l.ContainerBase.Init(parent, driver)
 	l.BackgroundBorderPainter.Init(parent)
 	l.FocusablePart.Init()
 
@@ -363,7 +348,7 @@ func (l *ListImpl) DataReplaced() {
 func (l *ListImpl) Paint(canvas Canvas) {
 	rect := l.parent.Size().Rect()
 	l.parent.PaintBackground(canvas, rect)
-	l.PaintChildrenPart.Paint(canvas)
+	l.ContainerBase.Paint(canvas)
 	l.parent.PaintBorder(canvas, rect)
 	if l.HasFocus() {
 		rect := l.Size().Rect().ContractI(1)
@@ -494,7 +479,7 @@ func (l *ListImpl) KeyPress(event KeyboardEvent) bool {
 			}
 		}
 	}
-	return l.InputEventHandlerPart.KeyPress(event)
+	return l.ContainerBase.KeyPress(event)
 }
 
 func (l *ListImpl) Adapter() ListAdapter {

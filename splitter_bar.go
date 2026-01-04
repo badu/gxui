@@ -8,22 +8,9 @@ import (
 	"github.com/badu/gxui/pkg/math"
 )
 
-type SplitterBarParent interface {
-	Attached() bool
-	Parent() Parent
-	Size() math.Size
-	Paint(canvas Canvas)
-	Redraw()
-}
-
 type SplitterBar struct {
-	InputEventHandlerPart
-	ParentablePart
-	DrawPaintPart
-	AttachablePart
-	VisiblePart
-	LayoutablePart
-	parent          SplitterBarParent
+	ControlBase
+	parent          ControlBaseParent
 	onDragStart     Event
 	onDragEnd       Event
 	onDrag          func(point math.Point)
@@ -33,12 +20,8 @@ type SplitterBar struct {
 	IsDragging      bool
 }
 
-func (b *SplitterBar) Init(controlBaseParent SplitterBarParent, canvasCreator CanvasCreator, styles *StyleDefs) {
-	b.DrawPaintPart.Init(controlBaseParent, canvasCreator)
-	b.LayoutablePart.Init(controlBaseParent)
-	b.InputEventHandlerPart.Init()
-	b.VisiblePart.Init(controlBaseParent)
-
+func (b *SplitterBar) Init(controlBaseParent ControlBaseParent, canvasCreator CanvasCreator, styles *StyleDefs) {
+	b.ControlBase.Init(controlBaseParent, canvasCreator)
 	b.styles = styles
 	b.parent = controlBaseParent
 
@@ -99,12 +82,4 @@ func (b *SplitterBar) MouseDown(event MouseEvent) {
 	)
 
 	b.InputEventHandlerPart.MouseDown(event)
-}
-
-func (b *SplitterBar) DesiredSize(min, max math.Size) math.Size {
-	return max
-}
-
-func (b *SplitterBar) ContainsPoint(point math.Point) bool {
-	return b.IsVisible() && b.Size().Rect().Contains(point)
 }

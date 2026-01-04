@@ -143,7 +143,3 @@ func (l *CodeEditorLine) Paint(canvas Canvas) {
 		l.parent.PaintCarets(canvas)
 	}
 }
-
-func (l *CodeEditorLine) ContainsPoint(point math.Point) bool {
-	return l.IsVisible() && l.Size().Rect().Contains(point)
-}

@@ -9,15 +9,7 @@ import (
 )
 
 type BubbleOverlay struct {
-	InputEventHandlerPart
-	PaintChildrenPart
-	ParentablePart
-	DrawPaintPart
-	AttachablePart
-	VisiblePart
-	ContainerPart
-	PaddablePart
-	LayoutablePart
+	ContainerBase
 	parent      BaseContainerParent
 	targetPoint math.Point
 	arrowLength int
@@ -26,14 +18,8 @@ type BubbleOverlay struct {
 	brush       Brush
 }
 
-func (o *BubbleOverlay) Init(parent BaseContainerParent, canvasCreator CanvasCreatorDriver) {
-	o.ContainerPart.Init(parent)
-	o.DrawPaintPart.Init(parent, canvasCreator)
-	o.InputEventHandlerPart.Init()
-	o.LayoutablePart.Init(parent)
-	o.PaddablePart.Init(parent)
-	o.PaintChildrenPart.Init(parent)
-	o.VisiblePart.Init(parent)
+func (o *BubbleOverlay) Init(parent BaseContainerParent, driver CanvasCreatorDriver) {
+	o.ContainerBase.Init(parent, driver)
 	o.parent = parent
 	o.arrowLength = 20
 	o.arrowWidth = 15

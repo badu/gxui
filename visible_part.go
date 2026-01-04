@@ -4,9 +4,9 @@
 
 package gxui
 
-// VisibleParent is minimal
 type VisibleParent interface {
-	Parent() Parent
+	Parent() Parent // was outer.Parenter
+	// Redraw()        // was outer.Redrawer
 }
 
 type VisiblePart struct {

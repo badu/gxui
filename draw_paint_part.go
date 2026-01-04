@@ -18,10 +18,16 @@ type CanvasCreatorDriver interface {
 }
 
 type DrawPaintParent interface {
-	Attached() bool
-	Parent() Parent
-	Size() math.Size
-	Paint(canvas Canvas)
+	Attached() bool      // was outer.Attachable
+	Parent() Parent      // was outer.Parenter
+	Size() math.Size     // was outer.Sized
+	Paint(canvas Canvas) // was outer.Painter
+
+	// Attach()                                    // was outer.Attachable
+	// Detach()                                    // was outer.Attachable
+	// OnAttach(callback func()) EventSubscription // was outer.Attachable
+	// OnDetach(callback func()) EventSubscription // was outer.Attachable
+	// SetSize(newSize math.Size)                  // was outer.Sized
 }
 
 type DrawPaintPart struct {

@@ -14,12 +14,7 @@ type ProgressBarParent interface {
 }
 
 type ProgressBarImpl struct {
-	InputEventHandlerPart
-	ParentablePart
-	DrawPaintPart
-	AttachablePart
-	VisiblePart
-	LayoutablePart
+	ControlBase
 	BackgroundBorderPainter
 	parent           ProgressBarParent
 	desiredSize      math.Size
@@ -28,10 +23,7 @@ type ProgressBarImpl struct {
 
 func (b *ProgressBarImpl) Init(parent ProgressBarParent, driver Driver, styles *StyleDefs) {
 	b.parent = parent
-	b.DrawPaintPart.Init(parent, driver)
-	b.LayoutablePart.Init(parent)
-	b.InputEventHandlerPart.Init()
-	b.VisiblePart.Init(parent)
+	b.ControlBase.Init(parent, driver)
 	b.BackgroundBorderPainter.Init(parent)
 	b.desiredSize = math.MaxSize
 	b.target = 100

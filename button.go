@@ -170,7 +170,3 @@ func (b *Button) Paint(canvas Canvas) {
 		canvas.DrawRoundedRect(rect.ContractI(int(pen.Width)), 3.0, 3.0, 3.0, 3.0, pen, brush)
 	}
 }
-
-func (b *Button) ContainsPoint(point math.Point) bool {
-	return b.IsVisible() && b.Size().Rect().Contains(point)
-}
