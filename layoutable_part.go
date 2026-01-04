@@ -15,8 +15,8 @@ type LayoutChildren interface {
 }
 
 type LayoutableParent interface {
-	Parent() Parent // was outer.Parenter
-	Redraw()        // was outer.Redrawer
+	Parent() Parent
+	Redraw()
 }
 
 type LayoutablePart struct {

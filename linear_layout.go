@@ -10,8 +10,8 @@ import (
 
 type LinearLayoutParent interface {
 	Container
-	Size() math.Size           // was outer.Sized
-	SetSize(newSize math.Size) // was outer.Sized
+	Size() math.Size
+	SetSize(newSize math.Size)
 }
 
 type LinearLayoutPart struct {

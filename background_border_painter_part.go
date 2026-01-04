@@ -9,7 +9,7 @@ import (
 )
 
 type BackgroundBorderParent interface {
-	Redraw() // was outer.Redrawer
+	Redraw()
 }
 
 type BackgroundBorderPainter struct {

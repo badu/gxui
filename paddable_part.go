@@ -9,8 +9,8 @@ import (
 )
 
 type PaddableParent interface {
-	LayoutChildren() // was outer.LayoutChildren
-	Redraw()         // was outer.Redrawer
+	LayoutChildren()
+	Redraw()
 }
 
 type PaddablePart struct {

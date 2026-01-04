@@ -33,7 +33,7 @@ type PanelTabCreator interface {
 }
 
 type PanelHolderParent interface {
-	ContainerBaseNoControlOuter
+	ContainerBaseNoControl
 	PanelHolder
 	PanelTabCreator
 }

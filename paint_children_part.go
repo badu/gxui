@@ -5,11 +5,8 @@
 package gxui
 
 type PaintChildrenParent interface {
-	// Container
 	Children() Children
-	PaintChild(canvas Canvas, child *Child, idx int) // was outer.PaintChilder
-	// Size() math.Size                                 // was outer.Sized
-	// SetSize(newSize math.Size)                       // was outer.Sized
+	PaintChild(canvas Canvas, child *Child, idx int)
 }
 
 type PaintChildrenPart struct {
