@@ -9,64 +9,6 @@ import (
 	"github.com/badu/gxui/pkg/math"
 )
 
-type DefaultTextBoxLineParent interface {
-	// Control interface
-	Size() math.Size
-	SetSize(newSize math.Size)
-	Draw() Canvas
-	Parent() Parent
-	SetParent(newParent Parent)
-	Attached() bool
-	Attach()
-	Detach()
-	DesiredSize(min, max math.Size) math.Size
-	Margin() math.Spacing
-	SetMargin(math.Spacing)
-	IsVisible() bool
-	SetVisible(isVisible bool)
-	ContainsPoint(point math.Point) bool
-	IsMouseOver() bool
-	IsMouseDown(button MouseButton) bool
-	Click(event MouseEvent) (consume bool)
-	DoubleClick(event MouseEvent) (consume bool)
-	KeyPress(event KeyboardEvent) (consume bool)
-	KeyStroke(event KeyStrokeEvent) (consume bool)
-	MouseScroll(event MouseEvent) (consume bool)
-	MouseMove(event MouseEvent)
-	MouseEnter(event MouseEvent)
-	MouseExit(event MouseEvent)
-	MouseDown(event MouseEvent)
-	MouseUp(event MouseEvent)
-	KeyDown(event KeyboardEvent)
-	KeyUp(event KeyboardEvent)
-	KeyRepeat(event KeyboardEvent)
-	OnAttach(callback func()) EventSubscription
-	OnDetach(callback func()) EventSubscription
-	OnKeyPress(callback func(KeyboardEvent)) EventSubscription
-	OnKeyStroke(callback func(KeyStrokeEvent)) EventSubscription
-	OnClick(callback func(MouseEvent)) EventSubscription
-	OnDoubleClick(callback func(MouseEvent)) EventSubscription
-	OnMouseMove(callback func(MouseEvent)) EventSubscription
-	OnMouseEnter(callback func(MouseEvent)) EventSubscription
-	OnMouseExit(callback func(MouseEvent)) EventSubscription
-	OnMouseDown(callback func(MouseEvent)) EventSubscription
-	OnMouseUp(callback func(MouseEvent)) EventSubscription
-	OnMouseScroll(callback func(MouseEvent)) EventSubscription
-	OnKeyDown(callback func(KeyboardEvent)) EventSubscription
-	OnKeyUp(callback func(KeyboardEvent)) EventSubscription
-	OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription
-	// ControlBaseParent interface
-	Paint(canvas Canvas) // was outer.Painter
-	Redraw()             // was outer.Redrawer
-	ReLayout()           // was outer.Relayouter
-	MeasureRunes(s, e int) math.Size
-	PaintText(c Canvas)
-	PaintCarets(c Canvas)
-	PaintCaret(c Canvas, top, bottom math.Point)
-	PaintSelections(c Canvas)
-	PaintSelection(c Canvas, top, bottom math.Point)
-}
-
 // DefaultTextBoxLine
 type DefaultTextBoxLine struct {
 	InputEventHandlerPart

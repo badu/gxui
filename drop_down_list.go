@@ -8,68 +8,6 @@ import (
 	"github.com/badu/gxui/pkg/math"
 )
 
-type DropDownListParent interface {
-	RemoveAll()
-	Size() math.Size
-	SetSize(newSize math.Size)
-	Padding() math.Spacing
-	ReLayout()
-
-	Children() Children
-	Redraw()
-
-	AddChildAt(index int, child Control) *Child
-	RemoveChildAt(index int)
-
-	Attached() bool
-	OnAttach(callback func()) EventSubscription
-	OnDetach(callback func()) EventSubscription
-	IsVisible() bool
-
-	Parent() Parent
-	Paint(canvas Canvas)
-
-	Draw() Canvas
-	SetParent(newParent Parent)
-	LayoutChildren()
-	PaintChild(canvas Canvas, child *Child, idx int)
-	Attach()
-	Detach()
-	DesiredSize(min, max math.Size) math.Size
-	Margin() math.Spacing
-	SetMargin(math.Spacing)
-	SetVisible(isVisible bool)
-	ContainsPoint(point math.Point) bool
-	IsMouseOver() bool
-	IsMouseDown(button MouseButton) bool
-	Click(event MouseEvent) (consume bool)
-	DoubleClick(event MouseEvent) (consume bool)
-	KeyPress(event KeyboardEvent) (consume bool)
-	KeyStroke(event KeyStrokeEvent) (consume bool)
-	MouseScroll(event MouseEvent) (consume bool)
-	MouseMove(event MouseEvent)
-	MouseEnter(event MouseEvent)
-	MouseExit(event MouseEvent)
-	MouseDown(event MouseEvent)
-	MouseUp(event MouseEvent)
-	KeyDown(event KeyboardEvent)
-	KeyUp(event KeyboardEvent)
-	KeyRepeat(event KeyboardEvent)
-	OnKeyPress(callback func(KeyboardEvent)) EventSubscription
-	OnKeyStroke(callback func(KeyStrokeEvent)) EventSubscription
-	OnClick(callback func(MouseEvent)) EventSubscription
-	OnDoubleClick(callback func(MouseEvent)) EventSubscription
-	OnMouseMove(callback func(MouseEvent)) EventSubscription
-	OnMouseEnter(callback func(MouseEvent)) EventSubscription
-	OnMouseExit(callback func(MouseEvent)) EventSubscription
-	OnMouseDown(callback func(MouseEvent)) EventSubscription
-	OnMouseUp(callback func(MouseEvent)) EventSubscription
-	OnMouseScroll(callback func(MouseEvent)) EventSubscription
-	OnKeyDown(callback func(KeyboardEvent)) EventSubscription
-	OnKeyUp(callback func(KeyboardEvent)) EventSubscription
-	OnKeyRepeat(callback func(KeyboardEvent)) EventSubscription
-}
-
 type DropDownList struct {
 	InputEventHandlerPart
 	PaintChildrenPart
@@ -82,7 +20,7 @@ type DropDownList struct {
 	LayoutablePart
 	FocusablePart
 	BackgroundBorderPainter
-	parent      DropDownListParent
+	parent      BaseContainerParent
 	onShowList  Event
 	onHideList  Event
 	styles      *StyleDefs
@@ -93,7 +31,7 @@ type DropDownList struct {
 	listShowing bool
 }
 
-func (l *DropDownList) Init(parent DropDownListParent, driver Driver, styles *StyleDefs) {
+func (l *DropDownList) Init(parent BaseContainerParent, driver Driver, styles *StyleDefs) {
 	l.parent = parent
 	l.styles = styles
 

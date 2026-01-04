@@ -46,15 +46,11 @@ func (l *CodeEditorLine) PaintBackgroundSpans(canvas Canvas, info CodeEditorLine
 		if layer != nil && layer.BackgroundColor() != nil {
 			color := *layer.BackgroundColor()
 			for _, span := range layer.Spans().Overlaps(info.LineSpan) {
-				interval.Visit(
-					&remaining,
-					span,
-					func(vs, ve uint64, _ int) {
-						s, e := vs-start, ve-start
-						r := math.CreateRect(offsets[s].X, 0, offsets[e-1].X+info.GlyphWidth, info.LineHeight)
-						canvas.DrawRoundedRect(r, 3, 3, 3, 3, TransparentPen, Brush{Color: color})
-					},
-				)
+				interval.Visit(&remaining, span, func(vs, ve uint64, _ int) {
+					s, e := vs-start, ve-start
+					r := math.CreateRect(offsets[s].X, 0, offsets[e-1].X+info.GlyphWidth, info.LineHeight)
+					canvas.DrawRoundedRect(r, 3, 3, 3, 3, TransparentPen, Brush{Color: color})
+				})
 				interval.Remove(&remaining, span)
 			}
 		}

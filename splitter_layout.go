@@ -12,7 +12,6 @@ type SplitterLayoutParent interface {
 	Control
 
 	CreateSplitterBar() Control
-
 	Children() Children
 	ReLayout()
 	Redraw()
