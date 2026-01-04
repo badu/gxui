@@ -8,26 +8,13 @@ import (
 	"github.com/badu/gxui/pkg/math"
 )
 
-type WindowDriver interface {
-	// CreateWindowedViewport creates a new windowed Viewport with the specified width and height in device independent pixels.
-	CreateWindowedViewport(width, height int, name string) Viewport
-
-	// CreateFullscreenViewport creates a new fullscreen Viewport with the specified width and height in device independent pixels.
-	// If width or height is 0, then the viewport adopts the current screen resolution.
-	CreateFullscreenViewport(width, height int, name string) Viewport
-	CreateCanvas(size math.Size) Canvas
-	// Call queues f to be run on the UI go-routine, returning before f may have been called.
-	// Call returns false if the driver has been terminated, in which case f may not be called.
-	Call(callback func()) bool
-}
-
 type WindowImpl struct {
 	PaintChildrenPart
 	AttachablePart
 	ContainerPart
 	PaddablePart
 	BackgroundBorderPainter
-	driver                WindowDriver
+	driver                Driver
 	parent                *WindowImpl
 	viewport              Viewport
 	onClose               Event // Raised by viewport
@@ -52,55 +39,6 @@ type WindowImpl struct {
 	layoutPending         bool
 	drawPending           bool
 	updatePending         bool
-}
-
-func (w *WindowImpl) Init(
-	window *WindowImpl,
-	driver WindowDriver,
-	width, height int,
-	title string,
-) {
-	w.BackgroundBorderPainter.Init(window)
-	w.ContainerPart.Init(window)
-	w.PaddablePart.Init(window)
-	w.PaintChildrenPart.Init(window)
-
-	w.parent = window
-	w.driver = driver
-
-	w.onResize = NewListener(func() {})
-	w.onMouseMove = NewListener(func(MouseEvent) {})
-	w.onMouseEnter = NewListener(func(MouseEvent) {})
-	w.onMouseExit = NewListener(func(MouseEvent) {})
-	w.onMouseDown = NewListener(func(MouseEvent) {})
-	w.onMouseUp = NewListener(func(MouseEvent) {})
-	w.onMouseScroll = NewListener(func(MouseEvent) {})
-	w.onKeyDown = NewListener(func(KeyboardEvent) {})
-	w.onKeyUp = NewListener(func(KeyboardEvent) {})
-	w.onKeyRepeat = NewListener(func(KeyboardEvent) {})
-	w.onKeyStroke = NewListener(func(KeyStrokeEvent) {})
-
-	w.onClick = NewListener(func(MouseEvent) {})
-	w.onDoubleClick = NewListener(func(MouseEvent) {})
-
-	w.focusController = CreateFocusController(window)
-	w.mouseController = CreateMouseController(window, w.focusController)
-	w.keyboardController = CreateKeyboardController(window)
-
-	w.onResize.Listen(
-		func() {
-			w.parent.LayoutChildren()
-			w.Draw()
-		},
-	)
-
-	w.SetBorderPen(TransparentPen)
-
-	w.setViewport(driver.CreateWindowedViewport(width, height, title))
-
-	// TODO : @Badu - maybe this is not a good idea (window should show upon demand, since we might have loading to do)
-	// WindowImpl starts shown
-	w.Attach()
 }
 
 func (w *WindowImpl) requestUpdate() {
@@ -130,6 +68,50 @@ func (w *WindowImpl) update() {
 		w.drawPending = false
 		w.Draw()
 	}
+}
+
+func (w *WindowImpl) Init(window *WindowImpl, driver Driver, width, height int, title string) {
+	w.BackgroundBorderPainter.Init(window)
+	w.ContainerPart.Init(window)
+	w.PaddablePart.Init(window)
+	w.PaintChildrenPart.Init(window)
+
+	w.parent = window
+	w.driver = driver
+
+	w.onResize = CreateEvent(func() {})
+	w.onMouseMove = CreateEvent(func(MouseEvent) {})
+	w.onMouseEnter = CreateEvent(func(MouseEvent) {})
+	w.onMouseExit = CreateEvent(func(MouseEvent) {})
+	w.onMouseDown = CreateEvent(func(MouseEvent) {})
+	w.onMouseUp = CreateEvent(func(MouseEvent) {})
+	w.onMouseScroll = CreateEvent(func(MouseEvent) {})
+	w.onKeyDown = CreateEvent(func(KeyboardEvent) {})
+	w.onKeyUp = CreateEvent(func(KeyboardEvent) {})
+	w.onKeyRepeat = CreateEvent(func(KeyboardEvent) {})
+	w.onKeyStroke = CreateEvent(func(KeyStrokeEvent) {})
+
+	w.onClick = CreateEvent(func(MouseEvent) {})
+	w.onDoubleClick = CreateEvent(func(MouseEvent) {})
+
+	w.focusController = CreateFocusController(window)
+	w.mouseController = CreateMouseController(window, w.focusController)
+	w.keyboardController = CreateKeyboardController(window)
+
+	w.onResize.Listen(
+		func() {
+			w.parent.LayoutChildren()
+			w.Draw()
+		},
+	)
+
+	w.SetBorderPen(TransparentPen)
+
+	w.setViewport(driver.CreateWindowedViewport(width, height, title))
+
+	// TODO : @Badu - maybe this is not a good idea (window should show upon demand, since we might have loading to do)
+	// WindowImpl starts shown
+	w.Attach()
 }
 
 func (w *WindowImpl) Draw() Canvas {
@@ -258,7 +240,7 @@ func (w *WindowImpl) IsVisible() bool {
 
 func (w *WindowImpl) OnClose(callback func()) EventSubscription {
 	if w.onClose == nil {
-		w.onClose = NewListener(func() {})
+		w.onClose = CreateEvent(func() {})
 	}
 
 	return w.onClose.Listen(callback)

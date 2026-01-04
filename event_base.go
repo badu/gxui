@@ -23,7 +23,7 @@ type SimpleEvent struct {
 	EventBase
 }
 
-func NewListener(signature interface{}) Event {
+func CreateEvent(signature interface{}) Event {
 	result := &SimpleEvent{}
 	result.init(signature)
 	return result

@@ -74,7 +74,7 @@ func (s *ScrollBarImpl) Init(parent ControlBaseParent, driver Driver) {
 	s.scrollPositionFrom = 0
 	s.scrollPositionTo = 100
 	s.scrollLimit = 100
-	s.onScroll = NewListener(s.SetScrollPosition)
+	s.onScroll = CreateEvent(s.SetScrollPosition)
 }
 
 func (s *ScrollBarImpl) OnScroll(callback func(from, to int)) EventSubscription {

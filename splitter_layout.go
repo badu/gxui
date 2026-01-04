@@ -16,7 +16,7 @@ type SplitterLayoutParent interface {
 type SplitterLayoutImpl struct {
 	ContainerBase
 	parent        SplitterLayoutParent
-	canvasCreator CanvasCreator
+	driver        Driver
 	styles        *StyleDefs
 	weights       map[Control]float32
 	orientation   Orientation
@@ -26,7 +26,7 @@ type SplitterLayoutImpl struct {
 func (l *SplitterLayoutImpl) Init(parent SplitterLayoutParent, driver Driver, styles *StyleDefs) {
 	l.ContainerBase.Init(parent, driver)
 	l.parent = parent
-	l.canvasCreator = driver
+	l.driver = driver
 	l.styles = styles
 	l.weights = make(map[Control]float32)
 	l.splitterWidth = 4
@@ -110,7 +110,7 @@ func (l *SplitterLayoutImpl) SetOrientation(o Orientation) {
 
 func (l *SplitterLayoutImpl) CreateSplitterBar() Control {
 	b := &SplitterBar{}
-	b.Init(b, l.canvasCreator, l.styles)
+	b.Init(b, l.driver, l.styles)
 	b.OnSplitterDragged(func(wndPnt math.Point) { l.SplitterDragged(b, wndPnt) })
 	return b
 }

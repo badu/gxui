@@ -20,10 +20,10 @@ type SplitterBar struct {
 	IsDragging      bool
 }
 
-func (b *SplitterBar) Init(controlBaseParent ControlBaseParent, canvasCreator CanvasCreator, styles *StyleDefs) {
-	b.ControlBase.Init(controlBaseParent, canvasCreator)
+func (b *SplitterBar) Init(parent ControlBaseParent, driver Driver, styles *StyleDefs) {
+	b.ControlBase.Init(parent, driver)
 	b.styles = styles
-	b.parent = controlBaseParent
+	b.parent = parent
 
 	b.BackgroundColor = Red
 	b.ForegroundColor = Green
@@ -35,7 +35,7 @@ func (b *SplitterBar) OnSplitterDragged(callback func(point math.Point)) {
 
 func (b *SplitterBar) OnDragStart(callback func(event MouseEvent)) EventSubscription {
 	if b.onDragStart == nil {
-		b.onDragStart = NewListener(func(MouseEvent) {})
+		b.onDragStart = CreateEvent(func(MouseEvent) {})
 	}
 
 	return b.onDragStart.Listen(callback)
@@ -43,7 +43,7 @@ func (b *SplitterBar) OnDragStart(callback func(event MouseEvent)) EventSubscrip
 
 func (b *SplitterBar) OnDragEnd(callback func(event MouseEvent)) EventSubscription {
 	if b.onDragEnd == nil {
-		b.onDragEnd = NewListener(func(MouseEvent) {})
+		b.onDragEnd = CreateEvent(func(MouseEvent) {})
 	}
 
 	return b.onDragEnd.Listen(callback)

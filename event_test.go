@@ -11,7 +11,7 @@ import (
 )
 
 func TestEventNoArgs(t *testing.T) {
-	e := NewListener(func() {})
+	e := CreateEvent(func() {})
 
 	fired := false
 	e.Listen(func() { fired = true })
@@ -24,7 +24,7 @@ func TestEventNoArgs(t *testing.T) {
 type TestEvent func(i int, s string, b bool)
 
 func TestEventExactArgs(t *testing.T) {
-	e := NewListener(func(int, string, bool, int, int, bool) {})
+	e := CreateEvent(func(int, string, bool, int, int, bool) {})
 
 	fired := false
 	e.Listen(func(i1 int, s string, b1 bool, i2, i3 int, b2 bool) {
@@ -43,7 +43,7 @@ func TestEventExactArgs(t *testing.T) {
 }
 
 func TestEventNilArgs(t *testing.T) {
-	e := NewListener(func(chan int, func(), interface{}, map[int]int, *int, []int) {})
+	e := CreateEvent(func(chan int, func(), interface{}, map[int]int, *int, []int) {})
 
 	fired := false
 	e.Listen(func(c chan int, f func(), i interface{}, m map[int]int, p *int, s []int) {
@@ -62,7 +62,7 @@ func TestEventNilArgs(t *testing.T) {
 }
 
 func TestEventMixedVariadic(t *testing.T) {
-	e := NewListener(func(int, int, ...int) {})
+	e := CreateEvent(func(int, int, ...int) {})
 
 	fired := false
 	e.Listen(func(a, b int, cde ...int) {
@@ -80,7 +80,7 @@ func TestEventMixedVariadic(t *testing.T) {
 }
 
 func TestEventSingleVariadic(t *testing.T) {
-	e := NewListener(func(...int) {})
+	e := CreateEvent(func(...int) {})
 
 	fired := false
 	e.Listen(func(va ...int) {
@@ -96,7 +96,7 @@ func TestEventSingleVariadic(t *testing.T) {
 }
 
 func TestEventEmptyVariadic(t *testing.T) {
-	e := NewListener(func(...int) {})
+	e := CreateEvent(func(...int) {})
 
 	fired := false
 	e.Listen(func(va ...int) {
@@ -108,8 +108,8 @@ func TestEventEmptyVariadic(t *testing.T) {
 }
 
 func TestEventChaining(t *testing.T) {
-	e1 := NewListener(func(int, string, bool, int, int, bool) {})
-	e2 := NewListener(func(int, string, bool, int, int, bool) {})
+	e1 := CreateEvent(func(int, string, bool, int, int, bool) {})
+	e2 := CreateEvent(func(int, string, bool, int, int, bool) {})
 
 	e1.Listen(e2)
 
@@ -130,11 +130,11 @@ func TestEventChaining(t *testing.T) {
 }
 
 func TestEventUnlisten(t *testing.T) {
-	eI := NewListener(func() {})
-	eJ := NewListener(func() {})
-	eK := NewListener(func() {})
+	eI := CreateEvent(func() {})
+	eJ := CreateEvent(func() {})
+	eK := CreateEvent(func() {})
 
-	e := NewListener(func() {})
+	e := CreateEvent(func() {})
 	e.Listen(eI)
 	e.Listen(eJ)
 	e.Listen(eK)
